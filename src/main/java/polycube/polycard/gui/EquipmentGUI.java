@@ -1,61 +1,64 @@
 package polycube.polycard.gui;
 
-import net.minecraft.core.component.DataComponents;
+import eu.pb4.sgui.api.gui.SimpleGui;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import org.jspecify.annotations.NonNull;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
 
 public class EquipmentGUI {
     private final Storage storage;
-    private final CardManager cardManager;
 
-    public EquipmentGUI(Storage storage, CardManager cardManager) {
+    public EquipmentGUI(Storage storage) {
         this.storage = storage;
-        this.cardManager = cardManager;
     }
 
-    /**
-     * Opens the equipment GUI for a player - single line with 5 centered slots.
-     * @param player The player to open the GUI for.
-     */
-    public void openEquipmentGUI(Player player) {
-        //Inventory gui = Bukkit.createInventory(null, 9, ChatColor.GOLD + "Equipment Slots");
+    /// Opens the equipment GUI for a player - single line with 5 centered slots.
+    ///
+    /// @param player The player to open the GUI for.
+    public void openEquipmentGUI(ServerPlayer player) {
 
-//        // Add empty slots on the left (0-1)
-//        for (int i = 0; i < 2; i++) {
-//            gui.setItem(i, fillerItem());
-//        }
-//
-//        // Add equipped cards in the middle (2-6) - 5 slots centered
-//        List<Storage.EquippedCard> equipped = storage.getEquippedCards(player);
-//        for (int i = 0; i < 5; i++) {
-//            if (i < equipped.size()) {
-//                Storage.EquippedCard equippedCard = equipped.get(i);
-//                gui.setItem(2 + i, cardManager.createCardItem(equippedCard.getCard(), equippedCard.getRarity()));
-//            } else {
-//                gui.setItem(2 + i, null);
-//            }
-//        }
-//
-//        // Add empty slots on the right (7-8)
-//        for (int i = 7; i < 9; i++) {
-//            gui.setItem(i, fillerItem());
-//        }
+        SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x1, player, false);
 
-        //player.openInventory(gui);
+        gui.setTitle(Component.literal("Equipment Slots").withStyle(ChatFormatting.GOLD));
+        var container = storage.data(player).asContainer();
+        for (int i = 0; i < 5; i++) {
+            gui.setSlot(2 + i, new Slot(container, i, 0, 0) {
+                @Override
+                public boolean mayPlace(@NonNull ItemStack itemStack) {
+                    player.sendSystemMessage(Component.literal("Trying to place " + itemStack.getHoverName().getString() + " in slot " + getContainerSlot()), false);
+                    if (itemStack.isEmpty()) {
+                        player.sendSystemMessage(Component.literal("Card placed in slot " + getContainerSlot()), false);
+                        return true;
+                    }
+
+                    var card = CardManager.getCardType(itemStack);
+                    var rarity = CardManager.getCardRarity(itemStack);
+                    if (card.isEmpty() || rarity.isEmpty()) {
+                        return itemStack.isEmpty();
+                    }
+
+                    var currentItem = getItem();
+                    if (currentItem.isEmpty()) {
+                        player.sendSystemMessage(Component.literal("Card placed in slot " + getContainerSlot()), false);
+                        return true;
+                    }
+                    var currentCard = CardManager.getCardType(currentItem);
+                    var currentRarity = CardManager.getCardRarity(currentItem);
+                    if (currentCard != card || currentRarity != rarity) {
+                        player.sendSystemMessage(Component.literal("Card placed in slot " + getContainerSlot()), false);
+                    }
+                    return currentCard != card || currentRarity != rarity;
+                }
+            });
+        }
+
+        gui.open();
     }
-
-    /**
-     * Creates a filler item (gray stained glass pane with no name)
-     */
-    private ItemStack fillerItem() {
-        ItemStack item = new ItemStack(Items.GRAY_STAINED_GLASS_PANE);
-        item.set(DataComponents.ITEM_NAME, Component.literal(" "));
-        return item;
-    }
-
 }
 

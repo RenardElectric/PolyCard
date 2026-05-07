@@ -12,7 +12,7 @@ public class EquipCommand extends PolyCardCommand {
 
     public EquipCommand(EquipmentGUI equipmentGUI) {
         super(
-                "help",
+                "equip",
                 "Open the equipment manager to equip up to 5 cards.",
                 "/" + PolyCard.MOD_ID + " equip",
                 PermissionLevel.ALL
@@ -32,7 +32,7 @@ public class EquipCommand extends PolyCardCommand {
 
         equipmentGUI.openEquipmentGUI(player);
 
-        source.sendSuccess(() -> Component.literal(ChatFormatting.GOLD + "Opening equipment manager..."), false);
+        source.sendSuccess(() -> Component.literal("Opening equipment manager...").withStyle(ChatFormatting.GOLD), false);
         return 1;
     }
 }

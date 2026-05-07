@@ -18,11 +18,11 @@ public class PolyCard implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("PolyCard mod initialized.");
 		cardManager = new CardManager();
-		equipmentGUI = new EquipmentGUI(cardManager.getStorage(), cardManager);
+		equipmentGUI = new EquipmentGUI(cardManager.getStorage());
 
 		PolyCardCommands.registerCommands(
 				new HelpCommand(),
-				new GiveCardCommand(cardManager),
+				new GiveCardCommand(),
 				new TestCommand(cardManager),
 				new EquipCommand(equipmentGUI)
 		);

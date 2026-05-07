@@ -4,6 +4,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
@@ -14,18 +15,15 @@ import java.util.*;
 import java.util.function.Function;
 
 public class CardManager {
-//    private final Plugin plugin;
+    private static final String cardIdKey = "card_id";
+    private static final String cardRarityKey = "rarity_id";
+    private static final Random random = new Random();
+
     private final Storage storage;
-    private final Random random = new Random();
-    private final String cardIdKey;
-    private final String cardRarityKey;
     private final Map<String, Cooldown> cooldowns = new HashMap<>();
 
     public CardManager() {
-//        this.plugin = plugin;
         this.storage = Storage.Initialize();
-        this.cardIdKey = "card_id";
-        this.cardRarityKey = "card_rarity";
     }
 
     public boolean isReady(String key, int defaultCooldown) {
@@ -60,7 +58,7 @@ public class CardManager {
      * @param card The card type to create.
      * @return An ItemStack representation of the card with random rarity.
      */
-    public ItemStack createCardItem(Card card) {
+    public static ItemStack createCardItem(Card card) {
         Rarity randomRarity = getRandomRarity(card.getMinRarity());
         return createCardItem(card, randomRarity);
     }
@@ -71,11 +69,10 @@ public class CardManager {
      * @param rarity The rarity level of the card.
      * @return An ItemStack representation of the card with the specified rarity.
      */
-    public ItemStack createCardItem(Card card, Rarity rarity) {
+    public static ItemStack createCardItem(Card card, Rarity rarity) {
         ItemStack item = new ItemStack(rarity.getItem());
         // Set display name with rarity color
-        String displayName = rarity.getColor() + rarity.getName() + " " + card.getName();
-        item.set(DataComponents.ITEM_NAME, Component.literal(displayName));
+        item.set(DataComponents.ITEM_NAME, Component.literal(rarity.getName() + " " + card.getName()).withStyle(rarity.getColor()));
 
         // Set lore with descriptions
         item.set(DataComponents.LORE, new ItemLore(card.getDescriptions(rarity).stream().map(desc -> (Component)Component.literal(desc)).toList()));
@@ -88,6 +85,7 @@ public class CardManager {
         polyCardTag.putString(cardIdKey, card.getId());
         polyCardTag.putString(cardRarityKey, rarity.getId());
         customDataTag.put(PolyCard.MOD_ID, polyCardTag);
+        item.set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag));
 
         return item;
     }
@@ -97,7 +95,7 @@ public class CardManager {
     ///
     /// @param item The ItemStack to check.
     /// @return True if the item is a card, false otherwise.
-    public boolean isCard(ItemStack item) {
+    public static boolean isCard(ItemStack item) {
         return getCardType(item).isPresent() && getCardRarity(item).isPresent();
     }
 
@@ -105,7 +103,7 @@ public class CardManager {
     ///
     /// @param item The card ItemStack.
     /// @return The Cards enum value, or null if the item is not a card.
-    public Optional<Card> getCardType(ItemStack item) {
+    public static Optional<Card> getCardType(ItemStack item) {
         return getCardData(item, cardIdKey, Card::fromId);
     }
 
@@ -113,7 +111,7 @@ public class CardManager {
     ///
     /// @param item The card ItemStack.
     /// @return The Rarity enum value, or null if the item is not a card.
-    public Optional<Rarity> getCardRarity(ItemStack item) {
+    public static Optional<Rarity> getCardRarity(ItemStack item) {
         return getCardData(item, cardRarityKey, Rarity::fromId);
     }
 
@@ -123,7 +121,7 @@ public class CardManager {
     /// @param key The key in the custom data to look for.
     /// @param fromId A function that converts a string ID to the desired type, returning an Optional.
     /// @return An Optional containing the extracted data, or empty if not found or invalid.
-    public <T> Optional<T> getCardData(ItemStack item, String key, Function<String, Optional<T>> fromId) {
+    private static <T> Optional<T> getCardData(ItemStack item, String key, Function<String, Optional<T>> fromId) {
         var customData = item.get(DataComponents.CUSTOM_DATA);
         if (customData == null) return Optional.empty();
 
@@ -138,7 +136,7 @@ public class CardManager {
     ///
     /// @param minRarity The minimum rarity for this card.
     /// @return A random rarity at or above the minimum rarity.
-    public Rarity getRandomRarity(Rarity minRarity) {
+    public static Rarity getRandomRarity(Rarity minRarity) {
         int roll = random.nextInt(100);
         Rarity result;
 

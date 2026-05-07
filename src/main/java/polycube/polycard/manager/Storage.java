@@ -1,6 +1,10 @@
 package polycube.polycard.manager;
 
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.Rarity;
 
@@ -148,6 +152,31 @@ public class Storage {
          */
         public void clearEquippedCards() {
             equippedCards.clear();
+        }
+
+        public Container asContainer() {
+            var container = new SimpleContainer(MAX_EQUIPPED_CARDS) {
+                @Override
+                public void setChanged() {
+                    clearEquippedCards();
+                    for (int i = 0; i < getContainerSize(); i++) {
+                        ItemStack stack = getItem(i);
+                        var card = CardManager.getCardType(stack);
+                        var rarity = CardManager.getCardRarity(stack);
+                        if (card.isPresent() && rarity.isPresent()) {
+                            equipCard(card.get(), rarity.get());
+                        }
+                        PolyCard.LOGGER.info("Slot " + i + ": " + stack.getHoverName().getString());
+                    }
+                }
+            };
+
+            for (EquippedCard equippedCard : equippedCards) {
+                var item = CardManager.createCardItem(equippedCard.card(), equippedCard.rarity());
+                container.addItem(item);
+            }
+
+            return container;
         }
     }
 }

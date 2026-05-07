@@ -20,16 +20,13 @@ import polycube.polycard.manager.CardManager;
 
 public class GiveCardCommand extends PolyCardCommand {
 
-    private final CardManager cardManager;
-
-    public GiveCardCommand(CardManager cardManager) {
+    public GiveCardCommand() {
         super(
                 "givecard",
                 "Give a card to a player (admin only).",
                 "/" + PolyCard.MOD_ID + "givecard <player> <card> [rarity]",
                 PermissionLevel.ADMINS
         );
-        this.cardManager = cardManager;
     }
 
     @Override
@@ -86,7 +83,7 @@ public class GiveCardCommand extends PolyCardCommand {
             cardRarity = rarity.get();
         }
 
-        ItemStack cardItem = cardManager.createCardItem(card, cardRarity);
+        ItemStack cardItem = CardManager.createCardItem(card, cardRarity);
         player.getInventory().add(cardItem);
 
         String rarityDisplayName = cardRarity.getColor() + cardRarity.getName() + ChatFormatting.RESET;
