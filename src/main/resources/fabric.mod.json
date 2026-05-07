@@ -3,8 +3,9 @@
 	"id": "polycard",
 	"version": "${version}",
 	"name": "PolyCard",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Collectible card system — earn cards by playing, equip for buffs.",
 	"authors": [
+		"Timeo",
 		"RenardElectric"
 	],
 	"contact": {
