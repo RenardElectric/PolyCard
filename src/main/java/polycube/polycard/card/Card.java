@@ -58,11 +58,8 @@ public enum Card {
         return minRarity;
     }
 
-    public static Card fromId(String id) {
-        if (id == null) {
-            return null;
-        }
-        return BY_ID.get(id.toLowerCase());
+    public static Optional<Card> fromId(String id) {
+        return Optional.ofNullable(BY_ID.get(id.toLowerCase()));
     }
 
     /// Gets all descriptions for this card up to and including the given rarity level.
