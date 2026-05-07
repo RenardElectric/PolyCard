@@ -8,8 +8,13 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
+import polycube.polycard.PolyCard;
+import polycube.polycard.card.Card;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
+
+import java.util.List;
+import java.util.StringJoiner;
 
 public class EquipmentGUI {
     private final Storage storage;
@@ -22,38 +27,58 @@ public class EquipmentGUI {
     ///
     /// @param player The player to open the GUI for.
     public void openEquipmentGUI(ServerPlayer player) {
+        var playerData = storage.data(player);
+        var container = playerData.asContainer();
 
-        SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x1, player, false);
+        SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x1, player, false) {
+            @Override
+            public void onPlayerClose(boolean success) {
+                super.onPlayerClose(success);
+
+                if (!success) return;
+
+                List<Card> equippedCards = playerData.getEquippedCards();
+
+                if (equippedCards.isEmpty()) {
+                    player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "Equipped cards: " + ChatFormatting.GRAY + "none"));
+                } else {
+                    var sj = new StringJoiner(ChatFormatting.GOLD + ", ");
+                    equippedCards.forEach(equippedCard -> sj.add(equippedCard.getFormatedName().toString()));
+                    player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "Equipped cards: " + sj));
+                }
+                PolyCard.LOGGER.info("[Polycard] Saved equipped cards for {} after closing equipment menu", player.getName().getString());
+            }
+        };
 
         gui.setTitle(Component.literal("Equipment Slots").withStyle(ChatFormatting.GOLD));
-        var container = storage.data(player).asContainer();
+
         for (int i = 0; i < 5; i++) {
             gui.setSlot(2 + i, new Slot(container, i, 0, 0) {
                 @Override
                 public boolean mayPlace(@NonNull ItemStack itemStack) {
-                    player.sendSystemMessage(Component.literal("Trying to place " + itemStack.getHoverName().getString() + " in slot " + getContainerSlot()), false);
                     if (itemStack.isEmpty()) {
-                        player.sendSystemMessage(Component.literal("Card placed in slot " + getContainerSlot()), false);
-                        return true;
+                        return false;
                     }
 
-                    var card = CardManager.getCardType(itemStack);
-                    var rarity = CardManager.getCardRarity(itemStack);
-                    if (card.isEmpty() || rarity.isEmpty()) {
-                        return itemStack.isEmpty();
+                    var optionalCard = CardManager.getCard(itemStack);
+                    if (optionalCard.isEmpty()) {
+                        return false;
                     }
+                    var card = optionalCard.get();
 
                     var currentItem = getItem();
-                    if (currentItem.isEmpty()) {
-                        player.sendSystemMessage(Component.literal("Card placed in slot " + getContainerSlot()), false);
-                        return true;
+                    if (!currentItem.isEmpty()) {
+                        var currentCard = CardManager.getCardType(currentItem);
+                        if (currentCard.isPresent() && currentCard.get() == card.type()) {
+                            return true;
+                        }
                     }
-                    var currentCard = CardManager.getCardType(currentItem);
-                    var currentRarity = CardManager.getCardRarity(currentItem);
-                    if (currentCard != card || currentRarity != rarity) {
-                        player.sendSystemMessage(Component.literal("Card placed in slot " + getContainerSlot()), false);
+
+                    if (playerData.hasCardType(card.type())) {
+                        player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));
+                        return false;
                     }
-                    return currentCard != card || currentRarity != rarity;
+                    return true;
                 }
             });
         }

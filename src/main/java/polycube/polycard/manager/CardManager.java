@@ -8,6 +8,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
+import polycube.polycard.card.CardType;
 import polycube.polycard.card.Rarity;
 import polycube.polycard.utils.Cooldown;
 
@@ -53,36 +54,31 @@ public class CardManager {
         return storage;
     }
 
-    /**
-     * Creates a card ItemStack with a random rarity for the given card type.
-     * @param card The card type to create.
-     * @return An ItemStack representation of the card with random rarity.
-     */
-    public static ItemStack createCardItem(Card card) {
+    /// Creates a card ItemStack with a random rarity for the given card type.
+    ///
+    /// @param card The card type to create.
+    /// @return An ItemStack representation of the card with random rarity.
+    public static ItemStack createCardItem(CardType card) {
         Rarity randomRarity = getRandomRarity(card.getMinRarity());
-        return createCardItem(card, randomRarity);
+        return createCardItem(new Card(card, randomRarity));
     }
 
-    /**
-     * Creates a card ItemStack with a specific rarity for the given card type.
-     * @param card The card type to create.
-     * @param rarity The rarity level of the card.
-     * @return An ItemStack representation of the card with the specified rarity.
-     */
-    public static ItemStack createCardItem(Card card, Rarity rarity) {
+    public static ItemStack createCardItem(Card card) {
+        var rarity = card.rarity();
+        var cardType = card.type();
         ItemStack item = new ItemStack(rarity.getItem());
         // Set display name with rarity color
-        item.set(DataComponents.ITEM_NAME, Component.literal(rarity.getName() + " " + card.getName()).withStyle(rarity.getColor()));
+        item.set(DataComponents.ITEM_NAME, Component.literal(rarity.getName() + " " + cardType.getName()).withStyle(rarity.getColor()));
 
         // Set lore with descriptions
-        item.set(DataComponents.LORE, new ItemLore(card.getDescriptions(rarity).stream().map(desc -> (Component)Component.literal(desc)).toList()));
+        item.set(DataComponents.LORE, new ItemLore(cardType.getDescriptions(rarity).stream().map(desc -> (Component)Component.literal(desc)).toList()));
 
         // Store stable card id + rarity in metadata for equip detection.
         var customData = item.get(DataComponents.CUSTOM_DATA);
         var customDataTag = customData != null ? customData.copyTag() : new CompoundTag();
 
         var polyCardTag = new CompoundTag();
-        polyCardTag.putString(cardIdKey, card.getId());
+        polyCardTag.putString(cardIdKey, cardType.getId());
         polyCardTag.putString(cardRarityKey, rarity.getId());
         customDataTag.put(PolyCard.MOD_ID, polyCardTag);
         item.set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag));
@@ -99,12 +95,21 @@ public class CardManager {
         return getCardType(item).isPresent() && getCardRarity(item).isPresent();
     }
 
+    public static Optional<Card> getCard(ItemStack item) {
+        var cardType = getCardType(item);
+        var rarity = getCardRarity(item);
+        if (cardType.isPresent() && rarity.isPresent()) {
+            return Optional.of(new Card(cardType.get(), rarity.get()));
+        }
+        return Optional.empty();
+    }
+
     /// Extracts the card type from a card ItemStack.
     ///
     /// @param item The card ItemStack.
     /// @return The Cards enum value, or null if the item is not a card.
-    public static Optional<Card> getCardType(ItemStack item) {
-        return getCardData(item, cardIdKey, Card::fromId);
+    public static Optional<CardType> getCardType(ItemStack item) {
+        return getCardData(item, cardIdKey, CardType::fromId);
     }
 
     /// Extracts the rarity from a card ItemStack.
@@ -128,8 +133,8 @@ public class CardManager {
         var polyCardData = customData.copyTag().getCompound(PolyCard.MOD_ID);
         if (polyCardData.isEmpty()) return Optional.empty();
 
-        var rarityId = polyCardData.get().getString(key);
-        return rarityId.flatMap(fromId);
+        var id = polyCardData.get().getString(key);
+        return id.flatMap(fromId);
     }
 
     /// Gets a random rarity with probability based on rarity tier, respecting the minimum rarity.

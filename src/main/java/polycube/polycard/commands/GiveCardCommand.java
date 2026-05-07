@@ -13,6 +13,7 @@ import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.item.ItemStack;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
+import polycube.polycard.card.CardType;
 import polycube.polycard.card.Rarity;
 import polycube.polycard.commands.commandArguments.CardArgument;
 import polycube.polycard.commands.commandArguments.RarityArgument;
@@ -56,16 +57,16 @@ public class GiveCardCommand extends PolyCardCommand {
         var source = cts.getSource();
         var player = EntityArgument.getPlayer(cts, "player");
         var cardId = cts.getArgument("card", String.class);
-        var optionalCard = Card.fromId(cardId);
+        var optionalCardType = CardType.fromId(cardId);
 
-        if (optionalCard.isEmpty()) {
+        if (optionalCardType.isEmpty()) {
             source.sendFailure(Component.literal("Card '" + cardId + "' not found"));
             return 0;
         }
-        var card = optionalCard.get();
+        var cardType = optionalCardType.get();
 
         // Get rarity (default to minimum rarity of the card)
-        Rarity cardRarity = card.getMinRarity();
+        Rarity cardRarity = cardType.getMinRarity();
         if (withRarity) {
             var rarityId = cts.getArgument("rarity", String.class);
             var rarity = Rarity.fromId(rarityId);
@@ -76,21 +77,21 @@ public class GiveCardCommand extends PolyCardCommand {
             }
 
             if (rarity.get().ordinal() < cardRarity.ordinal()) {
-                source.sendFailure(Component.literal(card.getName() + " requires at least " + cardRarity.getName() + " rarity."));
+                source.sendFailure(Component.literal(cardType.getName() + " requires at least " + cardRarity.getName() + " rarity."));
                 return 0;
             }
 
             cardRarity = rarity.get();
         }
+        var card = new Card(cardType, cardRarity);
 
-        ItemStack cardItem = CardManager.createCardItem(card, cardRarity);
+        ItemStack cardItem = CardManager.createCardItem(card);
         player.getInventory().add(cardItem);
 
-        String rarityDisplayName = cardRarity.getColor() + cardRarity.getName() + ChatFormatting.RESET;
-        cts.getSource().sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a " + rarityDisplayName + ChatFormatting.GREEN + " " + card.getName() + "."), true);
-        player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a " + rarityDisplayName + ChatFormatting.GOLD + " " + card.getName() + "!"));
+        cts.getSource().sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a " + card.getFormatedName()), true);
+        player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a " + card.getFormatedName()));
 
-        PolyCard.LOGGER.info("[Polycard] Admin {} gave {} a {} {}", cts.getSource().getDisplayName(), player.getName(), cardRarity.getName(), card.getName());
+        PolyCard.LOGGER.info("[Polycard] Admin {} gave {} a {} {}", cts.getSource().getDisplayName(), player.getName(), cardRarity.getName(), cardType.getName());
 
         return 1;
     }

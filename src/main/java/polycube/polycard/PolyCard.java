@@ -4,6 +4,8 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import polycube.polycard.commands.*;
+import polycube.polycard.events.itemEvents.CardItemEvent;
+import polycube.polycard.events.itemEvents.ItemEvents;
 import polycube.polycard.gui.EquipmentGUI;
 import polycube.polycard.manager.CardManager;
 
@@ -25,6 +27,10 @@ public class PolyCard implements ModInitializer {
 				new GiveCardCommand(),
 				new TestCommand(cardManager),
 				new EquipCommand(equipmentGUI)
+		);
+
+		ItemEvents.registerItemEvents(
+				new CardItemEvent(cardManager)
 		);
 	}
 }
