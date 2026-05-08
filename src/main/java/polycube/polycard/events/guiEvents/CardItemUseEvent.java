@@ -1,4 +1,4 @@
-package polycube.polycard.events.itemEvents;
+package polycube.polycard.events.guiEvents;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -9,13 +9,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
+import polycube.polycard.events.ItemUseEvents;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
 
-public class CardItemEvent implements ItemEvent {
+public class CardItemUseEvent implements ItemUseEvents.ItemUseEvent {
     private final CardManager cardManager;
 
-    public CardItemEvent(CardManager cardManager) {
+    public CardItemUseEvent(CardManager cardManager) {
         this.cardManager = cardManager;
     }
 

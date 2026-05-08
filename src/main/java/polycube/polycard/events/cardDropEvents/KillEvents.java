@@ -1,9 +1,10 @@
-package polycube.polycard.events.killEvents;
+package polycube.polycard.events.cardDropEvents;
 
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.EnderMan;
 import polycube.polycard.card.CardType;
+import polycube.polycard.events.callBacks.KillEventCallback;
 import polycube.polycard.manager.CardManager;
 
 

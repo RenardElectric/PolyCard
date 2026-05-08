@@ -8,16 +8,14 @@ import polycube.polycard.card.Rarity;
 import polycube.polycard.manager.CardManager;
 
 public class TestCommand extends PolyCardCommand {
-    private final CardManager cardManager;
 
-    public TestCommand(CardManager cardManager) {
+    public TestCommand() {
         super(
                 "test",
                 "Test the card rolling system (admin only).",
                 "/" + PolyCard.MOD_ID + " test",
-                PermissionLevel.ALL
+                PermissionLevel.ADMINS
         );
-        this.cardManager = cardManager;
     }
 
     @Override
@@ -29,7 +27,7 @@ public class TestCommand extends PolyCardCommand {
         int epic = 0;
         int legendary = 0;
         for (int i = 0; i < 1000; i++) {
-            switch (cardManager.getRandomRarity(Rarity.COMMON)) {
+            switch (CardManager.getRandomRarity(Rarity.COMMON)) {
                 case COMMON -> common++;
                 case UNCOMMON -> uncommon++;
                 case RARE -> rare++;

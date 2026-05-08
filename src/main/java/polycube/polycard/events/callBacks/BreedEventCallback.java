@@ -1,4 +1,4 @@
-package polycube.polycard.events.breedEvents;
+package polycube.polycard.events.callBacks;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
@@ -18,7 +18,7 @@ public interface BreedEventCallback {
     Event<BreedEventCallback> EVENT = EventFactory.createArrayBacked(BreedEventCallback.class,
             (listeners) -> (player, parent, partner, child) -> {
                 for (BreedEventCallback listener : listeners) {
-                    InteractionResult result = listener.interact(player, parent, partner, child);
+                    InteractionResult result = listener.bread(player, parent, partner, child);
 
                     if (result != InteractionResult.PASS) {
                         return result;
@@ -29,5 +29,5 @@ public interface BreedEventCallback {
             });
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    InteractionResult interact(ServerPlayer player, Animal parent, Animal partner, Optional<AgeableMob> child);
+    InteractionResult bread(ServerPlayer player, Animal parent, Animal partner, Optional<AgeableMob> child);
 }

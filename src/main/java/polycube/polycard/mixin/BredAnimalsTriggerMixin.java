@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import polycube.polycard.events.breedEvents.BreedEventCallback;
+import polycube.polycard.events.callBacks.BreedEventCallback;
 
 import java.util.Optional;
 
@@ -18,6 +18,6 @@ import java.util.Optional;
 public abstract class BredAnimalsTriggerMixin extends SimpleCriterionTrigger<BredAnimalsTrigger.TriggerInstance> {
     @Inject(method = "trigger", at = @At("HEAD"))
     private void onTrigger(ServerPlayer player, Animal parent, Animal partner, @Nullable AgeableMob child, CallbackInfo ci) {
-        BreedEventCallback.EVENT.invoker().interact(player, parent, partner, Optional.ofNullable(child));
+        BreedEventCallback.EVENT.invoker().bread(player, parent, partner, Optional.ofNullable(child));
     }
 }

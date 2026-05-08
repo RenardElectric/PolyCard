@@ -24,11 +24,16 @@ public class EquipmentGUI {
         this.storage = storage;
     }
 
+    public void openEquipmentGUI(ServerPlayer player) {
+        openEquipmentGUI(player, player);
+    }
+
     /// Opens the equipment GUI for a player - single line with 5 centered slots.
     ///
     /// @param player The player to open the GUI for.
-    public void openEquipmentGUI(ServerPlayer player) {
-        var playerData = storage.data(player);
+    /// @param targetPlayer The player whose equipment is being managed (can be the same as player).
+    public void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
+        var playerData = storage.data(targetPlayer);
         var container = playerData.asContainer();
 
         SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x1, player, false) {

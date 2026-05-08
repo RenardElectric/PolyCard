@@ -4,7 +4,9 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"BredAnimalsTriggerMixin",
-		"KilledTriggerMixin"
+		"ConsumeItemTriggerMixin",
+		"KilledTriggerMixin",
+		"ServerPlayerGameModeMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
