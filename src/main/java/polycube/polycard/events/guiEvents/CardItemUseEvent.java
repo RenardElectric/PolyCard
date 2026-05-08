@@ -9,18 +9,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
-import polycube.polycard.events.callBacks.ItemUseEvents;
+import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
 
-public class CardItemUseEvent implements ItemUseEvents.ItemUseEvent {
+public class CardItemUseEvent implements ItemUseEventCallback {
     private final CardManager cardManager;
 
     public CardItemUseEvent(CardManager cardManager) {
         this.cardManager = cardManager;
     }
 
-    public InteractionResult handle(ServerPlayer player, Level world, InteractionHand hand) {
+    public InteractionResult interact(ServerPlayer player, Level world, InteractionHand hand) {
         if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
