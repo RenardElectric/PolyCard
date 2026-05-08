@@ -17,7 +17,7 @@ public interface ItemConsumedEventCallback {
     Event<ItemConsumedEventCallback> EVENT = EventFactory.createArrayBacked(ItemConsumedEventCallback.class,
             (listeners) -> (player, itemStack) -> {
                 for (ItemConsumedEventCallback listener : listeners) {
-                    InteractionResult result = listener.used(player, itemStack);
+                    InteractionResult result = listener.interact(player, itemStack);
 
                     if (result != InteractionResult.PASS) {
                         return result;
@@ -27,5 +27,5 @@ public interface ItemConsumedEventCallback {
                 return InteractionResult.PASS;
             });
 
-    InteractionResult used(ServerPlayer player, ItemStack itemStack);
+    InteractionResult interact(ServerPlayer player, ItemStack itemStack);
 }

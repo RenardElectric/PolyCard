@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
-import polycube.polycard.events.ItemUseEvents;
+import polycube.polycard.events.callBacks.ItemUseEvents;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
 

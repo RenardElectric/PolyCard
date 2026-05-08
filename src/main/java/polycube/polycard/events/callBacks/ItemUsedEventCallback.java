@@ -15,8 +15,12 @@ import net.minecraft.world.level.Level;
 public interface ItemUsedEventCallback {
     Event<ItemUsedEventCallback> EVENT = EventFactory.createArrayBacked(ItemUsedEventCallback.class,
             (listeners) -> (player, level, hand, itemUseResult) -> {
+                if (!(itemUseResult instanceof InteractionResult.Success)) {
+                    return InteractionResult.PASS;
+                }
+
                 for (ItemUsedEventCallback listener : listeners) {
-                    InteractionResult result = listener.used(player, level, hand, itemUseResult);
+                    InteractionResult result = listener.interact(player, level, hand, itemUseResult);
 
                     if (result != InteractionResult.PASS) {
                         return result;
@@ -26,5 +30,5 @@ public interface ItemUsedEventCallback {
                 return InteractionResult.PASS;
             });
 
-    InteractionResult used(ServerPlayer player, Level level, InteractionHand hand, InteractionResult itemUseResult);
+    InteractionResult interact(ServerPlayer player, Level level, InteractionHand hand, InteractionResult itemUseResult);
 }

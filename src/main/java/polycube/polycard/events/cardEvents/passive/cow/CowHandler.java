@@ -15,7 +15,7 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.Rarity;
-import polycube.polycard.events.ItemConsumedEvents;
+import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.manager.CardManager;
 
 import java.util.*;
@@ -47,7 +47,7 @@ public class CowHandler {
     private static final Map<UUID, Long> lastMoveTimes = new HashMap<>();
 
     public static void registerCowCardEvents(CardManager cardManager) {
-        ItemConsumedEvents.registerItemUseEvents(
+        ItemConsumedEventCallback.EVENT.register(
                 (player, itemStack) -> onBucketUsed(cardManager, player, itemStack)
         );
 

@@ -14,6 +14,6 @@ import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 public abstract class ConsumeItemTriggerMixin {
     @Inject(method = "trigger", at = @At("HEAD"))
     private void onTrigger(ServerPlayer player, ItemStack itemStack, CallbackInfo ci) {
-        ItemConsumedEventCallback.EVENT.invoker().used(player, itemStack);
+        ItemConsumedEventCallback.EVENT.invoker().interact(player, itemStack);
     }
 }

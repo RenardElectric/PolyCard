@@ -9,7 +9,7 @@ import polycube.polycard.commands.*;
 import polycube.polycard.events.cardDropEvents.CardDropEvents;
 import polycube.polycard.events.cardEvents.CardEvents;
 import polycube.polycard.events.guiEvents.CardItemUseEvent;
-import polycube.polycard.events.ItemUseEvents;
+import polycube.polycard.events.callBacks.ItemUseEvents;
 import polycube.polycard.gui.EquipmentGUI;
 import polycube.polycard.manager.CardManager;
 
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class PolyCard implements ModInitializer {
 	public static final String MOD_ID = "polycard";

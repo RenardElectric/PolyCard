@@ -16,7 +16,7 @@ public interface KillEventCallback {
     Event<KillEventCallback> EVENT = EventFactory.createArrayBacked(KillEventCallback.class,
             (listeners) -> (player, entity, killingBlow) -> {
                 for (KillEventCallback listener : listeners) {
-                    InteractionResult result = listener.killed(player, entity, killingBlow);
+                    InteractionResult result = listener.interact(player, entity, killingBlow);
 
                     if (result != InteractionResult.PASS) {
                         return result;
@@ -26,5 +26,5 @@ public interface KillEventCallback {
                 return InteractionResult.PASS;
             });
 
-    InteractionResult killed(ServerPlayer player, Entity entity, DamageSource killingBlow);
+    InteractionResult interact(ServerPlayer player, Entity entity, DamageSource killingBlow);
 }

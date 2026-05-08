@@ -14,7 +14,7 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.Rarity;
-import polycube.polycard.events.ItemUseEvents;
+import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.manager.CardManager;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class EnderManHandler {
     );
 
     public static void registerEnderManCardEvents(CardManager cardManager) {
-        ItemUseEvents.registerItemUseEvents(
+        ItemUseEventCallback.register(
                 (player, world, hand) -> onEnderPearlUsed(cardManager, player, world, hand)
         );
 
