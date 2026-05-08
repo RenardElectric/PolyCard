@@ -1,18 +1,19 @@
 package polycube.polycard.events.breedEvents;
 
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.animal.cow.Cow;
+import polycube.polycard.card.CardType;
+import polycube.polycard.manager.CardManager;
 
 public class BreedEvents {
-    public static void registerBreedEvents(BreedEvent... breedEvent) {
+    public static void registerBreedEvents() {
         BreedEventCallback.EVENT.register((player, parent, partner, child) -> {
-            for (BreedEvent event : breedEvent) {
-                var result = event.handle(player, parent, partner, child);
-                if (result ==  InteractionResult.SUCCESS) {
-                    return InteractionResult.SUCCESS;
-                } else if (result == InteractionResult.FAIL) {
-                    return InteractionResult.FAIL;
-                }
+
+            switch (parent) {
+                case Cow _ -> CardManager.giveCard(player, CardType.COW);
+                default -> { }
             }
+
             return InteractionResult.PASS;
         });
     }

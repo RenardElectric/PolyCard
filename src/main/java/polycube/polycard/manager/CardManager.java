@@ -1,8 +1,10 @@
 package polycube.polycard.manager;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
@@ -52,6 +54,13 @@ public class CardManager {
 
     public Storage getStorage() {
         return storage;
+    }
+
+    public static void giveCard(ServerPlayer player, CardType cardType) {
+        Card card = CardManager.createCard(cardType);
+        player.getInventory().add(card.getItem());
+        PolyCard.LOGGER.debug("[Polycard] {} received a card: {}", player.getName(), card.getDisplayName());
+        player.sendSystemMessage(Component.literal("✨ You found a ").append(card.getFormatedName()).append(" card!").withStyle(ChatFormatting.GREEN));
     }
 
     public static Card createCard(CardType card) {

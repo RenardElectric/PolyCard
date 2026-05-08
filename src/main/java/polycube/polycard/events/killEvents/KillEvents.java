@@ -1,0 +1,24 @@
+package polycube.polycard.events.killEvents;
+
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.monster.EnderMan;
+import polycube.polycard.card.CardType;
+import polycube.polycard.manager.CardManager;
+
+
+
+public class KillEvents {
+    public static void registerKillEvents() {
+        KillEventCallback.EVENT.register((player, entity, killingBlow) -> {
+
+            switch (entity) {
+                case IronGolem _ -> CardManager.giveCard(player, CardType.IRON_GOLEM);
+                case EnderMan _ -> CardManager.giveCard(player, CardType.ENDERMAN);
+                default -> { }
+            }
+
+            return InteractionResult.PASS;
+        });
+    }
+}

@@ -29,5 +29,5 @@ public interface BreedEventCallback {
             });
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    InteractionResult interact(ServerPlayer player, final Animal parent, final Animal partner, final Optional<AgeableMob> child);
+    InteractionResult interact(ServerPlayer player, Animal parent, Animal partner, Optional<AgeableMob> child);
 }

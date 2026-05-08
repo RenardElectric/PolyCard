@@ -8,6 +8,7 @@ import polycube.polycard.events.breedEvents.BreedEvents;
 import polycube.polycard.events.breedEvents.CowBreedEvent;
 import polycube.polycard.events.itemEvents.CardItemEvent;
 import polycube.polycard.events.itemEvents.ItemEvents;
+import polycube.polycard.events.killEvents.KillEvents;
 import polycube.polycard.gui.EquipmentGUI;
 import polycube.polycard.manager.CardManager;
 
@@ -32,8 +33,7 @@ public class PolyCard implements ModInitializer {
 				new CardItemEvent(cardManager)
 		);
 
-		BreedEvents.registerBreedEvents(
-				new CowBreedEvent()
-		);
+		BreedEvents.registerBreedEvents();
+		KillEvents.registerKillEvents();
 	}
 }
