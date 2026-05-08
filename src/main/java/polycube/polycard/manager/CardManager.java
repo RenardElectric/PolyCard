@@ -38,7 +38,7 @@ public class CardManager {
     }
 
     public void useOrCreate(String key, int defaultCooldown) {
-        Cooldown cd = cooldowns.computeIfAbsent(key, k -> new Cooldown(defaultCooldown));
+        Cooldown cd = cooldowns.computeIfAbsent(key, _ -> new Cooldown(defaultCooldown));
         cd.use();
     }
 

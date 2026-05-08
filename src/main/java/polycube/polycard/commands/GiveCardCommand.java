@@ -84,12 +84,10 @@ public class GiveCardCommand extends PolyCardCommand {
             cardRarity = rarity.get();
         }
         var card = new Card(cardType, cardRarity);
+        player.getInventory().add(card.getItem());
 
-        ItemStack cardItem = CardManager.createCardItem(card);
-        player.getInventory().add(cardItem);
-
-        cts.getSource().sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a " + card.getFormatedName()), true);
-        player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a " + card.getFormatedName()));
+        cts.getSource().sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormatedName()), true);
+        player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormatedName()));
 
         PolyCard.LOGGER.info("[Polycard] Admin {} gave {} a {} {}", cts.getSource().getDisplayName(), player.getName(), cardRarity.getName(), cardType.getName());
 

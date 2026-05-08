@@ -148,8 +148,7 @@ public class Storage {
 
             int index = 0;
             for (Card equippedCard : equippedCards) {
-                var item = CardManager.createCardItem(equippedCard);
-                container.items.set(index++, item);
+                container.items.set(index++, equippedCard.getItem());
             }
 
             return container;

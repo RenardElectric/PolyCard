@@ -3,6 +3,7 @@ package polycube.polycard.gui;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -42,9 +43,9 @@ public class EquipmentGUI {
                 if (equippedCards.isEmpty()) {
                     player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "Equipped cards: " + ChatFormatting.GRAY + "none"));
                 } else {
-                    var sj = new StringJoiner(ChatFormatting.GOLD + ", ");
-                    equippedCards.forEach(equippedCard -> sj.add(equippedCard.getFormatedName().toString()));
-                    player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "Equipped cards: " + sj));
+                    player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "Equipped cards: ").append(
+                            ComponentUtils.formatList(equippedCards, Card::getFormatedName)
+                    ));
                 }
                 PolyCard.LOGGER.info("[Polycard] Saved equipped cards for {} after closing equipment menu", player.getName().getString());
             }

@@ -52,7 +52,7 @@ public class CardItemEvent implements ItemEvent {
             }
 
             storage.unequipCard(player, equippedCard);
-            player.addItem(CardManager.createCardItem(equippedCard));
+            player.addItem(equippedCard.getItem());
 
             return equipCrad(storage, item, player, card);
         }
@@ -70,7 +70,7 @@ public class CardItemEvent implements ItemEvent {
     private InteractionResult equipCrad(Storage storage, ItemStack item, ServerPlayer player, Card card) {
         if (storage.equipCard(player, card)) {
             item.setCount(item.getCount() - 1);
-            player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: " + card.getFormatedName()));
+            player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormatedName()));
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
