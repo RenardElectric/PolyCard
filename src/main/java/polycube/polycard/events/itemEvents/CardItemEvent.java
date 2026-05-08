@@ -7,9 +7,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
-import polycube.polycard.card.CardType;
-import polycube.polycard.card.Rarity;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
 
@@ -48,6 +47,7 @@ public class CardItemEvent implements ItemEvent {
 
             if (equippedCard.rarity() == card.rarity()) {
                 player.sendSystemMessage(Component.literal("You already equipped this card!").withStyle(ChatFormatting.RED));
+                PolyCard.LOGGER.debug("[Polycard] Player {} tried to equip a card they already have equipped: {}", player.getName().getString(), card.getDisplayName());
                 return InteractionResult.PASS;
             }
 
@@ -60,6 +60,7 @@ public class CardItemEvent implements ItemEvent {
         // Check if player already has 5 cards equipped
         if (storage.getEquippedCards(player).size() >= Storage.MAX_EQUIPPED_CARDS) {
             player.sendSystemMessage(Component.literal("You already have 5 cards equipped!").withStyle(ChatFormatting.RED));
+            PolyCard.LOGGER.debug("[Polycard] Player {} tried to equip a card but already has 5 cards equipped: {}", player.getName().getString(), card.getDisplayName());
             return InteractionResult.PASS;
         }
 
@@ -71,6 +72,7 @@ public class CardItemEvent implements ItemEvent {
         if (storage.equipCard(player, card)) {
             item.setCount(item.getCount() - 1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormatedName()));
+            PolyCard.LOGGER.debug("[Polycard] Player {} equipped card: {}", player.getName().getString(), card.getDisplayName());
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;

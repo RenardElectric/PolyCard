@@ -54,13 +54,9 @@ public class CardManager {
         return storage;
     }
 
-    /// Creates a card ItemStack with a random rarity for the given card type.
-    ///
-    /// @param card The card type to create.
-    /// @return An ItemStack representation of the card with random rarity.
-    public static ItemStack createCardItem(CardType card) {
+    public static Card createCard(CardType card) {
         Rarity randomRarity = getRandomRarity(card.getMinRarity());
-        return createCardItem(new Card(card, randomRarity));
+        return new Card(card, randomRarity);
     }
 
     public static ItemStack createCardItem(Card card) {
@@ -68,7 +64,7 @@ public class CardManager {
         var cardType = card.type();
         ItemStack item = new ItemStack(rarity.getItem());
         // Set display name with rarity color
-        item.set(DataComponents.ITEM_NAME, Component.literal(rarity.getName() + " " + cardType.getName()).withStyle(rarity.getColor()));
+        item.set(DataComponents.ITEM_NAME, Component.literal(card.getDisplayName()).withStyle(rarity.getColor()));
 
         // Set lore with descriptions
         item.set(DataComponents.LORE, new ItemLore(cardType.getDescriptions(rarity).stream().map(desc -> (Component)Component.literal(desc)).toList()));

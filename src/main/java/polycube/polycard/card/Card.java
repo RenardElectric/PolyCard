@@ -24,6 +24,10 @@ public record Card(CardType type, Rarity rarity) {
         ).withStyle(rarity.getColor());
     }
 
+    public String getDisplayName() {
+        return rarity.getName() + " " + type.getName();
+    }
+
     public ItemStackTemplate getItemTemplate() {
         return itemStackCache.computeIfAbsent(this, card -> ItemStackTemplate.fromNonEmptyStack(CardManager.createCardItem(card)));
     }

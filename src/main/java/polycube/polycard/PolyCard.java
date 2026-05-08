@@ -4,6 +4,8 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import polycube.polycard.commands.*;
+import polycube.polycard.events.breedEvents.BreedEvents;
+import polycube.polycard.events.breedEvents.CowBreedEvent;
 import polycube.polycard.events.itemEvents.CardItemEvent;
 import polycube.polycard.events.itemEvents.ItemEvents;
 import polycube.polycard.gui.EquipmentGUI;
@@ -13,14 +15,11 @@ public class PolyCard implements ModInitializer {
 	public static final String MOD_ID = "polycard";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	private CardManager cardManager;
-	private EquipmentGUI equipmentGUI;
-
-	@Override
+    @Override
 	public void onInitialize() {
-		LOGGER.info("PolyCard mod initialized.");
-		cardManager = new CardManager();
-		equipmentGUI = new EquipmentGUI(cardManager.getStorage());
+		LOGGER.debug("PolyCard mod initialized.");
+        CardManager cardManager = new CardManager();
+        EquipmentGUI equipmentGUI = new EquipmentGUI(cardManager.getStorage());
 
 		PolyCardCommands.registerCommands(
 				new HelpCommand(),
@@ -31,6 +30,10 @@ public class PolyCard implements ModInitializer {
 
 		ItemEvents.registerItemEvents(
 				new CardItemEvent(cardManager)
+		);
+
+		BreedEvents.registerBreedEvents(
+				new CowBreedEvent()
 		);
 	}
 }

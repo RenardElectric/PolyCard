@@ -47,7 +47,7 @@ public class EquipmentGUI {
                             ComponentUtils.formatList(equippedCards, Card::getFormatedName)
                     ));
                 }
-                PolyCard.LOGGER.info("[Polycard] Saved equipped cards for {} after closing equipment menu", player.getName().getString());
+                PolyCard.LOGGER.debug("[Polycard] Saved equipped cards for {} after closing equipment menu", player.getName().getString());
             }
         };
 
@@ -77,6 +77,7 @@ public class EquipmentGUI {
 
                     if (playerData.hasCardType(card.type())) {
                         player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));
+                        PolyCard.LOGGER.debug("[Polycard] {} attempted to equip duplicate card type: {}", player.getName().getString(), card.type().name());
                         return false;
                     }
                     return true;
