@@ -6,10 +6,10 @@ import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import polycube.polycard.commands.*;
+import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.cardDropEvents.CardDropEvents;
 import polycube.polycard.events.cardEvents.CardEvents;
 import polycube.polycard.events.guiEvents.CardItemUseEvent;
-import polycube.polycard.events.callBacks.ItemUseEvents;
 import polycube.polycard.gui.EquipmentGUI;
 import polycube.polycard.manager.CardManager;
 
@@ -26,7 +26,7 @@ public class PolyCard implements ModInitializer {
 
     @Override
 	public void onInitialize() {
-		LOGGER.debug("PolyCard mod initialized.");
+		debug("PolyCard mod initialized.");
         CardManager cardManager = new CardManager();
         EquipmentGUI equipmentGUI = new EquipmentGUI(cardManager.getStorage());
 
@@ -39,14 +39,15 @@ public class PolyCard implements ModInitializer {
 				new EquipCommand(equipmentGUI)
 		);
 
-		ItemUseEvents.registerItemUseEvents(
-				new CardItemUseEvent(cardManager)
-		);
+		ItemUseEventCallback.register(new CardItemUseEvent(cardManager));
 
 		CardDropEvents.registerCardDropEvents();
 		CardEvents.registerCardEvents(cardManager);
 	}
 
+	public static void debug(final String format, final Object... args) {
+        LOGGER.debug("[" + MOD_ID + "] " + format, args);
+	}
 
 	private static void onServerTick(MinecraftServer server) {
 		Iterator<ScheduledTask> iterator = TASKS.iterator();

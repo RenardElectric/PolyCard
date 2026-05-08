@@ -47,9 +47,7 @@ public class CowHandler {
     private static final Map<UUID, Long> lastMoveTimes = new HashMap<>();
 
     public static void registerCowCardEvents(CardManager cardManager) {
-        ItemConsumedEventCallback.EVENT.register(
-                (player, itemStack) -> onBucketUsed(cardManager, player, itemStack)
-        );
+        ItemConsumedEventCallback.EVENT.register((player, itemStack) -> onBucketUsed(cardManager, player, itemStack));
 
         PolyCard.runTaskTimer(0, 20, server -> {
             // Regen when still
@@ -59,7 +57,7 @@ public class CowHandler {
             for (ServerPlayer player : playersOnline) {
 
                 var hasCard = storage.hasCardOrRarer(player, new Card(CardType.COW, Rarity.UNCOMMON));
-                var pos = player.getOnPos();
+                var pos = player.blockPosition();
                 //noinspection resource
                 var biome = player.level().getBiome(pos);
                 if (!hasCard || !biome.is(Biomes.PLAINS)) continue;
@@ -69,11 +67,14 @@ public class CowHandler {
                 Vec3 previousLocation = lastLocations.put(playerId, currentLocation);
                 if (previousLocation == null || previousLocation.distanceToSqr(currentLocation) > 0.0001D) {
                     lastMoveTimes.put(playerId, now);
-                    stillPlayers.remove(player);
+                    if (stillPlayers.remove(player)) {
+                        PolyCard.debug("{} has the uncommon cow card and is in the plains biome, but moved, resetting their still timer.", player.getName());
+                    }
                     continue;
                 }
                 long lastMoveTime = lastMoveTimes.getOrDefault(playerId, now);
                 if (now - lastMoveTime >= STILL_DELAY_MS) {
+                    PolyCard.debug("{} has the uncommon cow card and is standing still in the plains biome, giving them regeneration!", player.getName());
                     stillPlayers.add(player);
                 }
             }
@@ -88,6 +89,7 @@ public class CowHandler {
                         .filter(p -> !p.equals(player))
                         .anyMatch(p -> cardManager.getStorage().hasCardOrRarer(p, new Card(CardType.COW, Rarity.RARE)) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);
                 if (nearCowCard) {
+                    PolyCard.debug("{} is near another player with the rare cow card, giving them resistance!", player.getName());
                     player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
                 }
             }
@@ -106,6 +108,9 @@ public class CowHandler {
                     }
                 }
 
+                PolyCard.debug("{} has the epic cow card, giving them buffs for each debuff they had on milk consumption!", player.getName());
+                PolyCard.debug("- Debuffs: {}", Arrays.toString(player.getActiveEffects().stream().map(effect -> effect.getEffect().toString()).toArray()));
+                PolyCard.debug("- Buffs: {}", Arrays.toString(effectsGained.stream().map(effect -> effect.getEffect().toString()).toArray()));
                 PolyCard.runLater(1, _ -> {
                     for (MobEffectInstance effect : effectsGained) {
                         player.addEffect(effect);
@@ -114,6 +119,7 @@ public class CowHandler {
             }
 
             if (cardManager.getStorage().hasCardOrRarer(player, new Card(CardType.COW, Rarity.LEGENDARY))) {
+                PolyCard.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
                 player.setHealth(player.getHealth() + REGEN_HEALTH_GAIN);
             }
         }

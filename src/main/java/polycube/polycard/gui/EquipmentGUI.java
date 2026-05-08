@@ -41,18 +41,26 @@ public class EquipmentGUI {
             public void onPlayerClose(boolean success) {
                 super.onPlayerClose(success);
 
-                if (!success) return;
+                if (!success) {
+                    PolyCard.debug("{} could not close the equipment menu successfully, not saving equipped cards", player.getName().getString());
+                    return;
+                }
 
                 List<Card> equippedCards = playerData.getEquippedCards();
 
+                PolyCard.debug("Saved equipped cards for {} after closing equipment menu", player.getName().getString());
                 if (equippedCards.isEmpty()) {
                     player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "Equipped cards: " + ChatFormatting.GRAY + "none"));
+                    PolyCard.debug("No equipped cards for {}", player.getName().getString());
                 } else {
                     player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "Equipped cards: ").append(
                             ComponentUtils.formatList(equippedCards, Card::getFormatedName)
                     ));
+                    PolyCard.debug(
+                            "Equipped cards for {}: {}", player.getName().getString(),
+                            new StringJoiner(", ").add(equippedCards.stream().map(Card::getFormatedName).toList().toString()).toString()
+                    );
                 }
-                PolyCard.LOGGER.debug("[Polycard] Saved equipped cards for {} after closing equipment menu", player.getName().getString());
             }
         };
 
@@ -63,28 +71,33 @@ public class EquipmentGUI {
                 @Override
                 public boolean mayPlace(@NonNull ItemStack itemStack) {
                     if (itemStack.isEmpty()) {
+                        PolyCard.debug("{} attempted to place empty item in equipment slot {}", player.getName().getString(), getContainerSlot());
                         return false;
                     }
 
                     var optionalCard = CardManager.getCard(itemStack);
                     if (optionalCard.isEmpty()) {
+                        PolyCard.debug("{} attempted to place non-card item in equipment slot: {}", player.getName().getString(), itemStack.getHoverName().getString());
                         return false;
                     }
                     var card = optionalCard.get();
 
                     var currentItem = getItem();
                     if (!currentItem.isEmpty()) {
-                        var currentCard = CardManager.getCardType(currentItem);
-                        if (currentCard.isPresent() && currentCard.get() == card.type()) {
+                        var currentCard = CardManager.getCard(currentItem);
+                        if (currentCard.isPresent() && currentCard.get().type() == card.type()) {
+                            PolyCard.debug("{} is replacing card {} in slot {} with {}", player.getName().getString(), currentCard.get().getDisplayName(), getContainerSlot(), card.getDisplayName());
                             return true;
                         }
                     }
 
                     if (playerData.hasCardType(card.type())) {
                         player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));
-                        PolyCard.LOGGER.debug("[Polycard] {} attempted to equip duplicate card type: {}", player.getName().getString(), card.type().name());
+                        PolyCard.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.type().name());
                         return false;
                     }
+
+                    PolyCard.debug("{} is equipping card {} in slot {}", player.getName().getString(), card.getDisplayName(), getContainerSlot());
                     return true;
                 }
             });

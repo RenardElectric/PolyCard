@@ -59,7 +59,7 @@ public class CardManager {
     public static void giveCard(ServerPlayer player, CardType cardType) {
         Card card = CardManager.createCard(cardType);
         player.getInventory().add(card.getItem());
-        PolyCard.LOGGER.debug("[Polycard] {} received a card: {}", player.getName(), card.getDisplayName());
+        PolyCard.debug("{} received a card: {}", player.getName(), card.getDisplayName());
         player.sendSystemMessage(Component.literal("✨ You found a ").append(card.getFormatedName()).append(" card!").withStyle(ChatFormatting.GREEN));
     }
 
