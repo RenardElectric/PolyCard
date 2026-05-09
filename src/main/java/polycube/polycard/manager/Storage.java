@@ -1,20 +1,46 @@
 package polycube.polycard.manager;
 
+import com.mojang.serialization.Codec;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 
 import java.util.*;
 
-public class Storage {
+public class Storage extends SavedData {
+    public static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
+
+    public static final Codec<Storage> CODEC = Codec.unboundedMap(UUID_CODEC, PlayerData.CODEC)
+            .xmap(Storage::new, Storage::getPlayerDataMap);
+
+    private static final SavedDataType<Storage> TYPE = new SavedDataType<>(
+            Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "storage"),
+            () -> new Storage(new HashMap<>()),
+            CODEC,
+            null
+    );
+
     public static final int MAX_EQUIPPED_CARDS = 5;
-    private final Map<UUID, PlayerData> playerDataMap;
-    
-    public Storage() {
-        this.playerDataMap = new HashMap<>();
+    public Map<UUID, PlayerData> playerDataMap;
+
+    public Storage(Map<UUID, PlayerData> playerDataMap) {
+        this.playerDataMap = new HashMap<>(playerDataMap);
+    }
+
+    public Map<UUID, PlayerData> getPlayerDataMap() {
+        return playerDataMap;
+    }
+
+    public static Storage getSavedStorage(MinecraftServer server) {
+        return server.getDataStorage().computeIfAbsent(TYPE);
     }
 
     public boolean hasCard(Player player, Card card) {
@@ -25,28 +51,14 @@ public class Storage {
         return data(player).hasCardOrRarer(card);
     }
 
-    /// Gets the list of equipped cards for a player.
-    ///
-    /// @param player The player.
-    /// @return A list of equipped cards (max 5).
     public List<Card> getEquippedCards(Player player) {
         return data(player).getEquippedCards();
     }
 
-    /// Equips a card for a player.
-    ///
-    /// @param player The player.
-    /// @param card The card.
-    /// @return True if the card was equipped, false otherwise.
     public boolean equipCard(Player player, Card card) {
         return data(player).equipCard(card);
     }
 
-    /// Checks if a card type is already equipped by the player.
-    ///
-    /// @param player The player.
-    /// @param card The card type.
-    /// @return True if the card type is already equipped.
     public boolean hasCardType(Player player, CardType card) {
         return data(player).hasCardType(card);
     }
@@ -59,27 +71,20 @@ public class Storage {
         return data(player).unequipCardType(cardType);
     }
 
-    /// Clears all equipped cards for a player.
-    /// @param player The player.
     public void clearEquippedCards(Player player) {
         data(player).clearEquippedCards();
     }
 
-    /// Initialize PlayerData from file
-    public static Storage Initialize() {
-        // TODO: Load player data from file and populate playerDataMap
-        return new Storage();
-    }
-
     public PlayerData data(Player player) {
-        return playerDataMap.computeIfAbsent(player.getUUID(), _ -> new PlayerData());
+        return playerDataMap.computeIfAbsent(player.getUUID(), _ -> new PlayerData(new ArrayList<>(MAX_EQUIPPED_CARDS)));
     }
 
-    /// Represents the data associated with a player, including their collection of cards and equipped cards.
-    ///
-    /// This class provides methods to add and remove cards, as well as check if the player has at least one card that is at least as good as a given card.
-    public static class PlayerData {
-        private final Set<Card> equippedCards = new HashSet<>();
+    public record PlayerData(List<Card> equippedCards) {
+        public static final Codec<PlayerData> CODEC = Card.CODEC.listOf().xmap(PlayerData::new, PlayerData::getEquippedCards);
+
+        public PlayerData {
+            equippedCards = new ArrayList<>(equippedCards);
+        }
 
         public boolean hasCard(Card card) {
             return equippedCards.contains(card);
@@ -93,17 +98,10 @@ public class Storage {
             return equippedCards.stream().anyMatch(equippedCard -> equippedCard.type() == cardType);
         }
 
-        /// Gets the list of equipped cards for this player.
-        ///
-        /// @return A list of equipped cards (max 5).
         public List<Card> getEquippedCards() {
-            return new ArrayList<>(equippedCards);
+            return equippedCards;
         }
 
-        /// Equips a card for this player.
-        ///
-        /// @param card The card type.
-        /// @return True if the card was equipped, false if the player already has 5 cards equipped.
         public boolean equipCard(Card card) {
             if (equippedCards.size() >= MAX_EQUIPPED_CARDS) {
                 return false;
@@ -123,7 +121,6 @@ public class Storage {
             return equippedCards.removeIf(equippedCard -> equippedCard.type() == cardType);
         }
 
-        /// Clears all equipped cards for this player.
         public void clearEquippedCards() {
             equippedCards.clear();
         }
@@ -148,7 +145,7 @@ public class Storage {
 
             int index = 0;
             for (Card equippedCard : equippedCards) {
-                container.items.set(index++, equippedCard.getItem());
+                container.items.set(index++, equippedCard.asItem());
             }
 
             return container;

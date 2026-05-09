@@ -1,6 +1,7 @@
 package polycube.polycard;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
@@ -12,10 +13,11 @@ import polycube.polycard.events.cardEvents.CardEvents;
 import polycube.polycard.events.guiEvents.CardItemUseEvent;
 import polycube.polycard.gui.EquipmentGUI;
 import polycube.polycard.manager.CardManager;
+import polycube.polycard.manager.Storage;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class PolyCard implements ModInitializer {
@@ -28,8 +30,11 @@ public class PolyCard implements ModInitializer {
 	public void onInitialize() {
 		debug("PolyCard mod initialized.");
         CardManager cardManager = new CardManager();
-        EquipmentGUI equipmentGUI = new EquipmentGUI(cardManager.getStorage());
+        EquipmentGUI equipmentGUI = new EquipmentGUI(cardManager);
 
+		ServerLifecycleEvents.SERVER_STARTED.register(
+				server -> cardManager.storage = Storage.getSavedStorage(server)
+		);
 		ServerTickEvents.END_SERVER_TICK.register(PolyCard::onServerTick);
 
 		PolyCardCommands.registerCommands(
@@ -45,22 +50,21 @@ public class PolyCard implements ModInitializer {
 		CardEvents.registerCardEvents(cardManager);
 	}
 
+	// Small helpers
 	public static void debug(final String format, final Object... args) {
         LOGGER.debug("[" + MOD_ID + "] " + format, args);
 	}
 
-	private static void onServerTick(MinecraftServer server) {
-		Iterator<ScheduledTask> iterator = TASKS.iterator();
+	private record ScheduledTask (AtomicInteger ticksLeft, int period, Consumer<MinecraftServer> runnable) { }
 
+	private static void onServerTick(MinecraftServer server) {
+		var iterator = TASKS.iterator();
 		while (iterator.hasNext()) {
 			ScheduledTask task = iterator.next();
-
-			task.ticksLeft--;
-
-			if (task.ticksLeft <= 0) {
+			if (task.ticksLeft.decrementAndGet() <= 0) {
 				task.runnable.accept(server);
-				if (task instanceof TaskTimer timer && timer.isRepeating) {
-					task.ticksLeft = timer.period;
+				if (task.period > 0) {
+					task.ticksLeft.set(task.period);
 				} else {
 					iterator.remove();
 				}
@@ -69,31 +73,10 @@ public class PolyCard implements ModInitializer {
 	}
 
 	public static void runLater(int ticks, Consumer<MinecraftServer> runnable) {
-		TASKS.add(new ScheduledTask(ticks, runnable));
+		runTaskTimer(ticks, 0, runnable);
 	}
 
 	public static void runTaskTimer(int delay, int period, Consumer<MinecraftServer> runnable) {
-		TASKS.add(new TaskTimer(delay, runnable, true, period));
-	}
-
-	private static class ScheduledTask {
-		int ticksLeft;
-		Consumer<MinecraftServer> runnable;
-
-		ScheduledTask(int ticksLeft, Consumer<MinecraftServer> runnable) {
-			this.ticksLeft = ticksLeft;
-			this.runnable = runnable;
-		}
-	}
-
-	private static class TaskTimer extends ScheduledTask {
-		boolean isRepeating;
-		int period;
-
-		TaskTimer(int ticksLeft, Consumer<MinecraftServer> runnable, Boolean isRepeating, int period) {
-			super(ticksLeft, runnable);
-			this.isRepeating = isRepeating;
-			this.period = period;
-		}
+		TASKS.add(new ScheduledTask(new AtomicInteger(delay), period, runnable));
 	}
 }

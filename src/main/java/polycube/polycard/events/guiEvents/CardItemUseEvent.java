@@ -49,21 +49,21 @@ public class CardItemUseEvent implements ItemUseEventCallback {
 
             if (equippedCard.rarity() == card.rarity()) {
                 player.sendSystemMessage(Component.literal("You already equipped this card!").withStyle(ChatFormatting.RED));
-                PolyCard.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card.getDisplayName());
+                PolyCard.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
                 return InteractionResult.PASS;
             }
 
+            // Swap the cards
             storage.unequipCard(player, equippedCard);
-            player.addItem(equippedCard.getItem());
-
-            // Equip the card
-            return equipCrad(storage, item, player, card);
+            var result = equipCrad(storage, item, player, card);
+            player.addItem(equippedCard.asItem());
+            return result;
         }
 
         // Check if player already has 5 cards equipped
         if (storage.getEquippedCards(player).size() >= Storage.MAX_EQUIPPED_CARDS) {
             player.sendSystemMessage(Component.literal("You already have " + Storage.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
-            PolyCard.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), Storage.MAX_EQUIPPED_CARDS, card.getDisplayName());
+            PolyCard.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), Storage.MAX_EQUIPPED_CARDS, card);
             return InteractionResult.PASS;
         }
 
@@ -75,7 +75,8 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         if (storage.equipCard(player, card)) {
             item.setCount(item.getCount() - 1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormatedName()));
-            PolyCard.debug("{} equipped card: {}", player.getName().getString(), card.getDisplayName());
+            PolyCard.debug("{} equipped card: {}", player.getName().getString(), card);
+            cardManager.save();
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;

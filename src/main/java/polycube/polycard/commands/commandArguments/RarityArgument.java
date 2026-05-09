@@ -17,12 +17,12 @@ public final class RarityArgument {
 
     public static Optional<Rarity> getRarity(final CommandContext<CommandSourceStack> context, final String name) {
         String id = context.getArgument(name, String.class);
-        return Rarity.fromId(id);
+        return Rarity.deserialize(id);
     }
 
     public static <S> CompletableFuture<Suggestions> suggestRarities(final CommandContext<S> context, final SuggestionsBuilder builder) {
         return context.getSource() instanceof SharedSuggestionProvider
-                ? SharedSuggestionProvider.suggest(Arrays.stream(VALUES).map(Rarity::getId), builder)
+                ? SharedSuggestionProvider.suggest(Arrays.stream(VALUES).map(Rarity::getSerializedName), builder)
                 : Suggestions.empty();
     }
 }

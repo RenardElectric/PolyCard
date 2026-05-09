@@ -10,14 +10,11 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
-import net.minecraft.world.item.ItemStack;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.Rarity;
-import polycube.polycard.commands.commandArguments.CardArgument;
+import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.commands.commandArguments.RarityArgument;
-import polycube.polycard.manager.CardManager;
 
 public class GiveCardCommand extends PolyCardCommand {
 
@@ -42,7 +39,7 @@ public class GiveCardCommand extends PolyCardCommand {
                 Commands.argument("player", EntityArgument.players())
                         .then(
                                 Commands.argument("card", StringArgumentType.string())
-                                        .suggests(CardArgument::suggestCards)
+                                        .suggests(CardTypeArgument::suggestCards)
                                         .executes(cts -> giveCard(cts, false))
                                         .then(
                                                 Commands.argument("rarity", StringArgumentType.string())
@@ -56,40 +53,38 @@ public class GiveCardCommand extends PolyCardCommand {
     private int giveCard(CommandContext<CommandSourceStack> cts, boolean withRarity) throws CommandSyntaxException {
         var source = cts.getSource();
         var player = EntityArgument.getPlayer(cts, "player");
-        var cardId = cts.getArgument("card", String.class);
-        var optionalCardType = CardType.fromId(cardId);
+        var optionalCardType = CardTypeArgument.getType(cts, "card");
 
         if (optionalCardType.isEmpty()) {
-            source.sendFailure(Component.literal("Card '" + cardId + "' not found"));
+            source.sendFailure(Component.literal("Card not found"));
             return 0;
         }
         var cardType = optionalCardType.get();
 
         // Get rarity (default to minimum rarity of the card)
-        Rarity cardRarity = cardType.getMinRarity();
+        Rarity cardRarity = cardType.minRarity();
         if (withRarity) {
-            var rarityId = cts.getArgument("rarity", String.class);
-            var rarity = Rarity.fromId(rarityId);
+            var optionalRarity = RarityArgument.getRarity(cts, "rarity");
 
-            if (rarity.isEmpty()) {
-                source.sendFailure(Component.literal("Rarity '" + rarityId + "' not found"));
+            if (optionalRarity.isEmpty()) {
+                source.sendFailure(Component.literal("Rarity not found"));
                 return 0;
             }
 
-            if (rarity.get().ordinal() < cardRarity.ordinal()) {
-                source.sendFailure(Component.literal(cardType.getName() + " requires at least " + cardRarity.getName() + " rarity."));
+            if (optionalRarity.get().ordinal() < cardRarity.ordinal()) {
+                source.sendFailure(Component.literal(cardType + " requires at least " + cardRarity + " rarity."));
                 return 0;
             }
 
-            cardRarity = rarity.get();
+            cardRarity = optionalRarity.get();
         }
         var card = new Card(cardType, cardRarity);
-        player.getInventory().add(card.getItem());
+        player.getInventory().add(card.asItem());
 
         source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormatedName()), true);
         player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormatedName()));
 
-        PolyCard.LOGGER.debug("[Polycard] Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card.getDisplayName());
+        PolyCard.LOGGER.debug("[Polycard] Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
 
         return 1;
     }

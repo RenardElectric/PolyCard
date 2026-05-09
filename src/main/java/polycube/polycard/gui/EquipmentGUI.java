@@ -12,16 +12,15 @@ import org.jspecify.annotations.NonNull;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.manager.CardManager;
-import polycube.polycard.manager.Storage;
 
 import java.util.List;
 import java.util.StringJoiner;
 
 public class EquipmentGUI {
-    private final Storage storage;
+    private final CardManager cardManager;
 
-    public EquipmentGUI(Storage storage) {
-        this.storage = storage;
+    public EquipmentGUI(CardManager cardManager) {
+        this.cardManager = cardManager;
     }
 
     public void openEquipmentGUI(ServerPlayer player) {
@@ -33,7 +32,7 @@ public class EquipmentGUI {
     /// @param player The player to open the GUI for.
     /// @param targetPlayer The player whose equipment is being managed (can be the same as player).
     public void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
-        var playerData = storage.data(targetPlayer);
+        var playerData = cardManager.getStorage().data(targetPlayer);
         var container = playerData.asContainer();
 
         SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x1, player, false) {
@@ -61,6 +60,7 @@ public class EquipmentGUI {
                             new StringJoiner(", ").add(equippedCards.stream().map(Card::getFormatedName).toList().toString()).toString()
                     );
                 }
+                cardManager.save();
             }
         };
 
@@ -86,7 +86,7 @@ public class EquipmentGUI {
                     if (!currentItem.isEmpty()) {
                         var currentCard = CardManager.getCard(currentItem);
                         if (currentCard.isPresent() && currentCard.get().type() == card.type()) {
-                            PolyCard.debug("{} is replacing card {} in slot {} with {}", player.getName().getString(), currentCard.get().getDisplayName(), getContainerSlot(), card.getDisplayName());
+                            PolyCard.debug("{} is replacing card {} in slot {} with {}", player.getName().getString(), currentCard.get(), getContainerSlot(), card);
                             return true;
                         }
                     }
@@ -97,7 +97,7 @@ public class EquipmentGUI {
                         return false;
                     }
 
-                    PolyCard.debug("{} is equipping card {} in slot {}", player.getName().getString(), card.getDisplayName(), getContainerSlot());
+                    PolyCard.debug("{} is equipping card {} in slot {}", player.getName().getString(), card, getContainerSlot());
                     return true;
                 }
             });

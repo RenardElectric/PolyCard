@@ -22,16 +22,17 @@ public class CardManager {
     private static final String cardRarityKey = "rarity_id";
     private static final Random random = new Random();
 
-    private final Storage storage;
+    public Storage storage = null;
     private final Map<String, Cooldown> cooldowns = new HashMap<>();
 
-    public CardManager() {
-        this.storage = Storage.Initialize();
+    public void save() {
+        PolyCard.debug("Marking storage as dirty for saving.");
+        storage.setDirty();
     }
 
     public boolean isReady(String key, int defaultCooldown) {
         Cooldown cd = cooldowns.get(key);
-        if(cd == null){
+        if (cd == null) {
             cd = new Cooldown(defaultCooldown);
             cooldowns.put(key, cd);
             return true;
@@ -46,7 +47,7 @@ public class CardManager {
 
     public long getRemainingTime(String key) {
         Cooldown cd = cooldowns.get(key);
-        if(cd == null){
+        if (cd == null) {
             return 0;
         }
         return cd.getRemainingTime();
@@ -58,33 +59,33 @@ public class CardManager {
 
     public static void giveCard(ServerPlayer player, CardType cardType) {
         Card card = CardManager.createCard(cardType);
-        player.getInventory().add(card.getItem());
-        PolyCard.debug("{} received a card: {}", player.getName(), card.getDisplayName());
+        player.getInventory().add(card.asItem());
+        PolyCard.debug("{} received a card: {}", player.getName(), card);
         player.sendSystemMessage(Component.literal("✨ You found a ").append(card.getFormatedName()).append(" card!").withStyle(ChatFormatting.GREEN));
     }
 
     public static Card createCard(CardType card) {
-        Rarity randomRarity = getRandomRarity(card.getMinRarity());
+        Rarity randomRarity = getRandomRarity(card.minRarity());
         return new Card(card, randomRarity);
     }
 
     public static ItemStack createCardItem(Card card) {
         var rarity = card.rarity();
         var cardType = card.type();
-        ItemStack item = new ItemStack(rarity.getItem());
+        ItemStack item = new ItemStack(rarity.item());
         // Set display name with rarity color
-        item.set(DataComponents.ITEM_NAME, Component.literal(card.getDisplayName()).withStyle(rarity.getColor()));
+        item.set(DataComponents.ITEM_NAME, Component.literal(card.toString()).withStyle(rarity.color()));
 
         // Set lore with descriptions
-        item.set(DataComponents.LORE, new ItemLore(cardType.getDescriptions(rarity).stream().map(desc -> (Component)Component.literal(desc)).toList()));
+        item.set(DataComponents.LORE, new ItemLore(cardType.getDescriptions(rarity)));
 
         // Store stable card id + rarity in metadata for equip detection.
         var customData = item.get(DataComponents.CUSTOM_DATA);
         var customDataTag = customData != null ? customData.copyTag() : new CompoundTag();
 
         var polyCardTag = new CompoundTag();
-        polyCardTag.putString(cardIdKey, cardType.getId());
-        polyCardTag.putString(cardRarityKey, rarity.getId());
+        polyCardTag.putString(cardIdKey, cardType.getSerializedName());
+        polyCardTag.putString(cardRarityKey, rarity.getSerializedName());
         customDataTag.put(PolyCard.MOD_ID, polyCardTag);
         item.set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag));
 
@@ -114,7 +115,7 @@ public class CardManager {
     /// @param item The card ItemStack.
     /// @return The Cards enum value, or null if the item is not a card.
     public static Optional<CardType> getCardType(ItemStack item) {
-        return getCardData(item, cardIdKey, CardType::fromId);
+        return getCardData(item, cardIdKey, CardType::deserialize);
     }
 
     /// Extracts the rarity from a card ItemStack.
@@ -122,24 +123,22 @@ public class CardManager {
     /// @param item The card ItemStack.
     /// @return The Rarity enum value, or null if the item is not a card.
     public static Optional<Rarity> getCardRarity(ItemStack item) {
-        return getCardData(item, cardRarityKey, Rarity::fromId);
+        return getCardData(item, cardRarityKey, Rarity::deserialize);
     }
 
     /// Generic method to extract card data from an ItemStack's custom data.
     ///
-    /// @param item The ItemStack to extract data from.
-    /// @param key The key in the custom data to look for.
+    /// @param item   The ItemStack to extract data from.
+    /// @param key    The key in the custom data to look for.
     /// @param fromId A function that converts a string ID to the desired type, returning an Optional.
     /// @return An Optional containing the extracted data, or empty if not found or invalid.
     private static <T> Optional<T> getCardData(ItemStack item, String key, Function<String, Optional<T>> fromId) {
         var customData = item.get(DataComponents.CUSTOM_DATA);
         if (customData == null) return Optional.empty();
-
-        var polyCardData = customData.copyTag().getCompound(PolyCard.MOD_ID);
-        if (polyCardData.isEmpty()) return Optional.empty();
-
-        var id = polyCardData.get().getString(key);
-        return id.flatMap(fromId);
+        return customData.copyTag()
+                .getCompound(PolyCard.MOD_ID)
+                .flatMap(compoundTag -> compoundTag.getString(key)
+                        .flatMap(fromId));
     }
 
     /// Gets a random rarity with probability based on rarity tier, respecting the minimum rarity.
@@ -162,17 +161,4 @@ public class CardManager {
         }
         return result;
     }
-//
-//    /**
-//     * Initializes and returns a list of all card listeners.
-//     * @return A list of CardListener instances for all cards.
-//     */
-//    public List<CardListener> initializeCardsListener() {
-//        List<CardListener> cardListeners = new ArrayList<>();
-//        cardListeners.add(new CowListener(plugin,this));
-//        cardListeners.add(new EndermanListener(plugin,this));
-//        cardListeners.add(new IronGolemListener(plugin,this));
-//
-//        return cardListeners;
-//    }
 }

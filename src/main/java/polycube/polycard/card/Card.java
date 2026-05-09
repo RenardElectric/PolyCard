@@ -1,55 +1,47 @@
 package polycube.polycard.card;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import org.jspecify.annotations.NonNull;
 import polycube.polycard.manager.CardManager;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public record Card(CardType type, Rarity rarity) {
+
+    public static final Codec<Card> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            CardType.CODEC.fieldOf("type").forGetter(Card::type),
+            Rarity.CODEC.fieldOf("rarity").forGetter(Card::rarity)
+    ).apply(instance, Card::new));
+
     private static final Map<Card, ItemStackTemplate> itemStackCache = new HashMap<>();
 
     public Component getFormatedName() {
         return ComponentUtils.wrapInSquareBrackets(
-                Component.literal(type.getName()).withStyle(
+                Component.literal(type.toString()).withStyle(
                         s -> s.withHoverEvent(
                                 new HoverEvent.ShowItem(getItemTemplate())
                         )
                 )
-        ).withStyle(rarity.getColor());
+        ).withStyle(rarity.color());
     }
 
-    public String getDisplayName() {
-        return rarity.getName() + " " + type.getName();
-    }
-
-    public ItemStackTemplate getItemTemplate() {
-        return itemStackCache.computeIfAbsent(this, card -> ItemStackTemplate.fromNonEmptyStack(CardManager.createCardItem(card)));
-    }
-
-    public ItemStack getItem() {
+    public ItemStack asItem() {
         return getItemTemplate().create();
     }
 
-    public String getId() {
-        return rarity.getId() + "_" + type.getId();
+    private ItemStackTemplate getItemTemplate() {
+        return itemStackCache.computeIfAbsent(this, card -> ItemStackTemplate.fromNonEmptyStack(CardManager.createCardItem(card)));
     }
 
-    public static Optional<Card> fromId(String id) {
-        String[] parts = id.split("_", 2);
-        if (parts.length != 2) {
-            return Optional.empty();
-        }
-        var rarity = Rarity.fromId(parts[0]);
-        var type = CardType.fromId(parts[1]);
-        if (rarity.isEmpty() || type.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(new Card(type.get(), rarity.get()));
+    @Override
+    public @NonNull String toString() {
+        return rarity + " " + type;
     }
 }
