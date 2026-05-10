@@ -32,16 +32,15 @@ public class PolyCard implements ModInitializer {
         CardManager cardManager = new CardManager();
         EquipmentGUI equipmentGUI = new EquipmentGUI(cardManager);
 
-		ServerLifecycleEvents.SERVER_STARTED.register(
-				server -> cardManager.storage = Storage.getSavedStorage(server)
-		);
+		ServerLifecycleEvents.SERVER_STARTED.register(cardManager::load);
 		ServerTickEvents.END_SERVER_TICK.register(PolyCard::onServerTick);
 
 		PolyCardCommands.registerCommands(
 				new HelpCommand(),
 				new GiveCardCommand(),
 				new TestCommand(),
-				new EquipCommand(equipmentGUI)
+				new EquipCommand(equipmentGUI),
+				new CardInfoCommand()
 		);
 
 		ItemUseEventCallback.register(new CardItemUseEvent(cardManager));
@@ -55,7 +54,15 @@ public class PolyCard implements ModInitializer {
         LOGGER.debug("[" + MOD_ID + "] " + format, args);
 	}
 
-	private record ScheduledTask (AtomicInteger ticksLeft, int period, Consumer<MinecraftServer> runnable) { }
+	public static void runLater(int ticks, Consumer<MinecraftServer> runnable) {
+		runTaskTimer(ticks, 0, runnable);
+	}
+
+	public static void runTaskTimer(int delay, int period, Consumer<MinecraftServer> runnable) {
+		TASKS.add(new ScheduledTask(new AtomicInteger(delay), period, runnable));
+	}
+
+	private record ScheduledTask(AtomicInteger ticksLeft, int period, Consumer<MinecraftServer> runnable) { }
 
 	private static void onServerTick(MinecraftServer server) {
 		var iterator = TASKS.iterator();
@@ -70,13 +77,5 @@ public class PolyCard implements ModInitializer {
 				}
 			}
 		}
-	}
-
-	public static void runLater(int ticks, Consumer<MinecraftServer> runnable) {
-		runTaskTimer(ticks, 0, runnable);
-	}
-
-	public static void runTaskTimer(int delay, int period, Consumer<MinecraftServer> runnable) {
-		TASKS.add(new ScheduledTask(new AtomicInteger(delay), period, runnable));
 	}
 }

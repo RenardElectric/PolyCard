@@ -3,8 +3,10 @@ package polycube.polycard.commands;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
+import polycube.polycard.PolyCard;
 
 public abstract class PolyCardCommand {
     private final String name;
@@ -23,12 +25,12 @@ public abstract class PolyCardCommand {
         return name;
     }
 
-    protected String getDescription()   {
-        return description;
+    protected String getDescription() {
+        return description + (permissionLevel.id() == 0 ? "." : " (" + permissionLevel.getSerializedName() + " only).");
     }
 
     protected String getUsage()  {
-        return usage;
+        return "/" + PolyCard.MOD_ID + " " + name + " " + usage;
     }
 
     protected PermissionLevel getPermissionLevel() {
@@ -46,6 +48,7 @@ public abstract class PolyCardCommand {
     }
 
     protected int execute(CommandSourceStack source) {
+        source.sendFailure(Component.literal("Incomplete command! Usage : " + getUsage()));
         return 0;
     }
 }

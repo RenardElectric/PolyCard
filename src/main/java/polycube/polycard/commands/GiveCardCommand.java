@@ -12,25 +12,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
-import polycube.polycard.card.Rarity;
+import polycube.polycard.card.RarityType;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
-import polycube.polycard.commands.commandArguments.RarityArgument;
+import polycube.polycard.commands.commandArguments.RarityTypeArgument;
 
 public class GiveCardCommand extends PolyCardCommand {
 
     public GiveCardCommand() {
         super(
                 "givecard",
-                "Give a card to a player (admin only).",
-                "/" + PolyCard.MOD_ID + "givecard <player> <card> [rarity]",
+                "Give a card to a player",
+                "<player> <card> [rarity]",
                 PermissionLevel.ADMINS
         );
-    }
-
-    @Override
-    protected int execute(CommandSourceStack source) {
-        source.sendFailure(Component.literal("Usage :" + getUsage()));
-        return 0;
     }
 
     @Override
@@ -43,7 +37,7 @@ public class GiveCardCommand extends PolyCardCommand {
                                         .executes(cts -> giveCard(cts, false))
                                         .then(
                                                 Commands.argument("rarity", StringArgumentType.string())
-                                                        .suggests(RarityArgument::suggestRarities)
+                                                        .suggests(RarityTypeArgument::suggestRarities)
                                                         .executes(cts -> giveCard(cts, true))
                                         )
                         )
@@ -56,29 +50,29 @@ public class GiveCardCommand extends PolyCardCommand {
         var optionalCardType = CardTypeArgument.getType(cts, "card");
 
         if (optionalCardType.isEmpty()) {
-            source.sendFailure(Component.literal("Card not found"));
+            source.sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(cts, "card")));
             return 0;
         }
         var cardType = optionalCardType.get();
 
         // Get rarity (default to minimum rarity of the card)
-        Rarity cardRarity = cardType.minRarity();
+        RarityType rarityType = cardType.minRarity();
         if (withRarity) {
-            var optionalRarity = RarityArgument.getRarity(cts, "rarity");
+            var optionalRarityType = RarityTypeArgument.getRarity(cts, "rarity");
 
-            if (optionalRarity.isEmpty()) {
-                source.sendFailure(Component.literal("Rarity not found"));
+            if (optionalRarityType.isEmpty()) {
+                source.sendFailure(Component.literal("Invalid rarity type: " + StringArgumentType.getString(cts, "rarity")));
                 return 0;
             }
 
-            if (optionalRarity.get().ordinal() < cardRarity.ordinal()) {
-                source.sendFailure(Component.literal(cardType + " requires at least " + cardRarity + " rarity."));
+            if (optionalRarityType.get().ordinal() < rarityType.ordinal()) {
+                source.sendFailure(Component.literal(cardType + " requires at least " + rarityType + " rarity."));
                 return 0;
             }
 
-            cardRarity = optionalRarity.get();
+            rarityType = optionalRarityType.get();
         }
-        var card = new Card(cardType, cardRarity);
+        var card = new Card(cardType, rarityType);
         player.getInventory().add(card.asItem());
 
         source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormatedName()), true);

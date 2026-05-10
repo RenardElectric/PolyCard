@@ -21,8 +21,6 @@ public final class CardTypeArgument {
     }
 
     public static <S> CompletableFuture<Suggestions> suggestCards(final CommandContext<S> context, final SuggestionsBuilder builder) {
-        return context.getSource() instanceof SharedSuggestionProvider
-                ? SharedSuggestionProvider.suggest(Arrays.stream(VALUES).map(CardType::getSerializedName), builder)
-                : Suggestions.empty();
+        return SharedSuggestionProvider.suggest(Arrays.stream(VALUES).map(CardType::getSerializedName), builder);
     }
 }

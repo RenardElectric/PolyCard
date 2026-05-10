@@ -15,12 +15,14 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.Rarity;
+import polycube.polycard.card.RarityType;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.manager.CardManager;
 
 import java.util.*;
 
 public class CowHandler {
+    private static final CardType CARD_TYPE = CardType.COW;
     private static final long STILL_DELAY_MS = 500L;
     private static final int REGEN_HEALTH_GAIN = 8;
     private static final int REGEN_EFFECT_DURATION = 50;
@@ -56,7 +58,7 @@ public class CowHandler {
             var playersOnline = server.getPlayerList().getPlayers();
             for (ServerPlayer player : playersOnline) {
 
-                var hasCard = storage.hasCardOrRarer(player, new Card(CardType.COW, Rarity.UNCOMMON));
+                var hasCard = storage.data(player).hasCardOrRarer(CARD_TYPE, RarityType.UNCOMMON);
                 var pos = player.blockPosition();
                 //noinspection resource
                 var biome = player.level().getBiome(pos);
@@ -84,10 +86,10 @@ public class CowHandler {
             });
 
             // Near Cow Card resistance
-            for (Player player :  playersOnline.stream().filter(p -> cardManager.getStorage().hasCardOrRarer(p, new Card(CardType.COW, Rarity.RARE))).toList()) {
+            for (Player player :  playersOnline.stream().filter(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityType.RARE)).toList()) {
                 boolean nearCowCard = playersOnline.stream()
                         .filter(p -> !p.equals(player))
-                        .anyMatch(p -> cardManager.getStorage().hasCardOrRarer(p, new Card(CardType.COW, Rarity.RARE)) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);
+                        .anyMatch(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityType.RARE) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);
                 if (nearCowCard) {
                     PolyCard.debug("{} is near another player with the rare cow card, giving them resistance!", player.getName());
                     player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
@@ -98,7 +100,7 @@ public class CowHandler {
 
     private static InteractionResult onBucketUsed(CardManager cardManager, ServerPlayer player, ItemStack itemStack) {
         if (itemStack.getItem() == Items.MILK_BUCKET) {
-            if (cardManager.getStorage().hasCardOrRarer(player, new Card(CardType.COW, Rarity.EPIC))) {
+            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityType.EPIC)) {
                 var random = new Random();
                 List<MobEffectInstance> effectsGained = new ArrayList<>();
                 for (MobEffectInstance effect : player.getActiveEffects()) {
@@ -118,7 +120,7 @@ public class CowHandler {
                 });
             }
 
-            if (cardManager.getStorage().hasCardOrRarer(player, new Card(CardType.COW, Rarity.LEGENDARY))) {
+            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityType.LEGENDARY)) {
                 PolyCard.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
                 player.setHealth(player.getHealth() + REGEN_HEALTH_GAIN);
             }

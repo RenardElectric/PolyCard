@@ -49,12 +49,8 @@ public class EquipmentGUI {
 
                 PolyCard.debug("Saved equipped cards for {} after closing equipment menu", player.getName().getString());
                 if (equippedCards.isEmpty()) {
-                    player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "Equipped cards: " + ChatFormatting.GRAY + "none"));
                     PolyCard.debug("No equipped cards for {}", player.getName().getString());
                 } else {
-                    player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "Equipped cards: ").append(
-                            ComponentUtils.formatList(equippedCards, Card::getFormatedName)
-                    ));
                     PolyCard.debug(
                             "Equipped cards for {}: {}", player.getName().getString(),
                             new StringJoiner(", ").add(equippedCards.stream().map(Card::getFormatedName).toList().toString()).toString()
@@ -75,7 +71,7 @@ public class EquipmentGUI {
                         return false;
                     }
 
-                    var optionalCard = CardManager.getCard(itemStack);
+                    var optionalCard = Card.getCard(itemStack);
                     if (optionalCard.isEmpty()) {
                         PolyCard.debug("{} attempted to place non-card item in equipment slot: {}", player.getName().getString(), itemStack.getHoverName().getString());
                         return false;
@@ -84,16 +80,16 @@ public class EquipmentGUI {
 
                     var currentItem = getItem();
                     if (!currentItem.isEmpty()) {
-                        var currentCard = CardManager.getCard(currentItem);
-                        if (currentCard.isPresent() && currentCard.get().type() == card.type()) {
+                        var currentCard = Card.getCard(currentItem);
+                        if (currentCard.isPresent() && currentCard.get().cardType() == card.cardType()) {
                             PolyCard.debug("{} is replacing card {} in slot {} with {}", player.getName().getString(), currentCard.get(), getContainerSlot(), card);
                             return true;
                         }
                     }
 
-                    if (playerData.hasCardType(card.type())) {
+                    if (playerData.hasCardType(card.cardType())) {
                         player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));
-                        PolyCard.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.type().name());
+                        PolyCard.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.cardType().name());
                         return false;
                     }
 

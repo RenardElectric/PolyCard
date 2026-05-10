@@ -21,8 +21,8 @@ public class CardItemUseEvent implements ItemUseEventCallback {
     }
 
     public InteractionResult interact(ServerPlayer player, Level world, InteractionHand hand) {
-        // Only allow shift-click on cards
-        if (!player.isShiftKeyDown()) {
+        // Prevent equipping cards while sneaking
+        if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
 
@@ -32,47 +32,47 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             return InteractionResult.PASS;
         }
 
-        var optionalCard = CardManager.getCard(item);
+        var optionalCard = Card.getCard(item);
         if (optionalCard.isEmpty()) {
             return InteractionResult.PASS;
         }
         var card = optionalCard.get();
 
-        var storage = cardManager.getStorage();
-        var optionalEquippedCard = storage.getEquippedCards(player).stream()
-                .filter(c -> c.type() == card.type())
+        var playerData = cardManager.getStorage().data(player);
+        var optionalEquippedCard = playerData.getEquippedCards().stream()
+                .filter(c -> c.cardType() == card.cardType())
                 .findFirst();
 
         // Swap the card if the player already has a card of the same type equipped
         if (optionalEquippedCard.isPresent()) {
             var equippedCard = optionalEquippedCard.get();
 
-            if (equippedCard.rarity() == card.rarity()) {
+            if (equippedCard.rarityType() == card.rarityType()) {
                 player.sendSystemMessage(Component.literal("You already equipped this card!").withStyle(ChatFormatting.RED));
                 PolyCard.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
                 return InteractionResult.PASS;
             }
 
             // Swap the cards
-            storage.unequipCard(player, equippedCard);
-            var result = equipCrad(storage, item, player, card);
+            playerData.unequipCard(equippedCard);
+            var result = equipCrad(playerData, item, player, card);
             player.addItem(equippedCard.asItem());
             return result;
         }
 
         // Check if player already has 5 cards equipped
-        if (storage.getEquippedCards(player).size() >= Storage.MAX_EQUIPPED_CARDS) {
+        if (playerData.getEquippedCards().size() >= Storage.MAX_EQUIPPED_CARDS) {
             player.sendSystemMessage(Component.literal("You already have " + Storage.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
             PolyCard.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), Storage.MAX_EQUIPPED_CARDS, card);
             return InteractionResult.PASS;
         }
 
         // Equip the card
-        return equipCrad(storage, item, player, card);
+        return equipCrad(playerData, item, player, card);
     }
 
-    private InteractionResult equipCrad(Storage storage, ItemStack item, ServerPlayer player, Card card) {
-        if (storage.equipCard(player, card)) {
+    private InteractionResult equipCrad(Storage.PlayerData playerData, ItemStack item, ServerPlayer player, Card card) {
+        if (playerData.equipCard(card)) {
             item.setCount(item.getCount() - 1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormatedName()));
             PolyCard.debug("{} equipped card: {}", player.getName().getString(), card);

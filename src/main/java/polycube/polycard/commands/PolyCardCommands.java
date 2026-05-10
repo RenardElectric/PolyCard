@@ -22,7 +22,7 @@ public class PolyCardCommands {
     }
 
     private static int printModInfo(CommandSourceStack cst) {
-        cst.sendSuccess(() -> Component.literal("PolyCard Version 1.0.0\nA Minecraft mod for card-based gameplay mechanics."), false);
+        cst.sendSuccess(() -> Component.literal("PolyCard Version 1.0.0\nA Minecraft mod for card-based gameplay mechanics."), false); // TODO: Fetch correct infos
         return 1;
     }
 

@@ -1,6 +1,5 @@
 package polycube.polycard.commands;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -9,7 +8,6 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.server.permissions.Permissions;
-import polycube.polycard.PolyCard;
 import polycube.polycard.gui.EquipmentGUI;
 
 public class EquipCommand extends PolyCardCommand {
@@ -18,8 +16,8 @@ public class EquipCommand extends PolyCardCommand {
     public EquipCommand(EquipmentGUI equipmentGUI) {
         super(
                 "equip",
-                "Open the equipment manager to equip up to 5 cards.",
-                "/" + PolyCard.MOD_ID + " equip",
+                "Open the equipment manager to equip up to 5 cards",
+                "",
                 PermissionLevel.ALL
         );
 
@@ -36,8 +34,6 @@ public class EquipCommand extends PolyCardCommand {
         }
 
         equipmentGUI.openEquipmentGUI(player);
-
-        source.sendSuccess(() -> Component.literal("Opening equipment manager...").withStyle(ChatFormatting.GOLD), false);
         return 1;
     }
 

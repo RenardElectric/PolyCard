@@ -1,29 +1,28 @@
 package polycube.polycard.manager;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.ItemLore;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.Rarity;
+import polycube.polycard.card.RarityType;
 import polycube.polycard.utils.Cooldown;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class CardManager {
-    private static final String cardIdKey = "card_id";
-    private static final String cardRarityKey = "rarity_id";
     private static final Random random = new Random();
 
-    public Storage storage = null;
+    private Storage storage = null;
     private final Map<String, Cooldown> cooldowns = new HashMap<>();
+
+    public void load(MinecraftServer server) {
+        storage = Storage.getSavedStorage(server);
+        PolyCard.debug("Storage loaded with {} players.", storage.playerDataMap.size());
+    }
 
     public void save() {
         PolyCard.debug("Marking storage as dirty for saving.");
@@ -58,107 +57,39 @@ public class CardManager {
     }
 
     public static void giveCard(ServerPlayer player, CardType cardType) {
-        Card card = CardManager.createCard(cardType);
-        player.getInventory().add(card.asItem());
-        PolyCard.debug("{} received a card: {}", player.getName(), card);
-        player.sendSystemMessage(Component.literal("✨ You found a ").append(card.getFormatedName()).append(" card!").withStyle(ChatFormatting.GREEN));
+        CardManager.createCard(cardType).ifPresent(
+                card -> {
+                    player.getInventory().add(card.asItem());
+                    PolyCard.debug("{} received a card: {}", player.getName(), card);
+                    player.sendSystemMessage(
+                            Component.literal("✨ You found a ")
+                                    .append(card.getFormatedName())
+                                    .append(" card!")
+                                    .withStyle(ChatFormatting.GREEN)
+                    );
+                }
+        );
+
     }
 
-    public static Card createCard(CardType card) {
-        Rarity randomRarity = getRandomRarity(card.minRarity());
-        return new Card(card, randomRarity);
-    }
-
-    public static ItemStack createCardItem(Card card) {
-        var rarity = card.rarity();
-        var cardType = card.type();
-        ItemStack item = new ItemStack(rarity.item());
-        // Set display name with rarity color
-        item.set(DataComponents.ITEM_NAME, Component.literal(card.toString()).withStyle(rarity.color()));
-
-        // Set lore with descriptions
-        item.set(DataComponents.LORE, new ItemLore(cardType.getDescriptions(rarity)));
-
-        // Store stable card id + rarity in metadata for equip detection.
-        var customData = item.get(DataComponents.CUSTOM_DATA);
-        var customDataTag = customData != null ? customData.copyTag() : new CompoundTag();
-
-        var polyCardTag = new CompoundTag();
-        polyCardTag.putString(cardIdKey, cardType.getSerializedName());
-        polyCardTag.putString(cardRarityKey, rarity.getSerializedName());
-        customDataTag.put(PolyCard.MOD_ID, polyCardTag);
-        item.set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag));
-
-        return item;
-    }
-
-
-    /// Checks if an ItemStack is a card.
-    ///
-    /// @param item The ItemStack to check.
-    /// @return True if the item is a card, false otherwise.
-    public static boolean isCard(ItemStack item) {
-        return getCardType(item).isPresent() && getCardRarity(item).isPresent();
-    }
-
-    public static Optional<Card> getCard(ItemStack item) {
-        var cardType = getCardType(item);
-        var rarity = getCardRarity(item);
-        if (cardType.isPresent() && rarity.isPresent()) {
-            return Optional.of(new Card(cardType.get(), rarity.get()));
-        }
-        return Optional.empty();
-    }
-
-    /// Extracts the card type from a card ItemStack.
-    ///
-    /// @param item The card ItemStack.
-    /// @return The Cards enum value, or null if the item is not a card.
-    public static Optional<CardType> getCardType(ItemStack item) {
-        return getCardData(item, cardIdKey, CardType::deserialize);
-    }
-
-    /// Extracts the rarity from a card ItemStack.
-    ///
-    /// @param item The card ItemStack.
-    /// @return The Rarity enum value, or null if the item is not a card.
-    public static Optional<Rarity> getCardRarity(ItemStack item) {
-        return getCardData(item, cardRarityKey, Rarity::deserialize);
-    }
-
-    /// Generic method to extract card data from an ItemStack's custom data.
-    ///
-    /// @param item   The ItemStack to extract data from.
-    /// @param key    The key in the custom data to look for.
-    /// @param fromId A function that converts a string ID to the desired type, returning an Optional.
-    /// @return An Optional containing the extracted data, or empty if not found or invalid.
-    private static <T> Optional<T> getCardData(ItemStack item, String key, Function<String, Optional<T>> fromId) {
-        var customData = item.get(DataComponents.CUSTOM_DATA);
-        if (customData == null) return Optional.empty();
-        return customData.copyTag()
-                .getCompound(PolyCard.MOD_ID)
-                .flatMap(compoundTag -> compoundTag.getString(key)
-                        .flatMap(fromId));
+    public static Optional<Card> createCard(CardType card) {
+        return getRandomRarity(card).map(
+                randomRarity -> new Card(card, randomRarity)
+        );
     }
 
     /// Gets a random rarity with probability based on rarity tier, respecting the minimum rarity.
     ///
-    /// @param minRarity The minimum rarity for this card.
+    /// @param cardType The card type to get a random rarity for.
     /// @return A random rarity at or above the minimum rarity.
-    public static Rarity getRandomRarity(Rarity minRarity) {
-        int roll = random.nextInt(100);
-        Rarity result;
+    public static Optional<RarityType> getRandomRarity(CardType cardType) {
+        Optional<RarityType> result = Optional.empty();
 
-        // Common: 50%, Uncommon: 25%, Rare: 15%, Epic: 9%, Legendary: 1%
-        if (roll < 50) result = Rarity.COMMON;
-        else if (roll < 75) result = Rarity.UNCOMMON;
-        else if (roll < 90) result = Rarity.RARE;
-        else if (roll < 99) result = Rarity.EPIC;
-        else result = Rarity.LEGENDARY;
-        // If the rolled rarity is below the minimum, return minimum
-        if (result.ordinal() < minRarity.ordinal()) {
-            return minRarity;
-        }
+        if (random.nextInt(100) < cardType.getProbability(RarityType.COMMON)) result = Optional.of(RarityType.COMMON);
+        if (random.nextInt(100) < cardType.getProbability(RarityType.UNCOMMON)) result = Optional.of(RarityType.UNCOMMON);
+        if (random.nextInt(100) < cardType.getProbability(RarityType.RARE)) result = Optional.of(RarityType.RARE);
+        if (random.nextInt(100) < cardType.getProbability(RarityType.EPIC)) result = Optional.of(RarityType.EPIC);
+        if (random.nextInt(100) < cardType.getProbability(RarityType.LEGENDARY)) result = Optional.of(RarityType.LEGENDARY);
         return result;
     }
 }

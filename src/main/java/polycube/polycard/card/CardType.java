@@ -10,22 +10,22 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum CardType implements StringRepresentable {
-    IRON_GOLEM("iron_golem",Rarity.RARE) {{
-        addDescription(Rarity.RARE, "20% Chance to gain resistance when hit");
-        addDescription(Rarity.EPIC, "Falling creates shock wave (10 sec cooldown)");
-        addDescription(Rarity.LEGENDARY, "Hitting with fist knock up enemies (10 sec cooldown)");
+    IRON_GOLEM("iron_golem") {{
+        addRarity(RarityType.RARE, 15, false, "20% Chance to gain resistance when hit");
+        addRarity(RarityType.EPIC, 9, true, "Falling creates shock wave (10 sec cooldown)");
+        addRarity(RarityType.LEGENDARY, 1, true, "Hitting with fist knock up enemies (10 sec cooldown)");
     }},
-    COW("cow", Rarity.UNCOMMON) {{
-        addDescription(Rarity.UNCOMMON, "Regeneration when standing in plains");
-        addDescription(Rarity.RARE, "Gain resistance when near other Cow Card");
-        addDescription(Rarity.EPIC, "Convert Debuffs into Buffs when drinking milk");
-        addDescription(Rarity.LEGENDARY, "+4 Hearts when drinking milk");
+    COW("cow") {{
+        addRarity(RarityType.UNCOMMON, 25, false, "Regeneration when standing in plains");
+        addRarity(RarityType.RARE, 15, false, "Gain resistance when near other Cow Card");
+        addRarity(RarityType.EPIC, 9, true, "Convert Debuffs into Buffs when drinking milk");
+        addRarity(RarityType.LEGENDARY, 1, true, "+4 Hearts when drinking milk");
     }},
-    ENDERMAN("enderman", Rarity.UNCOMMON) {{
-        addDescription(Rarity.UNCOMMON, "No ender pearl damage");
-        addDescription(Rarity.RARE, "No ender pearl cooldown");
-        addDescription(Rarity.EPIC, "20% Chance to dodge projectile");
-        addDescription(Rarity.LEGENDARY, "Resistance in the End");
+    ENDERMAN("enderman") {{
+        addRarity(RarityType.UNCOMMON, 25, false, "No ender pearl damage");
+        addRarity(RarityType.RARE, 15, false, "No ender pearl cooldown");
+        addRarity(RarityType.EPIC, 9, true, "20% Chance to dodge projectile");
+        addRarity(RarityType.LEGENDARY, 1, true, "Resistance in the End");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
@@ -33,35 +33,51 @@ public enum CardType implements StringRepresentable {
             .collect(Collectors.toMap(cardType -> cardType.name, Function.identity()));
 
     private final String name;
-    private final Rarity minRarity;
-    private final Map<Rarity, Component> descriptionsByRarity = new HashMap<>();
+    private final Map<RarityType, Rarity> rarities = new HashMap<>();
 
-    CardType(String name, Rarity minRarity) {
+    CardType(String name) {
         this.name = name;
-        this.minRarity = minRarity;
     }
 
-    protected void addDescription(Rarity rarity, String description) {
-        descriptionsByRarity.put(rarity, Component.literal(description).withStyle(rarity.color()));
+    protected void addRarity(RarityType rarityType, int probability, boolean isEnchanted, String description) {
+        rarities.put(rarityType, new Rarity(rarityType, probability, isEnchanted, description));
     }
 
-    public Rarity minRarity() {
-        return minRarity;
+    public RarityType minRarity() {
+        return rarities.keySet().stream().min(Comparator.comparingInt(Enum::ordinal)).orElseThrow();
+    }
+
+    public List<Rarity> getRarities() {
+        return rarities.values().stream()
+                .sorted(Comparator.comparing(r -> r.type().ordinal()))
+                .toList();
     }
 
     /// Gets all descriptions for this card up to and including the given rarity level.
     ///
-    /// @param rarity The rarity level to get descriptions for.
+    /// @param maxRarity The rarity level to get descriptions for.
     /// @return A list of descriptions for the given rarity level and all lower rarities.
-    public List<Component> getDescriptions(Rarity rarity) {
-        List<Component> descriptions = new ArrayList<>();
-        for (Rarity r : Rarity.values()) {
-            if (r.ordinal() > rarity.ordinal()) break;
-            if (descriptionsByRarity.containsKey(r)) {
-                descriptions.add(descriptionsByRarity.get(r));
-            }
+    public List<Component> getDescriptions(RarityType maxRarity) {
+        var descriptions = new ArrayList<Component>();
+        for (var rarity : rarities.keySet().stream().sorted(Comparator.comparing(Enum::ordinal)).toList()) {
+            descriptions.add(rarities.get(rarity).getFormattedDescription());
+            if (rarity == maxRarity) break;
         }
         return descriptions;
+    }
+
+    public int getProbability(RarityType rarityType) {
+        if (rarities.containsKey(rarityType)) {
+            return rarities.get(rarityType).probability();
+        }
+        return 0;
+    }
+
+    public boolean isEnchanted(RarityType rarityType) {
+        if (rarities.containsKey(rarityType)) {
+            return rarities.get(rarityType).isEnchanted();
+        }
+        return false;
     }
 
     public static Optional<CardType> deserialize(String string) {
