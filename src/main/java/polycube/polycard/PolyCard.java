@@ -13,7 +13,6 @@ import polycube.polycard.events.cardEvents.CardEvents;
 import polycube.polycard.events.guiEvents.CardItemUseEvent;
 import polycube.polycard.gui.EquipmentGUI;
 import polycube.polycard.manager.CardManager;
-import polycube.polycard.manager.Storage;
 
 import java.util.ArrayList;
 import java.util.List;

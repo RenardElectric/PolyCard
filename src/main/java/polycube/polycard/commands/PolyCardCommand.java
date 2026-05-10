@@ -14,7 +14,7 @@ public abstract class PolyCardCommand {
     private final String usage;
     private final PermissionLevel permissionLevel;
 
-    public PolyCardCommand(String name, String description, String usage, PermissionLevel permissionLevel) { //TODO luck perm
+    public PolyCardCommand(String name, String description, String usage, PermissionLevel permissionLevel) {
         this.name = name;
         this.description = description;
         this.usage = usage;

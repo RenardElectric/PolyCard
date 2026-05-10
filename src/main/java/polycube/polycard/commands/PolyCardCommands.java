@@ -1,6 +1,9 @@
 package polycube.polycard.commands;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -22,7 +25,19 @@ public class PolyCardCommands {
     }
 
     private static int printModInfo(CommandSourceStack cst) {
-        cst.sendSuccess(() -> Component.literal("PolyCard Version 1.0.0\nA Minecraft mod for card-based gameplay mechanics."), false); // TODO: Fetch correct infos
+        var optionalModData = FabricLoader.getInstance()
+                .getModContainer(PolyCard.MOD_ID)
+                .map(ModContainer::getMetadata);
+
+        if (optionalModData.isEmpty()) {
+            cst.sendFailure(Component.literal("Could not fetch mod information."));
+            return 0;
+        }
+        var modData = optionalModData.get();
+        var modInfo = Component.literal("\n" + modData.getName() + " v" + modData.getVersion().getFriendlyString())
+                .append("\nMade by " + modData.getAuthors().stream().map(Person::getName).reduce((a, b) -> a + " and " + b).orElse("Unknown authors"))
+                .append("\n" + modData.getDescription());
+        cst.sendSuccess(() -> modInfo, false);
         return 1;
     }
 
