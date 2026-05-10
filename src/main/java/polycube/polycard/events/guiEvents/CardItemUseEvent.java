@@ -13,6 +13,11 @@ import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
 
+/// Handles equipping cards when a player uses a card item.
+/// Prevents equipping if the player is sneaking,
+/// already has a card of the same type equipped,
+/// or has 5 cards equipped.
+/// Swaps cards if the player equips a card of the same type but different rarity.
 public class CardItemUseEvent implements ItemUseEventCallback {
     private final CardManager cardManager;
 

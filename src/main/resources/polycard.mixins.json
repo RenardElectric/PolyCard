@@ -6,6 +6,7 @@
     "BredAnimalsTriggerMixin",
     "ConsumeItemTriggerMixin",
     "KilledTriggerMixin",
+    "LivingEntityMixin",
     "ProjectileMixin",
     "ServerPlayerGameModeMixin"
   ],

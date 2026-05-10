@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import polycube.polycard.commands.*;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.cardDropEvents.CardDropEvents;
-import polycube.polycard.events.cardEvents.CardEvents;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.guiEvents.CardItemUseEvent;
 import polycube.polycard.gui.EquipmentGUI;
 import polycube.polycard.manager.CardManager;
@@ -45,7 +45,7 @@ public class PolyCard implements ModInitializer {
         ItemUseEventCallback.register(new CardItemUseEvent(cardManager));
 
         CardDropEvents.registerCardDropEvents();
-        CardEvents.registerCardEvents(cardManager);
+        CardEffects.registerCardEffects(cardManager);
     }
 
     // Small helpers

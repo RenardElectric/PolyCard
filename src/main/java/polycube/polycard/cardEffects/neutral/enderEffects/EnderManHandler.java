@@ -1,4 +1,4 @@
-package polycube.polycard.events.cardEvents.neutral.enderMan;
+package polycube.polycard.cardEffects.neutral.enderEffects;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
@@ -39,7 +39,7 @@ public class EnderManHandler {
             Arrays.asList(Biomes.THE_END, Biomes.END_BARRENS, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS)
     );
 
-    public static void registerEnderManCardEvents(CardManager cardManager) {
+    public static void registerEnderManCardEffects(CardManager cardManager) {
         ItemUseEventCallback.register((player, world, hand) -> onEnderPearlUsed(cardManager, player, world, hand));
         ProjectileOnHitEventCallback.EVENT.register((projectile, hitResult) -> onEnderPearlHit(cardManager, projectile, hitResult));
         ProjectileOnHitEventCallback.EVENT.register((projectile, hitResult) -> onProjectileHit(cardManager, projectile, hitResult));

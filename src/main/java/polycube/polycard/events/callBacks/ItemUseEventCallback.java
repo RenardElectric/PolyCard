@@ -6,6 +6,12 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
 
+/// Callback for right-clicking ("using") an item.
+///
+/// Upon return:
+///   - SUCCESS cancels further processing and, on the client, sends a packet to the server.
+///   - PASS falls back to further processing.
+///   - FAIL cancels further processing and does not send a packet to the server.
 public interface ItemUseEventCallback {
     static void register(ItemUseEventCallback itemUseEvent) {
         UseItemCallback.EVENT.register((player, world, hand) -> {

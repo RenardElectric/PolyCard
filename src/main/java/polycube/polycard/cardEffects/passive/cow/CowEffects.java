@@ -1,4 +1,4 @@
-package polycube.polycard.events.cardEvents.passive.cow;
+package polycube.polycard.cardEffects.passive.cow;
 
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +19,7 @@ import polycube.polycard.manager.CardManager;
 
 import java.util.*;
 
-public class CowHandler {
+public class CowEffects {
     private static final CardType CARD_TYPE = CardType.COW;
     private static final long STILL_DELAY_MS = 500L;
     private static final int REGEN_HEALTH_GAIN = 8;
@@ -46,7 +46,7 @@ public class CowHandler {
     private static final Map<UUID, Vec3> lastLocations = new HashMap<>();
     private static final Map<UUID, Long> lastMoveTimes = new HashMap<>();
 
-    public static void registerCowCardEvents(CardManager cardManager) {
+    public static void registerCowCardEffects(CardManager cardManager) {
         ItemConsumedEventCallback.EVENT.register((player, itemStack) -> onBucketUsed(cardManager, player, itemStack));
 
         PolyCard.runTaskTimer(0, 20, server -> {
