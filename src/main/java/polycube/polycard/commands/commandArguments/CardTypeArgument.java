@@ -6,7 +6,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import polycube.polycard.card.CardType;
-import polycube.polycard.card.Rarity;
 
 import java.util.Arrays;
 import java.util.Optional;

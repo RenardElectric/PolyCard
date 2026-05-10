@@ -12,9 +12,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.Vec3;
 import polycube.polycard.PolyCard;
-import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
-import polycube.polycard.card.Rarity;
 import polycube.polycard.card.RarityType;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.manager.CardManager;
@@ -86,7 +84,7 @@ public class CowHandler {
             });
 
             // Near Cow Card resistance
-            for (Player player :  playersOnline.stream().filter(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityType.RARE)).toList()) {
+            for (Player player : playersOnline.stream().filter(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityType.RARE)).toList()) {
                 boolean nearCowCard = playersOnline.stream()
                         .filter(p -> !p.equals(player))
                         .anyMatch(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityType.RARE) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);

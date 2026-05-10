@@ -1,32 +1,32 @@
 {
-	"schemaVersion": 1,
-	"id": "polycard",
-	"version": "${version}",
-	"name": "PolyCard",
-	"description": "Collectible card system — earn cards by playing, equip for buffs.",
-	"authors": [
-		"Timeo",
-		"RenardElectric"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/polycard/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"polycube.polycard.PolyCard"
-		]
-	},
-	"mixins": [
-		"polycard.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.19.2",
-		"minecraft": "~26.1.2-",
-		"java": ">=25",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "polycard",
+  "version": "${version}",
+  "name": "PolyCard",
+  "description": "Collectible card system — earn cards by playing, equip for buffs.",
+  "authors": [
+    "Timeo",
+    "RenardElectric"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/polycard/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "polycube.polycard.PolyCard"
+    ]
+  },
+  "mixins": [
+    "polycard.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.2",
+    "minecraft": "~26.1.2-",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
 }

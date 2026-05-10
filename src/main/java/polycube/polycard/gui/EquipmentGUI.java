@@ -3,7 +3,6 @@ package polycube.polycard.gui;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -29,7 +28,7 @@ public class EquipmentGUI {
 
     /// Opens the equipment GUI for a player - single line with 5 centered slots.
     ///
-    /// @param player The player to open the GUI for.
+    /// @param player       The player to open the GUI for.
     /// @param targetPlayer The player whose equipment is being managed (can be the same as player).
     public void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
         var playerData = cardManager.getStorage().data(targetPlayer);

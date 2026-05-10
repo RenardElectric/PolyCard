@@ -2,7 +2,6 @@ package polycube.polycard.card;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import eu.pb4.sgui.api.elements.ItemStackBuilder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +15,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 import org.jspecify.annotations.NonNull;
 import polycube.polycard.PolyCard;
-import polycube.polycard.manager.CardManager;
 
 import java.util.HashMap;
 import java.util.Map;

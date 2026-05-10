@@ -21,7 +21,7 @@ public abstract class PolyCardCommand {
         this.permissionLevel = permissionLevel;
     }
 
-    protected String getName()  {
+    protected String getName() {
         return name;
     }
 
@@ -29,7 +29,7 @@ public abstract class PolyCardCommand {
         return description + (permissionLevel.id() == 0 ? "." : " (" + permissionLevel.getSerializedName() + " only).");
     }
 
-    protected String getUsage()  {
+    protected String getUsage() {
         return "/" + PolyCard.MOD_ID + " " + name + " " + usage;
     }
 

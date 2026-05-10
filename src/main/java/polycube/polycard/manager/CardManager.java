@@ -7,11 +7,13 @@ import net.minecraft.server.level.ServerPlayer;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
-import polycube.polycard.card.Rarity;
 import polycube.polycard.card.RarityType;
 import polycube.polycard.utils.Cooldown;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 
 public class CardManager {
     private static final Random random = new Random();
@@ -86,10 +88,12 @@ public class CardManager {
         Optional<RarityType> result = Optional.empty();
 
         if (random.nextInt(100) < cardType.getProbability(RarityType.COMMON)) result = Optional.of(RarityType.COMMON);
-        if (random.nextInt(100) < cardType.getProbability(RarityType.UNCOMMON)) result = Optional.of(RarityType.UNCOMMON);
+        if (random.nextInt(100) < cardType.getProbability(RarityType.UNCOMMON))
+            result = Optional.of(RarityType.UNCOMMON);
         if (random.nextInt(100) < cardType.getProbability(RarityType.RARE)) result = Optional.of(RarityType.RARE);
         if (random.nextInt(100) < cardType.getProbability(RarityType.EPIC)) result = Optional.of(RarityType.EPIC);
-        if (random.nextInt(100) < cardType.getProbability(RarityType.LEGENDARY)) result = Optional.of(RarityType.LEGENDARY);
+        if (random.nextInt(100) < cardType.getProbability(RarityType.LEGENDARY))
+            result = Optional.of(RarityType.LEGENDARY);
         return result;
     }
 }

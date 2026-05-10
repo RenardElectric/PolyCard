@@ -8,8 +8,6 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import polycube.polycard.card.RarityType;
 
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 

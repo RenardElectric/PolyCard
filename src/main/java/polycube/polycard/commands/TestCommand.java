@@ -53,7 +53,7 @@ public class TestCommand extends PolyCardCommand {
                 none++;
             }
         }
-        var message = Component.literal("Roll: " + none + " / " + common + " / " + uncommon + " / " + rare +" / " + epic + " / " + legendary);
+        var message = Component.literal("Roll: " + none + " / " + common + " / " + uncommon + " / " + rare + " / " + epic + " / " + legendary);
         context.getSource().sendSuccess(() -> message, false);
 //        source.sendSuccess(() -> Component.literal("Expected: 500 / 250 / 150 / 90 / 10"), false);
 

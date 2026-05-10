@@ -8,7 +8,6 @@ import polycube.polycard.events.callBacks.KillEventCallback;
 import polycube.polycard.manager.CardManager;
 
 
-
 public class KillEvents {
     public static void registerKillEvents() {
         KillEventCallback.EVENT.register((player, entity, killingBlow) -> {
