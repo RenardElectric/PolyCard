@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
@@ -60,28 +61,24 @@ public record Card(CardType cardType, RarityType rarityType) {
         var rarity = card.rarityType();
         var cardType = card.cardType();
 
+        var cardTypeName = cardType.getSerializedName();
+        var rarityName = rarity.getSerializedName();
+
         var customDataTag = new CompoundTag();
         var polyCardTag = new CompoundTag();
-        polyCardTag.putString(CARD_TYPE_KEY, cardType.getSerializedName());
-        polyCardTag.putString(RARITY_TYPE_KEY, rarity.getSerializedName());
+        polyCardTag.putString(CARD_TYPE_KEY, cardTypeName);
+        polyCardTag.putString(RARITY_TYPE_KEY, rarityName);
         customDataTag.put(PolyCard.MOD_ID, polyCardTag);
 
         var components = DataComponentPatch.builder()
                 .set(DataComponents.ITEM_NAME, Component.literal(card.toString()).withStyle(rarity.color()))
                 .set(DataComponents.LORE, new ItemLore(cardType.getDescriptions(rarity)))
                 .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, cardType.isEnchanted(rarity))
-                .set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag));
+                .set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag))
+                .set(DataComponents.MAX_STACK_SIZE, 64)
+                .set(DataComponents.ITEM_MODEL, Identifier.parse(PolyCard.MOD_ID + ":" + cardTypeName + "/" + rarityName));
 
-        // TODO: Temporary
-        var item = switch (rarity) {
-            case COMMON -> Items.GRAY_DYE;
-            case UNCOMMON -> Items.GREEN_DYE;
-            case RARE -> Items.BLUE_DYE;
-            case EPIC -> Items.PURPLE_DYE;
-            case LEGENDARY -> Items.ORANGE_DYE;
-        };
-
-        return new ItemStackTemplate(item, components.build());
+        return new ItemStackTemplate(Items.KNOWLEDGE_BOOK, components.build());
     }
 
     public static boolean isCard(ItemStack item) {

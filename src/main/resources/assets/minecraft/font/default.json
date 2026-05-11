@@ -1,0 +1,6 @@
+{
+    "providers": [
+        {"type": "bitmap", "file": "polycard:gui/polycard_gui.png","ascent": -3,"height": 21,"chars": ["ㇺ"]},
+        {"type":"space","advances":{"七":-1,"八":-10,"九":-50,"十":-100,"百":-1,"千":-1,"万":-1,"亿":-1}}
+    ]
+}

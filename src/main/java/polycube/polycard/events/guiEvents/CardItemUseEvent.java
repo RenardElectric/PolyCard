@@ -55,7 +55,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             if (equippedCard.rarityType() == card.rarityType()) {
                 player.sendSystemMessage(Component.literal("You already equipped this card!").withStyle(ChatFormatting.RED));
                 PolyCard.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
-                return InteractionResult.PASS;
+                return InteractionResult.FAIL;
             }
 
             // Swap the cards
@@ -69,7 +69,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         if (playerData.getEquippedCards().size() >= Storage.MAX_EQUIPPED_CARDS) {
             player.sendSystemMessage(Component.literal("You already have " + Storage.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
             PolyCard.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), Storage.MAX_EQUIPPED_CARDS, card);
-            return InteractionResult.PASS;
+            return InteractionResult.FAIL;
         }
 
         // Equip the card
@@ -84,6 +84,6 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             cardManager.save();
             return InteractionResult.SUCCESS;
         }
-        return InteractionResult.PASS;
+        return InteractionResult.FAIL;
     }
 }

@@ -37,17 +37,23 @@ public class EquipmentGUI {
         var container = playerData.asContainer();
 
         SimpleGui gui = getSimpleGui(player, playerData);
-        gui.setTitle(Component.literal("Equipment Slots"));
+        gui.setTitle(Component.literal("七七ㇺ").withStyle(ChatFormatting.WHITE)
+                .append(Component.literal("十八八八七七七七七七七七").withStyle(ChatFormatting.BLACK)
+                        .append(Component.literal("✦༺ ").withStyle(ChatFormatting.DARK_RED))
+                        .append(Component.literal("Equipped Cards").withStyle(s -> s.withUnderlined(true)))
+                        .append(Component.literal(" ༻✦").withStyle(ChatFormatting.DARK_RED))
+                )
+        );
 
         for (int i = 0; i < 5; i++) {
-            gui.setSlot(2 + i, getSlot(container, player, playerData, i));
+            gui.setSlot(i, getSlot(container, player, playerData, i));
         }
 
         gui.open();
     }
 
     private SimpleGui getSimpleGui(ServerPlayer player, Storage.PlayerData playerData) {
-        return new SimpleGui(MenuType.GENERIC_9x1, player, false) {
+        return new SimpleGui(MenuType.HOPPER, player, false) {
             @Override
             public void onPlayerClose(boolean success) {
                 super.onPlayerClose(success);
