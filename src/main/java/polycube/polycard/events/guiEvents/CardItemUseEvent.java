@@ -3,6 +3,7 @@ package polycube.polycard.events.guiEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
@@ -81,6 +82,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             item.setCount(item.getCount() - 1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormatedName()));
             PolyCard.debug("{} equipped card: {}", player.getName().getString(), card);
+            PolyCard.playSound(player, SoundEvents.BUNDLE_INSERT);
             cardManager.save();
             return InteractionResult.SUCCESS;
         }

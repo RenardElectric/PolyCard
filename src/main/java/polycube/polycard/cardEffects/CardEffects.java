@@ -1,6 +1,6 @@
 package polycube.polycard.cardEffects;
 
-import polycube.polycard.cardEffects.neutral.enderEffects.EnderManHandler;
+import polycube.polycard.cardEffects.neutral.enderEffects.EnderManEffects;
 import polycube.polycard.cardEffects.neutral.ironGolem.IronGolemEffects;
 import polycube.polycard.cardEffects.passive.cow.CowEffects;
 import polycube.polycard.manager.CardManager;
@@ -12,7 +12,7 @@ public class CardEffects {
         CowEffects.registerCowCardEffects(cardManager);
 
         // Neutral
-        EnderManHandler.registerEnderManCardEffects(cardManager);
+        EnderManEffects.registerEnderManCardEffects(cardManager);
         IronGolemEffects.registerIronGolemCardEffects(cardManager);
     }
 }

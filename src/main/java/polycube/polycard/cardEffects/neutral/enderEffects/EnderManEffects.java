@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class EnderManHandler {
+public class EnderManEffects {
 
     private static final CardType CARD_TYPE = CardType.ENDERMAN;
     private static final int RESISTANCE_EFFECT_DURATION = 40;
@@ -106,7 +106,7 @@ public class EnderManHandler {
 
                         //noinspection resource
                         var level = player.level();
-                        level.playSound(null, player.blockPosition(), SoundEvents.PLAYER_TELEPORT, SoundSource.PLAYERS);
+                        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.VAULT_INSERT_ITEM_FAIL, SoundSource.PLAYERS);
                         level.sendParticles(ParticleTypes.PORTAL, player.getX(), player.getY() + 0.5, player.getZ(), 50, 0.5, 1, 0.5, 1);
 
                         return InteractionResult.FAIL;

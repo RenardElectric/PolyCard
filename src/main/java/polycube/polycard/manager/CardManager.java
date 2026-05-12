@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
@@ -66,6 +67,7 @@ public class CardManager {
                                     .append(" card!")
                                     .withStyle(ChatFormatting.GREEN)
                     );
+                    PolyCard.playSound(player, SoundEvents.ITEM_PICKUP);
                 }
         );
 
