@@ -11,7 +11,7 @@ public class BreedEvents {
         BreedEventCallback.EVENT.register((player, parent, partner, child) -> {
 
             switch (parent) {
-                case Cow _ -> CardManager.giveCard(player, CardType.COW);
+                case Cow _ -> CardManager.receiveCard(player, CardType.COW);
                 default -> { }
             }
 

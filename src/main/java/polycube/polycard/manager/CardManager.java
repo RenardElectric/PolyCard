@@ -52,14 +52,14 @@ public class CardManager {
         return cooldowns;
     }
 
-    /// Give a card to a player and send them a message about it.
+    /// Give a card to a player, creating it with a random rarity level based on the card type's probabilities.
     ///
     /// @param player The player to give the card to.
     /// @param cardType The type of card to give.
-    public static void giveCard(ServerPlayer player, CardType cardType) {
+    public static void receiveCard(ServerPlayer player, CardType cardType) {
         CardManager.createCard(cardType).ifPresent(
                 card -> {
-                    player.getInventory().add(card.asItem());
+                    giveCard(player, card);
                     PolyCard.debug("{} received a card: {}", player.getName(), card);
                     player.sendSystemMessage(
                             Component.literal("✨ You found a ")
@@ -67,7 +67,6 @@ public class CardManager {
                                     .append(" card!")
                                     .withStyle(ChatFormatting.GREEN)
                     );
-                    PolyCard.playSound(player, SoundEvents.ITEM_PICKUP);
                     if (card.rarityLevel() == RarityLevel.LEGENDARY) {
                         //noinspection resource
                         player.level().getServer().getPlayerList().getPlayers().forEach(
@@ -86,6 +85,15 @@ public class CardManager {
                     }
                 }
         );
+    }
+
+    /// Give a specific card to a player.
+    ///
+    /// @param player The player to give the card to.
+    /// @param card The card to give to the player.
+    public static void giveCard(ServerPlayer player, Card card) {
+        player.getInventory().placeItemBackInInventory(card.asItem());
+        PolyCard.playSound(player, SoundEvents.ITEM_PICKUP);
     }
 
     /// Create a card with a random rarity level based on the card type's probabilities.

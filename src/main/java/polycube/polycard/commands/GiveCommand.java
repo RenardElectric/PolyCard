@@ -10,12 +10,12 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
-import net.minecraft.sounds.SoundEvents;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.commands.commandArguments.RarityTypeArgument;
+import polycube.polycard.manager.CardManager;
 
 public class GiveCommand extends PolyCardCommand {
 
@@ -73,11 +73,10 @@ public class GiveCommand extends PolyCardCommand {
             rarityLevel = optionalRarityType.get();
         }
         var card = new Card(cardType, rarityLevel);
-        player.getInventory().add(card.asItem());
+        CardManager.giveCard(player, card);
 
         source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormatedName()), true);
         player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormatedName()));
-        PolyCard.playSound(player, SoundEvents.ITEM_PICKUP);
 
         PolyCard.LOGGER.debug("[Polycard] Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
 

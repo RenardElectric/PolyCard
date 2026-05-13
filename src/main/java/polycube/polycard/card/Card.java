@@ -59,7 +59,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     /// @return a Component representing the formatted name of this Card
     public Component getFormatedName() {
         return ComponentUtils.wrapInSquareBrackets(
-                Component.literal(cardType.toString()).withStyle(
+                Component.literal(toString()).withStyle(
                         s -> s.withHoverEvent(
                                 new HoverEvent.ShowItem(getItemTemplate())
                         )
@@ -69,7 +69,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     @Override
     public @NonNull String toString() {
-        return rarityLevel + " " + cardType;
+        return rarityLevel + " " + cardType + " card";
     }
 
     // Helper methods to manipulate card ItemStacks

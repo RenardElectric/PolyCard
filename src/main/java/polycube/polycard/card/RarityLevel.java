@@ -31,6 +31,20 @@ public enum RarityLevel implements StringRepresentable {
         this.color = color;
     }
 
+    /// Gets the next rarity level in the progression, if it exists.
+    ///
+    /// @return An Optional containing the next RarityLevel if it exists,
+    /// or an empty Optional if this is the highest rarity level (LEGENDARY).
+    public Optional<RarityLevel> nextLevel() {
+        return switch (this) {
+            case COMMON -> Optional.of(UNCOMMON);
+            case UNCOMMON -> Optional.of(RARE);
+            case RARE -> Optional.of(EPIC);
+            case EPIC -> Optional.of(LEGENDARY);
+            case LEGENDARY -> Optional.empty(); // No next level after LEGENDARY
+        };
+    }
+
     /// Gets the color associated with this rarity level for display purposes.
     ///
     /// @return The ChatFormatting color associated with this rarity level.

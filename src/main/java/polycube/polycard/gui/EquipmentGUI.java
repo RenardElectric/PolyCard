@@ -4,6 +4,7 @@ import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -95,6 +96,7 @@ public class EquipmentGUI {
 
                 var optionalCard = Card.getCard(itemStack);
                 if (optionalCard.isEmpty()) {
+                    PolyCard.playSound(player, SoundEvents.VILLAGER_NO); // TODO: Not sure, makes a lot of sound when shift clicking
                     PolyCard.debug("{} attempted to place non-card item in equipment slot: {}", player.getName().getString(), itemStack.getHoverName().getString());
                     return false;
                 }
@@ -110,7 +112,8 @@ public class EquipmentGUI {
                 }
 
                 if (playerData.hasCardType(card.cardType())) {
-                    player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));
+                    player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));  // TODO: Not sure, makes a lot of messages when shift clicking
+                    PolyCard.playSound(player, SoundEvents.VILLAGER_NO); // TODO: Not sure, makes a lot of sound when shift clicking
                     PolyCard.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.cardType().name());
                     return false;
                 }

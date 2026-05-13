@@ -13,8 +13,8 @@ public class KillEvents {
         KillEventCallback.EVENT.register((player, entity, killingBlow) -> {
 
             switch (entity) {
-                case IronGolem _ -> CardManager.giveCard(player, CardType.IRON_GOLEM);
-                case EnderMan _ -> CardManager.giveCard(player, CardType.ENDERMAN);
+                case IronGolem _ -> CardManager.receiveCard(player, CardType.IRON_GOLEM);
+                case EnderMan _ -> CardManager.receiveCard(player, CardType.ENDERMAN);
                 default -> { }
             }
 
