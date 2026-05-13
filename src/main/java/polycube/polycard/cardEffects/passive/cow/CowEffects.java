@@ -13,7 +13,7 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.Vec3;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
-import polycube.polycard.card.RarityType;
+import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.manager.CardManager;
 
@@ -56,7 +56,7 @@ public class CowEffects {
             var playersOnline = server.getPlayerList().getPlayers();
             for (ServerPlayer player : playersOnline) {
 
-                var hasCard = storage.data(player).hasCardOrRarer(CARD_TYPE, RarityType.UNCOMMON);
+                var hasCard = storage.data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.UNCOMMON);
                 var pos = player.blockPosition();
                 //noinspection resource
                 var biome = player.level().getBiome(pos);
@@ -84,10 +84,10 @@ public class CowEffects {
             });
 
             // Near Cow Card resistance
-            for (Player player : playersOnline.stream().filter(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityType.RARE)).toList()) {
+            for (Player player : playersOnline.stream().filter(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)).toList()) {
                 boolean nearCowCard = playersOnline.stream()
                         .filter(p -> !p.equals(player))
-                        .anyMatch(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityType.RARE) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);
+                        .anyMatch(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);
                 if (nearCowCard) {
                     PolyCard.debug("{} is near another player with the rare cow card, giving them resistance!", player.getName());
                     player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
@@ -98,7 +98,7 @@ public class CowEffects {
 
     private static InteractionResult onBucketUsed(CardManager cardManager, ServerPlayer player, ItemStack itemStack) {
         if (itemStack.getItem() == Items.MILK_BUCKET) {
-            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityType.EPIC)) {
+            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                 var random = new Random();
                 List<MobEffectInstance> effectsGained = new ArrayList<>();
                 for (MobEffectInstance effect : player.getActiveEffects()) {
@@ -118,7 +118,7 @@ public class CowEffects {
                 });
             }
 
-            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityType.LEGENDARY)) {
+            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
                 PolyCard.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
                 player.setHealth(player.getHealth() + REGEN_HEALTH_GAIN);
             }

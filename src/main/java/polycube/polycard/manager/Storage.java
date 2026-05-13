@@ -12,7 +12,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
-import polycube.polycard.card.RarityType;
+import polycube.polycard.card.RarityLevel;
 
 import java.util.*;
 
@@ -20,9 +20,11 @@ import java.util.*;
 /// allowing players to equip and unequip cards
 /// and saving this data persistently on the server.
 public class Storage extends SavedData {
+
     public static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
     public static final Codec<Storage> CODEC = Codec.unboundedMap(UUID_CODEC, PlayerData.CODEC)
             .xmap(Storage::new, Storage::getPlayerDataMap);
+
     private static final SavedDataType<Storage> TYPE = new SavedDataType<>(
             Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "storage"),
             () -> new Storage(new HashMap<>()),
@@ -79,30 +81,30 @@ public class Storage extends SavedData {
             return equippedCards.contains(card);
         }
 
-        /// Checks if the player has a card of a specific type and rarity equipped.
+        /// Checks if the player has a card of a specific type and rarity level equipped.
         ///
         /// @param cardType the type of card to check for
-        /// @param rarity the rarity of card to check for
+        /// @param rarityLevel the rarity level of card to check for
         /// @return true if a card of the specified type and rarity is equipped, false otherwise
-        public boolean hasCard(CardType cardType, RarityType rarity) {
-            return equippedCards.stream().anyMatch(equippedCard -> equippedCard.cardType() == cardType && equippedCard.rarityType() == rarity);
+        public boolean hasCard(CardType cardType, RarityLevel rarityLevel) {
+            return equippedCards.stream().anyMatch(equippedCard -> equippedCard.cardType() == cardType && equippedCard.rarityLevel() == rarityLevel);
         }
 
-        /// Checks if the player has a card of a specific card with same or higher rarity equipped.
+        /// Checks if the player has a card of a specific card with same or higher rarity level equipped.
         ///
         /// @param card the card to check for
-        /// @return true if a card of the same type and same or higher rarity is equipped, false otherwise
+        /// @return true if a card of the same type and same or higher rarity level is equipped, false otherwise
         public boolean hasCardOrRarer(Card card) {
-            return equippedCards.stream().anyMatch(equippedCard -> equippedCard.cardType() == card.cardType() && equippedCard.rarityType().ordinal() >= card.rarityType().ordinal());
+            return equippedCards.stream().anyMatch(equippedCard -> equippedCard.cardType() == card.cardType() && equippedCard.rarityLevel().ordinal() >= card.rarityLevel().ordinal());
         }
 
-        /// Checks if the player has a card of a specific type with same or higher rarity equipped.
+        /// Checks if the player has a card of a specific type with same or higher rarity level equipped.
         ///
         /// @param cardType the type of card to check for
-        /// @param rarity the rarity of card to check for
-        /// @return true if a card of the specified type and same or higher rarity is equipped, false otherwise
-        public boolean hasCardOrRarer(CardType cardType, RarityType rarity) {
-            return equippedCards.stream().anyMatch(equippedCard -> equippedCard.cardType() == cardType && equippedCard.rarityType().ordinal() >= rarity.ordinal());
+        /// @param rarityLevel the rarity level of card to check for
+        /// @return true if a card of the specified type and same or higher rarity level is equipped, false otherwise
+        public boolean hasCardOrRarer(CardType cardType, RarityLevel rarityLevel) {
+            return equippedCards.stream().anyMatch(equippedCard -> equippedCard.cardType() == cardType && equippedCard.rarityLevel().ordinal() >= rarityLevel.ordinal());
         }
 
         /// Checks if the player has a card of a specific type equipped.

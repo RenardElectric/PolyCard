@@ -11,30 +11,39 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public enum RarityType implements StringRepresentable {
+/// Represents the rarity level of a card, including its name and associated color for display purposes.
+public enum RarityLevel implements StringRepresentable {
     COMMON("common", ChatFormatting.GRAY),
     UNCOMMON("uncommon", ChatFormatting.GREEN),
     RARE("rare", ChatFormatting.BLUE),
     EPIC("epic", ChatFormatting.DARK_PURPLE),
     LEGENDARY("legendary", ChatFormatting.GOLD);
 
-    public static final Codec<RarityType> CODEC = StringRepresentable.fromValues(RarityType::values);
-    public static final Map<String, RarityType> BY_NAME = Arrays.stream(values())
+    public static final Codec<RarityLevel> CODEC = StringRepresentable.fromValues(RarityLevel::values);
+    public static final Map<String, RarityLevel> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(rarity -> rarity.name, Function.identity()));
 
     private final String name;
     private final ChatFormatting color;
 
-    RarityType(String name, ChatFormatting color) {
+    RarityLevel(String name, ChatFormatting color) {
         this.name = name;
         this.color = color;
     }
 
+    /// Gets the color associated with this rarity level for display purposes.
+    ///
+    /// @return The ChatFormatting color associated with this rarity level.
     public ChatFormatting color() {
         return this.color;
     }
 
-    public static Optional<RarityType> deserialize(String string) {
+    /// Deserializes a string into a RarityLevel.
+    ///
+    /// @param string The string representation of the rarity level to deserialize.
+    /// @return An Optional containing the corresponding RarityLevel if the string is valid,
+    ///         or an empty Optional if the string does not match any RarityLevel.
+    public static Optional<RarityLevel> deserialize(String string) {
         return Optional.ofNullable(BY_NAME.get(string));
     }
 

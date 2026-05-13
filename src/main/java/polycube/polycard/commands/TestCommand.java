@@ -40,7 +40,7 @@ public class TestCommand extends PolyCardCommand {
         int epic = 0;
         int legendary = 0;
         for (int i = 0; i < 1000; i++) {
-            var rarity = CardManager.getRandomRarity(cardType);
+            var rarity = CardManager.getRandomRarityLevel(cardType);
             if (rarity.isPresent()) {
                 switch (rarity.get()) {
                     case COMMON -> common++;

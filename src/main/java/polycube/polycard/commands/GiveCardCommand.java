@@ -13,7 +13,7 @@ import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.sounds.SoundEvents;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
-import polycube.polycard.card.RarityType;
+import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.commands.commandArguments.RarityTypeArgument;
 
@@ -23,7 +23,7 @@ public class GiveCardCommand extends PolyCardCommand {
         super(
                 "givecard",
                 "Give a card to a player",
-                "<player> <card> [rarity]",
+                "<player> <cardType> [rarityLevel]",
                 PermissionLevel.ADMINS
         );
     }
@@ -33,21 +33,21 @@ public class GiveCardCommand extends PolyCardCommand {
         return super.getCommand().then(
                 Commands.argument("player", EntityArgument.players())
                         .then(
-                                Commands.argument("card", StringArgumentType.string())
+                                Commands.argument("cardType", StringArgumentType.string())
                                         .suggests(CardTypeArgument::suggestCards)
                                         .executes(cts -> giveCard(cts, false))
                                         .then(
-                                                Commands.argument("rarity", StringArgumentType.string())
+                                                Commands.argument("rarityLevel", StringArgumentType.string())
                                                         .suggests(RarityTypeArgument::suggestRarities)
                                                         .executes(cts -> giveCard(cts, true))
                                         )
                         )
         );
     }
-    private int giveCard(CommandContext<CommandSourceStack> cts, boolean withRarity) throws CommandSyntaxException {
+    private int giveCard(CommandContext<CommandSourceStack> cts, boolean withRarityLevel) throws CommandSyntaxException {
         var source = cts.getSource();
         var player = EntityArgument.getPlayer(cts, "player");
-        var optionalCardType = CardTypeArgument.getType(cts, "card");
+        var optionalCardType = CardTypeArgument.getType(cts, "cardType");
 
         if (optionalCardType.isEmpty()) {
             source.sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(cts, "card")));
@@ -55,24 +55,24 @@ public class GiveCardCommand extends PolyCardCommand {
         }
         var cardType = optionalCardType.get();
 
-        // Get rarity (default to minimum rarity of the card)
-        RarityType rarityType = cardType.minRarity();
-        if (withRarity) {
-            var optionalRarityType = RarityTypeArgument.getRarity(cts, "rarity");
+        // Get rarity (default to minimum rarity level of the card)
+        RarityLevel rarityLevel = cardType.minRarityLevel();
+        if (withRarityLevel) {
+            var optionalRarityType = RarityTypeArgument.getRarity(cts, "rarityLevel");
 
             if (optionalRarityType.isEmpty()) {
-                source.sendFailure(Component.literal("Invalid rarity type: " + StringArgumentType.getString(cts, "rarity")));
+                source.sendFailure(Component.literal("Invalid rarity level: " + StringArgumentType.getString(cts, "rarity")));
                 return 0;
             }
 
-            if (optionalRarityType.get().ordinal() < rarityType.ordinal()) {
-                source.sendFailure(Component.literal(cardType + " requires at least " + rarityType + " rarity."));
+            if (optionalRarityType.get().ordinal() < rarityLevel.ordinal()) {
+                source.sendFailure(Component.literal(cardType + " requires at least " + rarityLevel + " rarity level."));
                 return 0;
             }
 
-            rarityType = optionalRarityType.get();
+            rarityLevel = optionalRarityType.get();
         }
-        var card = new Card(cardType, rarityType);
+        var card = new Card(cardType, rarityLevel);
         player.getInventory().add(card.asItem());
 
         source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormatedName()), true);

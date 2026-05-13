@@ -34,9 +34,9 @@ public class CardInfoCommand extends PolyCardCommand {
             var cardType = optionalCardType.get();
             var message = Component.literal("\n" + cardType + " card:");
             for (var rarity : cardType.getRarities()) {
-                var rarityInfo = Component.literal(" - " + rarity.type() + " (" + rarity.probability() + "%)")
+                var rarityInfo = Component.literal(" - " + rarity.rarityLevel() + " (" + rarity.probability() + "%)")
                         .append(Component.literal(" : " + rarity.description()))
-                        .withStyle(rarity.type().color());
+                        .withStyle(rarity.rarityLevel().color());
                 message.append("\n").append(rarityInfo);
             }
             context.getSource().sendSuccess(() -> message, false);

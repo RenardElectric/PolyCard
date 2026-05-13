@@ -19,7 +19,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
-import polycube.polycard.card.RarityType;
+import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
 import polycube.polycard.manager.CardManager;
@@ -50,7 +50,7 @@ public class EnderManEffects {
                 //noinspection resource
                 var biome = player.level().getBiome(pos);
                 if (biome.is(endBiomes::contains)) {
-                    if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityType.LEGENDARY)) {
+                    if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
                         PolyCard.debug("Applying enderman card resistance effect to {}", player.getName().getString());
                         player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
                     }
@@ -62,7 +62,7 @@ public class EnderManEffects {
     private static InteractionResult onEnderPearlUsed(CardManager cardManager, ServerPlayer player, Level world, InteractionHand hand) {
         var itemStack = player.getItemInHand(hand);
         if (itemStack.getItem() == Items.ENDER_PEARL) {
-            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityType.RARE)) {
+            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
                 PolyCard.runLater(1, _ -> {
                     PolyCard.debug("Removing ender pearl cooldown for {}", player.getName().getString());
                     var cooldowns = player.getCooldowns();
@@ -79,7 +79,7 @@ public class EnderManEffects {
         if (projectile instanceof ThrownEnderpearl enderPearl) {
             var owner = enderPearl.getOwner();
             if (owner instanceof ServerPlayer player) {
-                if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityType.RARE)) {
+                if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
                     PolyCard.debug("{} has a rare or higher enderman card, removing ender pearl teleport damage", player.getName().getString());
                     var fireTicks = player.getRemainingFireTicks();
                     player.getAbilities().invulnerable = true;
@@ -98,7 +98,7 @@ public class EnderManEffects {
         if (hitResult instanceof EntityHitResult entityHitResult) {
             var owner = entityHitResult.getEntity();
             if (owner instanceof ServerPlayer player) {
-                if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityType.EPIC)) {
+                if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                     var random = ThreadLocalRandom.current();
                     var randomInt = random.nextInt(0, 100);
                     if (randomInt < 100) {

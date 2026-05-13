@@ -11,21 +11,21 @@ import java.util.stream.Collectors;
 
 public enum CardType implements StringRepresentable {
     IRON_GOLEM("iron_golem") {{
-        addRarity(RarityType.RARE, 15, false, "20% Chance to gain resistance when hit");
-        addRarity(RarityType.EPIC, 9, true, "Falling creates shock wave (10 sec cooldown)");
-        addRarity(RarityType.LEGENDARY, 1, true, "Hitting with fist knock up enemies (10 sec cooldown)");
+        addRarity(RarityLevel.RARE, 15, false, "20% Chance to gain resistance when hit");
+        addRarity(RarityLevel.EPIC, 9, true, "Falling creates shock wave (10 sec cooldown)");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "Hitting with fist knock up enemies (10 sec cooldown)");
     }},
     COW("cow") {{
-        addRarity(RarityType.UNCOMMON, 25, false, "Regeneration when standing in plains");
-        addRarity(RarityType.RARE, 15, false, "Gain resistance when near other Cow Card");
-        addRarity(RarityType.EPIC, 9, true, "Convert Debuffs into Buffs when drinking milk");
-        addRarity(RarityType.LEGENDARY, 1, true, "+4 Hearts when drinking milk");
+        addRarity(RarityLevel.UNCOMMON, 25, false, "Regeneration when standing in plains");
+        addRarity(RarityLevel.RARE, 15, false, "Gain resistance when near other Cow Card");
+        addRarity(RarityLevel.EPIC, 9, true, "Convert Debuffs into Buffs when drinking milk");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "+4 Hearts when drinking milk");
     }},
     ENDERMAN("enderman") {{
-        addRarity(RarityType.UNCOMMON, 25, false, "No ender pearl damage");
-        addRarity(RarityType.RARE, 15, false, "No ender pearl cooldown");
-        addRarity(RarityType.EPIC, 9, true, "20% Chance to dodge projectile");
-        addRarity(RarityType.LEGENDARY, 1, true, "Resistance in the End");
+        addRarity(RarityLevel.UNCOMMON, 25, false, "No ender pearl damage");
+        addRarity(RarityLevel.RARE, 15, false, "No ender pearl cooldown");
+        addRarity(RarityLevel.EPIC, 9, true, "20% Chance to dodge projectile");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "Resistance in the End");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
@@ -33,23 +33,29 @@ public enum CardType implements StringRepresentable {
             .collect(Collectors.toMap(cardType -> cardType.name, Function.identity()));
 
     private final String name;
-    private final Map<RarityType, Rarity> rarities = new HashMap<>();
+    private final Map<RarityLevel, Rarity> rarities = new HashMap<>();
 
     CardType(String name) {
         this.name = name;
     }
 
-    protected void addRarity(RarityType rarityType, int probability, boolean isEnchanted, String description) {
-        rarities.put(rarityType, new Rarity(rarityType, probability, isEnchanted, description));
+    protected void addRarity(RarityLevel rarityLevel, int probability, boolean isEnchanted, String description) {
+        rarities.put(rarityLevel, new Rarity(rarityLevel, probability, isEnchanted, description));
     }
 
-    public RarityType minRarity() {
+    /// Gets the minimum rarity level available for this card.
+    ///
+    /// @return The minimum rarity level available for this card.
+    public RarityLevel minRarityLevel() {
         return rarities.keySet().stream().min(Comparator.comparingInt(Enum::ordinal)).orElseThrow();
     }
 
+    /// Gets a list of all rarities available for this card, sorted by their rarity level.
+    ///
+    /// @return A list of rarities for this card, sorted by rarity level.
     public List<Rarity> getRarities() {
         return rarities.values().stream()
-                .sorted(Comparator.comparing(r -> r.type().ordinal()))
+                .sorted(Comparator.comparing(r -> r.rarityLevel().ordinal()))
                 .toList();
     }
 
@@ -57,7 +63,7 @@ public enum CardType implements StringRepresentable {
     ///
     /// @param maxRarity The rarity level to get descriptions for.
     /// @return A list of descriptions for the given rarity level and all lower rarities.
-    public List<Component> getDescriptions(RarityType maxRarity) {
+    public List<Component> getDescriptions(RarityLevel maxRarity) {
         var descriptions = new ArrayList<Component>();
         for (var rarity : rarities.keySet().stream().sorted(Comparator.comparing(Enum::ordinal)).toList()) {
             descriptions.add(rarities.get(rarity).getFormattedDescription());
@@ -66,20 +72,32 @@ public enum CardType implements StringRepresentable {
         return descriptions;
     }
 
-    public int getProbability(RarityType rarityType) {
-        if (rarities.containsKey(rarityType)) {
-            return rarities.get(rarityType).probability();
+    /// Gets the probability of obtaining this card at a given rarity level.
+    ///
+    /// @param rarityLevel The rarity level to get the probability for.
+    /// @return The probability of obtaining this card at the given rarity level, or 0 if the card does not have that rarity level.
+    public int getProbability(RarityLevel rarityLevel) {
+        if (rarities.containsKey(rarityLevel)) {
+            return rarities.get(rarityLevel).probability();
         }
         return 0;
     }
 
-    public boolean isEnchanted(RarityType rarityType) {
-        if (rarities.containsKey(rarityType)) {
-            return rarities.get(rarityType).isEnchanted();
+    /// Checks if the card has an enchanted glint for a given rarity level.
+    ///
+    /// @param rarityLevel The rarity level to check for enchantment.
+    /// @return true if the card has an enchanted glint for the given rarity level, false otherwise.
+    public boolean isEnchanted(RarityLevel rarityLevel) {
+        if (rarities.containsKey(rarityLevel)) {
+            return rarities.get(rarityLevel).isEnchanted();
         }
         return false;
     }
 
+    /// Deserializes a CardType from a string.
+    ///
+    /// @param string the string to deserialize
+    /// @return an Optional containing the deserialized CardType, or empty if the string is invalid
     public static Optional<CardType> deserialize(String string) {
         return Optional.ofNullable(BY_NAME.get(string));
     }

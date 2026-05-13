@@ -18,7 +18,7 @@ import polycube.polycard.manager.Storage;
 /// Prevents equipping if the player is sneaking,
 /// already has a card of the same type equipped,
 /// or has 5 cards equipped.
-/// Swaps cards if the player equips a card of the same type but different rarity.
+/// Swaps cards if the player equips a card of the same type but different rarity levels.
 public class CardItemUseEvent implements ItemUseEventCallback {
     private final CardManager cardManager;
 
@@ -53,7 +53,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         if (optionalEquippedCard.isPresent()) {
             var equippedCard = optionalEquippedCard.get();
 
-            if (equippedCard.rarityType() == card.rarityType()) {
+            if (equippedCard.rarityLevel() == card.rarityLevel()) {
                 player.sendSystemMessage(Component.literal("You already equipped this card!").withStyle(ChatFormatting.RED));
                 PolyCard.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
                 return InteractionResult.FAIL;

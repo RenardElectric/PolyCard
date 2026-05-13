@@ -8,7 +8,7 @@ import net.minecraft.sounds.SoundEvents;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
-import polycube.polycard.card.RarityType;
+import polycube.polycard.card.RarityLevel;
 import polycube.polycard.utils.Cooldowns;
 
 import java.util.Optional;
@@ -73,26 +73,26 @@ public class CardManager {
 
     }
 
-    /// Create a card with a random rarity based on the card type's probabilities.
+    /// Create a card with a random rarity level based on the card type's probabilities.
     ///
     /// @param card The card type to create.
-    /// @return An optional containing the created card, or empty if no rarity was selected.
+    /// @return An optional containing the created card, or empty if no rarity level was selected.
     public static Optional<Card> createCard(CardType card) {
-        return getRandomRarity(card).map(
-                randomRarity -> new Card(card, randomRarity)
+        return getRandomRarityLevel(card).map(
+                rarityLevel -> new Card(card, rarityLevel)
         );
     }
 
-    /// Get a random rarity for a card type based on its probabilities.
+    /// Get a random rarity level for a card type based on its probabilities.
     ///
-    /// @param cardType The card type to get a random rarity for.
-    /// @return An optional containing the random rarity, or empty if no rarity was selected.
-    public static Optional<RarityType> getRandomRarity(CardType cardType) {
-        if (random.nextInt(100) < cardType.getProbability(RarityType.LEGENDARY)) return Optional.of(RarityType.LEGENDARY);
-        else if (random.nextInt(100) < cardType.getProbability(RarityType.EPIC)) return Optional.of(RarityType.EPIC);
-        else if (random.nextInt(100) < cardType.getProbability(RarityType.RARE)) return Optional.of(RarityType.RARE);
-        else if (random.nextInt(100) < cardType.getProbability(RarityType.UNCOMMON)) return Optional.of(RarityType.UNCOMMON);
-        else if (random.nextInt(100) < cardType.getProbability(RarityType.COMMON)) return Optional.of(RarityType.COMMON);
+    /// @param cardType The card type to get a random rarity level for.
+    /// @return An optional containing the random rarity level, or empty if no rarity level was selected.
+    public static Optional<RarityLevel> getRandomRarityLevel(CardType cardType) {
+        if (random.nextInt(100) < cardType.getProbability(RarityLevel.LEGENDARY)) return Optional.of(RarityLevel.LEGENDARY);
+        else if (random.nextInt(100) < cardType.getProbability(RarityLevel.EPIC)) return Optional.of(RarityLevel.EPIC);
+        else if (random.nextInt(100) < cardType.getProbability(RarityLevel.RARE)) return Optional.of(RarityLevel.RARE);
+        else if (random.nextInt(100) < cardType.getProbability(RarityLevel.UNCOMMON)) return Optional.of(RarityLevel.UNCOMMON);
+        else if (random.nextInt(100) < cardType.getProbability(RarityLevel.COMMON)) return Optional.of(RarityLevel.COMMON);
         return Optional.empty();
     }
 }
