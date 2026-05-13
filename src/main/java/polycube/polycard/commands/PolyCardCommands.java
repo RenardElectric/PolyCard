@@ -24,7 +24,7 @@ public class PolyCardCommands {
         });
     }
 
-    private static int printModInfo(CommandSourceStack cst) {
+    public static int printModInfo(CommandSourceStack cst) {
         var optionalModData = FabricLoader.getInstance()
                 .getModContainer(PolyCard.MOD_ID)
                 .map(ModContainer::getMetadata);

@@ -17,14 +17,14 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.commands.commandArguments.RarityTypeArgument;
 
-public class GiveCardCommand extends PolyCardCommand {
+public class GiveCommand extends PolyCardCommand {
 
-    public GiveCardCommand() {
+    public GiveCommand() {
         super(
-                "givecard",
+                "give",
                 "Give a card to a player",
                 "<player> <cardType> [rarityLevel]",
-                PermissionLevel.ADMINS
+                PermissionLevel.GAMEMASTERS
         );
     }
 

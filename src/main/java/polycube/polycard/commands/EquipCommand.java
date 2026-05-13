@@ -41,7 +41,7 @@ public class EquipCommand extends PolyCardCommand {
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
                 Commands.argument("player", EntityArgument.players())
-                        .requires(src -> src.permissions().hasPermission(Permissions.COMMANDS_ADMIN))
+                        .requires(src -> hasPermission(src, PermissionLevel.GAMEMASTERS))
                         .executes(cts -> {
                             var source = cts.getSource();
                             var player = EntityArgument.getPlayer(cts, "player");

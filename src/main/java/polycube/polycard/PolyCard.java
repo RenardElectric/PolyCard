@@ -42,10 +42,10 @@ public class PolyCard implements ModInitializer {
 
         PolyCardCommands.registerCommands(
                 new HelpCommand(),
-                new GiveCardCommand(),
+                new GiveCommand(),
                 new TestCommand(),
                 new EquipCommand(equipmentGUI),
-                new CardInfoCommand()
+                new InfoCommand()
         );
 
         ItemUseEventCallback.register(new CardItemUseEvent(cardManager));

@@ -41,7 +41,7 @@ public class EquipmentGUI {
         var playerData = cardManager.getStorage().data(targetPlayer);
         var container = playerData.asContainer();
 
-        SimpleGui gui = getSimpleGui(player, playerData);
+        SimpleGui gui = getEquipmentGui(player, playerData);
         gui.setTitle(Component.literal("七七ㇺ").withStyle(ChatFormatting.WHITE)
                 .append(Component.literal("十八八八七七七七七七七七").withStyle(ChatFormatting.BLACK)
                         .append(Component.literal("✦༺ ").withStyle(ChatFormatting.DARK_RED))
@@ -57,7 +57,7 @@ public class EquipmentGUI {
         gui.open();
     }
 
-    private SimpleGui getSimpleGui(ServerPlayer player, Storage.PlayerData playerData) {
+    private SimpleGui getEquipmentGui(ServerPlayer player, Storage.PlayerData playerData) {
         return new SimpleGui(MenuType.HOPPER, player, false) {
             @Override
             public void onPlayerClose(boolean success) {

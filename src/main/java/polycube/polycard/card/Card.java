@@ -28,11 +28,14 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     public static final Codec<Card> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             CardType.CODEC.fieldOf("cardType").forGetter(Card::cardType),
-            RarityLevel.CODEC.fieldOf("rarityType").forGetter(Card::rarityLevel)
+            RarityLevel.CODEC.fieldOf("rarityLevel").forGetter(Card::rarityLevel)
     ).apply(instance, Card::new));
 
+    public static final int CARDS_FOR_NEXT_LEVEL = 20;
+    public static final int XP_FOR_LEVEL = 10;
+
     private static final String CARD_TYPE_KEY = "cardType";
-    private static final String RARITY_TYPE_KEY = "rarityType";
+    private static final String RARITY_LEVEL_KEY = "rarityLevel";
     private static final Map<Card, ItemStackTemplate> itemStackCache = new HashMap<>();
 
     /// Converts this Card to an ItemStack that can be used in Minecraft,
@@ -87,7 +90,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         var customDataTag = new CompoundTag();
         var polyCardTag = new CompoundTag();
         polyCardTag.putString(CARD_TYPE_KEY, cardTypeName);
-        polyCardTag.putString(RARITY_TYPE_KEY, rarityName);
+        polyCardTag.putString(RARITY_LEVEL_KEY, rarityName);
         customDataTag.put(PolyCard.MOD_ID, polyCardTag);
 
         var components = DataComponentPatch.builder()
@@ -138,7 +141,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     ///
     /// @param item the ItemStack from which to retrieve the RarityType
     public static Optional<RarityLevel> getCardRarity(ItemStack item) {
-        return getCardData(item, RARITY_TYPE_KEY, RarityLevel::deserialize);
+        return getCardData(item, RARITY_LEVEL_KEY, RarityLevel::deserialize);
     }
 
     /// A helper method to extract specific card data (such as card type or rarity) from an ItemStack's custom data,

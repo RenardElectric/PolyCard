@@ -18,21 +18,21 @@ public class TestCommand extends PolyCardCommand {
                 "test",
                 "Test the card rolling system",
                 "",
-                PermissionLevel.ADMINS
+                PermissionLevel.GAMEMASTERS
         );
     }
 
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
-                Commands.argument("card", StringArgumentType.string())
+                Commands.argument("cardType", StringArgumentType.string())
                         .suggests(CardTypeArgument::suggestCards)
                         .executes(this::execute)
         );
     }
 
     protected int execute(CommandContext<CommandSourceStack> context) {
-        var cardType = CardTypeArgument.getType(context, "card").orElse(CardType.COW);
+        var cardType = CardTypeArgument.getType(context, "cardType").orElse(CardType.COW);
         int none = 0;
         int common = 0;
         int uncommon = 0;

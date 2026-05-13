@@ -9,10 +9,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 
-public class CardInfoCommand extends PolyCardCommand {
-    public CardInfoCommand() {
+public class InfoCommand extends PolyCardCommand {
+    public InfoCommand() {
         super(
-                "cardinfo",
+                "info",
                 "Get information about a specific card",
                 "<card>",
                 PermissionLevel.ALL
@@ -22,14 +22,20 @@ public class CardInfoCommand extends PolyCardCommand {
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
-                Commands.argument("card", StringArgumentType.string())
+                Commands.argument("cardType", StringArgumentType.string())
                         .suggests(CardTypeArgument::suggestCards)
                         .executes(this::execute)
         );
     }
 
+    @Override
+    protected int execute(CommandSourceStack source) {
+        PolyCardCommands.printModInfo(source);
+        return 1;
+    }
+
     protected int execute(CommandContext<CommandSourceStack> context) {
-        var optionalCardType = CardTypeArgument.getType(context, "card");
+        var optionalCardType = CardTypeArgument.getType(context, "cardType");
         if (optionalCardType.isPresent()) {
             var cardType = optionalCardType.get();
             var message = Component.literal("\n" + cardType + " card:");

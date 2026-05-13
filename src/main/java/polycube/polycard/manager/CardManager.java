@@ -68,9 +68,24 @@ public class CardManager {
                                     .withStyle(ChatFormatting.GREEN)
                     );
                     PolyCard.playSound(player, SoundEvents.ITEM_PICKUP);
+                    if (card.rarityLevel() == RarityLevel.LEGENDARY) {
+                        //noinspection resource
+                        player.level().getServer().getPlayerList().getPlayers().forEach(
+                                p -> {
+                                    p.sendSystemMessage(
+                                            Component.literal("🎉 ")
+                                                    .append(player.getDisplayName())
+                                                    .append(" found a ")
+                                                    .append(card.getFormatedName())
+                                                    .append(" card! 🎉")
+                                                    .withStyle(ChatFormatting.GOLD)
+                                    );
+                                    PolyCard.playSound(p, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
+                                }
+                        );
+                    }
                 }
         );
-
     }
 
     /// Create a card with a random rarity level based on the card type's probabilities.
