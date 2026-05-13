@@ -17,6 +17,8 @@ import polycube.polycard.manager.Storage;
 import java.util.List;
 import java.util.StringJoiner;
 
+/// Manages the equipment GUI for players to equip and unequip cards in the PolyCard mod,
+/// allowing them to see their currently equipped cards and manage them in a user-friendly interface.
 public class EquipmentGUI {
     private final CardManager cardManager;
 
@@ -24,6 +26,9 @@ public class EquipmentGUI {
         this.cardManager = cardManager;
     }
 
+    /// Opens the equipment GUI for a player, showing their own equipped cards.
+    ///
+    /// @param player The player to open the GUI for.
     public void openEquipmentGUI(ServerPlayer player) {
         openEquipmentGUI(player, player);
     }
@@ -31,7 +36,7 @@ public class EquipmentGUI {
     /// Opens the equipment GUI for a player - single line with 5 centered slots.
     ///
     /// @param player       The player to open the GUI for.
-    /// @param targetPlayer The player whose equipment is being managed (can be the same as player).
+    /// @param targetPlayer The player whose equipment is being managed (can be the player).
     public void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
         var playerData = cardManager.getStorage().data(targetPlayer);
         var container = playerData.asContainer();
