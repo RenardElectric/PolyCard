@@ -32,7 +32,6 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     ).apply(instance, Card::new));
 
     public static final int CARDS_FOR_NEXT_LEVEL = 20;
-    public static final int XP_FOR_LEVEL = 10;
 
     private static final String CARD_TYPE_KEY = "cardType";
     private static final String RARITY_LEVEL_KEY = "rarityLevel";

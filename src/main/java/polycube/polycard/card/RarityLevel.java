@@ -13,21 +13,19 @@ import java.util.stream.Collectors;
 
 /// Represents the rarity level of a card, including its name and associated color for display purposes.
 public enum RarityLevel implements StringRepresentable {
-    COMMON("common", ChatFormatting.GRAY),
-    UNCOMMON("uncommon", ChatFormatting.GREEN),
-    RARE("rare", ChatFormatting.BLUE),
-    EPIC("epic", ChatFormatting.DARK_PURPLE),
-    LEGENDARY("legendary", ChatFormatting.GOLD);
+    COMMON(ChatFormatting.GRAY),
+    UNCOMMON(ChatFormatting.GREEN),
+    RARE(ChatFormatting.BLUE),
+    EPIC(ChatFormatting.DARK_PURPLE),
+    LEGENDARY(ChatFormatting.GOLD);
 
     public static final Codec<RarityLevel> CODEC = StringRepresentable.fromValues(RarityLevel::values);
     public static final Map<String, RarityLevel> BY_NAME = Arrays.stream(values())
-            .collect(Collectors.toMap(rarity -> rarity.name, Function.identity()));
+            .collect(Collectors.toMap(RarityLevel::getSerializedName, Function.identity()));
 
-    private final String name;
     private final ChatFormatting color;
 
-    RarityLevel(String name, ChatFormatting color) {
-        this.name = name;
+    RarityLevel(ChatFormatting color) {
         this.color = color;
     }
 
@@ -63,11 +61,11 @@ public enum RarityLevel implements StringRepresentable {
 
     @Override
     public @NonNull String getSerializedName() {
-        return this.name;
+        return this.name().toLowerCase();
     }
 
     @Override
     public String toString() {
-        return name.substring(0, 1).toUpperCase() + name.substring(1);
+        return getSerializedName().substring(0, 1).toUpperCase() + getSerializedName().substring(1);
     }
 }
