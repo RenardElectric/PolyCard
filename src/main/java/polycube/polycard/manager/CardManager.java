@@ -115,11 +115,21 @@ public class CardManager {
     /// @param cardType The card type to get a random rarity level for.
     /// @return An optional containing the random rarity level, or empty if no rarity level was selected.
     public static Optional<RarityLevel> getRandomRarityLevel(CardType cardType) {
-        if (random.nextInt(100) < cardType.getProbability(RarityLevel.LEGENDARY)) return Optional.of(RarityLevel.LEGENDARY);
-        else if (random.nextInt(100) < cardType.getProbability(RarityLevel.EPIC)) return Optional.of(RarityLevel.EPIC);
-        else if (random.nextInt(100) < cardType.getProbability(RarityLevel.RARE)) return Optional.of(RarityLevel.RARE);
-        else if (random.nextInt(100) < cardType.getProbability(RarityLevel.UNCOMMON)) return Optional.of(RarityLevel.UNCOMMON);
-        else if (random.nextInt(100) < cardType.getProbability(RarityLevel.COMMON)) return Optional.of(RarityLevel.COMMON);
+        var rarities = RarityLevel.values();
+        Collections.reverse(Arrays.asList(rarities));
+        for (var rarityLevel : rarities) {
+            if (rollsUnder(cardType.getProbability(rarityLevel))) {
+                return Optional.of(rarityLevel);
+            }
+        }
         return Optional.empty();
+    }
+
+    private static boolean rollsUnder(int probability) {
+        if (probability <= 0) {
+            return false;
+        }
+
+        return random.nextInt(100) < Math.min(probability, 100);
     }
 }
