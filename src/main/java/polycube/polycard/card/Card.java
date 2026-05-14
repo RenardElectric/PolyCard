@@ -57,7 +57,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     /// which includes the card type and rarity level, and shows item details on hover.
     ///
     /// @return a Component representing the formatted name of this Card
-    public Component getFormatedName() {
+    public Component getFormattedName() {
         return ComponentUtils.wrapInSquareBrackets(
                 Component.literal(toString()).withStyle(
                         s -> s.withHoverEvent(

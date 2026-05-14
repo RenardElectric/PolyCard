@@ -18,7 +18,9 @@ public class Cooldowns {
     public void tick(int ticks) {
         tickCount += ticks;
         if (!this.cooldowns.isEmpty()) {
-            for (var playerCooldowns : this.cooldowns.values()) {
+            var playerIterator = this.cooldowns.entrySet().iterator();
+            while (playerIterator.hasNext()) {
+                var playerCooldowns = playerIterator.next().getValue();
                 var cooldownIterator = playerCooldowns.entrySet().iterator();
                 while (cooldownIterator.hasNext()) {
                     var cooldown = cooldownIterator.next().getValue();
@@ -26,14 +28,18 @@ public class Cooldowns {
                         cooldownIterator.remove();
                     }
                 }
+                if (playerCooldowns.isEmpty()) {
+                    playerIterator.remove();
+                }
             }
         }
     }
 
     public boolean isOnCooldown(Player player, String cooldownKey) {
-        return cooldowns.containsKey(player.getUUID()) &&
-                cooldowns.get(player.getUUID()).containsKey(cooldownKey) &&
-                cooldowns.get(player.getUUID()).get(cooldownKey).endTime > tickCount;
+        var playerCooldowns = cooldowns.get(player.getUUID());
+        return playerCooldowns != null &&
+                playerCooldowns.containsKey(cooldownKey) &&
+                playerCooldowns.get(cooldownKey).endTime > tickCount;
     }
 
     public void addCooldown(Player player, String cooldownKey, int time) {

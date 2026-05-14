@@ -65,9 +65,9 @@ public enum CardType implements StringRepresentable {
     /// @return A list of descriptions for the given rarity level and all lower rarities.
     public List<Component> getDescriptions(RarityLevel maxRarity) {
         var descriptions = new ArrayList<Component>();
-        for (var rarity : rarities.keySet().stream().sorted(Comparator.comparing(Enum::ordinal)).toList()) {
-            descriptions.add(rarities.get(rarity).getFormattedDescription());
-            if (rarity == maxRarity) break;
+        for (var rarity : getRarities()) {
+            descriptions.add(rarity.getFormattedDescription());
+            if (rarity.rarityLevel() == maxRarity) break;
         }
         return descriptions;
     }
@@ -77,10 +77,8 @@ public enum CardType implements StringRepresentable {
     /// @param rarityLevel The rarity level to get the probability for.
     /// @return The probability of obtaining this card at the given rarity level, or 0 if the card does not have that rarity level.
     public int getProbability(RarityLevel rarityLevel) {
-        if (rarities.containsKey(rarityLevel)) {
-            return rarities.get(rarityLevel).probability();
-        }
-        return 0;
+        var rarity = rarities.get(rarityLevel);
+        return rarity != null ? rarity.probability() : 0;
     }
 
     /// Checks if the card has an enchanted glint for a given rarity level.
@@ -88,10 +86,8 @@ public enum CardType implements StringRepresentable {
     /// @param rarityLevel The rarity level to check for enchantment.
     /// @return true if the card has an enchanted glint for the given rarity level, false otherwise.
     public boolean isEnchanted(RarityLevel rarityLevel) {
-        if (rarities.containsKey(rarityLevel)) {
-            return rarities.get(rarityLevel).isEnchanted();
-        }
-        return false;
+        var rarity = rarities.get(rarityLevel);
+        return rarity != null && rarity.isEnchanted();
     }
 
     /// Deserializes a CardType from a string.

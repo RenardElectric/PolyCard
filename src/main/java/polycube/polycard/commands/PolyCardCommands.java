@@ -34,8 +34,12 @@ public class PolyCardCommands {
             return 0;
         }
         var modData = optionalModData.get();
+        var authors = modData.getAuthors().stream()
+                .map(Person::getName)
+                .reduce((a, b) -> a + " and " + b)
+                .orElse("Unknown authors");
         var modInfo = Component.literal("\n" + modData.getName() + " v" + modData.getVersion().getFriendlyString())
-                .append("\nMade by " + modData.getAuthors().stream().map(Person::getName).reduce((a, b) -> a + " and " + b).orElse("Unknown authors"))
+                .append("\nMade by " + authors)
                 .append("\n" + modData.getDescription());
         cst.sendSuccess(() -> modInfo, false);
         return 1;

@@ -47,7 +47,7 @@ public class InfoCommand extends PolyCardCommand {
             }
             context.getSource().sendSuccess(() -> message, false);
         } else {
-            context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, "card")));
+            context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, "cardType")));
             return 0;
         }
 

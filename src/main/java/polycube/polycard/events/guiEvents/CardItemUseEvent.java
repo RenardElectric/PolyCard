@@ -61,7 +61,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
 
             // Swap the cards
             playerData.unequipCard(equippedCard);
-            var result = equipCrad(playerData, item, player, card);
+            var result = equipCard(playerData, item, player, card);
             player.addItem(equippedCard.asItem());
             return result;
         }
@@ -74,13 +74,13 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         }
 
         // Equip the card
-        return equipCrad(playerData, item, player, card);
+        return equipCard(playerData, item, player, card);
     }
 
-    private InteractionResult equipCrad(Storage.PlayerData playerData, ItemStack item, ServerPlayer player, Card card) {
+    private InteractionResult equipCard(Storage.PlayerData playerData, ItemStack item, ServerPlayer player, Card card) {
         if (playerData.equipCard(card)) {
-            item.setCount(item.getCount() - 1);
-            player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormatedName()));
+            item.shrink(1);
+            player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormattedName()));
             PolyCard.debug("{} equipped card: {}", player.getName().getString(), card);
             PolyCard.playSound(player, SoundEvents.BUNDLE_INSERT);
             cardManager.save();

@@ -7,7 +7,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
-import net.minecraft.server.permissions.Permissions;
 import polycube.polycard.gui.EquipmentGUI;
 
 public class EquipCommand extends PolyCardCommand {

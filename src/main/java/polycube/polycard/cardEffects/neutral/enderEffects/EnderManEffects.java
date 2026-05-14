@@ -34,6 +34,7 @@ public class EnderManEffects {
     private static final CardType CARD_TYPE = CardType.ENDERMAN;
     private static final int RESISTANCE_EFFECT_DURATION = 40;
     private static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
+    private static final int PROJECTILE_DODGE_CHANCE = 20;
 
     private static final List<ResourceKey<Biome>> endBiomes = new ArrayList<>(
             Arrays.asList(Biomes.THE_END, Biomes.END_BARRENS, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS)
@@ -96,12 +97,12 @@ public class EnderManEffects {
 
     private static InteractionResult onProjectileHit(CardManager cardManager, Projectile projectile, HitResult hitResult) {
         if (hitResult instanceof EntityHitResult entityHitResult) {
-            var owner = entityHitResult.getEntity();
-            if (owner instanceof ServerPlayer player) {
+            var hitEntity = entityHitResult.getEntity();
+            if (hitEntity instanceof ServerPlayer player) {
                 if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                     var random = ThreadLocalRandom.current();
                     var randomInt = random.nextInt(0, 100);
-                    if (randomInt < 100) {
+                    if (randomInt < PROJECTILE_DODGE_CHANCE) {
                         PolyCard.debug("{} has a epic or higher enderman card and rolled a {} to dodge a projectile", player.getName().getString(), randomInt);
 
                         //noinspection resource

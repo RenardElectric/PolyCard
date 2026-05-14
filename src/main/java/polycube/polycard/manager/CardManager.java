@@ -11,8 +11,7 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.utils.Cooldowns;
 
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 /// Manages card creation, storage, and cooldowns for the PolyCard mod.
 public class CardManager {
@@ -34,6 +33,11 @@ public class CardManager {
 
     /// Mark the storage as dirty to save it on the next server tick.
     public void save() {
+        if (storage == null) {
+            PolyCard.debug("Attempted to save card storage before it was loaded.");
+            return;
+        }
+
         PolyCard.debug("Marking storage as dirty for saving.");
         storage.setDirty();
     }
@@ -63,7 +67,7 @@ public class CardManager {
                     PolyCard.debug("{} received a card: {}", player.getName(), card);
                     player.sendSystemMessage(
                             Component.literal("✨ You found a ")
-                                    .append(card.getFormatedName())
+                                    .append(card.getFormattedName())
                                     .append(" card!")
                                     .withStyle(ChatFormatting.GREEN)
                     );
@@ -75,7 +79,7 @@ public class CardManager {
                                             Component.literal("🎉 ")
                                                     .append(player.getDisplayName())
                                                     .append(" found a ")
-                                                    .append(card.getFormatedName())
+                                                    .append(card.getFormattedName())
                                                     .append(" card! 🎉")
                                                     .withStyle(ChatFormatting.GOLD)
                                     );

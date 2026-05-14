@@ -16,7 +16,7 @@ import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
 
 import java.util.List;
-import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /// Manages the equipment GUI for players to equip and unequip cards in the PolyCard mod,
 /// allowing them to see their currently equipped cards and manage them in a user-friendly interface.
@@ -77,7 +77,7 @@ public class EquipmentGUI {
                 } else {
                     PolyCard.debug(
                             "Equipped cards for {}: {}", player.getName().getString(),
-                            new StringJoiner(", ").add(equippedCards.stream().map(Card::getFormatedName).toList().toString()).toString()
+                            equippedCards.stream().map(Card::toString).collect(Collectors.joining(", "))
                     );
                 }
                 cardManager.save();

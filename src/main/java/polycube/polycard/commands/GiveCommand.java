@@ -50,7 +50,7 @@ public class GiveCommand extends PolyCardCommand {
         var optionalCardType = CardTypeArgument.getType(cts, "cardType");
 
         if (optionalCardType.isEmpty()) {
-            source.sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(cts, "card")));
+            source.sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(cts, "cardType")));
             return 0;
         }
         var cardType = optionalCardType.get();
@@ -61,7 +61,7 @@ public class GiveCommand extends PolyCardCommand {
             var optionalRarityType = RarityTypeArgument.getRarity(cts, "rarityLevel");
 
             if (optionalRarityType.isEmpty()) {
-                source.sendFailure(Component.literal("Invalid rarity level: " + StringArgumentType.getString(cts, "rarity")));
+                source.sendFailure(Component.literal("Invalid rarity level: " + StringArgumentType.getString(cts, "rarityLevel")));
                 return 0;
             }
 
@@ -75,8 +75,8 @@ public class GiveCommand extends PolyCardCommand {
         var card = new Card(cardType, rarityLevel);
         CardManager.giveCard(player, card);
 
-        source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormatedName()), true);
-        player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormatedName()));
+        source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormattedName()), true);
+        player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormattedName()));
 
         PolyCard.LOGGER.debug("[Polycard] Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
 
