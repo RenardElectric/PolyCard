@@ -4,6 +4,9 @@ import com.mojang.serialization.Codec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
+import polycube.polycard.cardEffects.neutral.enderEffects.EnderManEffects;
+import polycube.polycard.cardEffects.neutral.ironGolem.IronGolemEffects;
+import polycube.polycard.cardEffects.passive.cow.CowEffects;
 
 import java.util.*;
 import java.util.function.Function;
@@ -11,7 +14,7 @@ import java.util.stream.Collectors;
 
 public enum CardType implements StringRepresentable {
     IRON_GOLEM {{
-        addRarity(RarityLevel.RARE, 15, false, "20% Chance to gain resistance when hit");
+        addRarity(RarityLevel.RARE, 15, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% Chance to gain resistance when attacked");
         addRarity(RarityLevel.EPIC, 9, true, "Falling creates shock wave (10 sec cooldown)");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Hitting with fist knock up enemies (10 sec cooldown)");
     }},
@@ -19,12 +22,12 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.UNCOMMON, 25, false, "Regeneration when standing in plains");
         addRarity(RarityLevel.RARE, 15, false, "Gain resistance when near other Cow Card");
         addRarity(RarityLevel.EPIC, 9, true, "Convert Debuffs into Buffs when drinking milk");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "+4 Hearts when drinking milk");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "+" + CowEffects.REGEN_HEALTH_GAIN + " Hearts when drinking milk");
     }},
     ENDERMAN {{
         addRarity(RarityLevel.UNCOMMON, 25, false, "No ender pearl damage");
         addRarity(RarityLevel.RARE, 15, false, "No ender pearl cooldown");
-        addRarity(RarityLevel.EPIC, 9, true, "20% Chance to dodge projectile");
+        addRarity(RarityLevel.EPIC, 9, true, EnderManEffects.PROJECTILE_DODGE_CHANCE + "% Chance to dodge projectile");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Resistance in the End");
     }};
 

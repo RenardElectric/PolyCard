@@ -20,14 +20,17 @@ import polycube.polycard.manager.CardManager;
 import java.util.*;
 
 public class CowEffects {
-    private static final CardType CARD_TYPE = CardType.COW;
-    private static final long STILL_DELAY_MS = 500L;
-    private static final int REGEN_HEALTH_GAIN = 8;
-    private static final int REGEN_EFFECT_DURATION = 50;
-    private static final int REGEN_EFFECT_AMPLIFIER = 0;
-    private static final int RESISTANCE_EFFECT_DURATION = 80;
-    private static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
-    private static final int RESISTANCE_DISTANCE_SQUARED = 25;
+    public static final CardType CARD_TYPE = CardType.COW;
+
+    public static final int REGEN_HEALTH_GAIN = 8;
+
+    public static final int STILL_DELAY_MS = 500;
+    public static final int REGEN_EFFECT_DURATION = 50;
+    public static final int REGEN_EFFECT_AMPLIFIER = 0;
+
+    public static final int RESISTANCE_EFFECT_DURATION = 80;
+    public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
+    public static final int RESISTANCE_DISTANCE_SQUARED = 25;
 
     private static final List<Holder<MobEffect>> DEBUFFS = List.of(
             MobEffects.WEAKNESS, MobEffects.MINING_FATIGUE, MobEffects.POISON,
@@ -79,9 +82,7 @@ public class CowEffects {
                 }
             }
             stillPlayers.removeIf(player -> !playersOnline.contains(player));
-            stillPlayers.forEach(player -> {
-                player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER, true, true));
-            });
+            stillPlayers.forEach(player -> player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER, true, true)));
 
             // Near Cow Card resistance
             for (Player player : playersOnline.stream().filter(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)).toList()) {

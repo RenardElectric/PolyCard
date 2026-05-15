@@ -2,15 +2,18 @@ package polycube.polycard.cardEffects.neutral.enderEffects;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -20,6 +23,7 @@ import net.minecraft.world.phys.HitResult;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
 import polycube.polycard.manager.CardManager;
@@ -30,11 +34,12 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnderManEffects {
+    public static final CardType CARD_TYPE = CardType.ENDERMAN;
 
-    private static final CardType CARD_TYPE = CardType.ENDERMAN;
-    private static final int RESISTANCE_EFFECT_DURATION = 40;
-    private static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
-    private static final int PROJECTILE_DODGE_CHANCE = 20;
+    public static final int RESISTANCE_EFFECT_DURATION = 40;
+    public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
+
+    public static final int PROJECTILE_DODGE_CHANCE = 20;
 
     private static final List<ResourceKey<Biome>> endBiomes = new ArrayList<>(
             Arrays.asList(Biomes.THE_END, Biomes.END_BARRENS, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS)
@@ -42,8 +47,8 @@ public class EnderManEffects {
 
     public static void registerEnderManCardEffects(CardManager cardManager) {
         ItemUseEventCallback.register((player, world, hand) -> onEnderPearlUsed(cardManager, player, world, hand));
-        ProjectileOnHitEventCallback.EVENT.register((projectile, hitResult) -> onEnderPearlHit(cardManager, projectile, hitResult));
         ProjectileOnHitEventCallback.EVENT.register((projectile, hitResult) -> onProjectileHit(cardManager, projectile, hitResult));
+        EntityHurtEventCallback.EVENT.register((attacker, level, source) -> onEnderPearlHit(cardManager, attacker, level, source));
 
         PolyCard.runTaskTimer(0, 20, server -> {
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
@@ -69,29 +74,21 @@ public class EnderManEffects {
                     var cooldowns = player.getCooldowns();
                     cooldowns.removeCooldown(cooldowns.getCooldownGroup(Items.ENDER_PEARL.getDefaultInstance()));
                 });
-
             }
         }
 
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onEnderPearlHit(CardManager cardManager, Projectile projectile, HitResult hitResult) {
-        if (projectile instanceof ThrownEnderpearl enderPearl) {
-            var owner = enderPearl.getOwner();
-            if (owner instanceof ServerPlayer player) {
+    private static InteractionResult onEnderPearlHit(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
+        if (entity instanceof ServerPlayer player) {
+            if (source.is(DamageTypes.ENDER_PEARL)) {
                 if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
                     PolyCard.debug("{} has a rare or higher enderman card, removing ender pearl teleport damage", player.getName().getString());
-                    var fireTicks = player.getRemainingFireTicks();
-                    player.getAbilities().invulnerable = true;
-                    PolyCard.runLater(1, _ -> {
-                        player.getAbilities().invulnerable = false;
-                        player.setRemainingFireTicks(fireTicks);
-                    });
+                    return InteractionResult.FAIL;
                 }
             }
         }
-
         return InteractionResult.PASS;
     }
 
