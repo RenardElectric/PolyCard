@@ -9,9 +9,10 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jspecify.annotations.NonNull;
-import polycube.polycard.cardEffects.neutral.enderEffects.EnderManEffects;
-import polycube.polycard.cardEffects.neutral.ironGolem.IronGolemEffects;
-import polycube.polycard.cardEffects.passive.cow.CowEffects;
+import polycube.polycard.cardEffects.neutral.EnderManEffects;
+import polycube.polycard.cardEffects.neutral.IronGolemEffects;
+import polycube.polycard.cardEffects.passive.CowEffects;
+import polycube.polycard.cardEffects.passive.SquidEffects;
 
 import java.util.*;
 import java.util.function.Function;
@@ -19,21 +20,26 @@ import java.util.stream.Collectors;
 
 public enum CardType implements StringRepresentable {
     IRON_GOLEM {{
-        addRarity(RarityLevel.RARE, 15, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% Chance to gain resistance when attacked");
+        addRarity(RarityLevel.RARE, 15, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
         addRarity(RarityLevel.EPIC, 9, true, "Hitting with fist knock back enemies (10 sec cooldown)");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Falling creates shock wave (10 sec cooldown)");
     }},
     COW {{
         addRarity(RarityLevel.UNCOMMON, 25, false, "Regeneration when standing in plains");
         addRarity(RarityLevel.RARE, 15, false, "Gain resistance when near other Cow Card");
-        addRarity(RarityLevel.EPIC, 9, true, "Convert Debuffs into Buffs when drinking milk");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "+" + CowEffects.REGEN_HEALTH_GAIN + " Hearts when drinking milk");
+        addRarity(RarityLevel.EPIC, 9, true, "Convert debuffs into Buffs when drinking milk");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "+" + CowEffects.REGEN_HEALTH_GAIN + " hearts when drinking milk");
     }},
     ENDERMAN {{
         addRarity(RarityLevel.UNCOMMON, 25, false, "No ender pearl damage");
         addRarity(RarityLevel.RARE, 15, false, "No ender pearl cooldown");
-        addRarity(RarityLevel.EPIC, 9, true, EnderManEffects.PROJECTILE_DODGE_CHANCE + "% Chance to dodge projectile");
+        addRarity(RarityLevel.EPIC, 9, true, EnderManEffects.PROJECTILE_DODGE_CHANCE + "% chance to dodge projectile");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Resistance in the End");
+    }},
+    SQUID {{
+        addRarity(RarityLevel.RARE, 15, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
+        addRarity(RarityLevel.EPIC, 9, true, SquidEffects.BLINDNESS_ON_HIT_AMPLIFIER + "% chance to give blindness on hit");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "Water breathing");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

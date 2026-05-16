@@ -1,18 +1,20 @@
 package polycube.polycard.cardEffects;
 
-import polycube.polycard.cardEffects.neutral.enderEffects.EnderManEffects;
-import polycube.polycard.cardEffects.neutral.ironGolem.IronGolemEffects;
-import polycube.polycard.cardEffects.passive.cow.CowEffects;
+import polycube.polycard.cardEffects.neutral.EnderManEffects;
+import polycube.polycard.cardEffects.neutral.IronGolemEffects;
+import polycube.polycard.cardEffects.passive.CowEffects;
+import polycube.polycard.cardEffects.passive.SquidEffects;
 import polycube.polycard.manager.CardManager;
 
 /// Registers all card effects for the PolyCard mod.
 public class CardEffects {
     public static void registerCardEffects(CardManager cardManager) {
         // Passive
-        CowEffects.registerCowCardEffects(cardManager);
+        CowEffects.register(cardManager);
+        SquidEffects.register(cardManager);
 
         // Neutral
-        EnderManEffects.registerEnderManCardEffects(cardManager);
-        IronGolemEffects.registerIronGolemCardEffects(cardManager);
+        EnderManEffects.register(cardManager);
+        IronGolemEffects.register(cardManager);
     }
 }

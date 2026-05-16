@@ -1,4 +1,4 @@
-package polycube.polycard.cardEffects.neutral.ironGolem;
+package polycube.polycard.cardEffects.neutral;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -37,7 +37,7 @@ public class IronGolemEffects {
     private static final int SHOCKWAVE_COOLDOWN = 200;
     private static final int MAX_SHOCKWAVE_DAMAGE = 15;
 
-    public static void registerIronGolemCardEffects(CardManager cardManager) {
+    public static void register(CardManager cardManager) {
         EntityHurtEventCallback.EVENT.register((attacker, level, source) -> onPlayerHurt(cardManager, attacker, level, source));
     }
 
