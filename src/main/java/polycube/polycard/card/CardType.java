@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 public enum CardType implements StringRepresentable {
     IRON_GOLEM {{
         addRarity(RarityLevel.RARE, 15, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% Chance to gain resistance when attacked");
-        addRarity(RarityLevel.EPIC, 9, true, "Falling creates shock wave (10 sec cooldown)");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "Hitting with fist knock up enemies (10 sec cooldown)");
+        addRarity(RarityLevel.EPIC, 9, true, "Hitting with fist knock back enemies (10 sec cooldown)");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "Falling creates shock wave (10 sec cooldown)");
     }},
     COW {{
         addRarity(RarityLevel.UNCOMMON, 25, false, "Regeneration when standing in plains");

@@ -73,19 +73,16 @@ public class CardManager {
                     );
                     if (card.rarityLevel() == RarityLevel.LEGENDARY) {
                         //noinspection resource
-                        player.level().getServer().getPlayerList().getPlayers().forEach(
-                                p -> {
-                                    p.sendSystemMessage(
-                                            Component.literal("🎉 ")
-                                                    .append(player.getDisplayName())
-                                                    .append(" found a ")
-                                                    .append(card.getFormattedName())
-                                                    .append(" card! 🎉")
-                                                    .withStyle(ChatFormatting.GOLD)
-                                    );
-                                    PolyCard.playSound(p, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
-                                }
+                        var server = player.level().getServer();
+                        server.sendSystemMessage(
+                                Component.literal("🎉 ")
+                                        .append(player.getDisplayName())
+                                        .append(" found a ")
+                                        .append(card.getFormattedName())
+                                        .append(" card! 🎉")
+                                        .withStyle(ChatFormatting.GOLD)
                         );
+                        PolyCard.playSound(server, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
                     }
                 }
         );

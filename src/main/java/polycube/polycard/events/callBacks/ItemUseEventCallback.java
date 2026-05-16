@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.Level;
 
 /// Callback for right-clicking ("using") an item.
@@ -15,15 +16,17 @@ import net.minecraft.world.level.Level;
 public interface ItemUseEventCallback {
     static void register(ItemUseEventCallback itemUseEvent) {
         UseItemCallback.EVENT.register((player, world, hand) -> {
-            if (world.isClientSide()) {
+            if (world.isClientSide() || player.isSpectator()) {
                 return InteractionResult.PASS;
             }
+            var serverPlayer = (ServerPlayer) player;
 
-            if (player.isSpectator()) {
-                return InteractionResult.PASS;
+            var result = itemUseEvent.interact(serverPlayer, world, hand);
+            if (result != InteractionResult.PASS) {
+                int slot = hand == InteractionHand.MAIN_HAND ? serverPlayer.getInventory().getSelectedSlot() : Inventory.SLOT_OFFHAND;
+                serverPlayer.connection.send(player.getInventory().createInventoryUpdatePacket(slot));
             }
-
-            return itemUseEvent.interact((ServerPlayer) player, world, hand);
+            return result;
         });
     }
 

@@ -42,6 +42,14 @@ public class Cooldowns {
                 playerCooldowns.get(cooldownKey).endTime > tickCount;
     }
 
+    public boolean isOnCooldown(Player player, String cooldownKey, int time) {
+        if (isOnCooldown(player, cooldownKey)) {
+            return true;
+        }
+        addCooldown(player, cooldownKey, time);
+        return false;
+    }
+
     public void addCooldown(Player player, String cooldownKey, int time) {
         cooldowns.computeIfAbsent(player.getUUID(), _ -> new HashMap<>()).put(cooldownKey, new Cooldown(tickCount, tickCount + time));
     }
