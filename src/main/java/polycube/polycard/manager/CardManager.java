@@ -88,6 +88,19 @@ public class CardManager {
         );
     }
 
+    public void loadPlayerAttributes(ServerPlayer player) {
+        var playerCards = storage.data(player).getEquippedCards();
+        playerCards.forEach(card -> addCardAttributes(player, card));
+    }
+
+    public static void addCardAttributes(ServerPlayer player, Card card) {
+        player.getAttributes().addTransientAttributeModifiers(card.getAttributeModifiers());
+    }
+
+    public static void removeCardAttributes(ServerPlayer player, Card card) {
+        player.getAttributes().removeAttributeModifiers(card.getAttributeModifiers());
+    }
+
     /// Give a specific card to a player.
     ///
     /// @param player The player to give the card to.

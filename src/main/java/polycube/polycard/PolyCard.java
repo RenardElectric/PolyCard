@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import polycube.polycard.commands.*;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
+import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
 import polycube.polycard.events.cardDropEvents.CardDropEvents;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.guiEvents.CardItemUseEvent;
@@ -42,6 +43,7 @@ public class PolyCard implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTED.register(cardManager::load);
         ServerTickEvents.END_SERVER_TICK.register(PolyCard::onServerTick);
+        PlayerLoadEventCallback.JOIN.register(cardManager::loadPlayerAttributes);
 
         PolyCardCommands.registerCommands(
                 new HelpCommand(),

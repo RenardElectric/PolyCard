@@ -40,7 +40,7 @@ public class EquipmentGUI {
     /// @param targetPlayer The player whose equipment is being managed (can be the player).
     public void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
         var playerData = cardManager.getStorage().data(targetPlayer);
-        var container = playerData.asContainer();
+        var container = playerData.asContainer(player);
 
         SimpleGui gui = getEquipmentGui(player, playerData);
         gui.setTitle(Component.literal("七七ㇺ").withStyle(ChatFormatting.WHITE)

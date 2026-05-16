@@ -3,10 +3,11 @@ package polycube.polycard.manager;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import polycube.polycard.PolyCard;
@@ -164,15 +165,36 @@ public class Storage extends SavedData {
         /// allowing the player to view and manage their equipped cards.
         ///
         /// @return a Container representing the player's equipped cards
-        public Container asContainer() {
+        public Container asContainer(ServerPlayer player) {
             var container = new SimpleContainer(MAX_EQUIPPED_CARDS) {
                 @Override
                 public void setChanged() {
-                    clearEquippedCards();
-                    for (int i = 0; i < getContainerSize(); i++) {
-                        ItemStack stack = getItem(i);
-                        Card.getCard(stack)
-                                .ifPresent(value -> equipCard(value));
+                    List<Card> cardInContainer = items.stream()
+                            .map(Card::getCard)
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .toList();
+
+                    List<Card> removedCards = equippedCards.stream()
+                            .filter(card -> !cardInContainer.contains(card))
+                            .toList();
+
+                    List<Card> addedCards = cardInContainer.stream()
+                            .filter(card -> !equippedCards.contains(card))
+                            .toList();
+
+                    for (Card card : removedCards) {
+                        PolyCard.debug("Unequipped card {} from container", card);
+                        CardManager.removeCardAttributes(player, card);
+                        equippedCards.remove(card);
+                        PolyCard.playSound(player, SoundEvents.BUNDLE_REMOVE_ONE);
+                    }
+
+                    for (Card card : addedCards) {
+                        PolyCard.debug("Equipped card {} to container", card);
+                        CardManager.addCardAttributes(player, card);
+                        equippedCards.add(card);
+                        PolyCard.playSound(player, SoundEvents.BUNDLE_INSERT);
                     }
                 }
 

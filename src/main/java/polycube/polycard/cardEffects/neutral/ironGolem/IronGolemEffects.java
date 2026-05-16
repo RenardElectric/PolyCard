@@ -19,7 +19,6 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.manager.CardManager;
 
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class IronGolemEffects {

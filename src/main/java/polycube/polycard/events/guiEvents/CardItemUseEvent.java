@@ -60,10 +60,13 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             }
 
             // Swap the cards
-            playerData.unequipCard(equippedCard);
-            var result = equipCard(playerData, item, player, card);
-            player.addItem(equippedCard.asItem());
-            return result;
+            if (playerData.unequipCard(equippedCard)) {
+                CardManager.removeCardAttributes(player, equippedCard);
+                var result = equipCard(playerData, item, player, card);
+                player.addItem(equippedCard.asItem());
+                return result;
+            }
+            return InteractionResult.FAIL;
         }
 
         // Check if player already has 5 cards equipped
@@ -79,6 +82,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
 
     private InteractionResult equipCard(Storage.PlayerData playerData, ItemStack item, ServerPlayer player, Card card) {
         if (playerData.equipCard(card)) {
+            CardManager.addCardAttributes(player, card);
             item.shrink(1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormattedName()));
             PolyCard.debug("{} equipped card: {}", player.getName().getString(), card);

@@ -1,7 +1,9 @@
 package polycube.polycard.card;
 
+import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -9,6 +11,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
@@ -64,6 +68,10 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
                         )
                 )
         ).withStyle(rarityLevel.color());
+    }
+
+    public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers() {
+        return cardType.getAttributeModifiers(rarityLevel);
     }
 
     @Override

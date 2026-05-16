@@ -1,8 +1,13 @@
 package polycube.polycard.card;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jspecify.annotations.NonNull;
 import polycube.polycard.cardEffects.neutral.enderEffects.EnderManEffects;
 import polycube.polycard.cardEffects.neutral.ironGolem.IronGolemEffects;
@@ -37,8 +42,10 @@ public enum CardType implements StringRepresentable {
 
     private final Map<RarityLevel, Rarity> rarities = new HashMap<>();
 
-    protected void addRarity(RarityLevel rarityLevel, int probability, boolean isEnchanted, String description) {
-        rarities.put(rarityLevel, new Rarity(rarityLevel, probability, isEnchanted, description));
+    protected Rarity addRarity(RarityLevel rarityLevel, int probability, boolean isEnchanted, String description) {
+        var rarity = new Rarity(rarityLevel, probability, isEnchanted, description, HashMultimap.create());
+        rarities.put(rarityLevel, rarity);
+        return rarity;
     }
 
     /// Gets the minimum rarity level available for this card.
@@ -68,6 +75,18 @@ public enum CardType implements StringRepresentable {
             if (rarity == maxRarity) break;
         }
         return descriptions;
+    }
+
+    public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(RarityLevel maxRarity) {
+        Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
+        for (var rarity : rarities.keySet().stream().sorted(Comparator.comparing(Enum::ordinal)).toList()) {
+            var typeAttributes = rarities.get(rarity).attributeModifiers();
+            if (typeAttributes != null) {
+                attributes.putAll(typeAttributes);
+            }
+            if (rarity == maxRarity) break;
+        }
+        return attributes;
     }
 
     /// Gets the probability of obtaining this card at a given rarity level.
