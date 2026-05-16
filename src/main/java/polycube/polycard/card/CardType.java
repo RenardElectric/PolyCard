@@ -38,7 +38,7 @@ public enum CardType implements StringRepresentable {
     }},
     SQUID {{
         addRarity(RarityLevel.RARE, 15, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
-        addRarity(RarityLevel.EPIC, 9, true, SquidEffects.BLINDNESS_ON_HIT_AMPLIFIER + "% chance to give blindness on hit");
+        addRarity(RarityLevel.EPIC, 9, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Water breathing");
     }};
 

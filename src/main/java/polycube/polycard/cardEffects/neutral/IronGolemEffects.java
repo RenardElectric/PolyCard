@@ -63,7 +63,6 @@ public class IronGolemEffects {
         }
 
         if (source.getEntity() instanceof ServerPlayer player) {
-            player.sendSystemMessage(Component.literal("Hit by " + source.isDirect() + " with damage type " + source.getWeaponItem()));
             if (source.isDirect() && source.getWeaponItem() != null && source.getWeaponItem().is(Items.AIR)) {
                 if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                     if (!cardManager.getCooldowns().isOnCooldown(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
