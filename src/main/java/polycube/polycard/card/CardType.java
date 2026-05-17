@@ -3,6 +3,7 @@ package polycube.polycard.card;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
@@ -19,24 +20,24 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum CardType implements StringRepresentable {
-    IRON_GOLEM {{
+    IRON_GOLEM("killing an Iron Golem") {{
         addRarity(RarityLevel.RARE, 15, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
         addRarity(RarityLevel.EPIC, 9, true, "Hitting with fist knock back enemies (10 sec cooldown)");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Falling creates shock wave (10 sec cooldown)");
     }},
-    COW {{
+    COW("breeding two cows") {{
         addRarity(RarityLevel.UNCOMMON, 25, false, "Regeneration when standing in plains");
         addRarity(RarityLevel.RARE, 15, false, "Gain resistance when near other Cow Card");
         addRarity(RarityLevel.EPIC, 9, true, "Convert debuffs into Buffs when drinking milk");
         addRarity(RarityLevel.LEGENDARY, 1, true, "+" + CowEffects.REGEN_HEALTH_GAIN + " hearts when drinking milk");
     }},
-    ENDERMAN {{
+    ENDERMAN("killing an Enderman") {{
         addRarity(RarityLevel.UNCOMMON, 25, false, "No ender pearl damage");
         addRarity(RarityLevel.RARE, 15, false, "No ender pearl cooldown");
         addRarity(RarityLevel.EPIC, 9, true, EnderManEffects.PROJECTILE_DODGE_CHANCE + "% chance to dodge projectile");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Resistance in the End");
     }},
-    SQUID {{
+    SQUID("killing a squid") {{
         addRarity(RarityLevel.RARE, 15, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
         addRarity(RarityLevel.EPIC, 9, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Water breathing");
@@ -47,6 +48,11 @@ public enum CardType implements StringRepresentable {
             .collect(Collectors.toMap(CardType::getSerializedName, Function.identity()));
 
     private final Map<RarityLevel, Rarity> rarities = new HashMap<>();
+    private final String condition;
+
+    CardType(String condition) {
+        this.condition = condition;
+    }
 
     protected Rarity addRarity(RarityLevel rarityLevel, int probability, boolean isEnchanted, String description) {
         var rarity = new Rarity(rarityLevel, probability, isEnchanted, description, HashMultimap.create());
@@ -76,6 +82,7 @@ public enum CardType implements StringRepresentable {
     /// @return A list of descriptions for the given rarity level and all lower rarities.
     public List<Component> getDescriptions(RarityLevel maxRarity) {
         var descriptions = new ArrayList<Component>();
+        descriptions.add(Component.literal("Acquired by " + condition).withStyle(ChatFormatting.GRAY));
         for (var rarity : rarities.keySet().stream().sorted(Comparator.comparing(Enum::ordinal)).toList()) {
             descriptions.add(rarities.get(rarity).getFormattedDescription());
             if (rarity == maxRarity) break;
@@ -115,6 +122,10 @@ public enum CardType implements StringRepresentable {
             return rarities.get(rarityLevel).isEnchanted();
         }
         return false;
+    }
+
+    public String getCondition() {
+        return condition;
     }
 
     /// Deserializes a CardType from a string.

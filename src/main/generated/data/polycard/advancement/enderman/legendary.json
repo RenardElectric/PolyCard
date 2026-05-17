@@ -1,0 +1,44 @@
+{
+  "parent": "polycard:enderman/epic",
+  "criteria": {
+    "got_card": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:item_model": "polycard:enderman/legendary"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "extra": [
+        {
+          "color": "gold",
+          "text": "Legendary Enderman card"
+        },
+        " by killing an Enderman"
+      ],
+      "text": "Unlock the "
+    },
+    "frame": "challenge",
+    "icon": {
+      "components": {
+        "minecraft:enchantment_glint_override": true,
+        "minecraft:item_model": "polycard:enderman/legendary"
+      },
+      "id": "minecraft:knowledge_book"
+    },
+    "title": "Legendary Enderman card"
+  },
+  "requirements": [
+    [
+      "got_card"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

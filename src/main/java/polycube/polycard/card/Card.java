@@ -51,7 +51,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     /// Retrieves the ItemStackTemplate for this Card, using a cache to avoid redundant creation.
     /// If the template is not already cached, it will be created and stored in the cache.
-    private ItemStackTemplate getItemTemplate() {
+    public ItemStackTemplate getItemTemplate() {
         // TODO: Still not sure if it is a good idea to make a cache for it
         return itemStackCache.computeIfAbsent(this, Card::createCardItemTemplate);
     }
@@ -88,25 +88,25 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     /// @param card the Card for which to create the ItemStackTemplate
     /// @return an ItemStackTemplate representing the given Card
     private static ItemStackTemplate createCardItemTemplate(Card card) {
-        var rarity = card.rarityLevel();
+        var rarityLevel = card.rarityLevel();
         var cardType = card.cardType();
 
         var cardTypeName = cardType.getSerializedName();
-        var rarityName = rarity.getSerializedName();
+        var rarityLevelName = rarityLevel.getSerializedName();
 
         var customDataTag = new CompoundTag();
         var polyCardTag = new CompoundTag();
         polyCardTag.putString(CARD_TYPE_KEY, cardTypeName);
-        polyCardTag.putString(RARITY_LEVEL_KEY, rarityName);
+        polyCardTag.putString(RARITY_LEVEL_KEY, rarityLevelName);
         customDataTag.put(PolyCard.MOD_ID, polyCardTag);
 
         var components = DataComponentPatch.builder()
-                .set(DataComponents.ITEM_NAME, Component.literal(card.toString()).withStyle(rarity.color()))
-                .set(DataComponents.LORE, new ItemLore(cardType.getDescriptions(rarity)))
-                .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, cardType.isEnchanted(rarity))
+                .set(DataComponents.ITEM_NAME, Component.literal(card.toString()).withStyle(rarityLevel.color()))
+                .set(DataComponents.LORE, new ItemLore(cardType.getDescriptions(rarityLevel)))
+                .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, cardType.isEnchanted(rarityLevel))
                 .set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag))
                 .set(DataComponents.MAX_STACK_SIZE, 64)
-                .set(DataComponents.ITEM_MODEL, Identifier.parse(PolyCard.MOD_ID + ":" + cardTypeName + "/" + rarityName));
+                .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, cardTypeName + "/" + rarityLevelName));
 
         return new ItemStackTemplate(Items.KNOWLEDGE_BOOK, components.build());
     }

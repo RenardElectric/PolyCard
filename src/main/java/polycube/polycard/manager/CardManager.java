@@ -1,6 +1,7 @@
 package polycube.polycard.manager;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -71,19 +72,19 @@ public class CardManager {
                                     .append(" card!")
                                     .withStyle(ChatFormatting.GREEN)
                     );
-                    if (card.rarityLevel() == RarityLevel.LEGENDARY) {
-                        //noinspection resource
-                        var server = player.level().getServer();
-                        server.sendSystemMessage(
-                                Component.literal("🎉 ")
-                                        .append(player.getDisplayName())
-                                        .append(" found a ")
-                                        .append(card.getFormattedName())
-                                        .append(" card! 🎉")
-                                        .withStyle(ChatFormatting.GOLD)
-                        );
-                        PolyCard.playSound(server, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
-                    }
+//                    if (card.rarityLevel() == RarityLevel.LEGENDARY) {
+//                        //noinspection resource
+//                        var server = player.level().getServer();
+//                        server.sendSystemMessage(
+//                                Component.literal("🎉 ")
+//                                        .append(player.getDisplayName())
+//                                        .append(" found a ")
+//                                        .append(card.getFormattedName())
+//                                        .append(" card! 🎉")
+//                                        .withStyle(ChatFormatting.GOLD)
+//                        );
+//                        PolyCard.playSound(server, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE);
+//                    }
                 }
         );
     }

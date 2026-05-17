@@ -3,7 +3,7 @@
   "id": "polycard",
   "version": "${version}",
   "name": "PolyCard",
-  "description": "Collectible card system — earn cards by playing, equip for buffs.",
+  "description": "Collectible card system - find cards and equip them for buffs.",
   "authors": [
     "Timeo",
     "RenardElectric"
@@ -18,6 +18,9 @@
   "entrypoints": {
     "main": [
       "polycube.polycard.PolyCard"
+    ],
+    "fabric-datagen": [
+      "polycube.polycard.DataGenerator"
     ]
   },
   "mixins": [
