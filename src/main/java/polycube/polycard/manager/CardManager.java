@@ -28,7 +28,7 @@ public class CardManager {
     /// @param server The server to load the storage from.
     public void load(MinecraftServer server) {
         storage = Storage.getSavedStorage(server);
-        Helpers.debug("Storage loaded with {} players.", storage.playerDataMap.size());
+        Helpers.debug("Storage loaded.");
     }
 
     /// Mark the storage as dirty to save it on the next server tick.
@@ -88,15 +88,26 @@ public class CardManager {
         );
     }
 
+    /// Load a player's attributes based on their equipped cards, adding the attribute modifiers from each card to the player.
+    ///
+    /// @param player The player to load the attributes for.
     public void loadPlayerAttributes(ServerPlayer player) {
         var playerCards = storage.data(player).getEquippedCards();
         playerCards.forEach(card -> addCardAttributes(player, card));
     }
 
+    /// Add the attribute modifiers from a card to a player, applying the effects of the card to the player.
+    ///
+    /// @param player The player to add the attributes to.
+    /// @param card The card to add the attributes from.
     public static void addCardAttributes(ServerPlayer player, Card card) {
         player.getAttributes().addTransientAttributeModifiers(card.getAttributeModifiers());
     }
 
+    /// Remove the attribute modifiers from a card from a player, removing the effects of the card from the player.
+    ///
+    /// @param player The player to remove the attributes from.
+    /// @param card The card to remove the attributes from.
     public static void removeCardAttributes(ServerPlayer player, Card card) {
         player.getAttributes().removeAttributeModifiers(card.getAttributeModifiers());
     }

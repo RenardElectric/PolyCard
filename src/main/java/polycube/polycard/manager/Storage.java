@@ -36,7 +36,7 @@ public class Storage extends SavedData {
 
     public static final int MAX_EQUIPPED_CARDS = 5;
 
-    public Map<UUID, PlayerData> playerDataMap;
+    private final Map<UUID, PlayerData> playerDataMap;
 
     public Storage(Map<UUID, PlayerData> playerDataMap) {
         this.playerDataMap = new HashMap<>(playerDataMap);

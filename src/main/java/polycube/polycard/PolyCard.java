@@ -15,6 +15,8 @@ import polycube.polycard.gui.EquipmentGUI;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.utils.Helpers;
 
+/// The main class of the PolyCard mod.
+/// It initializes the mod, registers commands, events, and sets up the card manager and equipment GUI.
 public class PolyCard implements ModInitializer {
     public static final String MOD_ID = "polycard";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
@@ -31,11 +33,11 @@ public class PolyCard implements ModInitializer {
 
         PolyCardCommands.registerCommands(
                 new HelpCommand(),
-                new GiveCommand(),
-                new TestCommand(),
-                new EquipCommand(equipmentGUI),
                 new InfoCommand(),
-                new CombineCommand()
+                new EquipCommand(equipmentGUI),
+                new CombineCommand(),
+                new GiveCommand(),
+                new TestCommand()
         );
 
         ItemUseEventCallback.register(new CardItemUseEvent(cardManager));

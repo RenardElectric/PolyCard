@@ -42,12 +42,10 @@ public class EquipmentGUI {
         var container = playerData.asContainer(player);
 
         SimpleGui gui = getEquipmentGui(player, playerData);
-        gui.setTitle(Component.literal("七七ㇺ").withStyle(ChatFormatting.WHITE)
-                .append(Component.literal("十八八八七七七七七七七七").withStyle(ChatFormatting.BLACK)
-                        .append(Component.literal("✦༺ ").withStyle(ChatFormatting.DARK_RED))
-                        .append(Component.literal("Equipped Cards").withStyle(s -> s.withUnderlined(true)))
-                        .append(Component.literal(" ༻✦").withStyle(ChatFormatting.DARK_RED))
-                )
+        gui.setTitle(Component.literal("七ㇺ十").withStyle(ChatFormatting.WHITE)
+                .append(Component.literal("✦༺ ").withStyle(ChatFormatting.DARK_RED))
+                .append(Component.literal("Equipped Cards").withStyle(s -> s.withColor(ChatFormatting.BLACK).withUnderlined(true)))
+                .append(Component.literal(" ༻✦").withStyle(ChatFormatting.DARK_RED))
         );
 
         for (int i = 0; i < 5; i++) {

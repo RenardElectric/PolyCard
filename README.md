@@ -1,6 +1,7 @@
 # PolyCard
 
 ## Usage
+
 The mod adds multiple cards with different rarities and effects.
 Each card at a given rarity has the effect of that rarity combined with the effects of all lower rarities.
 Each card has a unique method of obtaining it with different probabilities for each rarity.
