@@ -17,7 +17,7 @@ public class TestCommand extends PolyCardCommand {
         super(
                 "test",
                 "Test the card rolling system",
-                "",
+                "<cardType>",
                 PermissionLevel.GAMEMASTERS
         );
     }

@@ -14,7 +14,7 @@ public class InfoCommand extends PolyCardCommand {
         super(
                 "info",
                 "Get information about a specific card",
-                "<card>",
+                "<cardType>",
                 PermissionLevel.ALL
         );
     }
