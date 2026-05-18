@@ -39,6 +39,7 @@ dependencies {
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	implementation "eu.pb4:sgui:${project.sgui_version}"
+	include "eu.pb4:sgui:${project.sgui_version}"
 }
 
 processResources {
