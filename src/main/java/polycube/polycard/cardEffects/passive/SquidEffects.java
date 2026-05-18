@@ -8,11 +8,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.Helpers;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -30,7 +30,7 @@ public class SquidEffects {
     public static void register(CardManager cardManager) {
         EntityHurtEventCallback.EVENT.register((attacker, level, source) -> onPlayerHurt(cardManager, attacker, level, source));
 
-        PolyCard.runTaskTimer(0, 20, server -> {
+        Helpers.runTaskTimer(0, 20, server -> {
             server.getPlayerList().getPlayers().forEach(player -> {
                 if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
                     if (player.isEyeInFluid(FluidTags.WATER)) {

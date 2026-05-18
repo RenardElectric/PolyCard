@@ -8,11 +8,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
+import polycube.polycard.utils.Helpers;
 
 /// Handles equipping cards when a player uses a card item.
 /// Prevents equipping if the player is sneaking,
@@ -54,8 +54,9 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             var equippedCard = optionalEquippedCard.get();
 
             if (equippedCard.rarityLevel() == card.rarityLevel()) {
+                Helpers.playFailure(cardManager, player);
                 player.sendSystemMessage(Component.literal("You already equipped this card!").withStyle(ChatFormatting.RED));
-                PolyCard.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
+                Helpers.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
                 return InteractionResult.FAIL;
             }
 
@@ -71,8 +72,9 @@ public class CardItemUseEvent implements ItemUseEventCallback {
 
         // Check if player already has 5 cards equipped
         if (playerData.getEquippedCards().size() >= Storage.MAX_EQUIPPED_CARDS) {
+            Helpers.playFailure(cardManager, player);
             player.sendSystemMessage(Component.literal("You already have " + Storage.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
-            PolyCard.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), Storage.MAX_EQUIPPED_CARDS, card);
+            Helpers.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), Storage.MAX_EQUIPPED_CARDS, card);
             return InteractionResult.FAIL;
         }
 
@@ -85,8 +87,8 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             CardManager.addCardAttributes(player, card);
             item.shrink(1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormattedName()));
-            PolyCard.debug("{} equipped card: {}", player.getName().getString(), card);
-            PolyCard.playSound(player, SoundEvents.BUNDLE_INSERT);
+            Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
+            Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
             cardManager.save();
             return InteractionResult.SUCCESS;
         }

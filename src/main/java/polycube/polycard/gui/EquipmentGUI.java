@@ -4,16 +4,15 @@ import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.manager.CardManager;
 import polycube.polycard.manager.Storage;
+import polycube.polycard.utils.Helpers;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,17 +64,17 @@ public class EquipmentGUI {
                 super.onPlayerClose(success);
 
                 if (!success) {
-                    PolyCard.debug("{} could not close the equipment menu successfully, not saving equipped cards", player.getName().getString());
+                    Helpers.debug("{} could not close the equipment menu successfully, not saving equipped cards", player.getName().getString());
                     return;
                 }
 
                 List<Card> equippedCards = playerData.getEquippedCards();
 
-                PolyCard.debug("Saved equipped cards for {} after closing equipment menu", player.getName().getString());
+                Helpers.debug("Saved equipped cards for {} after closing equipment menu", player.getName().getString());
                 if (equippedCards.isEmpty()) {
-                    PolyCard.debug("No equipped cards for {}", player.getName().getString());
+                    Helpers.debug("No equipped cards for {}", player.getName().getString());
                 } else {
-                    PolyCard.debug(
+                    Helpers.debug(
                             "Equipped cards for {}: {}", player.getName().getString(),
                             equippedCards.stream().map(Card::toString).collect(Collectors.joining(", "))
                     );
@@ -90,14 +89,14 @@ public class EquipmentGUI {
             @Override
             public boolean mayPlace(@NonNull ItemStack itemStack) {
                 if (itemStack.isEmpty()) {
-                    PolyCard.debug("{} attempted to place empty item in equipment slot {}", player.getName().getString(), getContainerSlot());
+                    Helpers.debug("{} attempted to place empty item in equipment slot {}", player.getName().getString(), getContainerSlot());
                     return false;
                 }
 
                 var optionalCard = Card.getCard(itemStack);
                 if (optionalCard.isEmpty()) {
-                    PolyCard.playSound(player, SoundEvents.VILLAGER_NO); // TODO: Not sure, makes a lot of sound when shift clicking
-                    PolyCard.debug("{} attempted to place non-card item in equipment slot: {}", player.getName().getString(), itemStack.getHoverName().getString());
+                    Helpers.playFailure(cardManager, player);
+                    Helpers.debug("{} attempted to place non-card item in equipment slot: {}", player.getName().getString(), itemStack.getHoverName().getString());
                     return false;
                 }
                 var card = optionalCard.get();
@@ -106,19 +105,19 @@ public class EquipmentGUI {
                 if (!currentItem.isEmpty()) {
                     var currentCard = Card.getCard(currentItem);
                     if (currentCard.isPresent() && currentCard.get().cardType() == card.cardType()) {
-                        PolyCard.debug("{} is replacing card {} in slot {} with {}", player.getName().getString(), currentCard.get(), getContainerSlot(), card);
+                        Helpers.debug("{} is replacing card {} in slot {} with {}", player.getName().getString(), currentCard.get(), getContainerSlot(), card);
                         return true;
                     }
                 }
 
                 if (playerData.hasCardType(card.cardType())) {
                     player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));  // TODO: Not sure, makes a lot of messages when shift clicking
-                    PolyCard.playSound(player, SoundEvents.VILLAGER_NO); // TODO: Not sure, makes a lot of sound when shift clicking
-                    PolyCard.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.cardType().name());
+                    Helpers.playFailure(cardManager, player);
+                    Helpers.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.cardType().name());
                     return false;
                 }
 
-                PolyCard.debug("{} is equipping card {} in slot {}", player.getName().getString(), card, getContainerSlot());
+                Helpers.debug("{} is equipping card {} in slot {}", player.getName().getString(), card, getContainerSlot());
                 return true;
             }
         };

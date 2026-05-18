@@ -14,6 +14,7 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.utils.Helpers;
 
 import java.util.*;
 
@@ -184,17 +185,17 @@ public class Storage extends SavedData {
                             .toList();
 
                     for (Card card : removedCards) {
-                        PolyCard.debug("Unequipped card {} from container", card);
+                        Helpers.debug("Unequipped card {} from container", card);
                         CardManager.removeCardAttributes(player, card);
                         equippedCards.remove(card);
-                        PolyCard.playSound(player, SoundEvents.BUNDLE_REMOVE_ONE);
+                        Helpers.playSound(player, SoundEvents.BUNDLE_REMOVE_ONE);
                     }
 
                     for (Card card : addedCards) {
-                        PolyCard.debug("Equipped card {} to container", card);
+                        Helpers.debug("Equipped card {} to container", card);
                         CardManager.addCardAttributes(player, card);
                         equippedCards.add(card);
-                        PolyCard.playSound(player, SoundEvents.BUNDLE_INSERT);
+                        Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
                     }
                 }
 

@@ -11,11 +11,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.Vec3;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.Helpers;
 
 import java.util.*;
 
@@ -52,7 +52,7 @@ public class CowEffects {
     public static void register(CardManager cardManager) {
         ItemConsumedEventCallback.EVENT.register((player, itemStack) -> onBucketUsed(cardManager, player, itemStack));
 
-        PolyCard.runTaskTimer(0, 20, server -> {
+        Helpers.runTaskTimer(0, 20, server -> {
             // Regen when still
             long now = System.currentTimeMillis();
             var storage = cardManager.getStorage();
@@ -71,13 +71,13 @@ public class CowEffects {
                 if (previousLocation == null || previousLocation.distanceToSqr(currentLocation) > 0.0001D) {
                     lastMoveTimes.put(playerId, now);
                     if (stillPlayers.remove(player)) {
-                        PolyCard.debug("{} has the uncommon cow card and is in the plains biome, but moved, resetting their still timer.", player.getName());
+                        Helpers.debug("{} has the uncommon cow card and is in the plains biome, but moved, resetting their still timer.", player.getName());
                     }
                     continue;
                 }
                 long lastMoveTime = lastMoveTimes.getOrDefault(playerId, now);
                 if (now - lastMoveTime >= STILL_DELAY_MS) {
-                    PolyCard.debug("{} has the uncommon cow card and is standing still in the plains biome, giving them regeneration!", player.getName());
+                    Helpers.debug("{} has the uncommon cow card and is standing still in the plains biome, giving them regeneration!", player.getName());
                     stillPlayers.add(player);
                 }
             }
@@ -90,7 +90,7 @@ public class CowEffects {
                         .filter(p -> !p.equals(player))
                         .anyMatch(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);
                 if (nearCowCard) {
-                    PolyCard.debug("{} is near another player with the rare cow card, giving them resistance!", player.getName());
+                    Helpers.debug("{} is near another player with the rare cow card, giving them resistance!", player.getName());
                     player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
                 }
             }
@@ -109,10 +109,10 @@ public class CowEffects {
                     }
                 }
 
-                PolyCard.debug("{} has the epic cow card, giving them buffs for each debuff they had on milk consumption!", player.getName());
-                PolyCard.debug("- Debuffs: {}", Arrays.toString(player.getActiveEffects().stream().map(effect -> effect.getEffect().toString()).toArray()));
-                PolyCard.debug("- Buffs: {}", Arrays.toString(effectsGained.stream().map(effect -> effect.getEffect().toString()).toArray()));
-                PolyCard.runLater(1, _ -> {
+                Helpers.debug("{} has the epic cow card, giving them buffs for each debuff they had on milk consumption!", player.getName());
+                Helpers.debug("- Debuffs: {}", Arrays.toString(player.getActiveEffects().stream().map(effect -> effect.getEffect().toString()).toArray()));
+                Helpers.debug("- Buffs: {}", Arrays.toString(effectsGained.stream().map(effect -> effect.getEffect().toString()).toArray()));
+                Helpers.runLater(1, _ -> {
                     for (MobEffectInstance effect : effectsGained) {
                         player.addEffect(effect);
                     }
@@ -120,7 +120,7 @@ public class CowEffects {
             }
 
             if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
-                PolyCard.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
+                Helpers.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
                 player.setHealth(player.getHealth() + REGEN_HEALTH_GAIN);
             }
         }

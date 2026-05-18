@@ -1,16 +1,15 @@
 package polycube.polycard.manager;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.utils.Cooldowns;
+import polycube.polycard.utils.Helpers;
 
 import java.util.*;
 
@@ -21,7 +20,7 @@ public class CardManager {
     private Storage storage = null;
 
     public CardManager() {
-        PolyCard.runTaskTimer(20, 20, _ -> cooldowns.tick(20));
+        Helpers.runTaskTimer(20, 20, _ -> cooldowns.tick(20));
     }
 
     /// Load the storage for this card manager from the server's saved data.
@@ -29,17 +28,17 @@ public class CardManager {
     /// @param server The server to load the storage from.
     public void load(MinecraftServer server) {
         storage = Storage.getSavedStorage(server);
-        PolyCard.debug("Storage loaded with {} players.", storage.playerDataMap.size());
+        Helpers.debug("Storage loaded with {} players.", storage.playerDataMap.size());
     }
 
     /// Mark the storage as dirty to save it on the next server tick.
     public void save() {
         if (storage == null) {
-            PolyCard.debug("Attempted to save card storage before it was loaded.");
+            Helpers.debug("Attempted to save card storage before it was loaded.");
             return;
         }
 
-        PolyCard.debug("Marking storage as dirty for saving.");
+        Helpers.debug("Marking storage as dirty for saving.");
         storage.setDirty();
     }
 
@@ -65,7 +64,7 @@ public class CardManager {
         CardManager.createCard(cardType).ifPresent(
                 card -> {
                     giveCard(player, card);
-                    PolyCard.debug("{} received a card: {}", player.getName(), card);
+                    Helpers.debug("{} received a card: {}", player.getName(), card);
                     player.sendSystemMessage(
                             Component.literal("✨ You found a ")
                                     .append(card.getFormattedName())
@@ -108,7 +107,7 @@ public class CardManager {
     /// @param card The card to give to the player.
     public static void giveCard(ServerPlayer player, Card card) {
         player.getInventory().placeItemBackInInventory(card.asItem());
-        PolyCard.playSound(player, SoundEvents.ITEM_PICKUP);
+        Helpers.playSound(player, SoundEvents.ITEM_PICKUP);
     }
 
     /// Create a card with a random rarity level based on the card type's probabilities.

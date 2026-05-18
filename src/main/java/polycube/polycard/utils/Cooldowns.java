@@ -35,19 +35,19 @@ public class Cooldowns {
         }
     }
 
-    public boolean isOnCooldown(Player player, String cooldownKey) {
+    public boolean isReadyOrCreate(Player player, String cooldownKey) {
         var playerCooldowns = cooldowns.get(player.getUUID());
         return playerCooldowns != null &&
                 playerCooldowns.containsKey(cooldownKey) &&
                 playerCooldowns.get(cooldownKey).endTime > tickCount;
     }
 
-    public boolean isOnCooldown(Player player, String cooldownKey, int time) {
-        if (isOnCooldown(player, cooldownKey)) {
-            return true;
+    public boolean isReadyOrCreate(Player player, String cooldownKey, int time) {
+        if (isReadyOrCreate(player, cooldownKey)) {
+            return false;
         }
         addCooldown(player, cooldownKey, time);
-        return false;
+        return true;
     }
 
     public void addCooldown(Player player, String cooldownKey, int time) {

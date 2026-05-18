@@ -1,7 +1,6 @@
 package polycube.polycard.cardEffects.neutral;
 
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -13,11 +12,11 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.item.Items;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.Helpers;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -44,7 +43,7 @@ public class IronGolemEffects {
     public static InteractionResult onPlayerHurt(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
         if (entity instanceof ServerPlayer player) {
             if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
-                PolyCard.debug("{} has a rare or higher Iron Golem card, giving chance to gain resistance when attacked", player.getName().getString());
+                Helpers.debug("{} has a rare or higher Iron Golem card, giving chance to gain resistance when attacked", player.getName().getString());
                 int random = ThreadLocalRandom.current().nextInt(0, 100);
                 if (random < RESISTANCE_ON_ATTACKED_CHANCE) {
                     player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER, false, true));
@@ -54,7 +53,7 @@ public class IronGolemEffects {
             if (source.is(DamageTypeTags.IS_FALL)) {
                 if (player.fallDistance >= SHOCKWAVE_MIN_FALL_DISTANCE) {
                     if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
-                        if (!cardManager.getCooldowns().isOnCooldown(player, SHOCKWAVE_COOLDOWN_KEY, SHOCKWAVE_COOLDOWN)) {
+                        if (cardManager.getCooldowns().isReadyOrCreate(player, SHOCKWAVE_COOLDOWN_KEY, SHOCKWAVE_COOLDOWN)) {
                             triggerShockwave(player, player.fallDistance);
                         }
                     }
@@ -65,8 +64,8 @@ public class IronGolemEffects {
         if (source.getEntity() instanceof ServerPlayer player) {
             if (source.isDirect() && source.getWeaponItem() != null && source.getWeaponItem().is(Items.AIR)) {
                 if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
-                    if (!cardManager.getCooldowns().isOnCooldown(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
-                        PolyCard.debug("{} has a legendary or higher Iron Golem card, applying knockback on hit", player.getName().getString());
+                    if (cardManager.getCooldowns().isReadyOrCreate(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
+                        Helpers.debug("{} has a legendary or higher Iron Golem card, applying knockback on hit", player.getName().getString());
                         double xd = 0.0;
                         double zd = 0.0;
                         if (source.getSourcePosition() != null) {
@@ -74,7 +73,7 @@ public class IronGolemEffects {
                             zd = source.getSourcePosition().z() - entity.getZ();
                         }
                         entity.knockback(KNOCKBACK_POWER, xd, zd);
-                        PolyCard.playSound(level, SoundEvents.MACE_SMASH_AIR, entity.position());
+                        Helpers.playSound(level, SoundEvents.MACE_SMASH_AIR, entity.position());
                         level.sendParticles(ParticleTypes.ELECTRIC_SPARK, entity.getX(), entity.getY() + 1, entity.getZ(), 10, 0.5, 0.5, 0.5, 0.1);
                     }
                 }
@@ -92,7 +91,7 @@ public class IronGolemEffects {
         var level = player.level();
         level.sendParticles(ParticleTypes.EXPLOSION, center.x, center.y, center.z, 1, 0.0, 0.0, 0.0, 0.0);
         level.sendParticles(ParticleTypes.CLOUD, center.x, center.y, center.z, 30, radius * 0.45, 0.2, radius * 0.45, 0.05);
-        PolyCard.playSound(level, SoundEvents.MACE_SMASH_GROUND_HEAVY, center);
+        Helpers.playSound(level, SoundEvents.MACE_SMASH_GROUND_HEAVY, center);
 
         var condition = TargetingConditions.forNonCombat().ignoreLineOfSight().ignoreInvisibilityTesting().range(radius);
         for (LivingEntity nearby : level.getNearbyEntities(LivingEntity.class, condition, player, player.getBoundingBox().inflate(radius, 2.5, radius))) {

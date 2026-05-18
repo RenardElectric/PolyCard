@@ -20,13 +20,13 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
 import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.Helpers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,14 +50,14 @@ public class EnderManEffects {
         ProjectileOnHitEventCallback.EVENT.register((projectile, hitResult) -> onProjectileHit(cardManager, projectile, hitResult));
         EntityHurtEventCallback.EVENT.register((attacker, level, source) -> onEnderPearlHit(cardManager, attacker, level, source));
 
-        PolyCard.runTaskTimer(0, 20, server -> {
+        Helpers.runTaskTimer(0, 20, server -> {
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 var pos = player.blockPosition();
                 //noinspection resource
                 var biome = player.level().getBiome(pos);
                 if (biome.is(endBiomes::contains)) {
                     if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
-                        PolyCard.debug("Applying enderman card resistance effect to {}", player.getName().getString());
+                        Helpers.debug("Applying enderman card resistance effect to {}", player.getName().getString());
                         player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
                     }
                 }
@@ -69,8 +69,8 @@ public class EnderManEffects {
         var itemStack = player.getItemInHand(hand);
         if (itemStack.getItem() == Items.ENDER_PEARL) {
             if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
-                PolyCard.runLater(1, _ -> {
-                    PolyCard.debug("Removing ender pearl cooldown for {}", player.getName().getString());
+                Helpers.runLater(1, _ -> {
+                    Helpers.debug("Removing ender pearl cooldown for {}", player.getName().getString());
                     var cooldowns = player.getCooldowns();
                     cooldowns.removeCooldown(cooldowns.getCooldownGroup(Items.ENDER_PEARL.getDefaultInstance()));
                 });
@@ -84,7 +84,7 @@ public class EnderManEffects {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
                 if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
-                    PolyCard.debug("{} has a rare or higher enderman card, removing ender pearl teleport damage", player.getName().getString());
+                    Helpers.debug("{} has a rare or higher enderman card, removing ender pearl teleport damage", player.getName().getString());
                     return InteractionResult.FAIL;
                 }
             }
@@ -100,7 +100,7 @@ public class EnderManEffects {
                     var random = ThreadLocalRandom.current();
                     var randomInt = random.nextInt(0, 100);
                     if (randomInt < PROJECTILE_DODGE_CHANCE) {
-                        PolyCard.debug("{} has a epic or higher enderman card and rolled a {} to dodge a projectile", player.getName().getString(), randomInt);
+                        Helpers.debug("{} has a epic or higher enderman card and rolled a {} to dodge a projectile", player.getName().getString(), randomInt);
 
                         //noinspection resource
                         var level = player.level();
