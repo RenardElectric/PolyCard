@@ -2,6 +2,7 @@ package polycube.polycard.cardEffects;
 
 import polycube.polycard.cardEffects.neutral.EnderManEffects;
 import polycube.polycard.cardEffects.neutral.IronGolemEffects;
+import polycube.polycard.cardEffects.neutral.PiglinEffects;
 import polycube.polycard.cardEffects.passive.CowEffects;
 import polycube.polycard.cardEffects.passive.SquidEffects;
 import polycube.polycard.manager.CardManager;
@@ -16,5 +17,6 @@ public class CardEffects {
         // Neutral
         EnderManEffects.register(cardManager);
         IronGolemEffects.register(cardManager);
+        PiglinEffects.register(cardManager);
     }
 }

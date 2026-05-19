@@ -20,16 +20,26 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum CardType implements StringRepresentable {
-    IRON_GOLEM("killing an Iron Golem") {{
-        addRarity(RarityLevel.RARE, 15, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
-        addRarity(RarityLevel.EPIC, 9, true, "Hitting with fist knock back enemies (10 sec cooldown)");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "Falling creates shock wave (10 sec cooldown)");
-    }},
+    // Passive
+
     COW("breeding two cows") {{
         addRarity(RarityLevel.UNCOMMON, 25, false, "Regeneration when standing in plains");
         addRarity(RarityLevel.RARE, 15, false, "Gain resistance when near other Cow Card");
         addRarity(RarityLevel.EPIC, 9, true, "Convert debuffs into Buffs when drinking milk");
         addRarity(RarityLevel.LEGENDARY, 1, true, "+" + CowEffects.REGEN_HEALTH_GAIN + " hearts when drinking milk");
+    }},
+    SQUID("killing a squid") {{
+        addRarity(RarityLevel.RARE, 15, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
+        addRarity(RarityLevel.EPIC, 9, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "Water breathing");
+    }},
+
+    // Neutral
+
+    IRON_GOLEM("killing an Iron Golem") {{
+        addRarity(RarityLevel.RARE, 15, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
+        addRarity(RarityLevel.EPIC, 9, true, "Hitting with fist knock back enemies (10 sec cooldown)");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "Falling creates shock wave (10 sec cooldown)");
     }},
     ENDERMAN("killing an Enderman") {{
         addRarity(RarityLevel.UNCOMMON, 25, false, "No ender pearl damage");
@@ -37,10 +47,12 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 9, true, EnderManEffects.PROJECTILE_DODGE_CHANCE + "% chance to dodge projectile");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Resistance in the End");
     }},
-    SQUID("killing a squid") {{
-        addRarity(RarityLevel.RARE, 15, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
-        addRarity(RarityLevel.EPIC, 9, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "Water breathing");
+    PIGLIN("TODO") {{
+        addRarity(RarityLevel.COMMON, 50, false, "Piglins consider this card as a gold armor part");
+        addRarity(RarityLevel.UNCOMMON, 25, false, "Piglins drop better loots around you");
+        addRarity(RarityLevel.RARE, 15, false, "Gold food is better");
+        addRarity(RarityLevel.EPIC, 9, true, "Piglin bruts view you as friendly");
+        addRarity(RarityLevel.LEGENDARY, 1, true, "Gold items are more durable");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

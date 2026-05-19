@@ -20,11 +20,12 @@ import polycube.polycard.utils.Helpers;
 public class PolyCard implements ModInitializer {
     public static final String MOD_ID = "polycard";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static CardManager cardManager = null;
 
     @Override
     public void onInitialize() {
         Helpers.debug("PolyCard mod initialized.");
-        CardManager cardManager = new CardManager();
+        cardManager = new CardManager();
         EquipmentGUI equipmentGUI = new EquipmentGUI(cardManager);
 
         ServerLifecycleEvents.SERVER_STARTED.register(cardManager::load);
