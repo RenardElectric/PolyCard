@@ -7,8 +7,7 @@
     "ConsumeItemTriggerMixin",
     "KilledTriggerMixin",
     "LivingEntityMixin",
-    "MobMixin",
-    "PiglinSpecificSensorMixin",
+    "TargetingConditionsMixin",
     "PlayerListMixin",
     "ProjectileMixin",
     "ServerPlayerGameModeMixin"

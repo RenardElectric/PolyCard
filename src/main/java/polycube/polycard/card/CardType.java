@@ -48,10 +48,10 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.LEGENDARY, 1, true, "Resistance in the End");
     }},
     PIGLIN("TODO") {{
-        addRarity(RarityLevel.COMMON, 50, false, "Piglins consider this card as a gold armor part");
+        addRarity(RarityLevel.COMMON, 50, false, "Piglins do not attack you");
         addRarity(RarityLevel.UNCOMMON, 25, false, "Piglins drop better loots around you");
         addRarity(RarityLevel.RARE, 15, false, "Gold food is better");
-        addRarity(RarityLevel.EPIC, 9, true, "Piglin bruts view you as friendly");
+        addRarity(RarityLevel.EPIC, 9, true, "Piglin brutes do not attack you");
         addRarity(RarityLevel.LEGENDARY, 1, true, "Gold items are more durable");
     }};
 
