@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 public interface ItemConsumedEventCallback {
     Event<ItemConsumedEventCallback> EVENT = EventFactory.createArrayBacked(ItemConsumedEventCallback.class,
             (listeners) -> (player, itemStack) -> {
-                for (ItemConsumedEventCallback listener : listeners) {
+                for (var listener : listeners) {
                     InteractionResult result = listener.interact(player, itemStack);
 
                     if (result != InteractionResult.PASS) {

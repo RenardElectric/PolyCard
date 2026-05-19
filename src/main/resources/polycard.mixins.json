@@ -5,12 +5,13 @@
   "mixins": [
     "BredAnimalsTriggerMixin",
     "ConsumeItemTriggerMixin",
+    "ItemStackMixin",
     "KilledTriggerMixin",
     "LivingEntityMixin",
-    "TargetingConditionsMixin",
     "PlayerListMixin",
     "ProjectileMixin",
-    "ServerPlayerGameModeMixin"
+    "ServerPlayerGameModeMixin",
+    "TargetingConditionsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

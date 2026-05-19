@@ -14,7 +14,7 @@ import polycube.polycard.events.callBacks.KillEventCallback;
 @Mixin(KilledTrigger.class)
 public abstract class KilledTriggerMixin extends SimpleCriterionTrigger<KilledTrigger.TriggerInstance> {
     @Inject(method = "trigger", at = @At("HEAD"))
-    private void onTrigger(ServerPlayer player, Entity entity, DamageSource killingBlow, CallbackInfo ci) {
+    private void entityKilled(ServerPlayer player, Entity entity, DamageSource killingBlow, CallbackInfo ci) {
         KillEventCallback.EVENT.invoker().interact(player, entity, killingBlow);
     }
 }

@@ -17,7 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 public interface EntityHurtEventCallback {
     Event<EntityHurtEventCallback> EVENT = EventFactory.createArrayBacked(EntityHurtEventCallback.class,
             (listeners) -> (instance, level, source) -> {
-                for (EntityHurtEventCallback listener : listeners) {
+                for (var listener : listeners) {
                     InteractionResult result = listener.interact(instance, level, source);
 
                     if (result != InteractionResult.PASS) {

@@ -15,7 +15,7 @@ import net.minecraft.world.entity.Entity;
 public interface KillEventCallback {
     Event<KillEventCallback> EVENT = EventFactory.createArrayBacked(KillEventCallback.class,
             (listeners) -> (player, entity, killingBlow) -> {
-                for (KillEventCallback listener : listeners) {
+                for (var listener : listeners) {
                     InteractionResult result = listener.interact(player, entity, killingBlow);
 
                     if (result != InteractionResult.PASS) {

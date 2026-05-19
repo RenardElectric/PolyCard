@@ -19,7 +19,7 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
     }
 
     @Inject(method = "onHit", at = @At("HEAD"), cancellable = true)
-    private void onTrigger(HitResult hitResult, CallbackInfo ci) {
+    private void projectileHit(HitResult hitResult, CallbackInfo ci) {
         var result = ProjectileOnHitEventCallback.EVENT.invoker().interact((Projectile) (Object) this, hitResult); // Trick the compiler into accepting this mixin as a Projectile
         if (result != net.minecraft.world.InteractionResult.PASS) {
             ci.cancel();

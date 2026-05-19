@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface BreedEventCallback {
     Event<BreedEventCallback> EVENT = EventFactory.createArrayBacked(BreedEventCallback.class,
             (listeners) -> (player, parent, partner, child) -> {
-                for (BreedEventCallback listener : listeners) {
+                for (var listener : listeners) {
                     InteractionResult result = listener.bread(player, parent, partner, child);
 
                     if (result != InteractionResult.PASS) {

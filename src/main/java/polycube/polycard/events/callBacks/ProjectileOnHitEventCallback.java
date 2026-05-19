@@ -16,7 +16,7 @@ import net.minecraft.world.phys.HitResult;
 public interface ProjectileOnHitEventCallback {
     Event<ProjectileOnHitEventCallback> EVENT = EventFactory.createArrayBacked(ProjectileOnHitEventCallback.class,
             (listeners) -> (projectile, hitResult) -> {
-                for (ProjectileOnHitEventCallback listener : listeners) {
+                for (var listener : listeners) {
                     InteractionResult result = listener.interact(projectile, hitResult);
 
                     if (result != InteractionResult.PASS) {

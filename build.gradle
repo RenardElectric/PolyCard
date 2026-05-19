@@ -13,8 +13,6 @@ repositories {
 }
 
 loom {
-	accessWidenerPath = file("src/main/resources/polycard.classtweaker")
-
 	splitEnvironmentSourceSets()
 
 	mods {

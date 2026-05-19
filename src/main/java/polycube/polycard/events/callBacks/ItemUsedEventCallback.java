@@ -19,7 +19,7 @@ public interface ItemUsedEventCallback {
                     return InteractionResult.PASS;
                 }
 
-                for (ItemUsedEventCallback listener : listeners) {
+                for (var listener : listeners) {
                     InteractionResult result = listener.interact(player, level, hand, itemUseResult);
 
                     if (result != InteractionResult.PASS) {

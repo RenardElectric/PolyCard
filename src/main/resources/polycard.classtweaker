@@ -1,7 +1,0 @@
-classTweaker  v1  official
-
-accessible field net/minecraft/world/entity/ai/targeting/TargetingConditions isCombat Z
-accessible field net/minecraft/world/entity/ai/targeting/TargetingConditions range D
-accessible field net/minecraft/world/entity/ai/targeting/TargetingConditions checkLineOfSight Z
-accessible field net/minecraft/world/entity/ai/targeting/TargetingConditions testInvisible Z
-accessible field net/minecraft/world/entity/ai/targeting/TargetingConditions selector Lnet/minecraft/world/entity/ai/targeting/TargetingConditions$Selector;

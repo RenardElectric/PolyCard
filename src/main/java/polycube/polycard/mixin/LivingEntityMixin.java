@@ -19,7 +19,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Wa
     }
 
     @WrapOperation(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isInvulnerableTo(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;)Z"))
-    private boolean onTrigger(LivingEntity instance, ServerLevel level, DamageSource source, Operation<Boolean> original) {
+    private boolean entityHurt(LivingEntity instance, ServerLevel level, DamageSource source, Operation<Boolean> original) {
         var result = original.call(instance, level, source);
         if (!result){
             return EntityHurtEventCallback.EVENT.invoker().interact(instance, level, source) == InteractionResult.FAIL;
