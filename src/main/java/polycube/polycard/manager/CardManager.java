@@ -146,11 +146,11 @@ public class CardManager {
         return Optional.empty();
     }
 
-    private static boolean rollsUnder(int probability) {
+    private static boolean rollsUnder(double probability) {
         if (probability <= 0) {
             return false;
         }
 
-        return random.nextInt(100) < Math.min(probability, 100);
+        return random.nextDouble() < Math.min(probability, 1);
     }
 }

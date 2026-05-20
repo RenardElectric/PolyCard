@@ -23,36 +23,36 @@ public enum CardType implements StringRepresentable {
     // Passive
 
     COW("breeding two cows") {{
-        addRarity(RarityLevel.UNCOMMON, 25, false, "Regeneration when standing in plains");
-        addRarity(RarityLevel.RARE, 15, false, "Gain resistance when near other Cow Card");
-        addRarity(RarityLevel.EPIC, 9, true, "Convert debuffs into Buffs when drinking milk");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "+" + CowEffects.REGEN_HEALTH_GAIN + " hearts when drinking milk");
+        addRarity(RarityLevel.UNCOMMON, 0.1, false, "Regeneration when standing in plains");
+        addRarity(RarityLevel.RARE, 0.05, false, "Gain resistance when near other Cow Card");
+        addRarity(RarityLevel.EPIC, 0.01, true, "Convert debuffs into Buffs when drinking milk");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "+" + CowEffects.REGEN_HEALTH_GAIN + " hearts when drinking milk");
     }},
     SQUID("killing a squid") {{
-        addRarity(RarityLevel.RARE, 15, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
-        addRarity(RarityLevel.EPIC, 9, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "Water breathing");
+        addRarity(RarityLevel.RARE, 0.05, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
+        addRarity(RarityLevel.EPIC, 0.01, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Water breathing");
     }},
 
     // Neutral
 
     IRON_GOLEM("killing an Iron Golem") {{
-        addRarity(RarityLevel.RARE, 15, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
-        addRarity(RarityLevel.EPIC, 9, true, "Hitting with fist knock back enemies (10 sec cooldown)");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "Falling creates shock wave (10 sec cooldown)");
+        addRarity(RarityLevel.RARE, 0.05, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
+        addRarity(RarityLevel.EPIC, 0.01, true, "Hitting with fist knock back enemies (10 sec cooldown)");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Falling creates shock wave (10 sec cooldown)");
     }},
     ENDERMAN("killing an Enderman") {{
-        addRarity(RarityLevel.UNCOMMON, 25, false, "No ender pearl damage");
-        addRarity(RarityLevel.RARE, 15, false, "No ender pearl cooldown");
-        addRarity(RarityLevel.EPIC, 9, true, EnderManEffects.PROJECTILE_DODGE_CHANCE + "% chance to dodge projectile");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "Resistance in the End");
+        addRarity(RarityLevel.UNCOMMON, 0.1, false, "No ender pearl damage");
+        addRarity(RarityLevel.RARE, 0.05, false, "No ender pearl cooldown");
+        addRarity(RarityLevel.EPIC, 0.01, true, EnderManEffects.PROJECTILE_DODGE_CHANCE + "% chance to dodge projectile");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Resistance in the End");
     }},
     PIGLIN("TODO") {{
-        addRarity(RarityLevel.COMMON, 50, false, "Piglins do not attack you");
-        addRarity(RarityLevel.UNCOMMON, 25, false, "Piglins drop better loots around you");
-        addRarity(RarityLevel.RARE, 15, false, "Gold food is better");
-        addRarity(RarityLevel.EPIC, 9, true, "Piglin brutes do not attack you");
-        addRarity(RarityLevel.LEGENDARY, 1, true, "Gold items are more durable");
+        addRarity(RarityLevel.COMMON, 0.25, false, "Piglins do not attack you");
+        addRarity(RarityLevel.UNCOMMON, 0.1, false, "Piglins drop better loots around you");
+        addRarity(RarityLevel.RARE, 0.05, false, "Gold food is better");
+        addRarity(RarityLevel.EPIC, 0.01, true, "Piglin brutes do not attack you");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Gold items are more durable");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
@@ -66,7 +66,7 @@ public enum CardType implements StringRepresentable {
         this.condition = condition;
     }
 
-    protected Rarity addRarity(RarityLevel rarityLevel, int probability, boolean isEnchanted, String description) {
+    protected Rarity addRarity(RarityLevel rarityLevel, double probability, boolean isEnchanted, String description) {
         var rarity = new Rarity(rarityLevel, probability, isEnchanted, description, HashMultimap.create());
         rarities.put(rarityLevel, rarity);
         return rarity;
@@ -118,7 +118,7 @@ public enum CardType implements StringRepresentable {
     ///
     /// @param rarityLevel The rarity level to get the probability for.
     /// @return The probability of obtaining this card at the given rarity level, or 0 if the card does not have that rarity level.
-    public int getProbability(RarityLevel rarityLevel) {
+    public double getProbability(RarityLevel rarityLevel) {
         if (rarities.containsKey(rarityLevel)) {
             return rarities.get(rarityLevel).probability();
         }
