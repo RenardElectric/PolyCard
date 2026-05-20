@@ -36,7 +36,7 @@ public enum CardType implements StringRepresentable {
 
     // Neutral
 
-    IRON_GOLEM("killing an Iron Golem") {{
+    IRON_GOLEM("summoning an Iron Golem") {{
         addRarity(RarityLevel.RARE, 0.05, false,  IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
         addRarity(RarityLevel.EPIC, 0.01, true, "Hitting with fist knock back enemies (10 sec cooldown)");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Falling creates shock wave (10 sec cooldown)");

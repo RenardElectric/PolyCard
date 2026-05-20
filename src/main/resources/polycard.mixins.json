@@ -11,6 +11,7 @@
     "PlayerListMixin",
     "ProjectileMixin",
     "ServerPlayerGameModeMixin",
+    "SummonedEntityTriggerMixin",
     "TargetingConditionsMixin"
   ],
   "injectors": {

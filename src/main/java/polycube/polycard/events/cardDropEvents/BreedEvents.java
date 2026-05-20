@@ -7,7 +7,7 @@ import polycube.polycard.events.callBacks.BreedEventCallback;
 import polycube.polycard.manager.CardManager;
 
 public class BreedEvents {
-    public static void registerBreedEvents() {
+    public static void register() {
         BreedEventCallback.EVENT.register((player, parent, partner, child) -> {
 
             switch (parent) {
