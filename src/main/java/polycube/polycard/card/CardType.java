@@ -52,7 +52,7 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Piglins drop better loots around you");
         addRarity(RarityLevel.RARE, 0.05, false, "Gold food is better");
         addRarity(RarityLevel.EPIC, 0.01, true, "Piglin brutes do not attack you");
-        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Gold items are more durable");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Gold items are significantly more durable");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

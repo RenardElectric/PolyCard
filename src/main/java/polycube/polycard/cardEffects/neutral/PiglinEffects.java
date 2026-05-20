@@ -13,11 +13,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.item.enchantment.effects.RemoveBinomial;
+import net.minecraft.world.level.storage.loot.LootParams;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.ItemDurabilityChangeEventCallback;
+import polycube.polycard.events.callBacks.LootParamsCreationEventCallback;
 import polycube.polycard.manager.CardManager;
 
 import java.util.List;
@@ -44,6 +46,11 @@ public class PiglinEffects {
         ItemDurabilityChangeEventCallback.EVENT.register(
                 (level, player, itemStack, amount)
                         -> reduceDurability(cardManager, level, player, itemStack, amount)
+        );
+
+        LootParamsCreationEventCallback.EVENT.register(
+                (builder, data)
+                        -> lootParamsCreation(cardManager, builder, data)
         );
     }
 
@@ -81,5 +88,9 @@ public class PiglinEffects {
             }
         }
         return amount;
+    }
+
+    private static void lootParamsCreation(CardManager cardManger, LootParams.Builder builder, LootParamsCreationEventCallback.LootParamsBuilderData data) {
+        builder.withLuck(data.luck() + 10); // TODO: Does not work
     }
 }
