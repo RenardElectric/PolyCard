@@ -2,22 +2,23 @@ package polycube.polycard.cardEffects.neutral;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.LevelBasedValue;
+import net.minecraft.world.item.enchantment.effects.RemoveBinomial;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.ItemDurabilityChangeEventCallback;
 import polycube.polycard.manager.CardManager;
-import polycube.polycard.mixin.TargetingConditionsMixin;
 
 import java.util.List;
 
@@ -30,6 +31,9 @@ public class PiglinEffects {
             Items.GOLDEN_HELMET, Items.GOLDEN_CHESTPLATE, Items.GOLDEN_LEGGINGS,
             Items.GOLDEN_BOOTS, Items.GOLDEN_HORSE_ARMOR, Items.GOLDEN_NAUTILUS_ARMOR
     );
+
+    public static final RemoveBinomial piglinToolsBinomial = new RemoveBinomial(LevelBasedValue.constant(0.984F));
+    public static final RemoveBinomial piglinArmorBinomial = new RemoveBinomial(LevelBasedValue.constant(0.8F));
 
     public static void register(CardManager cardManager) {
         IsTargetedEventCallback.EVENT.register(
@@ -68,8 +72,11 @@ public class PiglinEffects {
         if (player != null) {
             if (goldItems.contains(itemStack.getItem())) {
                 var playerData = cardManger.getStorage().data(player);
-                if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
-                    return amount; // TODO: decrease damage
+                if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
+                    if (itemStack.is(ItemTags.ARMOR_ENCHANTABLE)) {
+                        return  (int) piglinArmorBinomial.process(0, level.getRandom(), amount);
+                    }
+                    return (int) piglinToolsBinomial.process(0, level.getRandom(), amount);
                 }
             }
         }
