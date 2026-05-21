@@ -2,6 +2,7 @@ package polycube.polycard.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.InteractionHand;
@@ -18,7 +19,7 @@ public abstract class ServerPlayerGameModeMixin {
     @WrapOperation(method = "useItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;use(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResult;"))
     private InteractionResult itemUsed(ItemStack instance, Level level, Player player, InteractionHand hand, Operation<InteractionResult> original) {
         var result = original.call(instance, level, player, hand);
-        ItemUsedEventCallback.EVENT.invoker().interact((ServerPlayer) player, level, hand, result);
+        ItemUsedEventCallback.EVENT.invoker().interact((ServerPlayer) player, (ServerLevel) level, hand, result);
         return result;
     }
 }

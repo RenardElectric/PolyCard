@@ -8,7 +8,6 @@
     "ItemStackMixin",
     "KilledTriggerMixin",
     "LivingEntityMixin",
-    "LootParamsBuilderMixin",
     "PlayerListMixin",
     "ProjectileMixin",
     "ServerPlayerGameModeMixin",

@@ -24,17 +24,17 @@ public class IronGolemEffects {
     public static final CardType CARD_TYPE = CardType.IRON_GOLEM;
 
     public static final int RESISTANCE_ON_ATTACKED_CHANCE = 20;
-    public static final int RESISTANCE_DURATION = 200;
+    public static final int RESISTANCE_DURATION = 20 * 10;
     public static final int RESISTANCE_AMPLIFIER = 0;
 
-    private static final String KNOCKBACK_HIT_COOLDOWN_KEY = "iron_golem:knockback";
-    private static final int KNOCKBACK_HIT_COOLDOWN = 2;
-    private static final float KNOCKBACK_POWER = 3;
+    public static final String KNOCKBACK_HIT_COOLDOWN_KEY = "iron_golem:knockback";
+    public static final int KNOCKBACK_HIT_COOLDOWN = 2;
+    public static final float KNOCKBACK_POWER = 3;
 
-    private static final String SHOCKWAVE_COOLDOWN_KEY = "iron_golem:shockwave";
-    private static final float SHOCKWAVE_MIN_FALL_DISTANCE = 4.0f;
-    private static final int SHOCKWAVE_COOLDOWN = 200;
-    private static final int MAX_SHOCKWAVE_DAMAGE = 15;
+    public static final String SHOCKWAVE_COOLDOWN_KEY = "iron_golem:shockwave";
+    public static final float SHOCKWAVE_MIN_FALL_DISTANCE = 4.0f;
+    public static final int SHOCKWAVE_COOLDOWN = 200;
+    public static final int MAX_SHOCKWAVE_DAMAGE = 15;
 
     public static void register(CardManager cardManager) {
         EntityHurtEventCallback.EVENT.register((attacker, level, source) -> onPlayerHurt(cardManager, attacker, level, source));
@@ -46,7 +46,7 @@ public class IronGolemEffects {
                 Helpers.debug("{} has a rare or higher Iron Golem card, giving chance to gain resistance when attacked", player.getName().getString());
                 int random = ThreadLocalRandom.current().nextInt(0, 100);
                 if (random < RESISTANCE_ON_ATTACKED_CHANCE) {
-                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER, false, true));
+                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER));
                 }
             }
 

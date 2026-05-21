@@ -21,10 +21,10 @@ public class SquidEffects {
 
     public static final int BLINDNESS_WHEN_HIT_CHANCE = 10;
     public static final int BLINDNESS_ON_HIT_CHANCE = 10;
-    public static final int BLINDNESS_DURATION = 100;
+    public static final int BLINDNESS_DURATION = 20 * 5;
     public static final int BLINDNESS_AMPLIFIER = 0;
 
-    public static final int WATER_BREATHING_DURATION = 221;
+    public static final int WATER_BREATHING_DURATION = 20 * 12;
     public static final int WATER_BREATHING_AMPLIFIER = 0;
 
     public static void register(CardManager cardManager) {
@@ -34,26 +34,26 @@ public class SquidEffects {
             server.getPlayerList().getPlayers().forEach(player -> {
                 if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
                     if (player.isEyeInFluid(FluidTags.WATER)) {
-                        player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER, false, true), player);
+                        player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER), player);
                     }
                 }
             });
         });
     }
 
-    public static InteractionResult onPlayerHurt(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
+    private static InteractionResult onPlayerHurt(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
         if (entity instanceof ServerPlayer player && source.getEntity() instanceof ServerPlayer sourcePlayer) {
             if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
                 int random = ThreadLocalRandom.current().nextInt(0, 100);
                 if (random < BLINDNESS_WHEN_HIT_CHANCE) {
-                    sourcePlayer.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER, false, true), player);
+                    sourcePlayer.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), player);
                 }
             }
 
             if (cardManager.getStorage().data(sourcePlayer).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                 int random = ThreadLocalRandom.current().nextInt(0, 100);
                 if (random < BLINDNESS_ON_HIT_CHANCE) {
-                    player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER, false, true), sourcePlayer);
+                    player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), sourcePlayer);
                 }
             }
         }

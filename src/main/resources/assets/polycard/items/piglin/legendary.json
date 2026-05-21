@@ -1,0 +1,15 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "polycard:item/legendary"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "polycard:item/neutral/piglin"
+      }
+    ]
+  }
+}

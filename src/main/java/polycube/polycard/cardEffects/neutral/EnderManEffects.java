@@ -41,7 +41,7 @@ public class EnderManEffects {
 
     public static final int PROJECTILE_DODGE_CHANCE = 20;
 
-    private static final List<ResourceKey<Biome>> endBiomes = new ArrayList<>(
+    public static final List<ResourceKey<Biome>> endBiomes = new ArrayList<>(
             Arrays.asList(Biomes.THE_END, Biomes.END_BARRENS, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS)
     );
 

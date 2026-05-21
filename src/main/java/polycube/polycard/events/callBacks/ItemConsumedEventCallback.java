@@ -8,22 +8,13 @@ import net.minecraft.world.item.ItemStack;
 
 /// Callback for consuming an item.
 /// Called after the item is consumed but before effects are applied
-/// Upon return:
-/// - SUCCESS cancels further processing and continues with normal item consume behavior.
-/// - PASS falls back to further processing and defaults to SUCCESS if no other listeners are available
 public interface ItemConsumedEventCallback {
     Event<ItemConsumedEventCallback> EVENT = EventFactory.createArrayBacked(ItemConsumedEventCallback.class,
             (listeners) -> (player, itemStack) -> {
                 for (var listener : listeners) {
-                    InteractionResult result = listener.interact(player, itemStack);
-
-                    if (result != InteractionResult.PASS) {
-                        return result;
-                    }
+                    listener.interact(player, itemStack);
                 }
-
-                return InteractionResult.PASS;
             });
 
-    InteractionResult interact(ServerPlayer player, ItemStack itemStack);
+    void interact(ServerPlayer player, ItemStack itemStack);
 }

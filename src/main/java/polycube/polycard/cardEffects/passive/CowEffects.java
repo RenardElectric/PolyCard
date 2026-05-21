@@ -24,22 +24,22 @@ public class CowEffects {
 
     public static final int REGEN_HEALTH_GAIN = 8;
 
-    public static final int STILL_DELAY_MS = 500;
-    public static final int REGEN_EFFECT_DURATION = 50;
+    public static final int STILL_DELAY = 20 * 25;
+    public static final int REGEN_EFFECT_DURATION = 20 * 3;
     public static final int REGEN_EFFECT_AMPLIFIER = 0;
 
-    public static final int RESISTANCE_EFFECT_DURATION = 80;
+    public static final int RESISTANCE_EFFECT_DURATION = 20 * 4;
     public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
     public static final int RESISTANCE_DISTANCE_SQUARED = 25;
 
-    private static final List<Holder<MobEffect>> DEBUFFS = List.of(
+    public static final List<Holder<MobEffect>> DEBUFFS = List.of(
             MobEffects.WEAKNESS, MobEffects.MINING_FATIGUE, MobEffects.POISON,
             MobEffects.WITHER, MobEffects.HUNGER, MobEffects.UNLUCK, MobEffects.SLOWNESS, // TODO: No way to get the unluck effect
             MobEffects.BAD_OMEN, MobEffects.INFESTED, MobEffects.OOZING, MobEffects.WEAVING,
             MobEffects.WIND_CHARGED, MobEffects.BLINDNESS, MobEffects.DARKNESS, MobEffects.NAUSEA
     );
 
-    private static final List<Holder<MobEffect>> BUFFS = List.of(
+    public static final List<Holder<MobEffect>> BUFFS = List.of(
             MobEffects.STRENGTH, MobEffects.HASTE, MobEffects.ABSORPTION,
             MobEffects.REGENERATION, MobEffects.LUCK, MobEffects.SPEED, MobEffects.FIRE_RESISTANCE, // TODO: I do not think that the luck effect even works
             MobEffects.RESISTANCE, MobEffects.WATER_BREATHING, MobEffects.NIGHT_VISION
@@ -76,13 +76,13 @@ public class CowEffects {
                     continue;
                 }
                 long lastMoveTime = lastMoveTimes.getOrDefault(playerId, now);
-                if (now - lastMoveTime >= STILL_DELAY_MS) {
+                if (now - lastMoveTime >= STILL_DELAY) {
                     Helpers.debug("{} has the uncommon cow card and is standing still in the plains biome, giving them regeneration!", player.getName());
                     stillPlayers.add(player);
                 }
             }
             stillPlayers.removeIf(player -> !playersOnline.contains(player));
-            stillPlayers.forEach(player -> player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER, true, true)));
+            stillPlayers.forEach(player -> player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER)));
 
             // Near Cow Card resistance
             for (Player player : playersOnline.stream().filter(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)).toList()) {
@@ -91,13 +91,13 @@ public class CowEffects {
                         .anyMatch(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);
                 if (nearCowCard) {
                     Helpers.debug("{} is near another player with the rare cow card, giving them resistance!", player.getName());
-                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
+                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER));
                 }
             }
         });
     }
 
-    private static InteractionResult onBucketUsed(CardManager cardManager, ServerPlayer player, ItemStack itemStack) {
+    private static void onBucketUsed(CardManager cardManager, ServerPlayer player, ItemStack itemStack) {
         if (itemStack.getItem() == Items.MILK_BUCKET) {
             if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                 var random = new Random();
@@ -105,7 +105,7 @@ public class CowEffects {
                 for (MobEffectInstance effect : player.getActiveEffects()) {
                     if (DEBUFFS.contains(effect.getEffect())) {
                         Holder<MobEffect> buffType = BUFFS.get(random.nextInt(BUFFS.size()));
-                        effectsGained.add(new MobEffectInstance(buffType, effect.getDuration(), effect.getAmplifier(), true, true)); // TODO: Not sure about the amplifier part, because of bad omen 5...
+                        effectsGained.add(new MobEffectInstance(buffType, effect.getDuration(), effect.getAmplifier())); // TODO: Not sure about the amplifier part, because of bad omen 5...
                     }
                 }
 
@@ -124,7 +124,5 @@ public class CowEffects {
                 player.setHealth(player.getHealth() + REGEN_HEALTH_GAIN);
             }
         }
-
-        return InteractionResult.PASS;
     }
 }
