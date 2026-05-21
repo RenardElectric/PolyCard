@@ -1,12 +1,12 @@
 {
-  "parent": "polycard:iron_golem/epic",
+  "parent": "polycard:polycard_root",
   "criteria": {
     "got_card": {
       "conditions": {
         "items": [
           {
             "components": {
-              "minecraft:item_model": "polycard:iron_golem/legendary"
+              "minecraft:item_model": "polycard:piglin/uncommon"
             }
           }
         ]
@@ -15,25 +15,25 @@
     }
   },
   "display": {
+    "announce_to_chat": false,
     "description": {
       "extra": [
         {
-          "color": "gold",
-          "text": "Legendary Iron Golem card"
+          "color": "green",
+          "text": "Uncommon Piglin card"
         },
-        " by summoning an Iron Golem"
+        " by TODO"
       ],
       "text": "Unlock the "
     },
-    "frame": "challenge",
     "icon": {
       "components": {
-        "minecraft:enchantment_glint_override": true,
-        "minecraft:item_model": "polycard:iron_golem/legendary"
+        "minecraft:enchantment_glint_override": false,
+        "minecraft:item_model": "polycard:piglin/uncommon"
       },
       "id": "minecraft:knowledge_book"
     },
-    "title": "Legendary Iron Golem card"
+    "title": "Uncommon Piglin card"
   },
   "requirements": [
     [
