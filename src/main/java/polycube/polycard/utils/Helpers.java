@@ -28,7 +28,7 @@ public final class Helpers {
     /// Plays a sound for a specific player at their current location.
     ///
     /// @param player the player to play the sound for
-    /// @param sound the sound event to play
+    /// @param sound  the sound event to play
     public static void playSound(ServerPlayer player, SoundEvent sound) {
         player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0f, 1.0f, random.nextLong()));
     }
@@ -36,9 +36,9 @@ public final class Helpers {
     /// Plays a sound for a specific player with a cooldown to prevent spamming the same sound.
     ///
     /// @param cardManager the card manager to check cooldowns with
-    /// @param player the player to play the sound for
-    /// @param sound the sound event to play
-    /// @param cooldown the cooldown time in ticks before the sound can be played again for the same player
+    /// @param player      the player to play the sound for
+    /// @param sound       the sound event to play
+    /// @param cooldown    the cooldown time in ticks before the sound can be played again for the same player
     public static void playSound(CardManager cardManager, ServerPlayer player, SoundEvent sound, int cooldown) {
         var key = sound.toString();
         if (cardManager.getCooldowns().isReadyOrCreate(player, key, cooldown)) {
@@ -49,15 +49,15 @@ public final class Helpers {
     /// Plays a failure sound for a specific player with a cooldown to prevent spamming the same sound.
     ///
     /// @param cardManager the card manager to check cooldowns with
-    /// @param player the player to play the failure sound for
+    /// @param player      the player to play the failure sound for
     public static void playFailure(CardManager cardManager, ServerPlayer player) {
         playSound(cardManager, player, SoundEvents.VILLAGER_NO, FAILURE_SOUND_COOLDOWN);
     }
 
     /// Plays a sound at a specific location in the world.
     ///
-    /// @param level the server level to play the sound in
-    /// @param sound the sound event to play
+    /// @param level    the server level to play the sound in
+    /// @param sound    the sound event to play
     /// @param position the position to play the sound at
     public static void playSound(ServerLevel level, SoundEvent sound, Vec3 position) {
         level.playSound(null, position.x, position.y, position.z, sound, SoundSource.PLAYERS, 1.0f, 1.0f);
@@ -66,7 +66,7 @@ public final class Helpers {
     /// Logs a debug message with the mod ID as a prefix.
     ///
     /// @param format the format string for the debug message
-    /// @param args the arguments to format into the debug message
+    /// @param args   the arguments to format into the debug message
     public static void debug(final String format, final Object... args) {
         LOGGER.debug("[" + MOD_ID + "] " + format, args);
     }
@@ -75,7 +75,7 @@ public final class Helpers {
 
     /// Schedules a task to run after a certain number of ticks.
     ///
-    /// @param ticks the number of ticks to wait before running the task
+    /// @param ticks    the number of ticks to wait before running the task
     /// @param runnable the task to run, which accepts the Minecraft server as an argument
     public static void runLater(int ticks, Consumer<MinecraftServer> runnable) {
         runTaskTimer(ticks, 0, runnable);
@@ -83,8 +83,8 @@ public final class Helpers {
 
     /// Schedules a task to run repeatedly with a certain period after an initial delay.
     ///
-    /// @param delay the number of ticks to wait before running the task for the first time
-    /// @param period the number of ticks to wait between subsequent runs of the task (0 for no repetition)
+    /// @param delay    the number of ticks to wait before running the task for the first time
+    /// @param period   the number of ticks to wait between subsequent runs of the task (0 for no repetition)
     /// @param runnable the task to run, which accepts the Minecraft server as an argument
     public static void runTaskTimer(int delay, int period, Consumer<MinecraftServer> runnable) {
         TASKS.add(new ScheduledTask(new AtomicInteger(delay), period, runnable));

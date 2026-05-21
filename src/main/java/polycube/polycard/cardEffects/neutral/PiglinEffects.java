@@ -97,7 +97,7 @@ public class PiglinEffects {
                 var playerData = cardManger.getStorage().data(player);
                 if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
                     if (itemStack.is(ItemTags.ARMOR_ENCHANTABLE)) {
-                        return  (int) piglinArmorBinomial.process(0, level.getRandom(), amount);
+                        return (int) piglinArmorBinomial.process(0, level.getRandom(), amount);
                     }
                     return (int) piglinToolsBinomial.process(0, level.getRandom(), amount);
                 }

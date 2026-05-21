@@ -26,7 +26,7 @@ public class CombineCommand extends PolyCardCommand {
             return 0;
         }
 
-        var mainItemStack =  player.getMainHandItem();
+        var mainItemStack = player.getMainHandItem();
         var optionalCard = Card.getCard(mainItemStack);
         if (mainItemStack.isEmpty() || optionalCard.isEmpty() || mainItemStack.getCount() < Card.CARDS_FOR_NEXT_LEVEL) {
             source.sendFailure(Component.literal("You must be holding at least " + Card.CARDS_FOR_NEXT_LEVEL + " cards in your main hand to combine them."));

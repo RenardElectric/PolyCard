@@ -44,6 +44,7 @@ public class GiveCommand extends PolyCardCommand {
                         )
         );
     }
+
     private int giveCard(CommandContext<CommandSourceStack> cts, boolean withRarityLevel) throws CommandSyntaxException {
         var source = cts.getSource();
         var player = EntityArgument.getPlayer(cts, "player");

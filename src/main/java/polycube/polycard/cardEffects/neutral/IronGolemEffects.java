@@ -86,7 +86,7 @@ public class IronGolemEffects {
     private static void triggerShockwave(ServerPlayer player, double fallDistance) {
         var center = player.position();
         double radius = Math.min(6.0, 3.5 + Math.max(0.0, (fallDistance - SHOCKWAVE_MIN_FALL_DISTANCE) * 0.25));
-        double maxDamage = Math.min(fallDistance/2,MAX_SHOCKWAVE_DAMAGE);
+        double maxDamage = Math.min(fallDistance / 2, MAX_SHOCKWAVE_DAMAGE);
 
         var level = player.level();
         level.sendParticles(ParticleTypes.EXPLOSION, center.x, center.y, center.z, 1, 0.0, 0.0, 0.0, 0.0);
@@ -104,7 +104,7 @@ public class IronGolemEffects {
             );
 
             double squaredDistance = nearby.position().subtract(center).lengthSqr();
-            nearby.hurtServer(level, player.damageSources().playerAttack(player), (float)(maxDamage * (1 - Math.min(0.9, squaredDistance / (radius * radius)))));
+            nearby.hurtServer(level, player.damageSources().playerAttack(player), (float) (maxDamage * (1 - Math.min(0.9, squaredDistance / (radius * radius)))));
         }
     }
 }

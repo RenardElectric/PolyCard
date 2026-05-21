@@ -15,6 +15,6 @@ import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
 public abstract class PlayerListMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void playerCreated(MinecraftServer server, ServerLevel level, GameProfile gameProfile, ClientInformation clientInformation, CallbackInfo ci) {
-        PlayerLoadEventCallback.JOIN.invoker().interact((ServerPlayer) (Object)this);
+        PlayerLoadEventCallback.JOIN.invoker().interact((ServerPlayer) (Object) this);
     }
 }

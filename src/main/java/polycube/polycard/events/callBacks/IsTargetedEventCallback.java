@@ -24,5 +24,8 @@ public interface IsTargetedEventCallback {
 
     InteractionResult interact(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, TargetingConditionsData targetingConditions);
 
-    record TargetingConditionsData(boolean isCombat, double range, boolean checkLineOfSight, boolean skipInvisible, TargetingConditions.@Nullable Selector selector, boolean originalResult) { }
+    record TargetingConditionsData(
+            boolean isCombat, double range, boolean checkLineOfSight, boolean skipInvisible,
+            TargetingConditions.@Nullable Selector selector, boolean originalResult
+    ) { }
 }

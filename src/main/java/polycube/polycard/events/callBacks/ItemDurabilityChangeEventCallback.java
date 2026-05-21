@@ -4,11 +4,8 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
-import polycube.polycard.mixin.TargetingConditionsMixin;
 
 public interface ItemDurabilityChangeEventCallback {
     Event<ItemDurabilityChangeEventCallback> EVENT = EventFactory.createArrayBacked(ItemDurabilityChangeEventCallback.class,

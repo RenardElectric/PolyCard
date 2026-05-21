@@ -11,7 +11,10 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.utils.Cooldowns;
 import polycube.polycard.utils.Helpers;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Random;
 
 /// Manages card creation, storage, and cooldowns for the PolyCard mod.
 public class CardManager {
@@ -58,7 +61,7 @@ public class CardManager {
 
     /// Give a card to a player, creating it with a random rarity level based on the card type's probabilities.
     ///
-    /// @param player The player to give the card to.
+    /// @param player   The player to give the card to.
     /// @param cardType The type of card to give.
     public static void receiveCard(ServerPlayer player, CardType cardType) {
         CardManager.createCard(cardType).ifPresent(
@@ -99,7 +102,7 @@ public class CardManager {
     /// Add the attribute modifiers from a card to a player, applying the effects of the card to the player.
     ///
     /// @param player The player to add the attributes to.
-    /// @param card The card to add the attributes from.
+    /// @param card   The card to add the attributes from.
     public static void addCardAttributes(ServerPlayer player, Card card) {
         player.getAttributes().addTransientAttributeModifiers(card.getAttributeModifiers());
     }
@@ -107,7 +110,7 @@ public class CardManager {
     /// Remove the attribute modifiers from a card from a player, removing the effects of the card from the player.
     ///
     /// @param player The player to remove the attributes from.
-    /// @param card The card to remove the attributes from.
+    /// @param card   The card to remove the attributes from.
     public static void removeCardAttributes(ServerPlayer player, Card card) {
         player.getAttributes().removeAttributeModifiers(card.getAttributeModifiers());
     }
@@ -115,7 +118,7 @@ public class CardManager {
     /// Give a specific card to a player.
     ///
     /// @param player The player to give the card to.
-    /// @param card The card to give to the player.
+    /// @param card   The card to give to the player.
     public static void giveCard(ServerPlayer player, Card card) {
         player.getInventory().placeItemBackInInventory(card.asItem());
         Helpers.playSound(player, SoundEvents.ITEM_PICKUP);

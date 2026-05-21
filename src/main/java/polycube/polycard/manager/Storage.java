@@ -85,7 +85,7 @@ public class Storage extends SavedData {
 
         /// Checks if the player has a card of a specific type and rarity level equipped.
         ///
-        /// @param cardType the type of card to check for
+        /// @param cardType    the type of card to check for
         /// @param rarityLevel the rarity level of card to check for
         /// @return true if a card of the specified type and rarity is equipped, false otherwise
         public boolean hasCard(CardType cardType, RarityLevel rarityLevel) {
@@ -102,7 +102,7 @@ public class Storage extends SavedData {
 
         /// Checks if the player has a card of a specific type with same or higher rarity level equipped.
         ///
-        /// @param cardType the type of card to check for
+        /// @param cardType    the type of card to check for
         /// @param rarityLevel the rarity level of card to check for
         /// @return true if a card of the specified type and same or higher rarity level is equipped, false otherwise
         public boolean hasCardOrRarer(CardType cardType, RarityLevel rarityLevel) {

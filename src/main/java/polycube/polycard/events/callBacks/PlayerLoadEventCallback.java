@@ -7,10 +7,10 @@ import net.minecraft.server.level.ServerPlayer;
 public interface PlayerLoadEventCallback {
     Event<PlayerLoadEventCallback> JOIN = EventFactory.createArrayBacked(PlayerLoadEventCallback.class,
             callbacks -> player -> {
-        for (var callback : callbacks) {
-            callback.interact(player);
-        }
-    });
+                for (var callback : callbacks) {
+                    callback.interact(player);
+                }
+            });
 
     void interact(ServerPlayer player);
 }
