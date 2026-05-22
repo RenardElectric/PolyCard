@@ -30,7 +30,7 @@ public class PolyCardClient implements ClientModInitializer {
 	}
 
 	public static Item register(Card card) {
-		ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.cardType().getCardGroup() +  "/" + card.cardType().getSerializedName() + "/" + card.rarityLevel().getSerializedName()));
+		ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId()));
 		Item item = new Item(new Item.Properties().setId(itemKey));
 		Registry.register(BuiltInRegistries.ITEM, itemKey, item);
 		return item;

@@ -3,6 +3,7 @@ package polycube.polycard.card;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
@@ -22,9 +23,7 @@ import net.minecraft.world.item.component.ItemLore;
 import org.jspecify.annotations.NonNull;
 import polycube.polycard.PolyCard;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 /// Represents a card with a specific type and rarity level,
@@ -76,6 +75,39 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return cardType.getAttributeModifiers(rarityLevel);
     }
 
+    public double getProbability() {
+        for (var rarity : cardType.getRarities()) {
+            if (rarity.rarityLevel() == rarityLevel) {
+                return rarity.probability();
+            }
+        }
+        return 0;
+    }
+
+    public boolean isEnchanted() {
+        for (var rarity : cardType.getRarities()) {
+            if (rarity.rarityLevel() == rarityLevel) {
+                return rarity.isEnchanted();
+            }
+        }
+        return false;
+    }
+
+    public List<Component> getDescriptions() {
+        var descriptions = new ArrayList<Component>();
+        descriptions.add(Component.literal("Acquired by " + cardType.getCondition()).withStyle(ChatFormatting.GRAY));
+        for (var rarity : cardType.getRarities()) {
+            descriptions.add(rarity.getFormattedDescription());
+            if (rarity.rarityLevel() == rarityLevel) break;
+        }
+        return descriptions;
+    }
+
+
+    public String getId() {
+        return cardType.getId() + "/" + rarityLevel.getSerializedName();
+    }
+
     @Override
     public @NonNull String toString() {
         return rarityLevel + " " + cardType + " card";
@@ -104,11 +136,11 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
         var components = DataComponentPatch.builder()
                 .set(DataComponents.ITEM_NAME, Component.literal(card.toString()).withStyle(rarityLevel.color()))
-                .set(DataComponents.LORE, new ItemLore(cardType.getDescriptions(rarityLevel)))
-                .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, cardType.isEnchanted(rarityLevel))
+                .set(DataComponents.LORE, new ItemLore(card.getDescriptions()))
+                .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, card.isEnchanted())
                 .set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag))
                 .set(DataComponents.MAX_STACK_SIZE, 64)
-                .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, cardType.getCardGroup() + "/" + cardTypeName + "/" + rarityLevelName));
+                .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId()));
 
         return new ItemStackTemplate(CARD_ITEM, components.build());
     }

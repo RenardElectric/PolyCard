@@ -142,7 +142,7 @@ public class CardManager {
         var rarities = RarityLevel.values();
         Collections.reverse(Arrays.asList(rarities));
         for (var rarityLevel : rarities) {
-            if (rollsUnder(cardType.getProbability(rarityLevel))) {
+            if (rollsUnder(new Card(cardType, rarityLevel).getProbability())) {
                 return Optional.of(rarityLevel);
             }
         }

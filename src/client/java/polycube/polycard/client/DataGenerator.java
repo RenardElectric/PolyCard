@@ -91,11 +91,11 @@ public class DataGenerator implements DataGeneratorEntrypoint {
 
                 var rarityLevel = rarity.rarityLevel();
                 var card = new Card(cardType, rarity.rarityLevel());
-                var identifier = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, cardType.getCardGroup() + "/" + cardType.getSerializedName() + "/" + rarityLevel.getSerializedName());
+                var identifier = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId());
                 var item = new ItemStackTemplate(
                         Card.CARD_ITEM,
                         DataComponentPatch.builder()
-                                .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, cardType.isEnchanted(rarityLevel))
+                                .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, card.isEnchanted())
                                 .set(DataComponents.ITEM_MODEL, identifier)
                                 .build()
                 );
@@ -152,7 +152,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
             }
 
             for (var cardType : CardType.values()) {
-                var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getCardGroup() + "/" + cardType.getSerializedName());
+                var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getId());
                 ModelTemplates.FLAT_ITEM.create(cardTypeId, TextureMapping.layer0(new Material(cardTypeId)), itemModelGenerators.modelOutput);
             }
 
@@ -160,7 +160,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                 for (var rarity : cardType.getRarities()) {
                     var rarityLevel = rarity.rarityLevel();
                     var rarityId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + rarityLevel.getSerializedName());
-                    var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getCardGroup() + "/" + cardType.getSerializedName());
+                    var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getId());
 
                     ItemModel.Unbaked hoe = ItemModelUtils.plainModel(rarityId);
                     ItemModel.Unbaked hoePlus = ItemModelUtils.plainModel(cardTypeId);
