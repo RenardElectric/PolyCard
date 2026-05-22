@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/// Represents the type of a card, which determines the conditions for obtaining the card and its potential effects based on rarity levels.
 public enum CardType implements StringRepresentable {
     // Passive
 
@@ -67,6 +68,13 @@ public enum CardType implements StringRepresentable {
         this.cardGroup = cardGroup;
     }
 
+    /// Adds a rarity level to this card type with the specified properties.
+    ///
+    /// @param rarityLevel The rarity level to add.
+    /// @param probability The probability of obtaining this card at the specified rarity level.
+    /// @param isEnchanted Whether the card should have an enchanted appearance at this rarity level.
+    /// @param description A description of the effects or properties of the card at this rarity level.
+    /// @return The created Rarity object representing the added rarity level.
     protected Rarity addRarity(RarityLevel rarityLevel, double probability, boolean isEnchanted, String description) {
         var rarity = new Rarity(rarityLevel, probability, isEnchanted, description, HashMultimap.create());
         rarities.put(rarityLevel, rarity);
@@ -89,6 +97,10 @@ public enum CardType implements StringRepresentable {
                 .toList();
     }
 
+    /// Gets a multimap of attribute modifiers for this card type, including all modifiers from rarities up to the specified maximum rarity level.
+    ///
+    /// @param maxRarity The maximum rarity level to include when gathering attribute modifiers.
+    /// @return A multimap of attribute modifiers for this card type, including all modifiers from rarities up to the specified maximum rarity level.
     public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(RarityLevel maxRarity) {
         Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
         for (var rarity : rarities.keySet().stream().sorted(Comparator.comparing(Enum::ordinal)).toList()) {
@@ -101,14 +113,23 @@ public enum CardType implements StringRepresentable {
         return attributes;
     }
 
+    /// Gets the condition for obtaining this card type, which describes how a player can acquire the card.
+    ///
+    /// @return The condition for obtaining this card type.
     public String getCondition() {
         return condition;
     }
 
+    /// Gets the card group for this card type, which categorizes the card into a specific group for organizational purposes.
+    ///
+    /// @return The card group for this card type.
     public String getCardGroup() {
         return cardGroup;
     }
 
+    /// Gets the unique identifier for this card type, which is a combination of the card group and the serialized name of the card type.
+    ///
+    /// @return The unique identifier for this card type, formatted as "cardGroup/serializedName".
     public String getId() {
         return getCardGroup() + "/" + getSerializedName();
     }

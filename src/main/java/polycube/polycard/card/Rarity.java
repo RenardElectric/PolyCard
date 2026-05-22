@@ -16,6 +16,11 @@ public record Rarity(
         return Component.literal(description).withStyle(rarityLevel.color());
     }
 
+    /// Adds an attribute modifier to this rarity, which modifies a specific attribute when the card is used.
+    ///
+    /// @param attribute The attribute to modify, represented as a Holder of an Attribute.
+    /// @param modifier The AttributeModifier that defines how the attribute should be modified.
+    /// @return The Rarity instance with the added attribute modifier, allowing for method chaining.
     public Rarity withAttribute(Holder<Attribute> attribute, AttributeModifier modifier) {
         attributeModifiers.put(attribute, modifier);
         return this;

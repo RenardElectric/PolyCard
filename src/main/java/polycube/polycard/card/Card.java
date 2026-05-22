@@ -71,10 +71,16 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         ).withStyle(rarityLevel.color());
     }
 
+    /// Retrieves the attribute modifiers associated with this Card based on its type and rarity level.
+    ///
+    /// @return a Multimap of attribute modifiers for this Card
     public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers() {
         return cardType.getAttributeModifiers(rarityLevel);
     }
 
+    /// Retrieves the probability of obtaining this Card based on its type and rarity level.
+    ///
+    /// @return the probability of obtaining this Card
     public double getProbability() {
         for (var rarity : cardType.getRarities()) {
             if (rarity.rarityLevel() == rarityLevel) {
@@ -84,6 +90,9 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return 0;
     }
 
+    /// Determines whether this Card should have an enchanted appearance based on its type and rarity level.
+    ///
+    /// @return true if this Card should have an enchanted appearance, false otherwise
     public boolean isEnchanted() {
         for (var rarity : cardType.getRarities()) {
             if (rarity.rarityLevel() == rarityLevel) {
@@ -93,6 +102,10 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return false;
     }
 
+    /// Retrieves a list of Components representing the descriptions of this Card based on its type and rarity level.
+    /// The descriptions include the condition for acquiring the card and the effects or properties of the card at each rarity level up to the current rarity level.
+    ///
+    /// @return a list of Components representing the descriptions of this Card
     public List<Component> getDescriptions() {
         var descriptions = new ArrayList<Component>();
         descriptions.add(Component.literal("Acquired by " + cardType.getCondition()).withStyle(ChatFormatting.GRAY));
@@ -103,7 +116,9 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return descriptions;
     }
 
-
+    /// Retrieves the unique identifier for this Card, which is a combination of the card type's ID and the rarity level's serialized name.
+    ///
+    /// @return the unique identifier for this Card, formatted as "cardTypeId/rarityLevelSerializedName"
     public String getId() {
         return cardType.getId() + "/" + rarityLevel.getSerializedName();
     }
