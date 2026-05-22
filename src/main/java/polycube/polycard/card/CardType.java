@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 public enum CardType implements StringRepresentable {
     // Passive
 
-    COW("breeding two cows") {{
+    COW("breeding two cows", "passive") {{
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Regeneration when standing in plains");
         addRarity(RarityLevel.RARE, 0.05, false, "Gain resistance when near other Cow Card");
         addRarity(RarityLevel.EPIC, 0.01, true, "Convert debuffs into Buffs when drinking milk");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "+" + CowEffects.REGEN_HEALTH_GAIN + " hearts when drinking milk");
     }},
-    SQUID("killing a squid") {{
+    SQUID("killing a squid", "passive") {{
         addRarity(RarityLevel.RARE, 0.05, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
         addRarity(RarityLevel.EPIC, 0.01, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Water breathing");
@@ -36,18 +36,18 @@ public enum CardType implements StringRepresentable {
 
     // Neutral
 
-    IRON_GOLEM("summoning an Iron Golem") {{
+    IRON_GOLEM("summoning an Iron Golem", "neutral") {{
         addRarity(RarityLevel.RARE, 0.05, false, IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
         addRarity(RarityLevel.EPIC, 0.01, true, "Hitting with fist knock back enemies (10 sec cooldown)");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Falling creates shock wave (10 sec cooldown)");
     }},
-    ENDERMAN("killing an Enderman") {{
+    ENDERMAN("killing an Enderman", "neutral") {{
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "No ender pearl damage");
         addRarity(RarityLevel.RARE, 0.05, false, "No ender pearl cooldown");
         addRarity(RarityLevel.EPIC, 0.01, true, EnderManEffects.PROJECTILE_DODGE_CHANCE + "% chance to dodge projectile");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Resistance in the End");
     }},
-    PIGLIN("TODO") {{
+    PIGLIN("killing a piglin", "neutral") {{
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Piglins do not attack you");
         addRarity(RarityLevel.RARE, 0.05, false, "Gold food gives a random buff when eaten");
         addRarity(RarityLevel.EPIC, 0.01, true, "Piglin brutes do not attack you");
@@ -60,9 +60,11 @@ public enum CardType implements StringRepresentable {
 
     private final Map<RarityLevel, Rarity> rarities = new HashMap<>();
     private final String condition;
+    private final String cardGroup;
 
-    CardType(String condition) {
+    CardType(String condition, String cardGroup) {
         this.condition = condition;
+        this.cardGroup = cardGroup;
     }
 
     protected Rarity addRarity(RarityLevel rarityLevel, double probability, boolean isEnchanted, String description) {
@@ -137,6 +139,10 @@ public enum CardType implements StringRepresentable {
 
     public String getCondition() {
         return condition;
+    }
+
+    public String getCardGroup() {
+        return cardGroup;
     }
 
     /// Deserializes a CardType from a string.

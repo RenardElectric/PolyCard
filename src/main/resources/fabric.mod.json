@@ -15,8 +15,11 @@
     "main": [
       "polycube.polycard.PolyCard"
     ],
+    "client": [
+      "polycube.polycard.client.PolyCardClient"
+    ],
     "fabric-datagen": [
-      "polycube.polycard.DataGenerator"
+      "polycube.polycard.client.DataGenerator"
     ]
   },
   "mixins": [

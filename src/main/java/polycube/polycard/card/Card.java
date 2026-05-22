@@ -13,6 +13,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
@@ -36,6 +37,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     ).apply(instance, Card::new));
 
     public static final int CARDS_FOR_NEXT_LEVEL = 20;
+    public static final Item CARD_ITEM = Items.KNOWLEDGE_BOOK;
 
     private static final String CARD_TYPE_KEY = "cardType";
     private static final String RARITY_LEVEL_KEY = "rarityLevel";
@@ -106,9 +108,9 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
                 .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, cardType.isEnchanted(rarityLevel))
                 .set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag))
                 .set(DataComponents.MAX_STACK_SIZE, 64)
-                .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, cardTypeName + "/" + rarityLevelName));
+                .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, cardType.getCardGroup() + "/" + cardTypeName + "/" + rarityLevelName));
 
-        return new ItemStackTemplate(Items.KNOWLEDGE_BOOK, components.build());
+        return new ItemStackTemplate(CARD_ITEM, components.build());
     }
 
     /// Checks if a given ItemStack represents a valid Card

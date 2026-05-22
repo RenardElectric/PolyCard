@@ -1,0 +1,44 @@
+{
+  "parent": "polycard:passive/cow/epic",
+  "criteria": {
+    "got_card": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:item_model": "polycard:passive/cow/legendary"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "extra": [
+        {
+          "color": "gold",
+          "text": "Legendary Cow card"
+        },
+        " by breeding two cows"
+      ],
+      "text": "Unlock the "
+    },
+    "frame": "challenge",
+    "icon": {
+      "components": {
+        "minecraft:enchantment_glint_override": true,
+        "minecraft:item_model": "polycard:passive/cow/legendary"
+      },
+      "id": "minecraft:knowledge_book"
+    },
+    "title": "Legendary Cow card"
+  },
+  "requirements": [
+    [
+      "got_card"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -18,6 +18,7 @@ loom {
 	mods {
 		"polycard" {
 			sourceSet sourceSets.main
+			sourceSet sourceSets.client
 		}
 	}
 
