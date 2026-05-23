@@ -5,5 +5,6 @@ public class CardDropEvents {
         BreedEvents.register();
         KillEvents.register();
         SummonEvents.register();
+        UseItemOnEvents.register();
     }
 }

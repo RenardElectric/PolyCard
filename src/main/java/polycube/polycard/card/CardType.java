@@ -55,9 +55,9 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Gold items are significantly more durable");
     }},
     BEE("collecting honey", "neutral") {{
-        addRarity(RarityLevel.RARE, 0.05, false, "Drinking honey gives speed");
-        addRarity(RarityLevel.EPIC, 0.01, true, "Drinking honey gives regeneration");
-        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Drinking honey gives health boost");
+        addRarity(RarityLevel.RARE, 0.1, false, "Drinking honey gives speed");
+        addRarity(RarityLevel.EPIC, 0.02, true, "Drinking honey gives regeneration");
+        addRarity(RarityLevel.LEGENDARY, 0.002, true, "Drinking honey gives health boost");
     }},
 
     // Hostile
