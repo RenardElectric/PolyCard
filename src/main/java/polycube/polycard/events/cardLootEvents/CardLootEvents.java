@@ -1,6 +1,6 @@
-package polycube.polycard.events.cardDropEvents;
+package polycube.polycard.events.cardLootEvents;
 
-public class CardDropEvents {
+public class CardLootEvents {
     public static void registerCardDropEvents() {
         BreedEvents.register();
         KillEvents.register();

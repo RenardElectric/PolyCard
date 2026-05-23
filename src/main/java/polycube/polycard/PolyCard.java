@@ -9,7 +9,7 @@ import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.commands.*;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
-import polycube.polycard.events.cardDropEvents.CardDropEvents;
+import polycube.polycard.events.cardLootEvents.CardLootEvents;
 import polycube.polycard.events.guiEvents.CardItemUseEvent;
 import polycube.polycard.gui.EquipmentGUI;
 import polycube.polycard.manager.CardManager;
@@ -42,7 +42,7 @@ public class PolyCard implements ModInitializer {
 
         ItemUseEventCallback.register(new CardItemUseEvent(cardManager));
 
-        CardDropEvents.registerCardDropEvents();
+        CardLootEvents.registerCardDropEvents();
         CardEffects.registerCardEffects(cardManager);
     }
 }

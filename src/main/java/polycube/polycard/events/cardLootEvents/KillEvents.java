@@ -1,4 +1,4 @@
-package polycube.polycard.events.cardDropEvents;
+package polycube.polycard.events.cardLootEvents;
 
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.squid.Squid;

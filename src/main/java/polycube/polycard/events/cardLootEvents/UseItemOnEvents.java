@@ -1,4 +1,4 @@
-package polycube.polycard.events.cardDropEvents;
+package polycube.polycard.events.cardLootEvents;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.server.level.ServerPlayer;
