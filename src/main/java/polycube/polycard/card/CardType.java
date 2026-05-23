@@ -34,6 +34,11 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 0.01, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Water breathing");
     }},
+    BEE("collecting honey", "passive") {{
+        addRarity(RarityLevel.RARE, 0.05, false, "Drinking honey gives speed");
+        addRarity(RarityLevel.EPIC, 0.01, true, "Drinking honey gives regeneration");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Drinking honey gives health boost");
+    }},
 
     // Neutral
 

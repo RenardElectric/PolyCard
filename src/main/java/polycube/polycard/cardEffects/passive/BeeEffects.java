@@ -1,0 +1,46 @@
+package polycube.polycard.cardEffects.passive;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import polycube.polycard.card.CardType;
+import polycube.polycard.card.RarityLevel;
+import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
+import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.Helpers;
+
+public class BeeEffects {
+    public static final CardType CARD_TYPE = CardType.BEE;
+
+    public static final int SPEED_EFFECT_DURATION = 20 * 60;
+    public static final int SPEED_EFFECT_AMPLIFIER = 0;
+
+    public static final int REGENERATION_EFFECT_DURATION = 20 * 10;
+    public static final int REGENERATION_EFFECT_AMPLIFIER = 0;
+
+    public static final int HEALTH_BOOST_EFFECT_DURATION = 20 * 60;
+    public static final int HEALTH_BOOST_EFFECT_AMPLIFIER = 1;
+
+    public static void register(CardManager cardManager) {
+        ItemConsumedEventCallback.EVENT.register((player, itemStack) -> onHoneyBottleConsumed(cardManager, player, itemStack));
+    }
+
+    private static void onHoneyBottleConsumed(CardManager cardManager, ServerPlayer player, ItemStack itemStack) {
+        if (itemStack.is(Items.HONEY_BOTTLE)) {
+            var playerData = cardManager.getStorage().data(player);
+            if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
+                player.addEffect(new MobEffectInstance(MobEffects.SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_AMPLIFIER));
+
+                if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
+                    player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGENERATION_EFFECT_DURATION, REGENERATION_EFFECT_AMPLIFIER));
+
+                    if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
+                        player.addEffect(new MobEffectInstance(MobEffects.HEALTH_BOOST, HEALTH_BOOST_EFFECT_DURATION, HEALTH_BOOST_EFFECT_AMPLIFIER));
+                    }
+                }
+            }
+        }
+    }
+}
