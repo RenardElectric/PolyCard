@@ -1,12 +1,12 @@
 {
-  "parent": "polycard:passive/bee/rare",
+  "parent": "polycard:polycard_root",
   "criteria": {
     "got_card": {
       "conditions": {
         "items": [
           {
             "components": {
-              "minecraft:item_model": "polycard:passive/bee/epic"
+              "minecraft:item_model": "polycard:neutral/bee/rare"
             }
           }
         ]
@@ -19,8 +19,8 @@
     "description": {
       "extra": [
         {
-          "color": "dark_purple",
-          "text": "Epic Bee card"
+          "color": "blue",
+          "text": "Rare Bee card"
         },
         " by collecting honey"
       ],
@@ -28,12 +28,12 @@
     },
     "icon": {
       "components": {
-        "minecraft:enchantment_glint_override": true,
-        "minecraft:item_model": "polycard:passive/bee/epic"
+        "minecraft:enchantment_glint_override": false,
+        "minecraft:item_model": "polycard:neutral/bee/rare"
       },
       "id": "minecraft:knowledge_book"
     },
-    "title": "Epic Bee card"
+    "title": "Rare Bee card"
   },
   "requirements": [
     [

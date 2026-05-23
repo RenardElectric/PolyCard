@@ -34,11 +34,6 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 0.01, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Water breathing");
     }},
-    BEE("collecting honey", "passive") {{
-        addRarity(RarityLevel.RARE, 0.05, false, "Drinking honey gives speed");
-        addRarity(RarityLevel.EPIC, 0.01, true, "Drinking honey gives regeneration");
-        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Drinking honey gives health boost");
-    }},
 
     // Neutral
 
@@ -58,6 +53,11 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.RARE, 0.05, false, "Gold food gives a random buff when eaten");
         addRarity(RarityLevel.EPIC, 0.01, true, "Piglin brutes do not attack you");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Gold items are significantly more durable");
+    }},
+    BEE("collecting honey", "neutral") {{
+        addRarity(RarityLevel.RARE, 0.05, false, "Drinking honey gives speed");
+        addRarity(RarityLevel.EPIC, 0.01, true, "Drinking honey gives regeneration");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Drinking honey gives health boost");
     }},
 
     // Hostile

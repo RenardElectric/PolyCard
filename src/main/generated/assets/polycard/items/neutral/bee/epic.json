@@ -4,11 +4,11 @@
     "models": [
       {
         "type": "minecraft:model",
-        "model": "polycard:item/rare"
+        "model": "polycard:item/epic"
       },
       {
         "type": "minecraft:model",
-        "model": "polycard:item/passive/bee"
+        "model": "polycard:item/neutral/bee"
       }
     ]
   }
