@@ -62,7 +62,10 @@ public class CowEffects {
                 var pos = player.blockPosition();
                 //noinspection resource
                 var biome = player.level().getBiome(pos);
-                if (!hasCard || !biome.is(Biomes.PLAINS)) continue;
+                if (!hasCard || !biome.is(Biomes.PLAINS)) {
+                    stillPlayers.remove(player);
+                    continue;
+                }
 
                 UUID playerId = player.getUUID();
                 Vec3 currentLocation = player.position();

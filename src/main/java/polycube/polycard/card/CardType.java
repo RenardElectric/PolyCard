@@ -53,6 +53,16 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.RARE, 0.05, false, "Gold food gives a random buff when eaten");
         addRarity(RarityLevel.EPIC, 0.01, true, "Piglin brutes do not attack you");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Gold items are significantly more durable");
+    }},
+
+    // Hostile
+
+    ZOMBIE("killing a zombie", "hostile") {{
+        addRarity(RarityLevel.COMMON, 0.25, false, "No hunger when eating rotten flesh");
+        addRarity(RarityLevel.UNCOMMON, 0.1, false, "Rotten flesh gives +2 food");
+        addRarity(RarityLevel.RARE, 0.05, false, "Rotten flesh gives +2 food");
+        addRarity(RarityLevel.EPIC, 0.01, true, "Rotten flesh gives strength");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Rotten flesh gives regeneration");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

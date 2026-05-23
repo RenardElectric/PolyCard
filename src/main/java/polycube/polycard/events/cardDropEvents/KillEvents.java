@@ -4,6 +4,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.squid.Squid;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import polycube.polycard.card.CardType;
 import polycube.polycard.events.callBacks.KillEventCallback;
 import polycube.polycard.manager.CardManager;
@@ -17,6 +18,7 @@ public class KillEvents {
                 case EnderMan _ -> CardManager.receiveCard(player, CardType.ENDERMAN);
                 case Squid _ -> CardManager.receiveCard(player, CardType.SQUID);
                 case Piglin _ -> CardManager.receiveCard(player, CardType.PIGLIN);
+                case Zombie _  -> CardManager.receiveCard(player, CardType.ZOMBIE);
                 default -> { }
             }
 
