@@ -24,7 +24,7 @@ public class SquidEffects {
     public static final int BLINDNESS_DURATION = 20 * 5;
     public static final int BLINDNESS_AMPLIFIER = 0;
 
-    public static final int WATER_BREATHING_DURATION = 20 * 12;
+    public static final int WATER_BREATHING_DURATION = 20 * 2;
     public static final int WATER_BREATHING_AMPLIFIER = 0;
 
     public static void register(CardManager cardManager) {
@@ -34,7 +34,7 @@ public class SquidEffects {
             server.getPlayerList().getPlayers().forEach(player -> {
                 if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
                     if (player.isEyeInFluid(FluidTags.WATER)) {
-                        player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER), player);
+                        player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER, true, true), player);
                     }
                 }
             });

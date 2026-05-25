@@ -106,7 +106,10 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     /// @return a list of Components representing the descriptions of this Card
     public List<Component> getDescriptions() {
         var descriptions = new ArrayList<Component>();
-        descriptions.add(Component.literal("Acquired by " + cardType.getCondition()).withStyle(ChatFormatting.GRAY));
+        descriptions.add(
+                Component.literal("(Acquired by " + cardType.getCondition() + ")")
+                        .withStyle(s -> s.withColor(ChatFormatting.DARK_GRAY).withItalic(false))
+        );
         for (var rarity : cardType.getRarities()) {
             descriptions.add(rarity.getFormattedDescription());
             if (rarity.rarityLevel() == rarityLevel) break;

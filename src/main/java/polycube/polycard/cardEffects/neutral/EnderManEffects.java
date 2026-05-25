@@ -36,7 +36,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class EnderManEffects {
     public static final CardType CARD_TYPE = CardType.ENDERMAN;
 
-    public static final int RESISTANCE_EFFECT_DURATION = 40;
+    public static final int RESISTANCE_EFFECT_DURATION = 20 * 2;
     public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
 
     public static final int PROJECTILE_DODGE_CHANCE = 20;
@@ -104,7 +104,7 @@ public class EnderManEffects {
 
                         //noinspection resource
                         var level = player.level();
-                        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.VAULT_INSERT_ITEM_FAIL, SoundSource.PLAYERS);
+                        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_TELEPORT, SoundSource.PLAYERS);
                         level.sendParticles(ParticleTypes.PORTAL, player.getX(), player.getY() + 0.5, player.getZ(), 50, 0.5, 1, 0.5, 1);
 
                         return InteractionResult.FAIL;

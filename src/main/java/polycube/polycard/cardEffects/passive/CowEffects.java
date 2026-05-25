@@ -25,10 +25,10 @@ public class CowEffects {
     public static final int REGEN_HEALTH_GAIN_HEALTH_POINTS = REGEN_HEALTH_GAIN_HEARTS * 2;
 
     public static final int STILL_DELAY = 20 * 25;
-    public static final int REGEN_EFFECT_DURATION = 20 * 3;
+    public static final int REGEN_EFFECT_DURATION = 20 * 5;
     public static final int REGEN_EFFECT_AMPLIFIER = 0;
 
-    public static final int RESISTANCE_EFFECT_DURATION = 20 * 4;
+    public static final int RESISTANCE_EFFECT_DURATION = 20 * 2;
     public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
     public static final int RESISTANCE_DISTANCE_SQUARED = 25;
 
@@ -74,6 +74,7 @@ public class CowEffects {
                 Vec3 previousLocation = lastLocations.put(playerId, currentLocation);
                 if (previousLocation == null || previousLocation.distanceToSqr(currentLocation) > 0.0001D) {
                     stillPlayers.remove(player);
+                    lastMoveTimes.remove(playerId);
                     Helpers.debug("{} has the uncommon cow card and is in the plains biome, but moved, resetting their still timer.", player.getName());
                     continue;
                 }
@@ -90,7 +91,7 @@ public class CowEffects {
             stillPlayers.removeIf(player -> !playersOnline.contains(player));
             lastLocations.keySet().removeIf(playerId -> !onlinePlayerIds.contains(playerId));
             lastMoveTimes.keySet().removeIf(playerId -> !onlinePlayerIds.contains(playerId));
-            stillPlayers.forEach(player -> player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER)));
+            stillPlayers.forEach(player -> player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER, true, true)));
 
             // Near Cow Card resistance
             for (Player player : playersOnline.stream().filter(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)).toList()) {
@@ -99,7 +100,7 @@ public class CowEffects {
                         .anyMatch(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);
                 if (nearCowCard) {
                     Helpers.debug("{} is near another player with the rare cow card, giving them resistance!", player.getName());
-                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER));
+                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
                 }
             }
         });
