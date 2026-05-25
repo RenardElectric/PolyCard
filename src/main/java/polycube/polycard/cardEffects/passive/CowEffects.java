@@ -21,7 +21,8 @@ import java.util.*;
 public class CowEffects {
     public static final CardType CARD_TYPE = CardType.COW;
 
-    public static final int REGEN_HEALTH_GAIN = 8;
+    public static final int REGEN_HEALTH_GAIN_HEARTS = 8;
+    public static final int REGEN_HEALTH_GAIN_HEALTH_POINTS = REGEN_HEALTH_GAIN_HEARTS * 2;
 
     public static final int STILL_DELAY = 20 * 25;
     public static final int REGEN_EFFECT_DURATION = 20 * 3;
@@ -46,14 +47,13 @@ public class CowEffects {
 
     private static final Set<ServerPlayer> stillPlayers = new HashSet<>();
     private static final Map<UUID, Vec3> lastLocations = new HashMap<>();
-    private static final Map<UUID, Long> lastMoveTimes = new HashMap<>();
+    private static final Map<UUID, Integer> lastMoveTimes = new HashMap<>();
 
     public static void register(CardManager cardManager) {
         ItemConsumedEventCallback.EVENT.register((player, itemStack) -> onBucketUsed(cardManager, player, itemStack));
 
         Helpers.runTaskTimer(0, 20, server -> {
             // Regen when still
-            long now = System.currentTimeMillis();
             var storage = cardManager.getStorage();
             var playersOnline = server.getPlayerList().getPlayers();
             for (ServerPlayer player : playersOnline) {
@@ -64,6 +64,8 @@ public class CowEffects {
                 var biome = player.level().getBiome(pos);
                 if (!hasCard || !biome.is(Biomes.PLAINS)) {
                     stillPlayers.remove(player);
+                    lastLocations.remove(player.getUUID());
+                    lastMoveTimes.remove(player.getUUID());
                     continue;
                 }
 
@@ -71,19 +73,23 @@ public class CowEffects {
                 Vec3 currentLocation = player.position();
                 Vec3 previousLocation = lastLocations.put(playerId, currentLocation);
                 if (previousLocation == null || previousLocation.distanceToSqr(currentLocation) > 0.0001D) {
-                    lastMoveTimes.put(playerId, now);
-                    if (stillPlayers.remove(player)) {
-                        Helpers.debug("{} has the uncommon cow card and is in the plains biome, but moved, resetting their still timer.", player.getName());
-                    }
+                    stillPlayers.remove(player);
+                    Helpers.debug("{} has the uncommon cow card and is in the plains biome, but moved, resetting their still timer.", player.getName());
                     continue;
                 }
-                long lastMoveTime = lastMoveTimes.getOrDefault(playerId, now);
-                if (now - lastMoveTime >= STILL_DELAY) {
+                int lastMoveTime = lastMoveTimes.getOrDefault(playerId, 0);
+                if (lastMoveTime >= STILL_DELAY) {
                     Helpers.debug("{} has the uncommon cow card and is standing still in the plains biome, giving them regeneration!", player.getName());
                     stillPlayers.add(player);
+                } else {
+                    lastMoveTimes.put(playerId, lastMoveTime + 20);
                 }
             }
+            var onlinePlayerIds = new HashSet<UUID>();
+            playersOnline.forEach(player -> onlinePlayerIds.add(player.getUUID()));
             stillPlayers.removeIf(player -> !playersOnline.contains(player));
+            lastLocations.keySet().removeIf(playerId -> !onlinePlayerIds.contains(playerId));
+            lastMoveTimes.keySet().removeIf(playerId -> !onlinePlayerIds.contains(playerId));
             stillPlayers.forEach(player -> player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER)));
 
             // Near Cow Card resistance
@@ -123,7 +129,7 @@ public class CowEffects {
 
             if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
                 Helpers.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
-                player.setHealth(player.getHealth() + REGEN_HEALTH_GAIN);
+                player.heal(REGEN_HEALTH_GAIN_HEALTH_POINTS);
             }
         }
     }

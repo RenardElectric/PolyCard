@@ -6,6 +6,7 @@ import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -29,20 +30,6 @@ public enum RarityLevel implements StringRepresentable {
         this.color = color;
     }
 
-    /// Gets the next rarity level in the progression, if it exists.
-    ///
-    /// @return An Optional containing the next RarityLevel if it exists,
-    /// or an empty Optional if this is the highest rarity level (LEGENDARY).
-    public Optional<RarityLevel> nextLevel() {
-        return switch (this) {
-            case COMMON -> Optional.of(UNCOMMON);
-            case UNCOMMON -> Optional.of(RARE);
-            case RARE -> Optional.of(EPIC);
-            case EPIC -> Optional.of(LEGENDARY);
-            case LEGENDARY -> Optional.empty(); // No next level after LEGENDARY
-        };
-    }
-
     /// Gets the color associated with this rarity level for display purposes.
     ///
     /// @return The ChatFormatting color associated with this rarity level.
@@ -56,16 +43,19 @@ public enum RarityLevel implements StringRepresentable {
     /// @return An Optional containing the corresponding RarityLevel if the string is valid,
     ///         or an empty Optional if the string does not match any RarityLevel.
     public static Optional<RarityLevel> deserialize(String string) {
-        return Optional.ofNullable(BY_NAME.get(string));
+        if (string == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(BY_NAME.get(string.toLowerCase(Locale.ROOT)));
     }
 
     @Override
     public @NonNull String getSerializedName() {
-        return this.name().toLowerCase();
+        return this.name().toLowerCase(Locale.ROOT);
     }
 
     @Override
     public String toString() {
-        return getSerializedName().substring(0, 1).toUpperCase() + getSerializedName().substring(1);
+        return getSerializedName().substring(0, 1).toUpperCase(Locale.ROOT) + getSerializedName().substring(1);
     }
 }

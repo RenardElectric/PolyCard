@@ -28,7 +28,7 @@ public class IronGolemEffects {
     public static final int RESISTANCE_AMPLIFIER = 0;
 
     public static final String KNOCKBACK_HIT_COOLDOWN_KEY = "iron_golem:knockback";
-    public static final int KNOCKBACK_HIT_COOLDOWN = 2;
+    public static final int KNOCKBACK_HIT_COOLDOWN = 20 * 10;
     public static final float KNOCKBACK_POWER = 3;
 
     public static final String SHOCKWAVE_COOLDOWN_KEY = "iron_golem:shockwave";
@@ -65,7 +65,7 @@ public class IronGolemEffects {
             if (source.isDirect() && source.getWeaponItem() != null && source.getWeaponItem().is(Items.AIR)) {
                 if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                     if (cardManager.getCooldowns().isReadyOrCreate(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
-                        Helpers.debug("{} has a legendary or higher Iron Golem card, applying knockback on hit", player.getName().getString());
+                        Helpers.debug("{} has an epic or higher Iron Golem card, applying knockback on hit", player.getName().getString());
                         double xd = 0.0;
                         double zd = 0.0;
                         if (source.getSourcePosition() != null) {

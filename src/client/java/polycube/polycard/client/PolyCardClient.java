@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PolyCardClient implements ClientModInitializer {
-	public static Map<Card, Item> CARD_ITEM_MAP =  new HashMap<>();
+	public static final Map<Card, Item> CARD_ITEM_MAP = new HashMap<>();
 
 	@Override
 	public void onInitializeClient() {

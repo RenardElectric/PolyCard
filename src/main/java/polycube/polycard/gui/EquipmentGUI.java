@@ -39,9 +39,9 @@ public class EquipmentGUI {
     /// @param targetPlayer The player whose equipment is being managed (can be the player).
     public void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
         var playerData = cardManager.getStorage().data(targetPlayer);
-        var container = playerData.asContainer(player);
+        var container = playerData.asContainer(targetPlayer, player);
 
-        SimpleGui gui = getEquipmentGui(player, playerData);
+        SimpleGui gui = getEquipmentGui(player, targetPlayer, playerData);
         gui.setTitle(Component.literal("七ㇺ十").withStyle(ChatFormatting.WHITE)
                 .append(Component.literal("✦༺ ").withStyle(ChatFormatting.DARK_RED))
                 .append(Component.literal("Equipped Cards").withStyle(s -> s.withColor(ChatFormatting.BLACK).withUnderlined(true)))
@@ -55,25 +55,25 @@ public class EquipmentGUI {
         gui.open();
     }
 
-    private SimpleGui getEquipmentGui(ServerPlayer player, Storage.PlayerData playerData) {
-        return new SimpleGui(MenuType.HOPPER, player, false) {
+    private SimpleGui getEquipmentGui(ServerPlayer viewer, ServerPlayer targetPlayer, Storage.PlayerData playerData) {
+        return new SimpleGui(MenuType.HOPPER, viewer, false) {
             @Override
             public void onPlayerClose(boolean success) {
                 super.onPlayerClose(success);
 
                 if (!success) {
-                    Helpers.debug("{} could not close the equipment menu successfully, not saving equipped cards", player.getName().getString());
+                    Helpers.debug("{} could not close the equipment menu for {} successfully, not saving equipped cards", viewer.getName().getString(), targetPlayer.getName().getString());
                     return;
                 }
 
                 List<Card> equippedCards = playerData.getEquippedCards();
 
-                Helpers.debug("Saved equipped cards for {} after closing equipment menu", player.getName().getString());
+                Helpers.debug("Saved equipped cards for {} after closing equipment menu", targetPlayer.getName().getString());
                 if (equippedCards.isEmpty()) {
-                    Helpers.debug("No equipped cards for {}", player.getName().getString());
+                    Helpers.debug("No equipped cards for {}", targetPlayer.getName().getString());
                 } else {
                     Helpers.debug(
-                            "Equipped cards for {}: {}", player.getName().getString(),
+                            "Equipped cards for {}: {}", targetPlayer.getName().getString(),
                             equippedCards.stream().map(Card::toString).collect(Collectors.joining(", "))
                     );
                 }

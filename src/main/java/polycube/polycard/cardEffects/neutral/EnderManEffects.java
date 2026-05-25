@@ -83,8 +83,8 @@ public class EnderManEffects {
     private static InteractionResult onEnderPearlHit(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
-                if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
-                    Helpers.debug("{} has a rare or higher enderman card, removing ender pearl teleport damage", player.getName().getString());
+                if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.UNCOMMON)) {
+                    Helpers.debug("{} has an uncommon or higher enderman card, removing ender pearl teleport damage", player.getName().getString());
                     return InteractionResult.FAIL;
                 }
             }

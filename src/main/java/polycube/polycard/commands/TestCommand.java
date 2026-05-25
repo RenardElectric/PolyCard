@@ -8,7 +8,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
-import polycube.polycard.card.CardType;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.manager.CardManager;
 
@@ -37,7 +36,13 @@ public class TestCommand extends PolyCardCommand {
     }
 
     protected int execute(CommandContext<CommandSourceStack> context) {
-        var cardType = CardTypeArgument.getType(context, "cardType").orElse(CardType.COW);
+        var optionalCardType = CardTypeArgument.getType(context, "cardType");
+        if (optionalCardType.isEmpty()) {
+            context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, "cardType")));
+            return 0;
+        }
+
+        var cardType = optionalCardType.get();
         var cardNumber = 1000;
         try {
             cardNumber = IntegerArgumentType.getInteger(context, "cardNumber");

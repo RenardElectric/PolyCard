@@ -55,7 +55,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
 
         @Override
         public void generateAdvancement(HolderLookup.@NonNull Provider wrapperLookup, @NonNull Consumer<AdvancementHolder> consumer) {
-            var icon_item = new ItemStackTemplate(
+            var iconItem = new ItemStackTemplate(
                     Card.CARD_ITEM,
                     DataComponentPatch.builder()
                             .set(DataComponents.ITEM_MODEL, Identifier.parse(PolyCard.MOD_ID + ":polycard_icon"))
@@ -67,9 +67,9 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                     .map(ModContainer::getMetadata)
                     .orElseThrow();
 
-            AdvancementHolder getDirt = Advancement.Builder.advancement()
+            AdvancementHolder rootAdvancement = Advancement.Builder.advancement()
                     .display(
-                            icon_item,
+                            iconItem,
                             Component.literal(modData.getName()),
                             Component.literal(modData.getDescription()),
                             Identifier.withDefaultNamespace("block/amethyst_block"),
@@ -82,7 +82,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                     .save(consumer, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "polycard_root"));
 
             for (var cardType : CardType.values()) {
-                addType(cardType, getDirt, consumer);
+                addType(cardType, rootAdvancement, consumer);
             }
         }
 
@@ -162,12 +162,12 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                     var rarityId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + rarityLevel.getSerializedName());
                     var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getId());
 
-                    ItemModel.Unbaked hoe = ItemModelUtils.plainModel(rarityId);
-                    ItemModel.Unbaked hoePlus = ItemModelUtils.plainModel(cardTypeId);
+                    ItemModel.Unbaked rarityModel = ItemModelUtils.plainModel(rarityId);
+                    ItemModel.Unbaked cardTypeModel = ItemModelUtils.plainModel(cardTypeId);
 
                     itemModelGenerators.itemModelOutput.accept(
                             PolyCardClient.CARD_ITEM_MAP.get(new Card(cardType, rarityLevel)),
-                            ItemModelUtils.composite(hoe, hoePlus)
+                            ItemModelUtils.composite(rarityModel, cardTypeModel)
                     );
                 }
             }

@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public final class RarityTypeArgument {
+public final class RarityLevelArgument {
     private static final RarityLevel[] VALUES = RarityLevel.values();
 
     public static Optional<RarityLevel> getRarity(final CommandContext<CommandSourceStack> context, final String name) {

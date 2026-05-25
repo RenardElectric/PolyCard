@@ -14,7 +14,7 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
-import polycube.polycard.commands.commandArguments.RarityTypeArgument;
+import polycube.polycard.commands.commandArguments.RarityLevelArgument;
 import polycube.polycard.manager.CardManager;
 
 public class GiveCommand extends PolyCardCommand {
@@ -31,14 +31,14 @@ public class GiveCommand extends PolyCardCommand {
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
-                Commands.argument("player", EntityArgument.players())
+                Commands.argument("player", EntityArgument.player())
                         .then(
                                 Commands.argument("cardType", StringArgumentType.string())
                                         .suggests(CardTypeArgument::suggestCards)
                                         .executes(cts -> giveCard(cts, false))
                                         .then(
                                                 Commands.argument("rarityLevel", StringArgumentType.string())
-                                                        .suggests(RarityTypeArgument::suggestRarities)
+                                                        .suggests(RarityLevelArgument::suggestRarities)
                                                         .executes(cts -> giveCard(cts, true))
                                         )
                         )
@@ -59,19 +59,18 @@ public class GiveCommand extends PolyCardCommand {
         // Get rarity (default to minimum rarity level of the card)
         RarityLevel rarityLevel = cardType.minRarityLevel();
         if (withRarityLevel) {
-            var optionalRarityType = RarityTypeArgument.getRarity(cts, "rarityLevel");
+            var optionalRarityLevel = RarityLevelArgument.getRarity(cts, "rarityLevel");
 
-            if (optionalRarityType.isEmpty()) {
+            if (optionalRarityLevel.isEmpty()) {
                 source.sendFailure(Component.literal("Invalid rarity level: " + StringArgumentType.getString(cts, "rarityLevel")));
                 return 0;
             }
+            rarityLevel = optionalRarityLevel.get();
 
-            if (optionalRarityType.get().ordinal() < rarityLevel.ordinal()) {
-                source.sendFailure(Component.literal(cardType + " requires at least " + rarityLevel + " rarity level."));
+            if (!cardType.hasRarity(rarityLevel)) {
+                source.sendFailure(Component.literal(cardType + " does not support " + rarityLevel + " rarity."));
                 return 0;
             }
-
-            rarityLevel = optionalRarityType.get();
         }
         var card = new Card(cardType, rarityLevel);
         CardManager.giveCard(player, card);

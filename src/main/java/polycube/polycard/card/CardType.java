@@ -27,7 +27,7 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Regeneration when standing in plains");
         addRarity(RarityLevel.RARE, 0.05, false, "Gain resistance when near other Cow Card");
         addRarity(RarityLevel.EPIC, 0.01, true, "Convert debuffs into Buffs when drinking milk");
-        addRarity(RarityLevel.LEGENDARY, 0.001, true, "+" + CowEffects.REGEN_HEALTH_GAIN + " hearts when drinking milk");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "+" + CowEffects.REGEN_HEALTH_GAIN_HEARTS + " hearts when drinking milk");
     }},
     SQUID("killing a squid", "passive") {{
         addRarity(RarityLevel.RARE, 0.05, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
@@ -39,8 +39,8 @@ public enum CardType implements StringRepresentable {
 
     IRON_GOLEM("summoning an Iron Golem", "neutral") {{
         addRarity(RarityLevel.RARE, 0.05, false, IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
-        addRarity(RarityLevel.EPIC, 0.01, true, "Hitting with fist knock back enemies (10 sec cooldown)");
-        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Falling creates shock wave (10 sec cooldown)");
+        addRarity(RarityLevel.EPIC, 0.01, true, "Hitting with fist knock back enemies (" + IronGolemEffects.KNOCKBACK_HIT_COOLDOWN / 20 + " sec cooldown)");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Falling creates shock wave (" + IronGolemEffects.SHOCKWAVE_COOLDOWN / 20 + " sec cooldown)");
     }},
     ENDERMAN("killing an Enderman", "neutral") {{
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "No ender pearl damage");
@@ -74,7 +74,7 @@ public enum CardType implements StringRepresentable {
     public static final Map<String, CardType> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(CardType::getSerializedName, Function.identity()));
 
-    private final Map<RarityLevel, Rarity> rarities = new HashMap<>();
+    private final Map<RarityLevel, Rarity> rarities = new EnumMap<>(RarityLevel.class);
     private final String condition;
     private final String cardGroup;
 
@@ -103,6 +103,35 @@ public enum CardType implements StringRepresentable {
         return rarities.keySet().stream().min(Comparator.comparingInt(Enum::ordinal)).orElseThrow();
     }
 
+    /// Gets the rarity data for a specific rarity level, if this card type supports it.
+    ///
+    /// @param rarityLevel The rarity level to get the data for.
+    /// @return An Optional containing the Rarity data for the specified rarity level,
+    /// or empty if this card type does not support that rarity level.
+    public Optional<Rarity> getRarity(RarityLevel rarityLevel) {
+        return Optional.ofNullable(rarities.get(rarityLevel));
+    }
+
+    /// Returns whether this card type can exist at the given rarity level.
+    ///
+    /// @param rarityLevel The rarity level to check for support.
+    /// @return true if this card type supports the given rarity level, false otherwise.
+    public boolean hasRarity(RarityLevel rarityLevel) {
+        return rarities.containsKey(rarityLevel);
+    }
+
+    /// Gets the next supported rarity level above the given rarity.
+    ///
+    /// @param rarityLevel The rarity level to find the next level above.
+    /// @return An Optional containing the next supported rarity level above the given level,
+    /// or empty if there are no higher supported rarity levels.
+    public Optional<RarityLevel> nextRarityLevelAfter(RarityLevel rarityLevel) {
+        return getRarities().stream()
+                .map(Rarity::rarityLevel)
+                .filter(nextRarityLevel -> nextRarityLevel.ordinal() > rarityLevel.ordinal())
+                .min(Comparator.comparingInt(Enum::ordinal));
+    }
+
     /// Gets a list of all rarities available for this card, sorted by their rarity level.
     ///
     /// @return A list of rarities for this card, sorted by rarity level.
@@ -118,12 +147,12 @@ public enum CardType implements StringRepresentable {
     /// @return A multimap of attribute modifiers for this card type, including all modifiers from rarities up to the specified maximum rarity level.
     public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(RarityLevel maxRarity) {
         Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
-        for (var rarity : rarities.keySet().stream().sorted(Comparator.comparing(Enum::ordinal)).toList()) {
-            var typeAttributes = rarities.get(rarity).attributeModifiers();
+        for (var rarity : getRarities()) {
+            var typeAttributes = rarity.attributeModifiers();
             if (typeAttributes != null) {
                 attributes.putAll(typeAttributes);
             }
-            if (rarity == maxRarity) break;
+            if (rarity.rarityLevel() == maxRarity) break;
         }
         return attributes;
     }
@@ -154,12 +183,15 @@ public enum CardType implements StringRepresentable {
     /// @param string the string to deserialize
     /// @return an Optional containing the deserialized CardType, or empty if the string is invalid
     public static Optional<CardType> deserialize(String string) {
-        return Optional.ofNullable(BY_NAME.get(string));
+        if (string == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(BY_NAME.get(string.toLowerCase(Locale.ROOT)));
     }
 
     @Override
     public @NonNull String getSerializedName() {
-        return this.name().toLowerCase();
+        return this.name().toLowerCase(Locale.ROOT);
     }
 
     @Override
@@ -167,7 +199,7 @@ public enum CardType implements StringRepresentable {
         var words = getSerializedName().split("_");
         StringBuilder sb = new StringBuilder();
         for (String word : words) {
-            sb.append(word.substring(0, 1).toUpperCase()).append(word.substring(1)).append(" ");
+            sb.append(word.substring(0, 1).toUpperCase(Locale.ROOT)).append(word.substring(1)).append(" ");
         }
         return sb.toString().trim();
     }

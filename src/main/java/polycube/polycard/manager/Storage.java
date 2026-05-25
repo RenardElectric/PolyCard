@@ -72,7 +72,9 @@ public class Storage extends SavedData {
         public static final Codec<PlayerData> CODEC = Card.CODEC.listOf().xmap(PlayerData::new, PlayerData::getEquippedCards);
 
         public PlayerData {
-            equippedCards = new ArrayList<>(equippedCards);
+            equippedCards = equippedCards.stream()
+                    .filter(Card::isValid)
+                    .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         }
 
         /// Checks if the player has a specific card equipped.
@@ -162,11 +164,21 @@ public class Storage extends SavedData {
             equippedCards.clear();
         }
 
-        /// Converts the player's equipped cards into a Container that can be used in the game's UI,
-        /// allowing the player to view and manage their equipped cards.
+        /// Returns a Container representing the player's equipped cards, allowing for interaction with the GUI.
         ///
+        /// @param player the player for whom to create the container
         /// @return a Container representing the player's equipped cards
         public Container asContainer(ServerPlayer player) {
+            return asContainer(player, player);
+        }
+
+        /// Returns a Container representing the player's equipped cards, allowing for interaction with the GUI.
+        /// This version allows specifying a different player for feedback sounds when equipping or unequipping cards.
+        ///
+        /// @param targetPlayer   the player whose equipped cards are represented in the container
+        /// @param feedbackPlayer the player who will receive feedback sounds when equipping or unequipping cards
+        /// @return a Container representing the player's equipped cards
+        public Container asContainer(ServerPlayer targetPlayer, ServerPlayer feedbackPlayer) {
             var container = new SimpleContainer(MAX_EQUIPPED_CARDS) {
                 @Override
                 public void setChanged() {
@@ -186,16 +198,16 @@ public class Storage extends SavedData {
 
                     for (Card card : removedCards) {
                         Helpers.debug("Unequipped card {} from container", card);
-                        CardManager.removeCardAttributes(player, card);
+                        CardManager.removeCardAttributes(targetPlayer, card);
                         equippedCards.remove(card);
-                        Helpers.playSound(player, SoundEvents.BUNDLE_REMOVE_ONE);
+                        Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_REMOVE_ONE);
                     }
 
                     for (Card card : addedCards) {
                         Helpers.debug("Equipped card {} to container", card);
-                        CardManager.addCardAttributes(player, card);
+                        CardManager.addCardAttributes(targetPlayer, card);
                         equippedCards.add(card);
-                        Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
+                        Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_INSERT);
                     }
                 }
 

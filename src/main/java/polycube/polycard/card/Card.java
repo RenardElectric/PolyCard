@@ -42,6 +42,10 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     private static final String RARITY_LEVEL_KEY = "rarityLevel";
     private static final Map<Card, ItemStackTemplate> itemStackCache = new HashMap<>();
 
+    public boolean isValid() {
+        return cardType.hasRarity(rarityLevel);
+    }
+
     /// Converts this Card to an ItemStack that can be used in Minecraft,
     /// with appropriate custom data and display properties.
     ///
@@ -82,24 +86,18 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     ///
     /// @return the probability of obtaining this Card
     public double getProbability() {
-        for (var rarity : cardType.getRarities()) {
-            if (rarity.rarityLevel() == rarityLevel) {
-                return rarity.probability();
-            }
-        }
-        return 0;
+        return cardType.getRarity(rarityLevel)
+                .map(Rarity::probability)
+                .orElse(0.0);
     }
 
     /// Determines whether this Card should have an enchanted appearance based on its type and rarity level.
     ///
     /// @return true if this Card should have an enchanted appearance, false otherwise
     public boolean isEnchanted() {
-        for (var rarity : cardType.getRarities()) {
-            if (rarity.rarityLevel() == rarityLevel) {
-                return rarity.isEnchanted();
-            }
-        }
-        return false;
+        return cardType.getRarity(rarityLevel)
+                .map(Rarity::isEnchanted)
+                .orElse(false);
     }
 
     /// Retrieves a list of Components representing the descriptions of this Card based on its type and rarity level.
@@ -166,7 +164,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     /// @param item the ItemStack to check
     /// @return true if the ItemStack represents a valid Card, false otherwise
     public static boolean isCard(ItemStack item) {
-        return getCardType(item).isPresent() && getCardRarity(item).isPresent();
+        return getCard(item).isPresent();
     }
 
     /// Retrieves a Card instance from a given ItemStack if it represents a valid Card,
@@ -177,7 +175,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     public static Optional<Card> getCard(ItemStack item) {
         var cardType = getCardType(item);
         var rarity = getCardRarity(item);
-        if (cardType.isPresent() && rarity.isPresent()) {
+        if (cardType.isPresent() && rarity.isPresent() && cardType.get().hasRarity(rarity.get())) {
             return Optional.of(new Card(cardType.get(), rarity.get()));
         }
         return Optional.empty();

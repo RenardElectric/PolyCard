@@ -11,7 +11,7 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.utils.Cooldowns;
 import polycube.polycard.utils.Helpers;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
@@ -126,11 +126,11 @@ public class CardManager {
     /// @param cardType The card type to get a random rarity level for.
     /// @return An optional containing the random rarity level, or empty if no rarity level was selected.
     public static Optional<RarityLevel> getRandomRarityLevel(CardType cardType) {
-        var rarities = RarityLevel.values();
-        Collections.reverse(Arrays.asList(rarities));
-        for (var rarityLevel : rarities) {
-            if (rollsUnder(new Card(cardType, rarityLevel).getProbability())) {
-                return Optional.of(rarityLevel);
+        var rarities = new ArrayList<>(cardType.getRarities());
+        Collections.reverse(rarities);
+        for (var rarity : rarities) {
+            if (rollsUnder(rarity.probability())) {
+                return Optional.of(rarity.rarityLevel());
             }
         }
         return Optional.empty();

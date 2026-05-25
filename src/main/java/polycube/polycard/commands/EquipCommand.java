@@ -39,13 +39,19 @@ public class EquipCommand extends PolyCardCommand {
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
-                Commands.argument("player", EntityArgument.players())
+                Commands.argument("player", EntityArgument.player())
                         .requires(src -> hasPermission(src, PermissionLevel.GAMEMASTERS))
                         .executes(cts -> {
                             var source = cts.getSource();
-                            var player = EntityArgument.getPlayer(cts, "player");
-                            equipmentGUI.openEquipmentGUI(source.getPlayer(), player);
-                            source.sendSuccess(() -> Component.literal("Opening equipment manager for " + player.getName().getString() + "...").withStyle(ChatFormatting.GOLD), false);
+                            var viewer = source.getPlayer();
+                            if (viewer == null) {
+                                source.sendFailure(Component.literal("This command can only be executed by a player."));
+                                return 0;
+                            }
+
+                            var targetPlayer = EntityArgument.getPlayer(cts, "player");
+                            equipmentGUI.openEquipmentGUI(viewer, targetPlayer);
+                            source.sendSuccess(() -> Component.literal("Opening equipment manager for " + targetPlayer.getName().getString() + "...").withStyle(ChatFormatting.GOLD), false);
                             return 1;
                         })
         );

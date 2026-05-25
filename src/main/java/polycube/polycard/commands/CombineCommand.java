@@ -34,7 +34,7 @@ public class CombineCommand extends PolyCardCommand {
         }
 
         var card = optionalCard.get();
-        var nextRarityLevel = card.rarityLevel().nextLevel();
+        var nextRarityLevel = card.cardType().nextRarityLevelAfter(card.rarityLevel());
         if (nextRarityLevel.isEmpty()) {
             source.sendFailure(Component.literal("The cards you are trying to combine are already at the highest rarity level."));
             return 0;
