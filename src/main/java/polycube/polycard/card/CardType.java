@@ -34,6 +34,12 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 0.01, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Water breathing");
     }},
+    CHICKEN("breed two chicken", "passive") {{
+        addRarity(RarityLevel.UNCOMMON, 0.1, false, "Lay eggs");
+        addRarity(RarityLevel.RARE, 0.05, false, "Buff when near chickens");
+        addRarity(RarityLevel.EPIC, 0.01, true, "Shot egg when hit");
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "Slow Falling when sneaking mid-air");
+    }},
 
     // Neutral
 
