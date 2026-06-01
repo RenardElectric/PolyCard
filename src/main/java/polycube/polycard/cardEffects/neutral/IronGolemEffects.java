@@ -16,6 +16,7 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -41,29 +42,32 @@ public class IronGolemEffects {
     }
 
     public static InteractionResult onPlayerHurt(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
-        if (entity instanceof ServerPlayer player) {
-            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
-                Helpers.debug("{} has a rare or higher Iron Golem card, giving chance to gain resistance when attacked", player.getName().getString());
-                int random = ThreadLocalRandom.current().nextInt(0, 100);
-                if (random < RESISTANCE_ON_ATTACKED_CHANCE) {
-                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER));
-                }
-            }
 
-            if (source.is(DamageTypeTags.IS_FALL)) {
-                if (player.fallDistance >= SHOCKWAVE_MIN_FALL_DISTANCE) {
-                    if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
-                        if (cardManager.getCooldowns().isReadyOrCreate(player, SHOCKWAVE_COOLDOWN_KEY, SHOCKWAVE_COOLDOWN)) {
+        if (entity instanceof ServerPlayer player) {
+            CardRarityConditions.of(cardManager, player, CARD_TYPE)
+                    .hasRare(() -> {
+                        if (source.is(DamageTypeTags.IS_PROJECTILE)) {
+                            Helpers.debug("{} has a rare or higher Iron Golem card and was attacked. Chance to gain resistance: {}%", player.getName().getString(), RESISTANCE_ON_ATTACKED_CHANCE);
+                            int random = ThreadLocalRandom.current().nextInt(0, 100);
+                            if (random < RESISTANCE_ON_ATTACKED_CHANCE) {
+                                player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER));
+                            }
+                        }
+                    })
+                    .hasLegendary(() -> {
+                        if (source.is(DamageTypeTags.IS_FALL) &&
+                                player.fallDistance >= SHOCKWAVE_MIN_FALL_DISTANCE &&
+                                cardManager.getCooldowns().isReadyOrCreate(player, SHOCKWAVE_COOLDOWN_KEY, SHOCKWAVE_COOLDOWN)
+                        ) {
+                            Helpers.debug("{} has a legendary or higher Iron Golem card and fell from a height of {}. Triggering shockwave.", player.getName().getString(), player.fallDistance);
                             triggerShockwave(player, player.fallDistance);
                         }
-                    }
-                }
-            }
+                    });
         }
 
         if (source.getEntity() instanceof ServerPlayer player) {
             if (source.isDirect() && source.getWeaponItem() != null && source.getWeaponItem().is(Items.AIR)) {
-                if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
+                if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                     if (cardManager.getCooldowns().isReadyOrCreate(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
                         Helpers.debug("{} has an epic or higher Iron Golem card, applying knockback on hit", player.getName().getString());
                         double xd = 0.0;

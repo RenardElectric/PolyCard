@@ -30,29 +30,29 @@ public class SquidEffects {
     public static void register(CardManager cardManager) {
         EntityHurtEventCallback.EVENT.register((attacker, level, source) -> onPlayerHurt(cardManager, attacker, level, source));
 
-        Helpers.runTaskTimer(0, 20, server -> {
-            server.getPlayerList().getPlayers().forEach(player -> {
-                if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
-                    if (player.isEyeInFluid(FluidTags.WATER)) {
-                        player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER, true, true), player);
-                    }
+        Helpers.addPlayerTask((server, player) -> {
+            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
+                if (player.isEyeInFluid(FluidTags.WATER)) {
+                    player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER, true, true), player);
                 }
-            });
+            }
         });
     }
 
     private static InteractionResult onPlayerHurt(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
         if (entity instanceof ServerPlayer player && source.getEntity() instanceof ServerPlayer sourcePlayer) {
-            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
+            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
                 int random = ThreadLocalRandom.current().nextInt(0, 100);
                 if (random < BLINDNESS_WHEN_HIT_CHANCE) {
+                    Helpers.debug("{} has the rare squid card and got hit by {}. Applying blindness.", player.getName().getString(), sourcePlayer.getName().getString());
                     sourcePlayer.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), player);
                 }
             }
 
-            if (cardManager.getStorage().data(sourcePlayer).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
+            if (cardManager.getStorage().get(sourcePlayer).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                 int random = ThreadLocalRandom.current().nextInt(0, 100);
                 if (random < BLINDNESS_ON_HIT_CHANCE) {
+                    Helpers.debug("{} has the epic squid card and hit {}. Applying blindness.", sourcePlayer.getName().getString(), player.getName().getString());
                     player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), sourcePlayer);
                 }
             }

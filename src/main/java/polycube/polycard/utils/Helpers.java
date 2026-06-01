@@ -10,11 +10,14 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
+import polycube.polycard.card.CardType;
+import polycube.polycard.card.RarityLevel;
 import polycube.polycard.manager.CardManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static polycube.polycard.PolyCard.LOGGER;
@@ -63,6 +66,24 @@ public final class Helpers {
         level.playSound(null, position.x, position.y, position.z, sound, SoundSource.PLAYERS, 1.0f, 1.0f);
     }
 
+    /// Checks if there is any other player nearby who has a card of a certain type and rarity level.
+    ///
+    /// @param player          the player to check around
+    /// @param cardManager     the card manager to check player storages with
+    /// @param cardType        the type of card to check for
+    /// @param rarityLevel     the rarity level of the card to check for
+    /// @param distanceSquared the maximum distance squared to check for nearby players
+    /// @return true if there is at least one other player nearby with the specified card, false otherwise
+    public static boolean nearPlayerWithCard(ServerPlayer player, CardManager cardManager, CardType cardType, RarityLevel rarityLevel, double distanceSquared) {
+        //noinspection resource
+        var level = player.level();
+        var playerPos = player.position();
+        return !level.getPlayers(p ->
+                p != player &&
+                        p.position().distanceToSqr(playerPos) <= distanceSquared &&
+                        cardManager.getStorage().get(p).hasCardOrRarer(cardType, rarityLevel), 1).isEmpty();
+    }
+
     /// Logs a debug message with the mod ID as a prefix.
     ///
     /// @param format the format string for the debug message
@@ -72,6 +93,7 @@ public final class Helpers {
     }
 
     private static final List<ScheduledTask> TASKS = new ArrayList<>();
+    private static final List<BiConsumer<MinecraftServer, ServerPlayer>> PLAYER_TASKS = new ArrayList<>();
 
     /// Schedules a task to run after a certain number of ticks.
     ///
@@ -90,6 +112,13 @@ public final class Helpers {
         TASKS.add(new ScheduledTask(new AtomicInteger(delay), period, runnable));
     }
 
+    /// Schedules a task to run for each player on every server tick.
+    ///
+    /// @param task the task to run, which accepts the Minecraft server and the player as arguments
+    public static void addPlayerTask(BiConsumer<MinecraftServer, ServerPlayer> task) {
+        PLAYER_TASKS.add(task);
+    }
+
     private record ScheduledTask(AtomicInteger ticksLeft, int period, Consumer<MinecraftServer> runnable) { }
 
     /// Called on every server tick to check for scheduled tasks and run them when their delay has elapsed.
@@ -105,6 +134,10 @@ public final class Helpers {
                     iterator.remove();
                 }
             }
+        }
+
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            PLAYER_TASKS.forEach(task -> task.accept(server, player));
         }
     }
 }

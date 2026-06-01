@@ -9,6 +9,7 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 public class ZombieEffects {
@@ -26,26 +27,27 @@ public class ZombieEffects {
 
     private static void onRottenFleshConsumed(CardManager cardManager, ServerPlayer player, ItemStack itemStack) {
         if (itemStack.is(Items.ROTTEN_FLESH)) {
-            var playerData = cardManager.getStorage().data(player);
-            if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.COMMON)) {
-                Helpers.runLater(0, _ -> player.removeEffect(MobEffects.HUNGER));
-
-                if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.UNCOMMON)) {
-                    player.getFoodData().eat(2, 0);
-
-                    if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
+            CardRarityConditions.of(cardManager, player, CARD_TYPE)
+                    .hasCommon(() -> {
+                        Helpers.debug("{} has the common zombie card and consumed rotten flesh, removing hunger effect", player.getName().getString());
+                        Helpers.runLater(0, _ -> player.removeEffect(MobEffects.HUNGER));
+                    })
+                    .hasUncommon(() -> {
+                        Helpers.debug("{} has the uncommon zombie card and consumed rotten flesh, adding 2 hunger points", player.getName().getString());
                         player.getFoodData().eat(2, 0);
-
-                        if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
-                            player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, STRENGTH_EFFECT_DURATION, STRENGTH_EFFECT_AMPLIFIER));
-
-                            if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
-                                player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGENERATION_EFFECT_DURATION, REGENERATION_EFFECT_AMPLIFIER));
-                            }
-                        }
-                    }
-                }
-            }
+                    })
+                    .hasRare(() -> {
+                        Helpers.debug("{} has the rare zombie card and consumed rotten flesh, adding 2 hunger points", player.getName().getString());
+                        player.getFoodData().eat(2, 0);
+                    })
+                    .hasEpic(() -> {
+                        Helpers.debug("{} has the epic zombie card and consumed rotten flesh, adding strength effect", player.getName().getString());
+                        player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, STRENGTH_EFFECT_DURATION, STRENGTH_EFFECT_AMPLIFIER));
+                    })
+                    .hasLegendary(() -> {
+                        Helpers.debug("{} has the legendary zombie card and consumed rotten flesh, adding regeneration effect", player.getName().getString());
+                        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGENERATION_EFFECT_DURATION, REGENERATION_EFFECT_AMPLIFIER));
+                    });
         }
     }
 }

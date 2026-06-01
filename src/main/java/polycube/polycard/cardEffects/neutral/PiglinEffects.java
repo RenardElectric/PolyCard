@@ -24,6 +24,7 @@ import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.events.callBacks.ItemDurabilityChangeEventCallback;
 import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.Helpers;
 
 import java.util.List;
 
@@ -72,7 +73,7 @@ public class PiglinEffects {
 
     private static InteractionResult canBeTargeted(CardManager cardManger, ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData targetingConditionsData) {
         if (target instanceof Player player) {
-            var playerData = cardManger.getStorage().data(player);
+            var playerData = cardManger.getStorage().get(player);
             switch (targeter) {
                 case Piglin _ -> {
                     if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.UNCOMMON)) {
@@ -94,8 +95,9 @@ public class PiglinEffects {
     private static int reduceDurability(CardManager cardManger, ServerLevel level, @Nullable ServerPlayer player, ItemStack itemStack, int amount) {
         if (player != null) {
             if (goldItems.contains(itemStack.getItem())) {
-                var playerData = cardManger.getStorage().data(player);
+                var playerData = cardManger.getStorage().get(player);
                 if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
+                    Helpers.debug("{} has the legendary piglin card and used a gold item. Reducing durability loss.", player.getName().getString());
                     if (itemStack.is(ItemTags.ARMOR_ENCHANTABLE)) {
                         return (int) piglinArmorBinomial.process(0, level.getRandom(), amount);
                     }
@@ -108,10 +110,11 @@ public class PiglinEffects {
 
     private static void eatGoldFood(CardManager cardManager, ServerPlayer player, ItemStack item) {
         if (item != null && goldFood.contains(item.getItem())) {
-            var playerData = cardManager.getStorage().data(player);
+            var playerData = cardManager.getStorage().get(player);
             if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
                 //noinspection resource
                 var effect = BUFFS.get(player.level().getRandom().nextInt(BUFFS.size()));
+                Helpers.debug("{} has the rare piglin card and consumed a gold food item. Applying random buff {}.", player.getName().getString(), effect.value().getDescriptionId());
                 player.addEffect(new MobEffectInstance(effect, BUFF_DURATION, BUFF_AMPLIFIER));
             }
         }

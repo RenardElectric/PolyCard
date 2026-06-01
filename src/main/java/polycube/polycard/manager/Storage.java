@@ -63,7 +63,7 @@ public class Storage extends SavedData {
     ///
     /// @param player the player to retrieve the data for
     /// @return the PlayerData associated with the player
-    public PlayerData data(Player player) {
+    public PlayerData get(Player player) {
         return playerDataMap.computeIfAbsent(player.getUUID(), _ -> new PlayerData(new ArrayList<>(MAX_EQUIPPED_CARDS)));
     }
 

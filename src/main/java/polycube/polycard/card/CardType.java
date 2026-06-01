@@ -36,7 +36,7 @@ public enum CardType implements StringRepresentable {
     }},
     CHICKEN("breed two chicken", "passive") {{
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Lay eggs");
-        addRarity(RarityLevel.RARE, 0.05, false, "Buff when near chickens");
+        addRarity(RarityLevel.RARE, 0.05, false, "Speed when near chickens");
         addRarity(RarityLevel.EPIC, 0.01, true, "Shot egg when hit");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Slow Falling when sneaking mid-air");
     }},

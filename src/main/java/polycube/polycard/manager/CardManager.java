@@ -82,7 +82,7 @@ public class CardManager {
     ///
     /// @param player The player to load the attributes for.
     public void loadPlayerAttributes(ServerPlayer player) {
-        var playerCards = storage.data(player).getEquippedCards();
+        var playerCards = storage.get(player).getEquippedCards();
         playerCards.forEach(card -> addCardAttributes(player, card));
     }
 

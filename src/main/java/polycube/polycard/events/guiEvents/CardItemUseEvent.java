@@ -44,7 +44,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         }
         var card = optionalCard.get();
 
-        var playerData = cardManager.getStorage().data(player);
+        var playerData = cardManager.getStorage().get(player);
         var optionalEquippedCard = playerData.getEquippedCards().stream()
                 .filter(c -> c.cardType() == card.cardType())
                 .findFirst();

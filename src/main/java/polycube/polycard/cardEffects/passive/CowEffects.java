@@ -5,7 +5,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biomes;
@@ -14,6 +13,7 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
@@ -45,70 +45,51 @@ public class CowEffects {
             MobEffects.RESISTANCE, MobEffects.WATER_BREATHING, MobEffects.NIGHT_VISION
     );
 
-    private static final Set<ServerPlayer> stillPlayers = new HashSet<>();
     private static final Map<UUID, Vec3> lastLocations = new HashMap<>();
     private static final Map<UUID, Integer> lastMoveTimes = new HashMap<>();
 
     public static void register(CardManager cardManager) {
         ItemConsumedEventCallback.EVENT.register((player, itemStack) -> onBucketUsed(cardManager, player, itemStack));
 
-        Helpers.runTaskTimer(0, 20, server -> {
-            // Regen when still
-            var storage = cardManager.getStorage();
-            var playersOnline = server.getPlayerList().getPlayers();
-            for (ServerPlayer player : playersOnline) {
+        Helpers.addPlayerTask((server, player) -> {
+            CardRarityConditions.of(cardManager, player, CARD_TYPE)
+                    .hasUncommon(() -> {
+                        var pos = player.blockPosition();
+                        //noinspection resource
+                        var level = player.level();
+                        var biome = level.getBiome(pos);
+                        if (!biome.is(Biomes.PLAINS)) {
+                            lastLocations.remove(player.getUUID());
+                            lastMoveTimes.remove(player.getUUID());
+                            return;
+                        }
 
-                var hasCard = storage.data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.UNCOMMON);
-                var pos = player.blockPosition();
-                //noinspection resource
-                var biome = player.level().getBiome(pos);
-                if (!hasCard || !biome.is(Biomes.PLAINS)) {
-                    stillPlayers.remove(player);
-                    lastLocations.remove(player.getUUID());
-                    lastMoveTimes.remove(player.getUUID());
-                    continue;
-                }
-
-                UUID playerId = player.getUUID();
-                Vec3 currentLocation = player.position();
-                Vec3 previousLocation = lastLocations.put(playerId, currentLocation);
-                if (previousLocation == null || previousLocation.distanceToSqr(currentLocation) > 0.0001D) {
-                    stillPlayers.remove(player);
-                    lastMoveTimes.remove(playerId);
-                    Helpers.debug("{} has the uncommon cow card and is in the plains biome, but moved, resetting their still timer.", player.getName());
-                    continue;
-                }
-                int lastMoveTime = lastMoveTimes.getOrDefault(playerId, 0);
-                if (lastMoveTime >= STILL_DELAY) {
-                    Helpers.debug("{} has the uncommon cow card and is standing still in the plains biome, giving them regeneration!", player.getName());
-                    stillPlayers.add(player);
-                } else {
-                    lastMoveTimes.put(playerId, lastMoveTime + 20);
-                }
-            }
-            var onlinePlayerIds = new HashSet<UUID>();
-            playersOnline.forEach(player -> onlinePlayerIds.add(player.getUUID()));
-            stillPlayers.removeIf(player -> !playersOnline.contains(player));
-            lastLocations.keySet().removeIf(playerId -> !onlinePlayerIds.contains(playerId));
-            lastMoveTimes.keySet().removeIf(playerId -> !onlinePlayerIds.contains(playerId));
-            stillPlayers.forEach(player -> player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER, true, true)));
-
-            // Near Cow Card resistance
-            for (Player player : playersOnline.stream().filter(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)).toList()) {
-                boolean nearCowCard = playersOnline.stream()
-                        .filter(p -> !p.equals(player))
-                        .anyMatch(p -> cardManager.getStorage().data(p).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE) && p.position().distanceToSqr(player.position()) <= RESISTANCE_DISTANCE_SQUARED);
-                if (nearCowCard) {
-                    Helpers.debug("{} is near another player with the rare cow card, giving them resistance!", player.getName());
-                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
-                }
-            }
+                        UUID playerId = player.getUUID();
+                        Vec3 currentLocation = player.position();
+                        Vec3 previousLocation = lastLocations.put(playerId, currentLocation);
+                        if (previousLocation == null || previousLocation.distanceToSqr(currentLocation) > 0.0001D) {
+                            lastMoveTimes.remove(playerId);
+                            return;
+                        }
+                        Integer lastMoveTime = lastMoveTimes.put(playerId, lastMoveTimes.getOrDefault(playerId, 0) + 1);
+                        if (lastMoveTime != null && lastMoveTime >= STILL_DELAY) {
+                            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER, true, true));
+                        }
+                    }, () -> {
+                        lastLocations.remove(player.getUUID());
+                        lastMoveTimes.remove(player.getUUID());
+                    })
+                    .hasRare(() -> {
+                        if (Helpers.nearPlayerWithCard(player, cardManager, CARD_TYPE, RarityLevel.RARE, RESISTANCE_DISTANCE_SQUARED)) {
+                            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
+                        }
+                    });
         });
     }
 
     private static void onBucketUsed(CardManager cardManager, ServerPlayer player, ItemStack itemStack) {
         if (itemStack.getItem() == Items.MILK_BUCKET) {
-            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
+            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                 var random = new Random();
                 List<MobEffectInstance> effectsGained = new ArrayList<>();
                 for (MobEffectInstance effect : player.getActiveEffects()) {
@@ -128,7 +109,7 @@ public class CowEffects {
                 });
             }
 
-            if (cardManager.getStorage().data(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
+            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
                 Helpers.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
                 player.heal(REGEN_HEALTH_GAIN_HEALTH_POINTS);
             }
