@@ -9,6 +9,7 @@
     "KilledTriggerMixin",
     "LivingEntityMixin",
     "PlayerListMixin",
+    "PlayerMixin",
     "ProjectileMixin",
     "ServerPlayerGameModeMixin",
     "SummonedEntityTriggerMixin",

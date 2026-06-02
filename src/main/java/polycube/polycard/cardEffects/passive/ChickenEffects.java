@@ -8,12 +8,16 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEgg;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.phys.Vec3;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
@@ -28,13 +32,15 @@ import java.util.UUID;
 public class ChickenEffects {
     public static final CardType CARD_TYPE = CardType.CHICKEN;
 
+    public static final float EGG_DAMAGE = 1.0F;
+
     public static final int SPEED_EFFECT_DURATION = 20 * 2;
     public static final int SPEED_EFFECT_AMPLIFIER = 0;
     public static final int SPEED_DISTANCE_SQUARED = 25;
 
     public static void register(CardManager cardManager) {
         EntityHurtEventCallback.EVENT.register(
-                (entity, level, source) -> playerHit(cardManager, entity, level, source)
+                (entity, level, source) -> onHurt(cardManager, entity, level, source)
         );
 
         Map<UUID, Integer> eggTimes = new HashMap<>();
@@ -42,12 +48,17 @@ public class ChickenEffects {
             var uuid = player.getUUID();
 
             CardRarityConditions.of(cardManager, player, CARD_TYPE)
-                    .hasUncommon(() -> {
+                    .hasCommon(() -> {
                         var eggTime = eggTimes.computeIfAbsent(uuid, _ -> player.getRandom().nextInt(6000) + 6000);
                         if (--eggTime < 0) {
-                            if (player.dropFromGiftLootTable(player.level(), BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {
-                                player.playSound(SoundEvents.CHICKEN_EGG, 1.0F, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
-                                eggTime = player.getRandom().nextInt(6000) + 6000;
+                            var level = player.level();
+                            var chicken = EntityType.CHICKEN.create(level, EntitySpawnReason.TRIGGERED);
+                            if (chicken != null) {
+                                chicken.remove(Entity.RemovalReason.DISCARDED);
+                                if (chicken.dropFromGiftLootTable(level, BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {
+                                    level.playSound(null, player.getX(), player.getY()-1, player.getZ(), SoundEvents.CHICKEN_EGG, SoundSource.PLAYERS, 0.2f, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
+                                    eggTime = player.getRandom().nextInt(6000) + 6000;
+                                }
                             }
                         }
                         eggTimes.put(uuid, eggTime);
@@ -65,14 +76,27 @@ public class ChickenEffects {
         });
     }
 
-    private static InteractionResult playerHit(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
+    private static boolean ignore = false;
+    private static InteractionResult onHurt(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
+        if (ignore) return InteractionResult.PASS;
+
+        if (source.getDirectEntity() instanceof ThrownEgg egg) {
+            if (egg.getOwner() instanceof ServerPlayer player) {
+                if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.UNCOMMON)) {
+                    ignore = true;
+                    entity.hurtServer(level, egg.damageSources().thrown(egg, player), EGG_DAMAGE);
+                    ignore = false;
+                }
+            }
+        }
+
         if (entity instanceof ServerPlayer player) {
             if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
                 var pos = source.getSourcePosition();
                 var attacker = source.getDirectEntity();
                 if (attacker != null) {
-                    if (attacker instanceof Projectile arrow) {
-                        var owner = arrow.getOwner();
+                    if (attacker instanceof Projectile projectile) {
+                        var owner = projectile.getOwner();
                         if (owner != null) {
                             attacker = owner;
                         }
@@ -80,21 +104,85 @@ public class ChickenEffects {
                     pos = attacker.position();
                 }
                 if (pos != null) {
-                    ItemStack projectile = new ItemStack(Items.EGG);
-                    var thrownEgg = new ThrownEgg(level, player, projectile);
-                    double xd = pos.x() - player.getX();
-                    double yd = pos.y() - thrownEgg.getY();
-                    double zd = pos.z() - player.getZ();
-                    double distanceToTarget = Math.sqrt(xd * xd + zd * zd);
-                    Projectile.spawnProjectileUsingShoot(
-                            thrownEgg, level, projectile, xd, yd + distanceToTarget * 0.2F, zd, (float) distanceToTarget * 0.06F, 0
+                    ItemStack eggStack = new ItemStack(Items.EGG);
+                    ThrownEgg egg = new ThrownEgg(level, player, eggStack);
+                    Vec3 eggAim = getProjectileAim(
+                            egg,
+                            pos.x(),
+                            pos.y() + 0.5,
+                            pos.z()
                     );
+                    if (eggAim != null) {
+                        Projectile.spawnProjectileUsingShoot(
+                                egg,
+                                level,
+                                eggStack,
+                                eggAim.x,
+                                eggAim.y,
+                                eggAim.z,
+                                (float) eggAim.length(),
+                                0.0F
+                        );
+                    }
                     level.playSound(
-                            null, player.getX(), player.getY(), player.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+                            null, player.getX(), player.getY(), player.getZ(), SoundEvents.EGG_THROW,
+                            SoundSource.PLAYERS, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
                     );
                 }
             }
         }
         return InteractionResult.PASS;
+    }
+
+    private static Vec3 getProjectileAim(
+            Projectile projectile,
+            double targetX,
+            double targetY,
+            double targetZ
+    ) {
+        double dx = targetX - projectile.getX();
+        double dy = targetY - projectile.getY();
+        double dz = targetZ - projectile.getZ();
+
+        double h = Math.sqrt(dx * dx + dz * dz);
+        if (h < 1.0e-6) {
+            return null;
+        }
+
+        double angle = Math.atan2(dy, h);
+        angle += (Math.PI / 2.0 - 0.01 - angle) * 0.25;
+
+        double cos = Math.cos(angle);
+        if (cos <= 1.0e-6) {
+            return null;
+        }
+
+        double inertia = projectile.isInWater() ? 0.8 : 0.99;
+        double gravity = projectile.getGravity();
+        double tan = Math.tan(angle);
+
+        double bestSpeed = Double.NaN;
+        double bestError = Double.POSITIVE_INFINITY;
+
+        for (int tick = 1; tick <= 200; tick++) {
+            double dragSum = inertia * (1.0 - Math.pow(inertia, tick)) / (1.0 - inertia);
+            double drop = gravity * inertia / (1.0 - inertia) * (tick - dragSum);
+            double error = Math.abs(h * tan - drop - dy);
+
+            if (error < bestError) {
+                bestError = error;
+                bestSpeed = h / (cos * dragSum);
+            }
+        }
+
+        if (Double.isNaN(bestSpeed)) {
+            return null;
+        }
+
+        return new Vec3(
+                dx / h * cos * bestSpeed,
+                Math.sin(angle) * bestSpeed,
+                dz / h * cos * bestSpeed
+        );
     }
 }
