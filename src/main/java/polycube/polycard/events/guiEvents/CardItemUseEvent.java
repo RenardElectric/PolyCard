@@ -10,9 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
+import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.utils.CardHelper;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.utils.Helpers;
 
 /// Handles equipping cards when a player uses a card item.

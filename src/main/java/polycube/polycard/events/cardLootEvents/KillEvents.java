@@ -18,7 +18,7 @@ public class KillEvents {
                 case EnderMan _ -> CardHelper.receiveCard(player, CardType.ENDERMAN);
                 case Squid _ -> CardHelper.receiveCard(player, CardType.SQUID);
                 case Piglin _ -> CardHelper.receiveCard(player, CardType.PIGLIN);
-                case Zombie _  -> CardHelper.receiveCard(player, CardType.ZOMBIE);
+                case Zombie _ -> CardHelper.receiveCard(player, CardType.ZOMBIE);
                 default -> { }
             }
 

@@ -39,9 +39,9 @@ public final class Helpers {
 
     /// Plays a sound for a specific player with a cooldown to prevent spamming the same sound.
     ///
-    /// @param player      the player to play the sound for
-    /// @param sound       the sound event to play
-    /// @param cooldown    the cooldown time in ticks before the sound can be played again for the same player
+    /// @param player   the player to play the sound for
+    /// @param sound    the sound event to play
+    /// @param cooldown the cooldown time in ticks before the sound can be played again for the same player
     public static void playSound(ServerPlayer player, SoundEvent sound, int cooldown) {
         var key = sound.toString();
         if (PolyCard.COOLDOWNS.isReadyOrCreate(player, key, cooldown)) {
@@ -51,7 +51,7 @@ public final class Helpers {
 
     /// Plays a failure sound for a specific player with a cooldown to prevent spamming the same sound.
     ///
-    /// @param player      the player to play the failure sound for
+    /// @param player the player to play the failure sound for
     public static void playFailure(ServerPlayer player) {
         playSound(player, SoundEvents.VILLAGER_NO, FAILURE_SOUND_COOLDOWN);
     }

@@ -56,7 +56,7 @@ public class ChickenEffects {
                             if (chicken != null) {
                                 chicken.remove(Entity.RemovalReason.DISCARDED);
                                 if (chicken.dropFromGiftLootTable(level, BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {
-                                    level.playSound(null, player.getX(), player.getY()-1, player.getZ(), SoundEvents.CHICKEN_EGG, SoundSource.PLAYERS, 0.2f, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
+                                    level.playSound(null, player.getX(), player.getY() - 1, player.getZ(), SoundEvents.CHICKEN_EGG, SoundSource.PLAYERS, 0.2f, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
                                     eggTime = player.getRandom().nextInt(6000) + 6000;
                                 }
                             }
@@ -77,6 +77,7 @@ public class ChickenEffects {
     }
 
     private static boolean ignore = false;
+
     private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source) {
         if (ignore) return InteractionResult.PASS;
 

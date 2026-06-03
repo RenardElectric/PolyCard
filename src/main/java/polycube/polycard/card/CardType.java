@@ -3,9 +3,7 @@ package polycube.polycard.card;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -68,9 +66,9 @@ public enum CardType implements StringRepresentable {
     }},
     GOAT("TODO", "neutral") {{ // TODO
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Can walk on powder snow");
-        addRarity(RarityLevel.RARE, 0.1, false, "TODO"); // TODO
-        addRarity(RarityLevel.EPIC, 0.02, true, "TODO"); // TODO
-        addRarity(RarityLevel.LEGENDARY, 0.002, true, "TODO"); // TODO
+        addRarity(RarityLevel.RARE, 0.05, false, "TODO"); // TODO
+        addRarity(RarityLevel.EPIC, 0.01, true, "TODO"); // TODO
+        addRarity(RarityLevel.LEGENDARY, 0.001, true, "TODO"); // TODO
     }},
 
     // Hostile

@@ -28,7 +28,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
 import org.jspecify.annotations.NonNull;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;

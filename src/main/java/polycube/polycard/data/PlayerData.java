@@ -12,7 +12,10 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.utils.CardHelper;
 import polycube.polycard.utils.Helpers;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /// Manages the card data for a single player, including equipped cards and related operations.

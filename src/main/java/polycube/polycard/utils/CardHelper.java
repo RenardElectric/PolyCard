@@ -8,7 +8,6 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
-import polycube.polycard.data.PlayerData;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -47,7 +47,7 @@ public class InfoCommand extends PolyCardCommand {
                             .withStyle(ChatFormatting.DARK_GRAY)
             );
             for (var rarity : cardType.getRarities()) {
-                String formattedProbability = new DecimalFormat("#.##").format(rarity.probability()*100);
+                String formattedProbability = new DecimalFormat("#.##").format(rarity.probability() * 100);
                 var rarityInfo = Component.literal(" - " + rarity.rarityLevel() + " (" + formattedProbability + "%)")
                         .append(Component.literal(" : " + rarity.description()))
                         .withStyle(rarity.rarityLevel().color());

@@ -5,7 +5,6 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
-import polycube.polycard.data.PlayerData;
 
 import java.util.List;
 import java.util.Map;
@@ -13,12 +12,12 @@ import java.util.Map;
 /// A utility class for checking card rarity conditions for a player and executing code based on those conditions.
 public class CardRarityConditions {
     private static final Map<Byte, List<Boolean>> conditionsCache = Map.of(
-            (byte)0, List.of(false, false, false, false, false),
-            (byte)1, List.of(true, false, false, false, false),
-            (byte)2, List.of(true, true, false, false, false),
-            (byte)3, List.of(true, true, true, false, false),
-            (byte)4, List.of(true, true, true, true, false),
-            (byte)5, List.of(true, true, true, true, true)
+            (byte) 0, List.of(false, false, false, false, false),
+            (byte) 1, List.of(true, false, false, false, false),
+            (byte) 2, List.of(true, true, false, false, false),
+            (byte) 3, List.of(true, true, true, false, false),
+            (byte) 4, List.of(true, true, true, true, false),
+            (byte) 5, List.of(true, true, true, true, true)
     );
 
     private final List<Boolean> conditions;
@@ -30,13 +29,13 @@ public class CardRarityConditions {
                 .map(RarityLevel::ordinal)
                 .findAny().orElse(-1) + 1;
 
-        conditions = conditionsCache.get((byte)highestRarityIndex);
+        conditions = conditionsCache.get((byte) highestRarityIndex);
     }
 
     /// Create a new CardRarityConditions instance for the given player and card type.
     ///
-    /// @param player      The player to check the conditions for.
-    /// @param cardType    The type of card to check the conditions for.
+    /// @param player   The player to check the conditions for.
+    /// @param cardType The type of card to check the conditions for.
     /// @return A new CardRarityConditions instance for the given player and card type.
     public static CardRarityConditions of(ServerPlayer player, CardType cardType) {
         return new CardRarityConditions(player, cardType);

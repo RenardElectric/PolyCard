@@ -10,6 +10,7 @@
     "LivingEntityMixin",
     "PlayerListMixin",
     "PlayerMixin",
+    "PowderSnowBlockMixin",
     "ProjectileMixin",
     "ServerPlayerGameModeMixin",
     "SummonedEntityTriggerMixin",

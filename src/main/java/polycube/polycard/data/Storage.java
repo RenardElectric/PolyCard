@@ -3,14 +3,16 @@ package polycube.polycard.data;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import polycube.polycard.PolyCard;
 import polycube.polycard.utils.Helpers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /// Manages the storage of player card data for the PolyCard mod,
 /// allowing players to equip and unequip cards

@@ -32,7 +32,7 @@ public class EquipmentGUI {
     /// @param player       The player to open the GUI for.
     /// @param targetPlayer The player whose equipment is being managed (can be the player).
     public static void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
-    var playerData = PolyCard.STORAGE.getPlayerData(targetPlayer);
+        var playerData = PolyCard.STORAGE.getPlayerData(targetPlayer);
         var container = playerData.asContainer(targetPlayer, player);
 
         SimpleGui gui = getEquipmentGui(player, targetPlayer, playerData);

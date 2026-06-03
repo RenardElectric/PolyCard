@@ -15,24 +15,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PolyCardClient implements ClientModInitializer {
-	public static final Map<Card, Item> CARD_ITEM_MAP = new HashMap<>();
+    public static final Map<Card, Item> CARD_ITEM_MAP = new HashMap<>();
 
-	@Override
-	public void onInitializeClient() {
-		for (var cardType : CardType.values()) {
-			for (var rarity : cardType.getRarities()) {
-				var rarityLevel = rarity.rarityLevel();
-				Card card = new Card(cardType, rarityLevel);
-				Item item = register(card);
-				CARD_ITEM_MAP.put(card, item);
-			}
-		}
-	}
+    @Override
+    public void onInitializeClient() {
+        for (var cardType : CardType.values()) {
+            for (var rarity : cardType.getRarities()) {
+                var rarityLevel = rarity.rarityLevel();
+                Card card = new Card(cardType, rarityLevel);
+                Item item = register(card);
+                CARD_ITEM_MAP.put(card, item);
+            }
+        }
+    }
 
-	public static Item register(Card card) {
-		ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId()));
-		Item item = new Item(new Item.Properties().setId(itemKey));
-		Registry.register(BuiltInRegistries.ITEM, itemKey, item);
-		return item;
-	}
+    public static Item register(Card card) {
+        ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId()));
+        Item item = new Item(new Item.Properties().setId(itemKey));
+        Registry.register(BuiltInRegistries.ITEM, itemKey, item);
+        return item;
+    }
 }

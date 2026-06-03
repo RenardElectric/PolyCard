@@ -5,14 +5,19 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import polycube.polycard.cardEffects.CardEffects;
+import polycube.polycard.cardEffects.hostile.ZombieEffects;
+import polycube.polycard.cardEffects.neutral.*;
+import polycube.polycard.cardEffects.passive.ChickenEffects;
+import polycube.polycard.cardEffects.passive.CowEffects;
+import polycube.polycard.cardEffects.passive.SquidEffects;
 import polycube.polycard.commands.*;
+import polycube.polycard.data.Storage;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
-import polycube.polycard.events.cardLootEvents.CardLootEvents;
+import polycube.polycard.events.cardLootEvents.*;
 import polycube.polycard.events.guiEvents.CardItemUseEvent;
-import polycube.polycard.gui.EquipmentGUI;
-import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.CardHelper;
+import polycube.polycard.utils.Cooldowns;
 import polycube.polycard.utils.Helpers;
 
 /// The main class of the PolyCard mod.
@@ -21,28 +26,53 @@ public class PolyCard implements ModInitializer {
     public static final String MOD_ID = "polycard";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+    public static Cooldowns COOLDOWNS = null;
+    public static Storage STORAGE = null;
+
     @Override
     public void onInitialize() {
         Helpers.debug("PolyCard mod initialized.");
-        CardManager cardManager = new CardManager();
-        EquipmentGUI equipmentGUI = new EquipmentGUI(cardManager);
 
-        ServerLifecycleEvents.SERVER_STARTED.register(cardManager::load);
+        Helpers.runTaskTimer(0, 1, _ -> COOLDOWNS.tick());
+
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            COOLDOWNS = new Cooldowns();
+            STORAGE = Storage.load(server);
+        });
         ServerTickEvents.END_SERVER_TICK.register(Helpers::onServerTick);
-        PlayerLoadEventCallback.JOIN.register(cardManager::loadPlayerAttributes);
+        PlayerLoadEventCallback.JOIN.register(CardHelper::loadPlayerAttributes);
 
         PolyCardCommands.registerCommands(
                 new HelpCommand(),
                 new InfoCommand(),
-                new EquipCommand(equipmentGUI),
+                new EquipCommand(),
                 new CombineCommand(),
                 new GiveCommand(),
                 new TestCommand()
         );
 
-        ItemUseEventCallback.register(new CardItemUseEvent(cardManager));
+        ItemUseEventCallback.register(new CardItemUseEvent());
 
-        CardLootEvents.registerCardDropEvents();
-        CardEffects.registerCardEffects(cardManager);
+        // Card loot events
+        BreedEvents.register();
+        KillEvents.register();
+        SummonEvents.register();
+        UseItemOnEvents.register();
+
+        // Card effects
+        // Passive
+        CowEffects.register();
+        SquidEffects.register();
+        BeeEffects.register();
+        ChickenEffects.register();
+
+        // Neutral
+        EnderManEffects.register();
+        IronGolemEffects.register();
+        PiglinEffects.register();
+        GoatEffects.register();
+
+        // Hostile
+        ZombieEffects.register();
     }
 }
