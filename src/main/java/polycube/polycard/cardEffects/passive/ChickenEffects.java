@@ -20,8 +20,8 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
-import polycube.polycard.manager.CardManager;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
@@ -38,16 +38,16 @@ public class ChickenEffects {
     public static final int SPEED_EFFECT_AMPLIFIER = 0;
     public static final int SPEED_DISTANCE_SQUARED = 25;
 
-    public static void register(CardManager cardManager) {
+    public static void register() {
         EntityHurtEventCallback.EVENT.register(
-                (entity, level, source) -> onHurt(cardManager, entity, level, source)
+                ChickenEffects::onHurt
         );
 
         Map<UUID, Integer> eggTimes = new HashMap<>();
         Helpers.addPlayerTask((server, player) -> {
             var uuid = player.getUUID();
 
-            CardRarityConditions.of(cardManager, player, CARD_TYPE)
+            CardRarityConditions.of(player, CARD_TYPE)
                     .hasCommon(() -> {
                         var eggTime = eggTimes.computeIfAbsent(uuid, _ -> player.getRandom().nextInt(6000) + 6000);
                         if (--eggTime < 0) {
@@ -64,7 +64,7 @@ public class ChickenEffects {
                         eggTimes.put(uuid, eggTime);
                     }, () -> eggTimes.remove(uuid))
                     .hasRare(() -> {
-                        if (Helpers.nearPlayerWithCard(player, cardManager, CARD_TYPE, RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
+                        if (Helpers.nearPlayerWithCard(player, CARD_TYPE, RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
                             player.addEffect(new MobEffectInstance(MobEffects.SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_AMPLIFIER, true, true));
                         }
                     })
@@ -77,12 +77,12 @@ public class ChickenEffects {
     }
 
     private static boolean ignore = false;
-    private static InteractionResult onHurt(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
+    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source) {
         if (ignore) return InteractionResult.PASS;
 
         if (source.getDirectEntity() instanceof ThrownEgg egg) {
             if (egg.getOwner() instanceof ServerPlayer player) {
-                if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.UNCOMMON)) {
+                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
                     ignore = true;
                     entity.hurtServer(level, egg.damageSources().thrown(egg, player), EGG_DAMAGE);
                     ignore = false;
@@ -91,7 +91,7 @@ public class ChickenEffects {
         }
 
         if (entity instanceof ServerPlayer player) {
-            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
+            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
                 var pos = source.getSourcePosition();
                 var attacker = source.getDirectEntity();
                 if (attacker != null) {

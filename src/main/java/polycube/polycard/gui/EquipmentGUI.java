@@ -9,9 +9,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
-import polycube.polycard.manager.CardManager;
-import polycube.polycard.manager.Storage;
+import polycube.polycard.data.PlayerData;
 import polycube.polycard.utils.Helpers;
 
 import java.util.List;
@@ -20,16 +20,10 @@ import java.util.stream.Collectors;
 /// Manages the equipment GUI for players to equip and unequip cards in the PolyCard mod,
 /// allowing them to see their currently equipped cards and manage them in a user-friendly interface.
 public class EquipmentGUI {
-    private final CardManager cardManager;
-
-    public EquipmentGUI(CardManager cardManager) {
-        this.cardManager = cardManager;
-    }
-
     /// Opens the equipment GUI for a player, showing their own equipped cards.
     ///
     /// @param player The player to open the GUI for.
-    public void openEquipmentGUI(ServerPlayer player) {
+    public static void openEquipmentGUI(ServerPlayer player) {
         openEquipmentGUI(player, player);
     }
 
@@ -37,8 +31,8 @@ public class EquipmentGUI {
     ///
     /// @param player       The player to open the GUI for.
     /// @param targetPlayer The player whose equipment is being managed (can be the player).
-    public void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
-        var playerData = cardManager.getStorage().get(targetPlayer);
+    public static void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
+    var playerData = PolyCard.STORAGE.getPlayerData(targetPlayer);
         var container = playerData.asContainer(targetPlayer, player);
 
         SimpleGui gui = getEquipmentGui(player, targetPlayer, playerData);
@@ -55,7 +49,7 @@ public class EquipmentGUI {
         gui.open();
     }
 
-    private SimpleGui getEquipmentGui(ServerPlayer viewer, ServerPlayer targetPlayer, Storage.PlayerData playerData) {
+    private static SimpleGui getEquipmentGui(ServerPlayer viewer, ServerPlayer targetPlayer, PlayerData playerData) {
         return new SimpleGui(MenuType.HOPPER, viewer, false) {
             @Override
             public void onPlayerClose(boolean success) {
@@ -77,12 +71,12 @@ public class EquipmentGUI {
                             equippedCards.stream().map(Card::toString).collect(Collectors.joining(", "))
                     );
                 }
-                cardManager.save();
+                PolyCard.STORAGE.save();
             }
         };
     }
 
-    private Slot getSlot(Container container, ServerPlayer player, Storage.PlayerData playerData, int slot) {
+    private static Slot getSlot(Container container, ServerPlayer player, PlayerData playerData, int slot) {
         return new Slot(container, slot, 0, 0) {
             @Override
             public boolean mayPlace(@NonNull ItemStack itemStack) {
@@ -93,7 +87,7 @@ public class EquipmentGUI {
 
                 var optionalCard = Card.getCard(itemStack);
                 if (optionalCard.isEmpty()) {
-                    Helpers.playFailure(cardManager, player);
+                    Helpers.playFailure(player);
                     Helpers.debug("{} attempted to place non-card item in equipment slot: {}", player.getName().getString(), itemStack.getHoverName().getString());
                     return false;
                 }
@@ -110,7 +104,7 @@ public class EquipmentGUI {
 
                 if (playerData.hasCardType(card.cardType())) {
                     player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));  // TODO: Not sure, makes a lot of messages when shift clicking
-                    Helpers.playFailure(cardManager, player);
+                    Helpers.playFailure(player);
                     Helpers.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.cardType().name());
                     return false;
                 }

@@ -15,7 +15,7 @@ import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.commands.commandArguments.RarityLevelArgument;
-import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.CardHelper;
 
 public class GiveCommand extends PolyCardCommand {
 
@@ -73,7 +73,7 @@ public class GiveCommand extends PolyCardCommand {
             }
         }
         var card = new Card(cardType, rarityLevel);
-        CardManager.giveCard(player, card);
+        CardHelper.giveCard(player, card);
 
         source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormattedName()), true);
         player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormattedName()));

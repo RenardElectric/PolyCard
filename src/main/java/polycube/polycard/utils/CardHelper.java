@@ -1,15 +1,14 @@
-package polycube.polycard.manager;
+package polycube.polycard.utils;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
-import polycube.polycard.utils.Cooldowns;
-import polycube.polycard.utils.Helpers;
+import polycube.polycard.data.PlayerData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,54 +16,15 @@ import java.util.Optional;
 import java.util.Random;
 
 /// Manages card creation, storage, and cooldowns for the PolyCard mod.
-public class CardManager {
+public class CardHelper {
     private static final Random random = new Random();
-    private final Cooldowns cooldowns = new Cooldowns();
-    private Storage storage = null;
-
-    public CardManager() {
-        Helpers.runTaskTimer(20, 20, _ -> cooldowns.tick(20));
-    }
-
-    /// Load the storage for this card manager from the server's saved data.
-    ///
-    /// @param server The server to load the storage from.
-    public void load(MinecraftServer server) {
-        storage = Storage.getSavedStorage(server);
-        Helpers.debug("Storage loaded.");
-    }
-
-    /// Mark the storage as dirty to save it on the next server tick.
-    public void save() {
-        if (storage == null) {
-            Helpers.debug("Attempted to save card storage before it was loaded.");
-            return;
-        }
-
-        Helpers.debug("Marking storage as dirty for saving.");
-        storage.setDirty();
-    }
-
-    /// Get the storage for this card manager.
-    ///
-    /// @return The storage for this card manager.
-    public Storage getStorage() {
-        return storage;
-    }
-
-    /// Get the cooldown manager for this card manager.
-    ///
-    /// @return The cooldown manager for this card manager.
-    public Cooldowns getCooldowns() {
-        return cooldowns;
-    }
 
     /// Give a card to a player, creating it with a random rarity level based on the card type's probabilities.
     ///
     /// @param player   The player to give the card to.
     /// @param cardType The type of card to give.
     public static void receiveCard(ServerPlayer player, CardType cardType) {
-        CardManager.createCard(cardType).ifPresent(
+        createCard(cardType).ifPresent(
                 card -> {
                     giveCard(player, card);
                     Helpers.debug("{} received a card: {}", player.getName(), card);
@@ -81,9 +41,8 @@ public class CardManager {
     /// Load a player's attributes based on their equipped cards, adding the attribute modifiers from each card to the player.
     ///
     /// @param player The player to load the attributes for.
-    public void loadPlayerAttributes(ServerPlayer player) {
-        var playerCards = storage.get(player).getEquippedCards();
-        playerCards.forEach(card -> addCardAttributes(player, card));
+    public static void loadPlayerAttributes(ServerPlayer player) {
+        PolyCard.STORAGE.getPlayerData(player).getEquippedCards().forEach(card -> addCardAttributes(player, card));
     }
 
     /// Add the attribute modifiers from a card to a player, applying the effects of the card to the player.

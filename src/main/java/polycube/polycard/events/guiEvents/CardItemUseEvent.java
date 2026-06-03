@@ -8,10 +8,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
-import polycube.polycard.manager.CardManager;
-import polycube.polycard.manager.Storage;
+import polycube.polycard.utils.CardHelper;
+import polycube.polycard.data.PlayerData;
 import polycube.polycard.utils.Helpers;
 
 /// Handles equipping cards when a player uses a card item.
@@ -20,12 +21,6 @@ import polycube.polycard.utils.Helpers;
 /// or has 5 cards equipped.
 /// Swaps cards if the player equips a card of the same type but different rarity levels.
 public class CardItemUseEvent implements ItemUseEventCallback {
-    private final CardManager cardManager;
-
-    public CardItemUseEvent(CardManager cardManager) {
-        this.cardManager = cardManager;
-    }
-
     public InteractionResult interact(ServerPlayer player, Level world, InteractionHand hand) {
         // Prevent equipping cards while sneaking
         if (player.isShiftKeyDown()) {
@@ -44,7 +39,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         }
         var card = optionalCard.get();
 
-        var playerData = cardManager.getStorage().get(player);
+        var playerData = PolyCard.STORAGE.getPlayerData(player);
         var optionalEquippedCard = playerData.getEquippedCards().stream()
                 .filter(c -> c.cardType() == card.cardType())
                 .findFirst();
@@ -54,7 +49,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             var equippedCard = optionalEquippedCard.get();
 
             if (equippedCard.rarityLevel() == card.rarityLevel()) {
-                Helpers.playFailure(cardManager, player);
+                Helpers.playFailure(player);
                 player.sendSystemMessage(Component.literal("You already equipped this card!").withStyle(ChatFormatting.RED));
                 Helpers.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
                 return InteractionResult.FAIL;
@@ -62,7 +57,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
 
             // Swap the cards
             if (playerData.unequipCard(equippedCard)) {
-                CardManager.removeCardAttributes(player, equippedCard);
+                CardHelper.removeCardAttributes(player, equippedCard);
                 var result = equipCard(playerData, item, player, card);
                 player.addItem(equippedCard.asItem());
                 return result;
@@ -71,10 +66,10 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         }
 
         // Check if player already has 5 cards equipped
-        if (playerData.getEquippedCards().size() >= Storage.MAX_EQUIPPED_CARDS) {
-            Helpers.playFailure(cardManager, player);
-            player.sendSystemMessage(Component.literal("You already have " + Storage.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
-            Helpers.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), Storage.MAX_EQUIPPED_CARDS, card);
+        if (playerData.getEquippedCards().size() >= PlayerData.MAX_EQUIPPED_CARDS) {
+            Helpers.playFailure(player);
+            player.sendSystemMessage(Component.literal("You already have " + PlayerData.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
+            Helpers.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), PlayerData.MAX_EQUIPPED_CARDS, card);
             return InteractionResult.FAIL;
         }
 
@@ -82,14 +77,14 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         return equipCard(playerData, item, player, card);
     }
 
-    private InteractionResult equipCard(Storage.PlayerData playerData, ItemStack item, ServerPlayer player, Card card) {
+    private InteractionResult equipCard(PlayerData playerData, ItemStack item, ServerPlayer player, Card card) {
         if (playerData.equipCard(card)) {
-            CardManager.addCardAttributes(player, card);
+            CardHelper.addCardAttributes(player, card);
             item.shrink(1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormattedName()));
             Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
             Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
-            cardManager.save();
+            PolyCard.STORAGE.save();
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;

@@ -10,9 +10,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
-import polycube.polycard.manager.CardManager;
+import polycube.polycard.data.PlayerData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,23 +39,21 @@ public final class Helpers {
 
     /// Plays a sound for a specific player with a cooldown to prevent spamming the same sound.
     ///
-    /// @param cardManager the card manager to check cooldowns with
     /// @param player      the player to play the sound for
     /// @param sound       the sound event to play
     /// @param cooldown    the cooldown time in ticks before the sound can be played again for the same player
-    public static void playSound(CardManager cardManager, ServerPlayer player, SoundEvent sound, int cooldown) {
+    public static void playSound(ServerPlayer player, SoundEvent sound, int cooldown) {
         var key = sound.toString();
-        if (cardManager.getCooldowns().isReadyOrCreate(player, key, cooldown)) {
+        if (PolyCard.COOLDOWNS.isReadyOrCreate(player, key, cooldown)) {
             playSound(player, sound);
         }
     }
 
     /// Plays a failure sound for a specific player with a cooldown to prevent spamming the same sound.
     ///
-    /// @param cardManager the card manager to check cooldowns with
     /// @param player      the player to play the failure sound for
-    public static void playFailure(CardManager cardManager, ServerPlayer player) {
-        playSound(cardManager, player, SoundEvents.VILLAGER_NO, FAILURE_SOUND_COOLDOWN);
+    public static void playFailure(ServerPlayer player) {
+        playSound(player, SoundEvents.VILLAGER_NO, FAILURE_SOUND_COOLDOWN);
     }
 
     /// Plays a sound at a specific location in the world.
@@ -69,19 +68,18 @@ public final class Helpers {
     /// Checks if there is any other player nearby who has a card of a certain type and rarity level.
     ///
     /// @param player          the player to check around
-    /// @param cardManager     the card manager to check player storages with
     /// @param cardType        the type of card to check for
     /// @param rarityLevel     the rarity level of the card to check for
     /// @param distanceSquared the maximum distance squared to check for nearby players
     /// @return true if there is at least one other player nearby with the specified card, false otherwise
-    public static boolean nearPlayerWithCard(ServerPlayer player, CardManager cardManager, CardType cardType, RarityLevel rarityLevel, double distanceSquared) {
+    public static boolean nearPlayerWithCard(ServerPlayer player, CardType cardType, RarityLevel rarityLevel, double distanceSquared) {
         //noinspection resource
         var level = player.level();
         var playerPos = player.position();
         return !level.getPlayers(p ->
                 p != player &&
                         p.position().distanceToSqr(playerPos) <= distanceSquared &&
-                        cardManager.getStorage().get(p).hasCardOrRarer(cardType, rarityLevel), 1).isEmpty();
+                        PlayerData.hasCardOrRarer(p, cardType, rarityLevel), 1).isEmpty();
     }
 
     /// Logs a debug message with the mod ID as a prefix.

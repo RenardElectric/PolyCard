@@ -12,7 +12,6 @@ import net.minecraft.world.phys.Vec3;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
-import polycube.polycard.manager.CardManager;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
@@ -48,11 +47,11 @@ public class CowEffects {
     private static final Map<UUID, Vec3> lastLocations = new HashMap<>();
     private static final Map<UUID, Integer> lastMoveTimes = new HashMap<>();
 
-    public static void register(CardManager cardManager) {
-        ItemConsumedEventCallback.EVENT.register((player, itemStack) -> onBucketUsed(cardManager, player, itemStack));
+    public static void register() {
+        ItemConsumedEventCallback.EVENT.register(CowEffects::onBucketUsed);
 
         Helpers.addPlayerTask((server, player) -> {
-            CardRarityConditions.of(cardManager, player, CARD_TYPE)
+            CardRarityConditions.of(player, CARD_TYPE)
                     .hasUncommon(() -> {
                         var pos = player.blockPosition();
                         //noinspection resource
@@ -80,39 +79,40 @@ public class CowEffects {
                         lastMoveTimes.remove(player.getUUID());
                     })
                     .hasRare(() -> {
-                        if (Helpers.nearPlayerWithCard(player, cardManager, CARD_TYPE, RarityLevel.RARE, RESISTANCE_DISTANCE_SQUARED)) {
+                        if (Helpers.nearPlayerWithCard(player, CARD_TYPE, RarityLevel.RARE, RESISTANCE_DISTANCE_SQUARED)) {
                             player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
                         }
                     });
         });
     }
 
-    private static void onBucketUsed(CardManager cardManager, ServerPlayer player, ItemStack itemStack) {
+    private static void onBucketUsed(ServerPlayer player, ItemStack itemStack) {
         if (itemStack.getItem() == Items.MILK_BUCKET) {
-            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
-                var random = new Random();
-                List<MobEffectInstance> effectsGained = new ArrayList<>();
-                for (MobEffectInstance effect : player.getActiveEffects()) {
-                    if (DEBUFFS.contains(effect.getEffect())) {
-                        Holder<MobEffect> buffType = BUFFS.get(random.nextInt(BUFFS.size()));
-                        effectsGained.add(new MobEffectInstance(buffType, effect.getDuration(), effect.getAmplifier())); // TODO: Not sure about the amplifier part, because of bad omen 5...
-                    }
-                }
 
-                Helpers.debug("{} has the epic cow card, giving them buffs for each debuff they had on milk consumption!", player.getName());
-                Helpers.debug("- Debuffs: {}", Arrays.toString(player.getActiveEffects().stream().map(effect -> effect.getEffect().toString()).toArray()));
-                Helpers.debug("- Buffs: {}", Arrays.toString(effectsGained.stream().map(effect -> effect.getEffect().toString()).toArray()));
-                Helpers.runLater(1, _ -> {
-                    for (MobEffectInstance effect : effectsGained) {
-                        player.addEffect(effect);
-                    }
-                });
-            }
+            CardRarityConditions.of(player, CARD_TYPE)
+                    .hasEpic(() -> {
+                        var random = new Random();
+                        List<MobEffectInstance> effectsGained = new ArrayList<>();
+                        for (MobEffectInstance effect : player.getActiveEffects()) {
+                            if (DEBUFFS.contains(effect.getEffect())) {
+                                Holder<MobEffect> buffType = BUFFS.get(random.nextInt(BUFFS.size()));
+                                effectsGained.add(new MobEffectInstance(buffType, effect.getDuration(), effect.getAmplifier())); // TODO: Not sure about the amplifier part, because of bad omen 5...
+                            }
+                        }
 
-            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
-                Helpers.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
-                player.heal(REGEN_HEALTH_GAIN_HEALTH_POINTS);
-            }
+                        Helpers.debug("{} has the epic cow card, giving them buffs for each debuff they had on milk consumption!", player.getName());
+                        Helpers.debug("- Debuffs: {}", Arrays.toString(player.getActiveEffects().stream().map(effect -> effect.getEffect().toString()).toArray()));
+                        Helpers.debug("- Buffs: {}", Arrays.toString(effectsGained.stream().map(effect -> effect.getEffect().toString()).toArray()));
+                        Helpers.runLater(1, _ -> {
+                            for (MobEffectInstance effect : effectsGained) {
+                                player.addEffect(effect);
+                            }
+                        });
+                    })
+                    .hasLegendary(() -> {
+                        Helpers.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
+                        player.heal(REGEN_HEALTH_GAIN_HEALTH_POINTS);
+                    });
         }
     }
 }

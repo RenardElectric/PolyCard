@@ -11,19 +11,19 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.item.enchantment.effects.RemoveBinomial;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.events.callBacks.ItemDurabilityChangeEventCallback;
-import polycube.polycard.manager.CardManager;
 import polycube.polycard.utils.Helpers;
 
 import java.util.List;
@@ -54,26 +54,15 @@ public class PiglinEffects {
     private static final RemoveBinomial piglinToolsBinomial = new RemoveBinomial(LevelBasedValue.constant(0.984F));
     private static final RemoveBinomial piglinArmorBinomial = new RemoveBinomial(LevelBasedValue.constant(0.8F));
 
-    public static void register(CardManager cardManager) {
-        IsTargetedEventCallback.EVENT.register(
-                (level, targeter, target, targetingConditionsData)
-                        -> canBeTargeted(cardManager, level, targeter, target, targetingConditionsData)
-        );
-
-        ItemDurabilityChangeEventCallback.EVENT.register(
-                (level, player, itemStack, amount)
-                        -> reduceDurability(cardManager, level, player, itemStack, amount)
-        );
-
-        ItemConsumedEventCallback.EVENT.register(
-                (player, item)
-                        -> eatGoldFood(cardManager, player, item)
-        );
+    public static void register() {
+        IsTargetedEventCallback.EVENT.register(PiglinEffects::canBeTargeted);
+        ItemDurabilityChangeEventCallback.EVENT.register(PiglinEffects::reduceDurability);
+        ItemConsumedEventCallback.EVENT.register(PiglinEffects::eatGoldFood);
     }
 
-    private static InteractionResult canBeTargeted(CardManager cardManger, ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData targetingConditionsData) {
-        if (target instanceof Player player) {
-            var playerData = cardManger.getStorage().get(player);
+    private static InteractionResult canBeTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData targetingConditionsData) {
+        if (target instanceof ServerPlayer player) {
+            var playerData = PolyCard.STORAGE.getPlayerData(player);
             switch (targeter) {
                 case Piglin _ -> {
                     if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.UNCOMMON)) {
@@ -92,11 +81,10 @@ public class PiglinEffects {
         return InteractionResult.PASS;
     }
 
-    private static int reduceDurability(CardManager cardManger, ServerLevel level, @Nullable ServerPlayer player, ItemStack itemStack, int amount) {
+    private static int reduceDurability(ServerLevel level, @Nullable ServerPlayer player, ItemStack itemStack, int amount) {
         if (player != null) {
             if (goldItems.contains(itemStack.getItem())) {
-                var playerData = cardManger.getStorage().get(player);
-                if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
+                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)) {
                     Helpers.debug("{} has the legendary piglin card and used a gold item. Reducing durability loss.", player.getName().getString());
                     if (itemStack.is(ItemTags.ARMOR_ENCHANTABLE)) {
                         return (int) piglinArmorBinomial.process(0, level.getRandom(), amount);
@@ -108,10 +96,9 @@ public class PiglinEffects {
         return amount;
     }
 
-    private static void eatGoldFood(CardManager cardManager, ServerPlayer player, ItemStack item) {
+    private static void eatGoldFood(ServerPlayer player, ItemStack item) {
         if (item != null && goldFood.contains(item.getItem())) {
-            var playerData = cardManager.getStorage().get(player);
-            if (playerData.hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
+            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.RARE)) {
                 //noinspection resource
                 var effect = BUFFS.get(player.level().getRandom().nextInt(BUFFS.size()));
                 Helpers.debug("{} has the rare piglin card and consumed a gold food item. Applying random buff {}.", player.getName().getString(), effect.value().getDescriptionId());

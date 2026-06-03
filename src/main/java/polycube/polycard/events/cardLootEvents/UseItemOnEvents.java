@@ -8,7 +8,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import polycube.polycard.card.CardType;
-import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.CardHelper;
 
 import static net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL;
 
@@ -33,7 +33,7 @@ public class UseItemOnEvents {
         if (state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST)) {
             if (state.getValue(HONEY_LEVEL) >= 5) {
                 if (itemStack.is(Items.GLASS_BOTTLE)) {
-                    CardManager.receiveCard(player, CardType.BEE);
+                    CardHelper.receiveCard(player, CardType.BEE);
                 }
             }
         }

@@ -10,8 +10,8 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
-import polycube.polycard.manager.CardManager;
 import polycube.polycard.utils.Helpers;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,11 +27,11 @@ public class SquidEffects {
     public static final int WATER_BREATHING_DURATION = 20 * 2;
     public static final int WATER_BREATHING_AMPLIFIER = 0;
 
-    public static void register(CardManager cardManager) {
-        EntityHurtEventCallback.EVENT.register((attacker, level, source) -> onPlayerHurt(cardManager, attacker, level, source));
+    public static void register() {
+        EntityHurtEventCallback.EVENT.register(SquidEffects::onPlayerHurt);
 
         Helpers.addPlayerTask((server, player) -> {
-            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
+            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)) {
                 if (player.isEyeInFluid(FluidTags.WATER)) {
                     player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER, true, true), player);
                 }
@@ -39,9 +39,9 @@ public class SquidEffects {
         });
     }
 
-    private static InteractionResult onPlayerHurt(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
+    private static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source) {
         if (entity instanceof ServerPlayer player && source.getEntity() instanceof ServerPlayer sourcePlayer) {
-            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
+            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.RARE)) {
                 int random = ThreadLocalRandom.current().nextInt(0, 100);
                 if (random < BLINDNESS_WHEN_HIT_CHANCE) {
                     Helpers.debug("{} has the rare squid card and got hit by {}. Applying blindness.", player.getName().getString(), sourcePlayer.getName().getString());
@@ -49,7 +49,7 @@ public class SquidEffects {
                 }
             }
 
-            if (cardManager.getStorage().get(sourcePlayer).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
+            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
                 int random = ThreadLocalRandom.current().nextInt(0, 100);
                 if (random < BLINDNESS_ON_HIT_CHANCE) {
                     Helpers.debug("{} has the epic squid card and hit {}. Applying blindness.", sourcePlayer.getName().getString(), player.getName().getString());

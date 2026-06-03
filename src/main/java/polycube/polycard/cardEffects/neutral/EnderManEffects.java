@@ -22,10 +22,10 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
-import polycube.polycard.manager.CardManager;
 import polycube.polycard.utils.Helpers;
 
 import java.util.ArrayList;
@@ -45,27 +45,27 @@ public class EnderManEffects {
             Arrays.asList(Biomes.THE_END, Biomes.END_BARRENS, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS)
     );
 
-    public static void register(CardManager cardManager) {
-        ItemUseEventCallback.register((player, world, hand) -> onEnderPearlUsed(cardManager, player, world, hand));
-        ProjectileOnHitEventCallback.EVENT.register((projectile, hitResult) -> onProjectileHit(cardManager, projectile, hitResult));
-        EntityHurtEventCallback.EVENT.register((attacker, level, source) -> onEnderPearlHit(cardManager, attacker, level, source));
+    public static void register() {
+        ItemUseEventCallback.register(EnderManEffects::onEnderPearlUsed);
+        ProjectileOnHitEventCallback.EVENT.register(EnderManEffects::onProjectileHit);
+        EntityHurtEventCallback.EVENT.register(EnderManEffects::onEnderPearlHit);
 
         Helpers.addPlayerTask((server, player) -> {
             var pos = player.blockPosition();
             //noinspection resource
             var biome = player.level().getBiome(pos);
             if (biome.is(endBiomes::contains)) {
-                if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.LEGENDARY)) {
+                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)) {
                     player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
                 }
             }
         });
     }
 
-    private static InteractionResult onEnderPearlUsed(CardManager cardManager, ServerPlayer player, Level world, InteractionHand hand) {
+    private static InteractionResult onEnderPearlUsed(ServerPlayer player, Level world, InteractionHand hand) {
         var itemStack = player.getItemInHand(hand);
         if (itemStack.getItem() == Items.ENDER_PEARL) {
-            if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.RARE)) {
+            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.RARE)) {
                 Helpers.runLater(1, _ -> {
                     Helpers.debug("Removing ender pearl cooldown for {}", player.getName().getString());
                     var cooldowns = player.getCooldowns();
@@ -77,10 +77,10 @@ public class EnderManEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onEnderPearlHit(CardManager cardManager, LivingEntity entity, ServerLevel level, DamageSource source) {
+    private static InteractionResult onEnderPearlHit(LivingEntity entity, ServerLevel level, DamageSource source) {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
-                if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.UNCOMMON)) {
+                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
                     Helpers.debug("{} has an uncommon or higher enderman card, removing ender pearl teleport damage", player.getName().getString());
                     return InteractionResult.FAIL;
                 }
@@ -89,11 +89,11 @@ public class EnderManEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onProjectileHit(CardManager cardManager, Projectile projectile, HitResult hitResult) {
+    private static InteractionResult onProjectileHit(Projectile projectile, HitResult hitResult) {
         if (hitResult instanceof EntityHitResult entityHitResult) {
             var hitEntity = entityHitResult.getEntity();
             if (hitEntity instanceof ServerPlayer player) {
-                if (cardManager.getStorage().get(player).hasCardOrRarer(CARD_TYPE, RarityLevel.EPIC)) {
+                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
                     var random = ThreadLocalRandom.current();
                     var randomInt = random.nextInt(0, 100);
                     if (randomInt < PROJECTILE_DODGE_CHANCE) {

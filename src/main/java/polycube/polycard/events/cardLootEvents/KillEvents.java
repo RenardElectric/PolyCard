@@ -7,7 +7,7 @@ import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import polycube.polycard.card.CardType;
 import polycube.polycard.events.callBacks.KillEventCallback;
-import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.CardHelper;
 
 
 public class KillEvents {
@@ -15,10 +15,10 @@ public class KillEvents {
         KillEventCallback.EVENT.register((player, entity, killingBlow) -> {
 
             switch (entity) {
-                case EnderMan _ -> CardManager.receiveCard(player, CardType.ENDERMAN);
-                case Squid _ -> CardManager.receiveCard(player, CardType.SQUID);
-                case Piglin _ -> CardManager.receiveCard(player, CardType.PIGLIN);
-                case Zombie _  -> CardManager.receiveCard(player, CardType.ZOMBIE);
+                case EnderMan _ -> CardHelper.receiveCard(player, CardType.ENDERMAN);
+                case Squid _ -> CardHelper.receiveCard(player, CardType.SQUID);
+                case Piglin _ -> CardHelper.receiveCard(player, CardType.PIGLIN);
+                case Zombie _  -> CardHelper.receiveCard(player, CardType.ZOMBIE);
                 default -> { }
             }
 

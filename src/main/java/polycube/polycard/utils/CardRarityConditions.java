@@ -1,10 +1,11 @@
 package polycube.polycard.utils;
 
 import net.minecraft.server.level.ServerPlayer;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
-import polycube.polycard.manager.CardManager;
+import polycube.polycard.data.PlayerData;
 
 import java.util.List;
 import java.util.Map;
@@ -22,9 +23,8 @@ public class CardRarityConditions {
 
     private final List<Boolean> conditions;
 
-    private CardRarityConditions(CardManager cardManager, ServerPlayer player, CardType cardType) {
-        var playerData = cardManager.getStorage().get(player);
-        var highestRarityIndex = playerData.getEquippedCards().stream()
+    private CardRarityConditions(ServerPlayer player, CardType cardType) {
+        var highestRarityIndex = PolyCard.STORAGE.getPlayerData(player).getEquippedCards().stream()
                 .filter(card -> card.cardType() == cardType)
                 .map(Card::rarityLevel)
                 .map(RarityLevel::ordinal)
@@ -35,12 +35,11 @@ public class CardRarityConditions {
 
     /// Create a new CardRarityConditions instance for the given player and card type.
     ///
-    /// @param cardManager The card manager to get the player's card data from.
     /// @param player      The player to check the conditions for.
     /// @param cardType    The type of card to check the conditions for.
     /// @return A new CardRarityConditions instance for the given player and card type.
-    public static CardRarityConditions of(CardManager cardManager, ServerPlayer player, CardType cardType) {
-        return new CardRarityConditions(cardManager, player, cardType);
+    public static CardRarityConditions of(ServerPlayer player, CardType cardType) {
+        return new CardRarityConditions(player, cardType);
     }
 
     /// Check if the player has the common card and execute the given runnable if they do.

@@ -20,10 +20,8 @@ public class Cooldowns {
     }
 
     /// Advances the cooldown timers by a certain number of ticks and removes expired cooldowns.
-    ///
-    /// @param ticks the number of ticks to advance the cooldown timers by
-    public void tick(int ticks) {
-        tickCount += ticks;
+    public void tick() {
+        ++tickCount;
         if (!this.cooldowns.isEmpty()) {
             var playerIterator = this.cooldowns.entrySet().iterator();
             while (playerIterator.hasNext()) {

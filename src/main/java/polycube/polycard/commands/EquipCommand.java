@@ -10,17 +10,13 @@ import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.gui.EquipmentGUI;
 
 public class EquipCommand extends PolyCardCommand {
-    private final EquipmentGUI equipmentGUI;
-
-    public EquipCommand(EquipmentGUI equipmentGUI) {
+    public EquipCommand() {
         super(
                 "equip",
                 "Open the equipment manager to equip up to 5 cards",
                 "",
                 PermissionLevel.ALL
         );
-
-        this.equipmentGUI = equipmentGUI;
     }
 
     @Override
@@ -32,7 +28,7 @@ public class EquipCommand extends PolyCardCommand {
             return 0;
         }
 
-        equipmentGUI.openEquipmentGUI(player);
+        EquipmentGUI.openEquipmentGUI(player);
         return 1;
     }
 
@@ -50,7 +46,7 @@ public class EquipCommand extends PolyCardCommand {
                             }
 
                             var targetPlayer = EntityArgument.getPlayer(cts, "player");
-                            equipmentGUI.openEquipmentGUI(viewer, targetPlayer);
+                            EquipmentGUI.openEquipmentGUI(viewer, targetPlayer);
                             source.sendSuccess(() -> Component.literal("Opening equipment manager for " + targetPlayer.getName().getString() + "...").withStyle(ChatFormatting.GOLD), false);
                             return 1;
                         })

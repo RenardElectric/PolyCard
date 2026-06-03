@@ -4,7 +4,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.card.Card;
-import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.CardHelper;
 
 public class CombineCommand extends PolyCardCommand {
 
@@ -42,7 +42,7 @@ public class CombineCommand extends PolyCardCommand {
 
         mainItemStack.shrink(Card.CARDS_FOR_NEXT_LEVEL);
         var newCard = new Card(card.cardType(), nextRarityLevel.get());
-        CardManager.giveCard(player, newCard);
+        CardHelper.giveCard(player, newCard);
         return 1;
     }
 }

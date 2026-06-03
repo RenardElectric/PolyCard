@@ -9,7 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
-import polycube.polycard.manager.CardManager;
+import polycube.polycard.utils.CardHelper;
 
 public class TestCommand extends PolyCardCommand {
 
@@ -56,7 +56,7 @@ public class TestCommand extends PolyCardCommand {
         int epic = 0;
         int legendary = 0;
         for (int i = 0; i < cardNumber; i++) {
-            var rarity = CardManager.getRandomRarityLevel(cardType);
+            var rarity = CardHelper.getRandomRarityLevel(cardType);
             if (rarity.isPresent()) {
                 switch (rarity.get()) {
                     case COMMON -> common++;

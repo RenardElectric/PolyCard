@@ -6,9 +6,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import polycube.polycard.card.CardType;
-import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
-import polycube.polycard.manager.CardManager;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
@@ -21,13 +19,13 @@ public class ZombieEffects {
     public static final int REGENERATION_EFFECT_DURATION = 20 * 5;
     public static final int REGENERATION_EFFECT_AMPLIFIER = 0;
 
-    public static void register(CardManager cardManager) {
-        ItemConsumedEventCallback.EVENT.register((player, itemStack) -> onRottenFleshConsumed(cardManager, player, itemStack));
+    public static void register() {
+        ItemConsumedEventCallback.EVENT.register(ZombieEffects::onRottenFleshConsumed);
     }
 
-    private static void onRottenFleshConsumed(CardManager cardManager, ServerPlayer player, ItemStack itemStack) {
+    private static void onRottenFleshConsumed(ServerPlayer player, ItemStack itemStack) {
         if (itemStack.is(Items.ROTTEN_FLESH)) {
-            CardRarityConditions.of(cardManager, player, CARD_TYPE)
+            CardRarityConditions.of(player, CARD_TYPE)
                     .hasCommon(() -> {
                         Helpers.debug("{} has the common zombie card and consumed rotten flesh, removing hunger effect", player.getName().getString());
                         Helpers.runLater(0, _ -> player.removeEffect(MobEffects.HUNGER));
