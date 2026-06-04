@@ -64,12 +64,6 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 0.02, true, "Drinking honey gives regeneration");
         addRarity(RarityLevel.LEGENDARY, 0.002, true, "Drinking honey gives health boost");
     }},
-    GOAT("TODO", "neutral") {{ // TODO
-        addRarity(RarityLevel.UNCOMMON, 0.1, false, "Can walk on powder snow");
-        addRarity(RarityLevel.RARE, 0.05, false, "TODO"); // TODO
-        addRarity(RarityLevel.EPIC, 0.01, true, "TODO"); // TODO
-        addRarity(RarityLevel.LEGENDARY, 0.001, true, "TODO"); // TODO
-    }},
 
     // Hostile
 

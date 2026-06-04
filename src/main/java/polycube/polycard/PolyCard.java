@@ -70,7 +70,6 @@ public class PolyCard implements ModInitializer {
         EnderManEffects.register();
         IronGolemEffects.register();
         PiglinEffects.register();
-        GoatEffects.register();
 
         // Hostile
         ZombieEffects.register();
