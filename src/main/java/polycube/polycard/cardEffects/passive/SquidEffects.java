@@ -1,5 +1,6 @@
 package polycube.polycard.cardEffects.passive;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
@@ -14,13 +15,11 @@ import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.utils.Helpers;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 public class SquidEffects {
     public static final CardType CARD_TYPE = CardType.SQUID;
 
-    public static final int BLINDNESS_WHEN_HIT_CHANCE = 10;
-    public static final int BLINDNESS_ON_HIT_CHANCE = 10;
+    public static final double BLINDNESS_WHEN_HIT_CHANCE = 0.1;
+    public static final double BLINDNESS_ON_HIT_CHANCE = 0.1;
     public static final int BLINDNESS_DURATION = 20 * 5;
     public static final int BLINDNESS_AMPLIFIER = 0;
 
@@ -39,18 +38,18 @@ public class SquidEffects {
         });
     }
 
-    private static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source) {
+    private static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, AtomicDouble damage) {
         if (entity instanceof ServerPlayer player && source.getEntity() instanceof ServerPlayer sourcePlayer) {
             if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.RARE)) {
-                int random = ThreadLocalRandom.current().nextInt(0, 100);
+                double random = level.getRandom().nextDouble();
                 if (random < BLINDNESS_WHEN_HIT_CHANCE) {
                     Helpers.debug("{} has the rare squid card and got hit by {}. Applying blindness.", player.getName().getString(), sourcePlayer.getName().getString());
                     sourcePlayer.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), player);
                 }
             }
 
-            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
-                int random = ThreadLocalRandom.current().nextInt(0, 100);
+            if (PlayerData.hasCardOrRarer(sourcePlayer, CARD_TYPE, RarityLevel.EPIC)) {
+                double random = level.getRandom().nextDouble();
                 if (random < BLINDNESS_ON_HIT_CHANCE) {
                     Helpers.debug("{} has the epic squid card and hit {}. Applying blindness.", sourcePlayer.getName().getString(), player.getName().getString());
                     player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), sourcePlayer);

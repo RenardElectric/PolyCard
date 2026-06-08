@@ -47,6 +47,8 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 0.01, true, "Hitting with fist knock back enemies (" + IronGolemEffects.KNOCKBACK_HIT_COOLDOWN / 20 + " sec cooldown)");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Falling creates shock wave (" + IronGolemEffects.SHOCKWAVE_COOLDOWN / 20 + " sec cooldown)");
     }},
+    COPPER_GOLEM("summoning an Copper Golem", "neutral"), // TODO
+    SNOW_GOLEM("summoning an Snow Golem", "neutral"), // TODO
     ENDERMAN("killing an Enderman", "neutral") {{
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "No ender pearl damage");
         addRarity(RarityLevel.RARE, 0.05, false, "No ender pearl cooldown");
@@ -67,6 +69,12 @@ public enum CardType implements StringRepresentable {
 
     // Hostile
 
+    ENDER_DRAGON("summoning an Ender Dragon", "hostile"), // TODO
+    WITHER("summoning an Wither", "hostile") {{
+        addRarity(RarityLevel.RARE, 0.1, false, "Mobs can drop wither rose");
+        addRarity(RarityLevel.EPIC, 0.05, true, "Immunity to wither effect");
+        // TODO Legendary effect
+    }},
     ZOMBIE("killing a zombie", "hostile") {{
         addRarity(RarityLevel.COMMON, 0.25, false, "No hunger when eating rotten flesh");
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Rotten flesh gives +2 food");

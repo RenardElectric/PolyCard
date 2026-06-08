@@ -1,5 +1,6 @@
 package polycube.polycard.cardEffects.neutral;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,7 +43,7 @@ public class IronGolemEffects {
         EntityHurtEventCallback.EVENT.register(IronGolemEffects::onPlayerHurt);
     }
 
-    public static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source) {
+    public static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, AtomicDouble damage) {
 
         if (entity instanceof ServerPlayer player) {
             CardRarityConditions.of(player, CARD_TYPE)

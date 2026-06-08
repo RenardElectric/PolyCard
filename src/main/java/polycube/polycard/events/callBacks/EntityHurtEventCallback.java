@@ -1,5 +1,6 @@
 package polycube.polycard.events.callBacks;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.server.level.ServerLevel;
@@ -16,9 +17,9 @@ import net.minecraft.world.entity.LivingEntity;
 /// - FAIL cancels further processing and prevents any hurt damage from being applied
 public interface EntityHurtEventCallback {
     Event<EntityHurtEventCallback> EVENT = EventFactory.createArrayBacked(EntityHurtEventCallback.class,
-            (listeners) -> (instance, level, source) -> {
+            (listeners) -> (instance, level, source, damage) -> {
                 for (var listener : listeners) {
-                    InteractionResult result = listener.interact(instance, level, source);
+                    InteractionResult result = listener.interact(instance, level, source, damage);
 
                     if (result != InteractionResult.PASS) {
                         return result;
@@ -28,5 +29,5 @@ public interface EntityHurtEventCallback {
                 return InteractionResult.PASS;
             });
 
-    InteractionResult interact(LivingEntity instance, ServerLevel level, DamageSource source);
+    InteractionResult interact(LivingEntity instance, ServerLevel level, DamageSource source, AtomicDouble damage);
 }

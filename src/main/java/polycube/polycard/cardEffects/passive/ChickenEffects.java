@@ -1,5 +1,6 @@
 package polycube.polycard.cardEffects.passive;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -78,7 +79,7 @@ public class ChickenEffects {
 
     private static boolean ignore = false;
 
-    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source) {
+    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, AtomicDouble damage) {
         if (ignore) return InteractionResult.PASS;
 
         if (source.getDirectEntity() instanceof ThrownEgg egg) {

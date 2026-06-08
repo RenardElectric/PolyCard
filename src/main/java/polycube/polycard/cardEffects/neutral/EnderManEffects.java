@@ -1,5 +1,6 @@
 package polycube.polycard.cardEffects.neutral;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -77,7 +78,7 @@ public class EnderManEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onEnderPearlHit(LivingEntity entity, ServerLevel level, DamageSource source) {
+    private static InteractionResult onEnderPearlHit(LivingEntity entity, ServerLevel level, DamageSource source, AtomicDouble damage) {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
                 if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {

@@ -1,12 +1,9 @@
 package polycube.polycard.mixin;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Attackable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -14,8 +11,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.waypoints.WaypointTransmitter;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 
 @Mixin(LivingEntity.class)
@@ -24,14 +26,26 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Wa
         super(type, level);
     }
 
-    @WrapOperation(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isInvulnerableTo(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;)Z"))
-    private boolean entityHurt(LivingEntity entity, ServerLevel level, DamageSource source, Operation<Boolean> original) {
-        var result = original.call(entity, level, source) ||
-                entity.isDeadOrDying() ||
-                (source.is(DamageTypeTags.IS_FIRE) && entity.hasEffect(MobEffects.FIRE_RESISTANCE));
-        if (!result && !(entity instanceof Player)) {
-            return EntityHurtEventCallback.EVENT.invoker().interact(entity, level, source) == InteractionResult.FAIL;
+    @Unique
+    private AtomicDouble modifiedDamage = null;
+
+    @ModifyVariable(method = "hurtServer", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;noActionTime:I", opcode = Opcodes.PUTFIELD), argsOnly = true, name = "damage")
+    private float modifyDamage(float damage) {
+        if (modifiedDamage != null) {
+            damage = (float) modifiedDamage.get();
+            modifiedDamage = null;
         }
-        return result;
+        return damage;
+    }
+
+    @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isSleeping()Z"), cancellable = true)
+    private void onHurt(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
+        modifiedDamage = new AtomicDouble(damage);
+        var entity = (LivingEntity) (Object) this;
+        if (!(entity instanceof Player)) {
+            if (EntityHurtEventCallback.EVENT.invoker().interact(entity, level, source, modifiedDamage) == InteractionResult.FAIL) {
+                cir.setReturnValue(false);
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.ChickenEffects;
@@ -73,5 +74,6 @@ public class PolyCard implements ModInitializer {
 
         // Hostile
         ZombieEffects.register();
+        WitherEffects.register();
     }
 }
