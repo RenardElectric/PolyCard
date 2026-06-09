@@ -49,7 +49,7 @@ public class Storage extends SavedData {
     /// @param player the player to retrieve the data for
     /// @return the PlayerData associated with the player
     public PlayerData getPlayerData(Player player) {
-        return playerDataMap.computeIfAbsent(player.getUUID(), _ -> new PlayerData(new ArrayList<>(PlayerData.MAX_EQUIPPED_CARDS)));
+        return playerDataMap.computeIfAbsent(player.getUUID(), _ -> new PlayerData());
     }
 
     /// Mark the storage as dirty to save it on the next server tick.

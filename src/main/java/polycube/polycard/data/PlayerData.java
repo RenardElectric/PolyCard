@@ -12,25 +12,38 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.utils.CardHelper;
 import polycube.polycard.utils.Helpers;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /// Manages the card data for a single player, including equipped cards and related operations.
-public class PlayerData {
+///
+/// @param equippedCardsMap private final Set<Card> equippedCards;
+public record PlayerData(Map<CardType, RarityLevel> equippedCardsMap) {
     public static final int MAX_EQUIPPED_CARDS = 5;
-    public static final Codec<PlayerData> CODEC = Card.CODEC.listOf().xmap(PlayerData::new, PlayerData::getEquippedCards);
+    public static final Codec<PlayerData> CODEC = Codec.dispatchedMap(CardType.CODEC, _ -> RarityLevel.CODEC).xmap(PlayerData::new, PlayerData::equippedCardsMap);
+    public static final boolean[][] RARITY_MATRIX = {
+            {false, false, false, false, false},
+            {true, false, false, false, false},
+            {true, true, false, false, false},
+            {true, true, true, false, false},
+            {true, true, true, true, false},
+            {true, true, true, true, true}
+    };
 
-    private final Set<Card> equippedCards;
-
-    public PlayerData(List<Card> equippedCards) {
-        this.equippedCards = new HashSet<>(equippedCards);
+    public PlayerData() {
+        this(new EnumMap<>(CardType.class));
     }
 
-    public List<Card> getEquippedCards() {
-        return List.copyOf(equippedCards);
+    public PlayerData(Map<CardType, RarityLevel> equippedCardsMap) {
+        this.equippedCardsMap = new EnumMap<>(equippedCardsMap);
+    }
+
+    /// Checks if the player has a specific card equipped.
+    ///
+    /// @param card the card to check for
+    /// @return true if the card is equipped, false otherwise
+    public boolean hasCard(Card card) {
+        return hasCard(card.cardType(), card.rarityLevel());
     }
 
     /// Checks if the player has a card of a specific type and rarity level equipped.
@@ -39,15 +52,7 @@ public class PlayerData {
     /// @param rarityLevel the rarity level of card to check for
     /// @return true if a card of the specified type and rarity is equipped, false otherwise
     public boolean hasCard(CardType cardType, RarityLevel rarityLevel) {
-        return hasCard(new Card(cardType, rarityLevel));
-    }
-
-    /// Checks if the player has a specific card equipped.
-    ///
-    /// @param card the card to check for
-    /// @return true if the card is equipped, false otherwise
-    public boolean hasCard(Card card) {
-        return equippedCards.contains(card);
+        return equippedCardsMap.get(cardType) == rarityLevel;
     }
 
     /// Checks if the player has a card of a specific card with same or higher rarity level equipped.
@@ -64,12 +69,9 @@ public class PlayerData {
     /// @param rarityLevel the rarity level of card to check for
     /// @return true if a card of the specified type and same or higher rarity level is equipped, false otherwise
     public boolean hasCardOrRarer(CardType cardType, RarityLevel rarityLevel) {
-        for (Card equippedCard : equippedCards) {
-            if (equippedCard.cardType() == cardType &&
-                    equippedCard.rarityLevel().ordinal() >= rarityLevel.ordinal()
-            ) {
-                return true;
-            }
+        var storedRarityLevel = equippedCardsMap.get(cardType);
+        if (storedRarityLevel != null) {
+            return RARITY_MATRIX[storedRarityLevel.ordinal() + 1][rarityLevel.ordinal()];
         }
         return false;
     }
@@ -79,12 +81,7 @@ public class PlayerData {
     /// @param cardType the type of card to check for
     /// @return true if a card of the specified type is equipped, false otherwise
     public boolean hasCardType(CardType cardType) {
-        for (Card equippedCard : equippedCards) {
-            if (equippedCard.cardType() == cardType) {
-                return true;
-            }
-        }
-        return false;
+        return equippedCardsMap.containsKey(cardType);
     }
 
     /// Attempts to equip a card for the player,
@@ -94,13 +91,13 @@ public class PlayerData {
     /// @param card the card to equip
     /// @return true if the card was successfully equipped, false otherwise
     public boolean equipCard(Card card) {
-        if (equippedCards.size() >= MAX_EQUIPPED_CARDS) {
+        if (equippedCardsMap.size() >= MAX_EQUIPPED_CARDS) {
             return false;
         }
         if (hasCardType(card.cardType())) {
             return false;
         }
-        equippedCards.add(card);
+        equippedCardsMap.put(card.cardType(), card.rarityLevel());
         return true;
     }
 
@@ -109,7 +106,11 @@ public class PlayerData {
     /// @param card the card to unequip
     /// @return true if the card was successfully unequipped, false otherwise
     public boolean unequipCard(Card card) {
-        return equippedCards.remove(card);
+        if (hasCard(card)) {
+            equippedCardsMap.remove(card.cardType());
+            return true;
+        }
+        return false;
     }
 
     /// Attempts to unequip any card of a specific type from the player's equipped cards.
@@ -117,12 +118,12 @@ public class PlayerData {
     /// @param cardType the type of card to unequip
     /// @return true if a card of the specified type was successfully unequipped, false otherwise
     public boolean unequipCardType(CardType cardType) {
-        return equippedCards.removeIf(equippedCard -> equippedCard.cardType() == cardType);
+        return equippedCardsMap.remove(cardType) != null;
     }
 
     /// Clears all equipped cards from the player's data.
     public void clearEquippedCards() {
-        equippedCards.clear();
+        equippedCardsMap.clear();
     }
 
     /// Returns a Container representing the player's equipped cards, allowing for interaction with the GUI.
@@ -148,12 +149,17 @@ public class PlayerData {
                         .flatMap(Optional::stream)
                         .collect(Collectors.toSet());
 
+                var equippedCards = equippedCardsMap.entrySet().stream()
+                        .map(entry -> new Card(entry.getKey(), entry.getValue()))
+                        .collect(Collectors.toSet());
+
                 if (equippedCards.equals(cardsInContainer)) {
                     return;
                 }
 
                 for (var card : equippedCards) {
                     if (!cardsInContainer.contains(card)) {
+                        equippedCardsMap.remove(card.cardType());
                         Helpers.debug("{} unequipped card {} for {}", feedbackPlayer, card, targetPlayer);
                         CardHelper.removeCardAttributes(targetPlayer, card);
                         Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_REMOVE_ONE);
@@ -162,14 +168,14 @@ public class PlayerData {
 
                 for (var card : cardsInContainer) {
                     if (!equippedCards.contains(card)) {
+                        equippedCardsMap.put(card.cardType(), card.rarityLevel());
                         Helpers.debug("{} equipped card {} for {}", feedbackPlayer, card, targetPlayer);
                         CardHelper.addCardAttributes(targetPlayer, card);
                         Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_INSERT);
                     }
                 }
 
-                equippedCards.clear();
-                equippedCards.addAll(cardsInContainer);
+                PolyCard.STORAGE.save();
             }
 
             @Override
@@ -179,8 +185,8 @@ public class PlayerData {
         };
 
         int index = 0;
-        for (Card equippedCard : equippedCards) {
-            container.items.set(index++, equippedCard.asItem());
+        for (var entrySet : equippedCardsMap.entrySet()) {
+            container.items.set(index++, new Card(entrySet.getKey(), entrySet.getValue()).asItem());
         }
 
         return container;

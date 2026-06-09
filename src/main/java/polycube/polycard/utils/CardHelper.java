@@ -41,7 +41,9 @@ public class CardHelper {
     ///
     /// @param player The player to load the attributes for.
     public static void loadPlayerAttributes(ServerPlayer player) {
-        PolyCard.STORAGE.getPlayerData(player).getEquippedCards().forEach(card -> addCardAttributes(player, card));
+        for(var entry : PolyCard.STORAGE.getPlayerData(player).equippedCardsMap().entrySet()) {
+            addCardAttributes(player, new Card(entry.getKey(), entry.getValue()));
+        }
     }
 
     /// Add the attribute modifiers from a card to a player, applying the effects of the card to the player.

@@ -40,15 +40,11 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         var card = optionalCard.get();
 
         var playerData = PolyCard.STORAGE.getPlayerData(player);
-        var optionalEquippedCard = playerData.getEquippedCards().stream()
-                .filter(c -> c.cardType() == card.cardType())
-                .findFirst();
+        var equippedRarityLevel = playerData.equippedCardsMap().get(card.cardType());
 
         // Swap the card if the player already has a card of the same type equipped
-        if (optionalEquippedCard.isPresent()) {
-            var equippedCard = optionalEquippedCard.get();
-
-            if (equippedCard.rarityLevel() == card.rarityLevel()) {
+        if (equippedRarityLevel != null) {
+            if (equippedRarityLevel == card.rarityLevel()) {
                 Helpers.playFailure(player);
                 player.sendSystemMessage(Component.literal("You already equipped this card!").withStyle(ChatFormatting.RED));
                 Helpers.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
@@ -56,7 +52,8 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             }
 
             // Swap the cards
-            if (playerData.unequipCard(equippedCard)) {
+            if (playerData.unequipCardType(card.cardType())) {
+                var equippedCard = new Card(card.cardType(), equippedRarityLevel);
                 CardHelper.removeCardAttributes(player, equippedCard);
                 var result = equipCard(playerData, item, player, card);
                 player.addItem(equippedCard.asItem());
@@ -66,7 +63,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         }
 
         // Check if player already has 5 cards equipped
-        if (playerData.getEquippedCards().size() >= PlayerData.MAX_EQUIPPED_CARDS) {
+        if (playerData.equippedCardsMap().size() >= PlayerData.MAX_EQUIPPED_CARDS) {
             Helpers.playFailure(player);
             player.sendSystemMessage(Component.literal("You already have " + PlayerData.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
             Helpers.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), PlayerData.MAX_EQUIPPED_CARDS, card);

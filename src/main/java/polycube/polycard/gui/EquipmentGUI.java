@@ -29,13 +29,13 @@ public class EquipmentGUI {
 
     /// Opens the equipment GUI for a player - single line with 5 centered slots.
     ///
-    /// @param player       The player to open the GUI for.
+    /// @param viewer       The player to open the GUI for.
     /// @param targetPlayer The player whose equipment is being managed (can be the player).
-    public static void openEquipmentGUI(ServerPlayer player, ServerPlayer targetPlayer) {
+    public static void openEquipmentGUI(ServerPlayer viewer, ServerPlayer targetPlayer) {
         var playerData = PolyCard.STORAGE.getPlayerData(targetPlayer);
-        var container = playerData.asContainer(targetPlayer, player);
+        var container = playerData.asContainer(targetPlayer, viewer);
 
-        SimpleGui gui = getEquipmentGui(player, targetPlayer, playerData);
+        SimpleGui gui = new SimpleGui(MenuType.HOPPER, viewer, false);
         gui.setTitle(Component.literal("七ㇺ十").withStyle(ChatFormatting.WHITE)
                 .append(Component.literal("✦༺ ").withStyle(ChatFormatting.DARK_RED))
                 .append(Component.literal("Equipped Cards").withStyle(s -> s.withColor(ChatFormatting.BLACK).withUnderlined(true)))
@@ -43,37 +43,10 @@ public class EquipmentGUI {
         );
 
         for (int i = 0; i < 5; i++) {
-            gui.setSlot(i, getSlot(container, player, playerData, i));
+            gui.setSlot(i, getSlot(container, viewer, playerData, i));
         }
 
         gui.open();
-    }
-
-    private static SimpleGui getEquipmentGui(ServerPlayer viewer, ServerPlayer targetPlayer, PlayerData playerData) {
-        return new SimpleGui(MenuType.HOPPER, viewer, false) {
-            @Override
-            public void onPlayerClose(boolean success) {
-                super.onPlayerClose(success);
-
-                if (!success) {
-                    Helpers.debug("{} could not close the equipment menu for {} successfully, not saving equipped cards", viewer.getName().getString(), targetPlayer.getName().getString());
-                    return;
-                }
-
-                List<Card> equippedCards = playerData.getEquippedCards();
-
-                Helpers.debug("Saved equipped cards for {} after closing equipment menu", targetPlayer.getName().getString());
-                if (equippedCards.isEmpty()) {
-                    Helpers.debug("No equipped cards for {}", targetPlayer.getName().getString());
-                } else {
-                    Helpers.debug(
-                            "Equipped cards for {}: {}", targetPlayer.getName().getString(),
-                            equippedCards.stream().map(Card::toString).collect(Collectors.joining(", "))
-                    );
-                }
-                PolyCard.STORAGE.save();
-            }
-        };
     }
 
     private static Slot getSlot(Container container, ServerPlayer player, PlayerData playerData, int slot) {
