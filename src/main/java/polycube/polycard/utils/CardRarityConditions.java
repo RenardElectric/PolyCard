@@ -3,19 +3,27 @@ package polycube.polycard.utils;
 import net.minecraft.server.level.ServerPlayer;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
-import polycube.polycard.data.PlayerData;
 
 /// A utility class for checking card rarity conditions for a player and executing code based on those conditions.
 public class CardRarityConditions {
+    private static final boolean[][] RARITY_MATRIX = {
+            {false, false, false, false, false},
+            {true, false, false, false, false},
+            {true, true, false, false, false},
+            {true, true, true, false, false},
+            {true, true, true, true, false},
+            {true, true, true, true, true}
+    };
+
     private final boolean[] conditions;
 
     private CardRarityConditions(ServerPlayer player, CardType cardType) {
         var highestRarityIndex = 0;
         var storedRarityLevel = PolyCard.STORAGE.getPlayerData(player).equippedCardsMap().get(cardType);
         if (storedRarityLevel != null) {
-            highestRarityIndex = storedRarityLevel.ordinal() + 1;
+            highestRarityIndex = storedRarityLevel.rank() + 1;
         }
-        conditions = PlayerData.RARITY_MATRIX[highestRarityIndex];
+        conditions = RARITY_MATRIX[highestRarityIndex];
     }
 
     /// Create a new CardRarityConditions instance for the given player and card type.

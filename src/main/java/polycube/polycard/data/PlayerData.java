@@ -21,14 +21,6 @@ import java.util.stream.Collectors;
 public record PlayerData(Map<CardType, RarityLevel> equippedCardsMap) {
     public static final int MAX_EQUIPPED_CARDS = 5;
     public static final Codec<PlayerData> CODEC = Codec.dispatchedMap(CardType.CODEC, _ -> RarityLevel.CODEC).xmap(PlayerData::new, PlayerData::equippedCardsMap);
-    public static final boolean[][] RARITY_MATRIX = {
-            {false, false, false, false, false},
-            {true, false, false, false, false},
-            {true, true, false, false, false},
-            {true, true, true, false, false},
-            {true, true, true, true, false},
-            {true, true, true, true, true}
-    };
 
     public PlayerData() {
         this(new EnumMap<>(CardType.class));
@@ -70,10 +62,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCardsMap) {
     /// @return true if a card of the specified type and same or higher rarity level is equipped, false otherwise
     public boolean hasCardOrRarer(CardType cardType, RarityLevel rarityLevel) {
         var storedRarityLevel = equippedCardsMap.get(cardType);
-        if (storedRarityLevel != null) {
-            return RARITY_MATRIX[storedRarityLevel.ordinal() + 1][rarityLevel.ordinal()];
-        }
-        return false;
+        return storedRarityLevel != null && rarityLevel.isAtLeast(storedRarityLevel);
     }
 
     /// Checks if the player has a card of a specific type equipped.

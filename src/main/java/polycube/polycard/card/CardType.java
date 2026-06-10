@@ -13,6 +13,7 @@ import polycube.polycard.cardEffects.neutral.IronGolemEffects;
 import polycube.polycard.cardEffects.passive.CowEffects;
 import polycube.polycard.cardEffects.passive.SquidEffects;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -21,18 +22,18 @@ import java.util.stream.Collectors;
 public enum CardType implements StringRepresentable {
     // Passive
 
-    COW("breeding two cows", "passive") {{
+    COW("cow", "breeding two cows", "passive") {{
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Regeneration when standing in plains");
         addRarity(RarityLevel.RARE, 0.05, false, "Gain resistance when near other Cow Card");
         addRarity(RarityLevel.EPIC, 0.01, true, "Convert debuffs into Buffs when drinking milk");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "+" + CowEffects.REGEN_HEALTH_GAIN_HEARTS + " hearts when drinking milk");
     }},
-    SQUID("killing a squid", "passive") {{
+    SQUID("squid", "killing a squid", "passive") {{
         addRarity(RarityLevel.RARE, 0.05, false, SquidEffects.BLINDNESS_WHEN_HIT_CHANCE + "% chance to give blindness when hit");
         addRarity(RarityLevel.EPIC, 0.01, true, SquidEffects.BLINDNESS_ON_HIT_CHANCE + "% chance to give blindness on hit");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Water breathing");
     }},
-    CHICKEN("breeding two chicken", "passive") {{
+    CHICKEN("chicken", "breeding two chicken", "passive") {{
         addRarity(RarityLevel.COMMON, 0.1, false, "Lay eggs");
         addRarity(RarityLevel.UNCOMMON, 0.05, false, "Thrown eggs hurt");
         addRarity(RarityLevel.RARE, 0.05, false, "Speed when near chickens");
@@ -42,26 +43,26 @@ public enum CardType implements StringRepresentable {
 
     // Neutral
 
-    IRON_GOLEM("summoning an Iron Golem", "neutral") {{
+    IRON_GOLEM("iron_golem"," summoning an Iron Golem", "neutral") {{
         addRarity(RarityLevel.RARE, 0.05, false, IronGolemEffects.RESISTANCE_ON_ATTACKED_CHANCE + "% chance to gain resistance when attacked");
         addRarity(RarityLevel.EPIC, 0.01, true, "Hitting with fist knock back enemies (" + IronGolemEffects.KNOCKBACK_HIT_COOLDOWN / 20 + " sec cooldown)");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Falling creates shock wave (" + IronGolemEffects.SHOCKWAVE_COOLDOWN / 20 + " sec cooldown)");
     }},
-    COPPER_GOLEM("summoning an Copper Golem", "neutral"), // TODO
-    SNOW_GOLEM("summoning an Snow Golem", "neutral"), // TODO
-    ENDERMAN("killing an Enderman", "neutral") {{
+    COPPER_GOLEM("copper_golem", "summoning an Copper Golem", "neutral"), // TODO
+    SNOW_GOLEM("snow_golem", "summoning an Snow Golem", "neutral"), // TODO
+    ENDERMAN("enderman", "killing an Enderman", "neutral") {{
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "No ender pearl damage");
         addRarity(RarityLevel.RARE, 0.05, false, "No ender pearl cooldown");
         addRarity(RarityLevel.EPIC, 0.01, true, EnderManEffects.PROJECTILE_DODGE_CHANCE + "% chance to dodge projectile");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Resistance in the End");
     }},
-    PIGLIN("killing a piglin", "neutral") {{
+    PIGLIN("piglin", "killing a piglin", "neutral") {{
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Piglins do not attack you");
         addRarity(RarityLevel.RARE, 0.05, false, "Gold food gives a random buff when eaten");
         addRarity(RarityLevel.EPIC, 0.01, true, "Piglin brutes do not attack you");
         addRarity(RarityLevel.LEGENDARY, 0.001, true, "Gold items are significantly more durable");
     }},
-    BEE("collecting honey", "neutral") {{
+    BEE("bee", "collecting honey", "neutral") {{
         addRarity(RarityLevel.RARE, 0.1, false, "Drinking honey gives speed");
         addRarity(RarityLevel.EPIC, 0.02, true, "Drinking honey gives regeneration");
         addRarity(RarityLevel.LEGENDARY, 0.002, true, "Drinking honey gives health boost");
@@ -69,13 +70,13 @@ public enum CardType implements StringRepresentable {
 
     // Hostile
 
-    ENDER_DRAGON("summoning an Ender Dragon", "hostile"), // TODO
-    WITHER("summoning an Wither", "hostile") {{
+    ENDER_DRAGON("ender_dragon", "summoning an Ender Dragon", "hostile"), // TODO
+    WITHER("wither", "summoning an Wither", "hostile") {{
         addRarity(RarityLevel.RARE, 0.1, false, "Mobs can drop wither rose");
         addRarity(RarityLevel.EPIC, 0.05, true, "Immunity to wither effect");
         // TODO Legendary effect
     }},
-    ZOMBIE("killing a zombie", "hostile") {{
+    ZOMBIE("zombie", "killing a zombie", "hostile") {{
         addRarity(RarityLevel.COMMON, 0.25, false, "No hunger when eating rotten flesh");
         addRarity(RarityLevel.UNCOMMON, 0.1, false, "Rotten flesh gives +2 food");
         addRarity(RarityLevel.RARE, 0.05, false, "Rotten flesh gives +2 food");
@@ -84,14 +85,16 @@ public enum CardType implements StringRepresentable {
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
-    public static final Map<String, CardType> BY_NAME = Arrays.stream(values())
+    public static final Map<String, CardType> BY_ID = Arrays.stream(values())
             .collect(Collectors.toMap(CardType::getSerializedName, Function.identity()));
 
     private final Map<RarityLevel, Rarity> rarities = new EnumMap<>(RarityLevel.class);
+    private final String id;
     private final String condition;
     private final String cardGroup;
 
-    CardType(String condition, String cardGroup) {
+    CardType(String id, String condition, String cardGroup) {
+        this.id = id;
         this.condition = condition;
         this.cardGroup = cardGroup;
     }
@@ -109,11 +112,11 @@ public enum CardType implements StringRepresentable {
         return rarity;
     }
 
-    /// Gets the minimum rarity level available for this card.
+    /// Gets the minimum rarity level available for this card type.
     ///
-    /// @return The minimum rarity level available for this card.
+    /// @return The minimum rarity level available for this card type.
     public RarityLevel minRarityLevel() {
-        return rarities.keySet().stream().min(Comparator.comparingInt(Enum::ordinal)).orElseThrow();
+        return rarities.keySet().iterator().next();
     }
 
     /// Gets the rarity data for a specific rarity level, if this card type supports it.
@@ -133,25 +136,11 @@ public enum CardType implements StringRepresentable {
         return rarities.containsKey(rarityLevel);
     }
 
-    /// Gets the next supported rarity level above the given rarity.
+    /// Gets a collection of all rarities available for this card.
     ///
-    /// @param rarityLevel The rarity level to find the next level above.
-    /// @return An Optional containing the next supported rarity level above the given level,
-    /// or empty if there are no higher supported rarity levels.
-    public Optional<RarityLevel> nextRarityLevelAfter(RarityLevel rarityLevel) {
-        return getRarities().stream()
-                .map(Rarity::rarityLevel)
-                .filter(nextRarityLevel -> nextRarityLevel.ordinal() > rarityLevel.ordinal())
-                .min(Comparator.comparingInt(Enum::ordinal));
-    }
-
-    /// Gets a list of all rarities available for this card, sorted by their rarity level.
-    ///
-    /// @return A list of rarities for this card, sorted by rarity level.
-    public List<Rarity> getRarities() {
-        return rarities.values().stream()
-                .sorted(Comparator.comparing(r -> r.rarityLevel().ordinal()))
-                .toList();
+    /// @return A collection of rarities for this card.
+    public Collection<Rarity> getRarities() {
+        return rarities.values();
     }
 
     /// Gets a multimap of attribute modifiers for this card type, including all modifiers from rarities up to the specified maximum rarity level.
@@ -160,12 +149,11 @@ public enum CardType implements StringRepresentable {
     /// @return A multimap of attribute modifiers for this card type, including all modifiers from rarities up to the specified maximum rarity level.
     public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(RarityLevel maxRarity) {
         Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
-        for (var rarity : getRarities()) {
-            var typeAttributes = rarity.attributeModifiers();
-            if (typeAttributes != null) {
-                attributes.putAll(typeAttributes);
-            }
-            if (rarity.rarityLevel() == maxRarity) break;
+        int maxRank = maxRarity.rank();
+        for (int i = 0; i < maxRank; i++) {
+            Optional.ofNullable(rarities.get(RarityLevel.BY_RANK.get(i)))
+                    .map(Rarity::attributeModifiers)
+                    .map(attributes::putAll);
         }
         return attributes;
     }
@@ -177,18 +165,11 @@ public enum CardType implements StringRepresentable {
         return condition;
     }
 
-    /// Gets the card group for this card type, which categorizes the card into a specific group for organizational purposes.
+    /// Gets the full identifier for this card type, which is a combination of the card group and the identifier of the card type.
     ///
-    /// @return The card group for this card type.
-    public String getCardGroup() {
-        return cardGroup;
-    }
-
-    /// Gets the unique identifier for this card type, which is a combination of the card group and the serialized name of the card type.
-    ///
-    /// @return The unique identifier for this card type, formatted as "cardGroup/serializedName".
-    public String getId() {
-        return getCardGroup() + "/" + getSerializedName();
+    /// @return The full identifier for this card type, formatted as "cardGroup/identifier".
+    public String getFullId() {
+        return cardGroup + "/" + id;
     }
 
     /// Deserializes a CardType from a string.
@@ -199,21 +180,21 @@ public enum CardType implements StringRepresentable {
         if (string == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(BY_NAME.get(string.toLowerCase(Locale.ROOT)));
+        return Optional.ofNullable(BY_ID.get(string.toLowerCase(Locale.ROOT)));
     }
 
     @Override
     public @NonNull String getSerializedName() {
-        return this.name().toLowerCase(Locale.ROOT);
+        return this.id;
     }
 
     @Override
     public String toString() {
         var words = getSerializedName().split("_");
-        StringBuilder sb = new StringBuilder();
+        var sj = new StringJoiner(" ");
         for (String word : words) {
-            sb.append(word.substring(0, 1).toUpperCase(Locale.ROOT)).append(word.substring(1)).append(" ");
+            sj.add(word.substring(0, 1).toUpperCase(Locale.ROOT) + word.substring(1));
         }
-        return sb.toString().trim();
+        return sj.toString();
     }
 }

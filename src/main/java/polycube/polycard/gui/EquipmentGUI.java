@@ -78,7 +78,7 @@ public class EquipmentGUI {
                 if (playerData.hasCardType(card.cardType())) {
                     player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));  // TODO: Not sure, makes a lot of messages when shift clicking
                     Helpers.playFailure(player);
-                    Helpers.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.cardType().name());
+                    Helpers.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.cardType());
                     return false;
                 }
 

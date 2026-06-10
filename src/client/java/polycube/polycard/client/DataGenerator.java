@@ -151,7 +151,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
             }
 
             for (var cardType : CardType.values()) {
-                var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getId());
+                var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getFullId());
                 ModelTemplates.FLAT_ITEM.create(cardTypeId, TextureMapping.layer0(new Material(cardTypeId)), itemModelGenerators.modelOutput);
             }
 
@@ -159,7 +159,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                 for (var rarity : cardType.getRarities()) {
                     var rarityLevel = rarity.rarityLevel();
                     var rarityId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + rarityLevel.getSerializedName());
-                    var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getId());
+                    var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getFullId());
 
                     ItemModel.Unbaked rarityModel = ItemModelUtils.plainModel(rarityId);
                     ItemModel.Unbaked cardTypeModel = ItemModelUtils.plainModel(cardTypeId);

@@ -121,7 +121,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     ///
     /// @return the unique identifier for this Card, formatted as "cardTypeId/rarityLevelSerializedName"
     public String getId() {
-        return cardType.getId() + "/" + rarityLevel.getSerializedName();
+        return cardType.getFullId() + "/" + rarityLevel.getSerializedName();
     }
 
     @Override
