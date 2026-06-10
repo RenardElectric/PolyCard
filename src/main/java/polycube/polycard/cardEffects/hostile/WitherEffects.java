@@ -1,11 +1,13 @@
 package polycube.polycard.cardEffects.hostile;
 
-import com.google.common.util.concurrent.AtomicDouble;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
@@ -14,11 +16,20 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.KillEventCallback;
+import polycube.polycard.utils.CardRarityConditions;
 
 public class WitherEffects {
     public static final CardType CARD_TYPE = CardType.WITHER;
 
-    public static final double WITHER_ROSE_DROP_CHANCE = 0.1;
+    public static final float WITHER_ROSE_DROP_PROBABILITY = 0.1f;
+
+    public static final float WITHER_EFFECT_PROBABILITY = 0.1f;
+    public static final int WITHER_EFFECT_DURATION = 20 * 5;
+    public static final int WITHER_EFFECT_AMPLIFIER = 0;
+
+    public static final float DAMAGE_INCREASE_PROBABILITY = 0.2f;
+
+    public static final float LIFE_STEAL_PROBABILITY = 0.1f;
 
     public static void register() {
         KillEventCallback.EVENT.register(WitherEffects::onKill);
@@ -26,19 +37,49 @@ public class WitherEffects {
     }
 
     private static InteractionResult onKill(ServerPlayer player, Entity entity, DamageSource damageSource) {
-        if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.RARE)) {
-            if (player.getRandom().nextDouble() < WITHER_ROSE_DROP_CHANCE) {
+        if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.COMMON)) {
+            if (player.getRandom().nextFloat() < WITHER_ROSE_DROP_PROBABILITY) {
                 entity.spawnAtLocation(player.level(), Items.WITHER_ROSE);
             }
         }
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, AtomicDouble damage) {
+    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, EntityHurtEventCallback.AtomicDouble damage) {
         if (entity instanceof ServerPlayer player) {
-            if (source.is(DamageTypes.WITHER) && PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
+            if (source.is(DamageTypes.WITHER) && PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
                 return InteractionResult.FAIL;
             }
+        }
+
+        var attacker = source.getEntity();
+        if (attacker instanceof ServerPlayer player) {
+            var random = player.getRandom();
+            CardRarityConditions.of(player, CARD_TYPE)
+                    .hasRare(() -> {
+                        if (random.nextFloat() < WITHER_EFFECT_PROBABILITY)
+                            entity.addEffect(new MobEffectInstance(MobEffects.WITHER, WITHER_EFFECT_DURATION, WITHER_EFFECT_AMPLIFIER, false, true), player);
+                    })
+                    .hasEpic(() -> {
+                        if (entity.hasEffect(MobEffects.WITHER)) {
+                            int damageIncrease = 0;
+                            for (int i = 0; i < damage.get(); i++) {
+                                if (random.nextFloat() < DAMAGE_INCREASE_PROBABILITY) damageIncrease++;
+                            }
+                            player.sendSystemMessage(Component.literal(damageIncrease + " (base " + damage.get() + ")"));
+                            damage.set(damage.get() + damageIncrease);
+                        }
+                    })
+                    .hasLegendary(() -> {
+                        if (entity.hasEffect(MobEffects.WITHER)) {
+                            int life = 0;
+                            for (int i = 0; i < damage.get(); i++) {
+                                if (random.nextFloat() < LIFE_STEAL_PROBABILITY) life++;
+                            }
+                            player.sendSystemMessage(Component.literal(life + ""));
+                            player.heal(life);
+                        }
+                    });
         }
 
         return InteractionResult.PASS;

@@ -15,6 +15,7 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -137,5 +138,9 @@ public final class Helpers {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             PLAYER_TASKS.forEach(task -> task.accept(server, player));
         }
+    }
+
+    public static String probToStr(float prob) {
+        return new DecimalFormat("#.##").format(prob * 100);
     }
 }

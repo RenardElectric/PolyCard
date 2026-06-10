@@ -1,6 +1,5 @@
 package polycube.polycard.mixin;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -27,7 +26,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Wa
     }
 
     @Unique
-    private AtomicDouble modifiedDamage = null;
+    private EntityHurtEventCallback.AtomicDouble modifiedDamage = null;
 
     @ModifyVariable(method = "hurtServer", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;noActionTime:I", opcode = Opcodes.PUTFIELD), argsOnly = true, name = "damage")
     private float modifyDamage(float damage) {
@@ -40,7 +39,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Wa
 
     @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isSleeping()Z"), cancellable = true)
     private void onHurt(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
-        modifiedDamage = new AtomicDouble(damage);
+        modifiedDamage = new EntityHurtEventCallback.AtomicDouble(damage);
         var entity = (LivingEntity) (Object) this;
         if (!(entity instanceof Player)) {
             if (EntityHurtEventCallback.EVENT.invoker().interact(entity, level, source, modifiedDamage) == InteractionResult.FAIL) {

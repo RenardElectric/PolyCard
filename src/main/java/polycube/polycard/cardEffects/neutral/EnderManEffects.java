@@ -1,6 +1,5 @@
 package polycube.polycard.cardEffects.neutral;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -40,7 +39,7 @@ public class EnderManEffects {
     public static final int RESISTANCE_EFFECT_DURATION = 20 * 2;
     public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
 
-    public static final int PROJECTILE_DODGE_CHANCE = 20;
+    public static final int PROJECTILE_DODGE_PROBABILITY = 20;
 
     public static final List<ResourceKey<Biome>> endBiomes = new ArrayList<>(
             Arrays.asList(Biomes.THE_END, Biomes.END_BARRENS, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS)
@@ -78,7 +77,7 @@ public class EnderManEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onEnderPearlHit(LivingEntity entity, ServerLevel level, DamageSource source, AtomicDouble damage) {
+    private static InteractionResult onEnderPearlHit(LivingEntity entity, ServerLevel level, DamageSource source, EntityHurtEventCallback.AtomicDouble damage) {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
                 if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
@@ -97,7 +96,7 @@ public class EnderManEffects {
                 if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
                     var random = ThreadLocalRandom.current();
                     var randomInt = random.nextInt(0, 100);
-                    if (randomInt < PROJECTILE_DODGE_CHANCE) {
+                    if (randomInt < PROJECTILE_DODGE_PROBABILITY) {
                         Helpers.debug("{} has a epic or higher enderman card and rolled a {} to dodge a projectile", player.getName().getString(), randomInt);
 
                         //noinspection resource

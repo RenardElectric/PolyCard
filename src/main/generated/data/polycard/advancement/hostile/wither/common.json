@@ -6,7 +6,7 @@
         "items": [
           {
             "components": {
-              "minecraft:item_model": "polycard:neutral/iron_golem/rare"
+              "minecraft:item_model": "polycard:hostile/wither/common"
             }
           }
         ]
@@ -19,21 +19,21 @@
     "description": {
       "extra": [
         {
-          "color": "blue",
-          "text": "Rare Iron Golem card"
+          "color": "gray",
+          "text": "Common Wither card"
         },
-        " by  summoning an Iron Golem"
+        " by summoning an Wither"
       ],
       "text": "Unlock the "
     },
     "icon": {
       "components": {
         "minecraft:enchantment_glint_override": false,
-        "minecraft:item_model": "polycard:neutral/iron_golem/rare"
+        "minecraft:item_model": "polycard:hostile/wither/common"
       },
       "id": "minecraft:knowledge_book"
     },
-    "title": "Rare Iron Golem card"
+    "title": "Common Wither card"
   },
   "requirements": [
     [

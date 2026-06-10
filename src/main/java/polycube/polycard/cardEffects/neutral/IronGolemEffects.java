@@ -1,6 +1,5 @@
 package polycube.polycard.cardEffects.neutral;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,12 +20,10 @@ import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 public class IronGolemEffects {
     public static final CardType CARD_TYPE = CardType.IRON_GOLEM;
 
-    public static final int RESISTANCE_ON_ATTACKED_CHANCE = 20;
+    public static final float RESISTANCE_ON_ATTACKED_PROBABILITY = 0.2f;
     public static final int RESISTANCE_DURATION = 20 * 10;
     public static final int RESISTANCE_AMPLIFIER = 0;
 
@@ -43,15 +40,15 @@ public class IronGolemEffects {
         EntityHurtEventCallback.EVENT.register(IronGolemEffects::onPlayerHurt);
     }
 
-    public static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, AtomicDouble damage) {
+    public static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, EntityHurtEventCallback.AtomicDouble damage) {
 
         if (entity instanceof ServerPlayer player) {
             CardRarityConditions.of(player, CARD_TYPE)
                     .hasRare(() -> {
                         if (source.is(DamageTypeTags.IS_PROJECTILE)) {
-                            Helpers.debug("{} has a rare or higher Iron Golem card and was attacked. Chance to gain resistance: {}%", player.getName().getString(), RESISTANCE_ON_ATTACKED_CHANCE);
-                            int random = ThreadLocalRandom.current().nextInt(0, 100);
-                            if (random < RESISTANCE_ON_ATTACKED_CHANCE) {
+                            Helpers.debug("{} has a rare or higher Iron Golem card and was attacked. Chance to gain resistance: {}%", player.getName().getString(), RESISTANCE_ON_ATTACKED_PROBABILITY);
+                            var random = player.getRandom().nextFloat();
+                            if (random < RESISTANCE_ON_ATTACKED_PROBABILITY) {
                                 player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER));
                             }
                         }

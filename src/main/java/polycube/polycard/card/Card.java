@@ -35,7 +35,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
             RarityLevel.CODEC.fieldOf("rarityLevel").forGetter(Card::rarityLevel)
     ).apply(instance, Card::new));
 
-    public static final int CARDS_FOR_NEXT_LEVEL = 20;
+    public static final int CARDS_FOR_NEXT_LEVEL = 10;
     public static final Item CARD_ITEM = Items.KNOWLEDGE_BOOK;
 
     private static final String CARD_TYPE_KEY = "cardType";
@@ -85,10 +85,10 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     /// Retrieves the probability of obtaining this Card based on its type and rarity level.
     ///
     /// @return the probability of obtaining this Card
-    public double getProbability() {
+    public float getProbability() {
         return cardType.getRarity(rarityLevel)
                 .map(Rarity::probability)
-                .orElse(0.0);
+                .orElse(0.0f);
     }
 
     /// Determines whether this Card should have an enchanted appearance based on its type and rarity level.

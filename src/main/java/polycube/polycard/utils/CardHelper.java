@@ -13,11 +13,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /// Manages card creation, storage, and cooldowns for the PolyCard mod.
 public class CardHelper {
-    private static final Random random = new Random();
-
     /// Give a card to a player, creating it with a random rarity level based on the card type's probabilities.
     ///
     /// @param player   The player to give the card to.
@@ -96,11 +95,11 @@ public class CardHelper {
         return Optional.empty();
     }
 
-    private static boolean rollsUnder(double probability) {
+    private static boolean rollsUnder(float probability) {
         if (probability <= 0) {
             return false;
         }
 
-        return random.nextDouble() < Math.min(probability, 1);
+        return ThreadLocalRandom.current().nextFloat() < Math.min(probability, 1);
     }
 }

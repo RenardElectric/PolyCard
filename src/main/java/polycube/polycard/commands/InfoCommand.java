@@ -9,6 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
+import polycube.polycard.utils.Helpers;
 
 import java.text.DecimalFormat;
 
@@ -47,8 +48,7 @@ public class InfoCommand extends PolyCardCommand {
                             .withStyle(ChatFormatting.DARK_GRAY)
             );
             for (var rarity : cardType.getRarities()) {
-                String formattedProbability = new DecimalFormat("#.##").format(rarity.probability() * 100);
-                var rarityInfo = Component.literal(" - " + rarity.rarityLevel() + " (" + formattedProbability + "%)")
+                var rarityInfo = Component.literal(" - " + rarity.rarityLevel() + " (" + Helpers.probToStr(rarity.probability()) + "%)")
                         .append(Component.literal(" : " + rarity.description()))
                         .withStyle(rarity.rarityLevel().color());
                 message.append("\n").append(rarityInfo);

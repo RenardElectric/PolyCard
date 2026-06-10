@@ -19,6 +19,8 @@ public class ZombieEffects {
     public static final int REGENERATION_EFFECT_DURATION = 20 * 5;
     public static final int REGENERATION_EFFECT_AMPLIFIER = 0;
 
+    public static final int ROTTEN_FLESH_FOOD_INCREASE = 2;
+
     public static void register() {
         ItemConsumedEventCallback.EVENT.register(ZombieEffects::onRottenFleshConsumed);
     }
@@ -32,11 +34,11 @@ public class ZombieEffects {
                     })
                     .hasUncommon(() -> {
                         Helpers.debug("{} has the uncommon zombie card and consumed rotten flesh, adding 2 hunger points", player.getName().getString());
-                        player.getFoodData().eat(2, 0);
+                        player.getFoodData().eat(ROTTEN_FLESH_FOOD_INCREASE, 0);
                     })
                     .hasRare(() -> {
                         Helpers.debug("{} has the rare zombie card and consumed rotten flesh, adding 2 hunger points", player.getName().getString());
-                        player.getFoodData().eat(2, 0);
+                        player.getFoodData().eat(ROTTEN_FLESH_FOOD_INCREASE, 0);
                     })
                     .hasEpic(() -> {
                         Helpers.debug("{} has the epic zombie card and consumed rotten flesh, adding strength effect", player.getName().getString());

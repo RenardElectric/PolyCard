@@ -1,6 +1,5 @@
 package polycube.polycard.cardEffects.passive;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -39,6 +38,11 @@ public class ChickenEffects {
     public static final int SPEED_EFFECT_AMPLIFIER = 0;
     public static final int SPEED_DISTANCE_SQUARED = 25;
 
+    public static final int SLOW_FALLING_DURATION = 5;
+    public static final int SLOW_FALLING_AMPLIFIER = 0;
+
+    public static final float THROW_EGG_PROBABILITY = 0.5f;
+
     public static void register() {
         EntityHurtEventCallback.EVENT.register(
                 ChickenEffects::onHurt
@@ -71,7 +75,7 @@ public class ChickenEffects {
                     })
                     .hasLegendary(() -> {
                         if (player.fallDistance > 2 && player.isCrouching()) {
-                            player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 5, 0, false, true, true));
+                            player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, SLOW_FALLING_DURATION, SLOW_FALLING_AMPLIFIER, false, true, true));
                         }
                     });
         });
@@ -79,7 +83,7 @@ public class ChickenEffects {
 
     private static boolean ignore = false;
 
-    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, AtomicDouble damage) {
+    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, EntityHurtEventCallback.AtomicDouble damage) {
         if (ignore) return InteractionResult.PASS;
 
         if (source.getDirectEntity() instanceof ThrownEgg egg) {
@@ -93,16 +97,10 @@ public class ChickenEffects {
         }
 
         if (entity instanceof ServerPlayer player) {
-            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
+            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC) && player.getRandom().nextFloat() < THROW_EGG_PROBABILITY) {
                 var pos = source.getSourcePosition();
-                var attacker = source.getDirectEntity();
+                var attacker = source.getEntity();
                 if (attacker != null) {
-                    if (attacker instanceof Projectile projectile) {
-                        var owner = projectile.getOwner();
-                        if (owner != null) {
-                            attacker = owner;
-                        }
-                    }
                     pos = attacker.position();
                 }
                 if (pos != null) {

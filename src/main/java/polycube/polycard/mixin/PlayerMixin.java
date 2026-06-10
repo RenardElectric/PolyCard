@@ -1,6 +1,5 @@
 package polycube.polycard.mixin;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,7 +24,7 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
     }
 
     @Unique
-    private AtomicDouble modifiedDamage = null;
+    private EntityHurtEventCallback.AtomicDouble modifiedDamage = null;
 
     @ModifyVariable(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/damagesource/DamageSource;scalesWithDifficulty()Z"), argsOnly = true, name = "damage")
     private float modifyDamage(float damage) {
@@ -38,7 +37,7 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
 
     @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;removeEntitiesOnShoulder()V"), cancellable = true)
     private void onHurt(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
-        modifiedDamage = new AtomicDouble(damage);
+        modifiedDamage = new EntityHurtEventCallback.AtomicDouble(damage);
         if (EntityHurtEventCallback.EVENT.invoker().interact(this, level, source, modifiedDamage) == InteractionResult.FAIL) {
             cir.setReturnValue(false);
         }

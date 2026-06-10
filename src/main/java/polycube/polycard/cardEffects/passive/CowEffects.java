@@ -21,7 +21,6 @@ public class CowEffects {
     public static final CardType CARD_TYPE = CardType.COW;
 
     public static final int REGEN_HEALTH_GAIN_HEARTS = 8;
-    public static final int REGEN_HEALTH_GAIN_HEALTH_POINTS = REGEN_HEALTH_GAIN_HEARTS * 2;
 
     public static final int STILL_DELAY = 20 * 25;
     public static final int REGEN_EFFECT_DURATION = 20 * 5;
@@ -111,7 +110,7 @@ public class CowEffects {
                     })
                     .hasLegendary(() -> {
                         Helpers.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
-                        player.heal(REGEN_HEALTH_GAIN_HEALTH_POINTS);
+                        player.heal(REGEN_HEALTH_GAIN_HEARTS * 2);
                     });
         }
     }

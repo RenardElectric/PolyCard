@@ -11,7 +11,7 @@ public class CombineCommand extends PolyCardCommand {
     public CombineCommand() {
         super(
                 "combine",
-                "Combine the cards the player is holding into a new card of a greater rarity",
+                "Combine " + Card.CARDS_FOR_NEXT_LEVEL + " of the cards the player is holding into a new card of the next rarity level.",
                 "",
                 PermissionLevel.ALL
         );
