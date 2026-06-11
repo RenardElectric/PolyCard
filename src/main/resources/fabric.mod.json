@@ -5,8 +5,8 @@
   "name": "PolyCard",
   "description": "Collectible card system - find cards and equip them for buffs.",
   "authors": [
-    "Timeo",
-    "RenardElectric"
+    "RenardElectric",
+    "Timeo"
   ],
   "license": "MIT",
   "icon": "assets/polycard/icon.png",
