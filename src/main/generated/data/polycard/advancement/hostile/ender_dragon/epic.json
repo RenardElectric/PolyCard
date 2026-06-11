@@ -1,0 +1,44 @@
+{
+  "parent": "polycard:hostile/ender_dragon/rare",
+  "criteria": {
+    "got_card": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:item_model": "polycard:hostile/ender_dragon/epic"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "extra": [
+        {
+          "color": "dark_purple",
+          "text": "Epic Ender Dragon card"
+        },
+        " by summoning an Ender Dragon"
+      ],
+      "text": "Unlock the "
+    },
+    "icon": {
+      "components": {
+        "minecraft:enchantment_glint_override": true,
+        "minecraft:item_model": "polycard:hostile/ender_dragon/epic"
+      },
+      "id": "minecraft:knowledge_book"
+    },
+    "title": "Epic Ender Dragon card"
+  },
+  "requirements": [
+    [
+      "got_card"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

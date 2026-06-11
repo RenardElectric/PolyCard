@@ -11,8 +11,8 @@ import net.minecraft.world.level.Level;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.data.PlayerData;
+import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
-import polycube.polycard.utils.CardHelper;
 import polycube.polycard.utils.Helpers;
 
 /// Handles equipping cards when a player uses a card item.
@@ -54,7 +54,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             // Swap the cards
             if (playerData.unequipCardType(card.cardType())) {
                 var equippedCard = new Card(card.cardType(), equippedRarityLevel);
-                CardHelper.removeCardAttributes(player, equippedCard);
+                CardEventCallback.UNEQUIPPED.invoker().cardEvent(player, equippedCard);
                 var result = equipCard(playerData, item, player, card);
                 player.addItem(equippedCard.asItem());
                 return result;
@@ -76,7 +76,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
 
     private InteractionResult equipCard(PlayerData playerData, ItemStack item, ServerPlayer player, Card card) {
         if (playerData.equipCard(card)) {
-            CardHelper.addCardAttributes(player, card);
+            CardEventCallback.EQUIPPED.invoker().cardEvent(player, card);
             item.shrink(1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormattedName()));
             Helpers.debug("{} equipped card: {}", player.getName().getString(), card);

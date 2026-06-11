@@ -8,6 +8,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
@@ -37,7 +38,7 @@ public class SquidEffects {
         });
     }
 
-    private static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, EntityHurtEventCallback.AtomicDouble damage) {
+    private static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player && source.getEntity() instanceof ServerPlayer sourcePlayer) {
             if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.RARE)) {
                 double random = level.getRandom().nextFloat();

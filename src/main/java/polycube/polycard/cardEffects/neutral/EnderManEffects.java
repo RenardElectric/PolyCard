@@ -20,6 +20,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
@@ -77,7 +78,7 @@ public class EnderManEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onEnderPearlHit(LivingEntity entity, ServerLevel level, DamageSource source, EntityHurtEventCallback.AtomicDouble damage) {
+    private static InteractionResult onEnderPearlHit(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
                 if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {

@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
@@ -83,7 +84,7 @@ public class ChickenEffects {
 
     private static boolean ignore = false;
 
-    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, EntityHurtEventCallback.AtomicDouble damage) {
+    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (ignore) return InteractionResult.PASS;
 
         if (source.getDirectEntity() instanceof ThrownEgg egg) {

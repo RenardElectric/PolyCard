@@ -9,6 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,12 +25,12 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
     }
 
     @Unique
-    private EntityHurtEventCallback.AtomicDouble modifiedDamage = null;
+    private MutableFloat modifiedDamage = null;
 
     @ModifyVariable(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/damagesource/DamageSource;scalesWithDifficulty()Z"), argsOnly = true, name = "damage")
     private float modifyDamage(float damage) {
         if (modifiedDamage != null) {
-            damage = (float) modifiedDamage.get();
+            damage = modifiedDamage.floatValue();
             modifiedDamage = null;
         }
         return damage;
@@ -37,7 +38,7 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
 
     @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;removeEntitiesOnShoulder()V"), cancellable = true)
     private void onHurt(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
-        modifiedDamage = new EntityHurtEventCallback.AtomicDouble(damage);
+        modifiedDamage = new MutableFloat(damage);
         if (EntityHurtEventCallback.EVENT.invoker().interact(this, level, source, modifiedDamage) == InteractionResult.FAIL) {
             cir.setReturnValue(false);
         }

@@ -12,6 +12,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.item.Items;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
@@ -40,7 +41,7 @@ public class IronGolemEffects {
         EntityHurtEventCallback.EVENT.register(IronGolemEffects::onPlayerHurt);
     }
 
-    public static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, EntityHurtEventCallback.AtomicDouble damage) {
+    public static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
 
         if (entity instanceof ServerPlayer player) {
             CardRarityConditions.of(player, CARD_TYPE)

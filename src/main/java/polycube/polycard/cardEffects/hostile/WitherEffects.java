@@ -1,6 +1,5 @@
 package polycube.polycard.cardEffects.hostile;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -11,6 +10,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
@@ -45,7 +45,7 @@ public class WitherEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, EntityHurtEventCallback.AtomicDouble damage) {
+    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.WITHER) && PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
                 return InteractionResult.FAIL;
@@ -63,20 +63,18 @@ public class WitherEffects {
                     .hasEpic(() -> {
                         if (entity.hasEffect(MobEffects.WITHER)) {
                             int damageIncrease = 0;
-                            for (int i = 0; i < damage.get(); i++) {
+                            for (int i = 0; i < damage.floatValue(); i++) {
                                 if (random.nextFloat() < DAMAGE_INCREASE_PROBABILITY) damageIncrease++;
                             }
-                            player.sendSystemMessage(Component.literal(damageIncrease + " (base " + damage.get() + ")"));
-                            damage.set(damage.get() + damageIncrease);
+                            damage.setValue(damage.floatValue() + damageIncrease);
                         }
                     })
                     .hasLegendary(() -> {
                         if (entity.hasEffect(MobEffects.WITHER)) {
                             int life = 0;
-                            for (int i = 0; i < damage.get(); i++) {
+                            for (int i = 0; i < damage.floatValue(); i++) {
                                 if (random.nextFloat() < LIFE_STEAL_PROBABILITY) life++;
                             }
-                            player.sendSystemMessage(Component.literal(life + ""));
                             player.heal(life);
                         }
                     });

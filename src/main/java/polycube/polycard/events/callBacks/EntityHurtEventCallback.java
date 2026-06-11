@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import org.apache.commons.lang3.mutable.MutableFloat;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,39 +31,5 @@ public interface EntityHurtEventCallback {
                 return InteractionResult.PASS;
             });
 
-    InteractionResult interact(LivingEntity instance, ServerLevel level, DamageSource source, AtomicDouble damage);
-
-    class AtomicDouble extends Number {
-
-        private final AtomicLong bits;
-
-        public AtomicDouble() {
-            this(0.0);
-        }
-
-        public AtomicDouble(double initialValue) {
-            bits = new AtomicLong(Double.doubleToLongBits(initialValue));
-        }
-
-        public final boolean compareAndSet(double expect, double update) {
-            return bits.compareAndSet(Double.doubleToLongBits(expect), Double.doubleToLongBits(update));
-        }
-
-        public final void set(double newValue) {
-            bits.set(Double.doubleToLongBits(newValue));
-        }
-
-        public final double get() {
-            return Double.longBitsToDouble(bits.get());
-        }
-
-        public final double getAndSet(double newValue) {
-            return Double.longBitsToDouble(bits.getAndSet(Double.doubleToLongBits(newValue)));
-        }
-
-        public float floatValue()   { return (float) get(); }
-        public double doubleValue() { return get();         }
-        public int intValue()       { return (int) get();   }
-        public long longValue()     { return (long) get();  }
-    }
+    InteractionResult interact(LivingEntity instance, ServerLevel level, DamageSource source, MutableFloat damage);
 }

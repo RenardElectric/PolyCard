@@ -10,6 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.waypoints.WaypointTransmitter;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,12 +27,12 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Wa
     }
 
     @Unique
-    private EntityHurtEventCallback.AtomicDouble modifiedDamage = null;
+    private MutableFloat modifiedDamage = null;
 
     @ModifyVariable(method = "hurtServer", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;noActionTime:I", opcode = Opcodes.PUTFIELD), argsOnly = true, name = "damage")
     private float modifyDamage(float damage) {
         if (modifiedDamage != null) {
-            damage = (float) modifiedDamage.get();
+            damage = modifiedDamage.floatValue();
             modifiedDamage = null;
         }
         return damage;
@@ -39,7 +40,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Wa
 
     @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isSleeping()Z"), cancellable = true)
     private void onHurt(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
-        modifiedDamage = new EntityHurtEventCallback.AtomicDouble(damage);
+        modifiedDamage = new MutableFloat(damage);
         var entity = (LivingEntity) (Object) this;
         if (!(entity instanceof Player)) {
             if (EntityHurtEventCallback.EVENT.invoker().interact(entity, level, source, modifiedDamage) == InteractionResult.FAIL) {

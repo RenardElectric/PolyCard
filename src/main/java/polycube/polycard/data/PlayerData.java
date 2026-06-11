@@ -9,7 +9,7 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
-import polycube.polycard.utils.CardHelper;
+import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
@@ -62,7 +62,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCardsMap) {
     /// @return true if a card of the specified type and same or higher rarity level is equipped, false otherwise
     public boolean hasCardOrRarer(CardType cardType, RarityLevel rarityLevel) {
         var storedRarityLevel = equippedCardsMap.get(cardType);
-        return storedRarityLevel != null && rarityLevel.isAtLeast(storedRarityLevel);
+        return storedRarityLevel != null && storedRarityLevel.isAtLeast(rarityLevel);
     }
 
     /// Checks if the player has a card of a specific type equipped.
@@ -149,8 +149,9 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCardsMap) {
                 for (var card : equippedCards) {
                     if (!cardsInContainer.contains(card)) {
                         equippedCardsMap.remove(card.cardType());
+                        CardEventCallback.UNEQUIPPED.invoker().cardEvent(targetPlayer, card);
+
                         Helpers.debug("{} unequipped card {} for {}", feedbackPlayer, card, targetPlayer);
-                        CardHelper.removeCardAttributes(targetPlayer, card);
                         Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_REMOVE_ONE);
                     }
                 }
@@ -158,8 +159,9 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCardsMap) {
                 for (var card : cardsInContainer) {
                     if (!equippedCards.contains(card)) {
                         equippedCardsMap.put(card.cardType(), card.rarityLevel());
+                        CardEventCallback.EQUIPPED.invoker().cardEvent(targetPlayer, card);
+
                         Helpers.debug("{} equipped card {} for {}", feedbackPlayer, card, targetPlayer);
-                        CardHelper.addCardAttributes(targetPlayer, card);
                         Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_INSERT);
                     }
                 }

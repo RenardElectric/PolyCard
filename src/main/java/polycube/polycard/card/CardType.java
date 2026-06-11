@@ -77,7 +77,11 @@ public enum CardType implements StringRepresentable {
 
     // Hostile
 
-    ENDER_DRAGON("ender_dragon", "summoning an Ender Dragon", "hostile"), // TODO
+    ENDER_DRAGON("ender_dragon", "summoning an Ender Dragon", "hostile") {{
+        addRarity(RarityLevel.RARE, 0.2f, false, "Gliding does not consume durability");
+        addRarity(RarityLevel.EPIC, 0.1f, true, "Cancel all kinetic damage while gliding");
+        addRarity(RarityLevel.LEGENDARY, 0.05f, true, "Any chestplate allows gliding without elytra");
+    }},
     WITHER("wither", "summoning an Wither", "hostile") {{
         addRarity(RarityLevel.COMMON, 0.5f, false, probToStr(WitherEffects.WITHER_ROSE_DROP_PROBABILITY) + "% chance that a mob drops a wither rose when killed");
         addRarity(RarityLevel.UNCOMMON, 0.25f, true, "Immunity to wither effect");

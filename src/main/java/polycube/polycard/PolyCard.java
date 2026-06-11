@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
 import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.neutral.*;
@@ -13,6 +14,7 @@ import polycube.polycard.cardEffects.passive.CowEffects;
 import polycube.polycard.cardEffects.passive.SquidEffects;
 import polycube.polycard.commands.*;
 import polycube.polycard.data.Storage;
+import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
 import polycube.polycard.events.cardLootEvents.*;
@@ -42,6 +44,8 @@ public class PolyCard implements ModInitializer {
         });
         ServerTickEvents.END_SERVER_TICK.register(Helpers::onServerTick);
         PlayerLoadEventCallback.JOIN.register(CardHelper::loadPlayerAttributes);
+        CardEventCallback.EQUIPPED.register(CardHelper::addCardAttributes);
+        CardEventCallback.UNEQUIPPED.register(CardHelper::removeCardAttributes);
 
         PolyCardCommands.registerCommands(
                 new HelpCommand(),
@@ -75,5 +79,6 @@ public class PolyCard implements ModInitializer {
         // Hostile
         ZombieEffects.register();
         WitherEffects.register();
+        EnderDragonEffects.register();
     }
 }
