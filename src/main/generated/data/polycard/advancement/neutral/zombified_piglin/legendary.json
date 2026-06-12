@@ -1,12 +1,12 @@
 {
-  "parent": "polycard:hostile/wither/epic",
+  "parent": "polycard:neutral/zombified_piglin/epic",
   "criteria": {
     "got_card": {
       "conditions": {
         "items": [
           {
             "components": {
-              "minecraft:item_model": "polycard:hostile/wither/legendary"
+              "minecraft:item_model": "polycard:neutral/zombified_piglin/legendary"
             }
           }
         ]
@@ -19,9 +19,9 @@
       "extra": [
         {
           "color": "gold",
-          "text": "Legendary Wither card"
+          "text": "Legendary Zombified Piglin card"
         },
-        " by summoning a Wither"
+        " by killing a zombified piglin"
       ],
       "text": "Unlock the "
     },
@@ -29,11 +29,11 @@
     "icon": {
       "components": {
         "minecraft:enchantment_glint_override": true,
-        "minecraft:item_model": "polycard:hostile/wither/legendary"
+        "minecraft:item_model": "polycard:neutral/zombified_piglin/legendary"
       },
       "id": "minecraft:knowledge_book"
     },
-    "title": "Legendary Wither card"
+    "title": "Legendary Zombified Piglin card"
   },
   "requirements": [
     [

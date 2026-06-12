@@ -16,10 +16,9 @@ public class SummonEvents {
 
             switch (entity) {
                 case IronGolem _ -> CardHelper.receiveCard(player, CardType.IRON_GOLEM);
-                case CopperGolem _ -> CardHelper.receiveCard(player, CardType.COPPER_GOLEM);
-                case SnowGolem _ -> CardHelper.receiveCard(player, CardType.SNOW_GOLEM);
                 case WitherBoss _ -> CardHelper.receiveCard(player, CardType.WITHER);
                 case EnderDragon _ -> CardHelper.receiveCard(player, CardType.ENDER_DRAGON);
+                case CopperGolem _, SnowGolem _ -> { }
                 default -> { }
             }
 

@@ -10,10 +10,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jspecify.annotations.NonNull;
 import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
-import polycube.polycard.cardEffects.neutral.BeeEffects;
-import polycube.polycard.cardEffects.neutral.EnderManEffects;
-import polycube.polycard.cardEffects.neutral.IronGolemEffects;
-import polycube.polycard.cardEffects.neutral.PiglinEffects;
+import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.ChickenEffects;
 import polycube.polycard.cardEffects.passive.CowEffects;
 import polycube.polycard.cardEffects.passive.SquidEffects;
@@ -54,8 +51,6 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 0.025f, true, "Hitting with fist knock back enemies (" + IronGolemEffects.KNOCKBACK_HIT_COOLDOWN / 20 + "s cooldown)");
         addRarity(RarityLevel.LEGENDARY, 0.004f, true, "Falling creates shock wave (" + IronGolemEffects.SHOCKWAVE_COOLDOWN / 20 + "s cooldown)");
     }},
-    COPPER_GOLEM("copper_golem", "summoning an Copper Golem", "neutral"), // TODO
-    SNOW_GOLEM("snow_golem", "summoning an Snow Golem", "neutral"), // TODO
     ENDERMAN("enderman", "killing an Enderman", "neutral") {{
         addRarity(RarityLevel.UNCOMMON, 0.06f, false, "No ender pearl damage");
         addRarity(RarityLevel.RARE, 0.025f, false, "No ender pearl cooldown");
@@ -67,6 +62,10 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.RARE, 0.03f, false, "Gold food gives a random buff for " + PiglinEffects.BUFF_DURATION/20 + "s when eaten");
         addRarity(RarityLevel.EPIC, 0.008f, true, "Piglin brutes do not attack you");
         addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Gold items are significantly more durable");
+    }},
+    ZOMBIFIED_PIGLIN("zombified_piglin", "killing a zombified piglin", "neutral") {{
+        addRarity(RarityLevel.EPIC, 0.003f, false, "Zombified piglins do not attack you");
+        addRarity(RarityLevel.LEGENDARY, 0.0002f, true, probToStr(ZombifiedPiglinEffects.SPAWN_REINFORCEMENTS_CHANCE) + "% chance to spawn " + ZombifiedPiglinEffects.MAX_REINFORCEMENTS + " zombified piglins to help you when hit by a player");
     }},
     BEE("bee", "collecting honey", "neutral") {{
         addRarity(RarityLevel.RARE, 0.07f, false, "Drinking honey gives speed " + (BeeEffects.SPEED_EFFECT_AMPLIFIER + 1) + " for " + BeeEffects.SPEED_EFFECT_DURATION/20 + "s");

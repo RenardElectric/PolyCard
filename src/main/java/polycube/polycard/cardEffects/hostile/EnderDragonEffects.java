@@ -29,13 +29,14 @@ import java.util.List;
 public class EnderDragonEffects {
     public static final CardType CARD_TYPE = CardType.ENDER_DRAGON;
 
-    private static final DataComponentPatch APPLY_GLIDER_PATCH = DataComponentPatch.builder().set(DataComponents.GLIDER, Unit.INSTANCE).build();
-    private static final DataComponentPatch REMOVE_GLIDER_PATCH = DataComponentPatch.builder().remove(DataComponents.GLIDER).build();
     public static final List<Item> chestplates = List.of(
             Items.LEATHER_CHESTPLATE, Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE,
             Items.COPPER_CHESTPLATE, Items.GOLDEN_CHESTPLATE, Items.DIAMOND_CHESTPLATE,
             Items.NETHERITE_CHESTPLATE
     );
+
+    private static final DataComponentPatch APPLY_GLIDER_PATCH = DataComponentPatch.builder().set(DataComponents.GLIDER, Unit.INSTANCE).build();
+    private static final DataComponentPatch REMOVE_GLIDER_PATCH = DataComponentPatch.builder().remove(DataComponents.GLIDER).build();
 
     public static void register() {
         ItemDurabilityChangeEventCallback.EVENT.register(EnderDragonEffects::onDurabilityChange);
@@ -67,15 +68,13 @@ public class EnderDragonEffects {
 
     private static void onEquip(ServerPlayer player, Card card) {
         if (card.cardType() == CARD_TYPE && card.rarityLevel().isAtLeast(RarityLevel.LEGENDARY)) {
-            var chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-            applyGliderComponent(chestplate);
+            applyGliderComponent(player.getItemBySlot(EquipmentSlot.CHEST));
         }
     }
 
     private static void onUnequip(ServerPlayer player, Card card) {
         if (card.cardType() == CARD_TYPE) {
-            var chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-            removeGliderComponent(chestplate);
+            removeGliderComponent(player.getItemBySlot(EquipmentSlot.CHEST));
         }
     }
 
