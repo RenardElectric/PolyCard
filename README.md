@@ -11,7 +11,7 @@ A player can equip up to 5 cards at a time, and the effects of those cards will 
 To equip a card, the player can use the /polycard equip command,
 which opens a GUI where they can select which cards to equip, or by right-clicking when holding a card.
 
-Twenty cards of the same type and rarity can be combined to create a card of the same type
+10 cards of the same type and rarity can be combined to create a card of the same type
 but one rarity higher using the /polycard combine command.
 
 Achievements track the player's progress in obtaining cards.

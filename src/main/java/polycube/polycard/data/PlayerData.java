@@ -142,7 +142,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
                         .map(entry -> new Card(entry.getKey(), entry.getValue()))
                         .collect(Collectors.toSet());
 
-                if (equippedCards.equals(cardsInContainer)) {
+                if (equippedCardsSet.equals(cardsInContainer)) {
                     return;
                 }
 

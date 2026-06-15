@@ -161,7 +161,7 @@ public enum CardType implements StringRepresentable {
     public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(RarityLevel maxRarity) {
         Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
         int maxRank = maxRarity.rank();
-        for (int i = 0; i < maxRank; i++) {
+        for (int i = 0; i <= maxRank; i++) {
             Optional.ofNullable(rarities.get(RarityLevel.BY_RANK.get(i)))
                     .map(Rarity::attributeModifiers)
                     .map(attributes::putAll);

@@ -56,7 +56,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
                 var equippedCard = new Card(card.cardType(), equippedRarityLevel);
                 CardEventCallback.UNEQUIPPED.invoker().cardEvent(player, equippedCard);
                 var result = equipCard(playerData, item, player, card);
-                player.addItem(equippedCard.asItem());
+                player.getInventory().placeItemBackInInventory(equippedCard.asItem());
                 return result;
             }
             return InteractionResult.FAIL;

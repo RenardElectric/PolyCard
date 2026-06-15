@@ -16,19 +16,15 @@ public interface ItemUsedEventCallback {
     Event<ItemUsedEventCallback> EVENT = EventFactory.createArrayBacked(ItemUsedEventCallback.class,
             (listeners) -> (player, level, hand, itemUseResult) -> {
                 if (!(itemUseResult instanceof InteractionResult.Success)) {
-                    return InteractionResult.PASS;
+                    return;
                 }
 
                 for (var listener : listeners) {
-                    InteractionResult result = listener.interact(player, level, hand, itemUseResult);
-
-                    if (result != InteractionResult.PASS) {
-                        return result;
-                    }
+                    listener.interact(player, level, hand, itemUseResult);
                 }
 
-                return InteractionResult.PASS;
+                return;
             });
 
-    InteractionResult interact(ServerPlayer player, ServerLevel level, InteractionHand hand, InteractionResult itemUseResult);
+    void interact(ServerPlayer player, ServerLevel level, InteractionHand hand, InteractionResult itemUseResult);
 }
