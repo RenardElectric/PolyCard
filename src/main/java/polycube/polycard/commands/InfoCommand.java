@@ -11,8 +11,6 @@ import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.utils.Helpers;
 
-import java.text.DecimalFormat;
-
 public class InfoCommand extends PolyCardCommand {
     public InfoCommand() {
         super(

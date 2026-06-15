@@ -19,7 +19,7 @@ public class CardRarityConditions {
 
     private CardRarityConditions(ServerPlayer player, CardType cardType) {
         var highestRarityIndex = 0;
-        var storedRarityLevel = PolyCard.STORAGE.getPlayerData(player).equippedCardsMap().get(cardType);
+        var storedRarityLevel = PolyCard.STORAGE.getPlayerData(player).equippedCards().get(cardType);
         if (storedRarityLevel != null) {
             highestRarityIndex = storedRarityLevel.rank() + 1;
         }

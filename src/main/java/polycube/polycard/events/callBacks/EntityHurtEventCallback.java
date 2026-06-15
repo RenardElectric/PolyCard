@@ -8,8 +8,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 /// Callback for an entity being hurt.
 /// Called before the hurt damage is applied.
 ///

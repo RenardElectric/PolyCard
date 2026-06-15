@@ -12,7 +12,6 @@ import polycube.polycard.card.RarityLevel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /// Manages card creation, storage, and cooldowns for the PolyCard mod.
@@ -40,7 +39,7 @@ public class CardHelper {
     ///
     /// @param player The player to load the attributes for.
     public static void loadPlayerAttributes(ServerPlayer player) {
-        for(var entry : PolyCard.STORAGE.getPlayerData(player).equippedCardsMap().entrySet()) {
+        for (var entry : PolyCard.STORAGE.getPlayerData(player).equippedCards().entrySet()) {
             addCardAttributes(player, new Card(entry.getKey(), entry.getValue()));
         }
     }

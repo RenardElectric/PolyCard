@@ -9,7 +9,6 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import polycube.polycard.PolyCard;
 import polycube.polycard.utils.Helpers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

@@ -14,9 +14,6 @@ import polycube.polycard.card.Card;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.utils.Helpers;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /// Manages the equipment GUI for players to equip and unequip cards in the PolyCard mod,
 /// allowing them to see their currently equipped cards and manage them in a user-friendly interface.
 public class EquipmentGUI {
