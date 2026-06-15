@@ -7,6 +7,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
+/// Lets card effects transform durability loss before ItemStack applies it.
+/// Listeners run in order, each receiving the amount returned by the previous listener.
 public interface ItemDurabilityChangeEventCallback {
     Event<ItemDurabilityChangeEventCallback> EVENT = EventFactory.createArrayBacked(ItemDurabilityChangeEventCallback.class,
             (listeners) -> (level, player, itemStack, amount) -> {

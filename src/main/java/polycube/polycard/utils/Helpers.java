@@ -25,24 +25,17 @@ import java.util.function.Consumer;
 import static polycube.polycard.PolyCard.LOGGER;
 import static polycube.polycard.PolyCard.MOD_ID;
 
-/// A utility class that provides helper methods for playing sounds, scheduling tasks, and logging debug messages.
+/// Shared server-side helpers for sounds, lightweight tick scheduling, and debug logging.
 public final class Helpers {
     private static final RandomSource random = RandomSource.create();
     private static final int FAILURE_SOUND_COOLDOWN = 20;
 
-    /// Plays a sound for a specific player at their current location.
-    ///
-    /// @param player the player to play the sound for
-    /// @param sound  the sound event to play
+    /// Plays a sound packet only for this player.
     public static void playSound(ServerPlayer player, SoundEvent sound) {
         player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0f, 1.0f, random.nextLong()));
     }
 
-    /// Plays a sound for a specific player with a cooldown to prevent spamming the same sound.
-    ///
-    /// @param player   the player to play the sound for
-    /// @param sound    the sound event to play
-    /// @param cooldown the cooldown time in ticks before the sound can be played again for the same player
+    /// Plays a player-local sound if its per-player cooldown has expired.
     public static void playSound(ServerPlayer player, SoundEvent sound, int cooldown) {
         var key = sound.toString();
         if (PolyCard.COOLDOWNS.isReadyOrCreate(player, key, cooldown)) {
@@ -50,29 +43,17 @@ public final class Helpers {
         }
     }
 
-    /// Plays a failure sound for a specific player with a cooldown to prevent spamming the same sound.
-    ///
-    /// @param player the player to play the failure sound for
+    /// Plays the standard failure sound with spam protection.
     public static void playFailure(ServerPlayer player) {
         playSound(player, SoundEvents.VILLAGER_NO, FAILURE_SOUND_COOLDOWN);
     }
 
-    /// Plays a sound at a specific location in the world.
-    ///
-    /// @param level    the server level to play the sound in
-    /// @param sound    the sound event to play
-    /// @param position the position to play the sound at
+    /// Plays a world sound at the given position.
     public static void playSound(ServerLevel level, SoundEvent sound, Vec3 position) {
         level.playSound(null, position.x, position.y, position.z, sound, SoundSource.PLAYERS, 1.0f, 1.0f);
     }
 
-    /// Checks if there is any other player nearby who has a card of a certain type and rarity level.
-    ///
-    /// @param player          the player to check around
-    /// @param cardType        the type of card to check for
-    /// @param rarityLevel     the rarity level of the card to check for
-    /// @param distanceSquared the maximum distance squared to check for nearby players
-    /// @return true if there is at least one other player nearby with the specified card, false otherwise
+    /// Returns whether another nearby player has this card type at the requested rarity or higher.
     public static boolean nearPlayerWithCard(ServerPlayer player, CardType cardType, RarityLevel rarityLevel, double distanceSquared) {
         //noinspection resource
         var level = player.level();
@@ -83,10 +64,7 @@ public final class Helpers {
                         PlayerData.hasCardOrRarer(p, cardType, rarityLevel), 1).isEmpty();
     }
 
-    /// Logs a debug message with the mod ID as a prefix.
-    ///
-    /// @param format the format string for the debug message
-    /// @param args   the arguments to format into the debug message
+    /// Logs a debug message with the mod id prefix.
     public static void debug(final String format, final Object... args) {
         LOGGER.debug("[" + MOD_ID + "] " + format, args);
     }
@@ -94,33 +72,24 @@ public final class Helpers {
     private static final List<ScheduledTask> TASKS = new ArrayList<>();
     private static final List<BiConsumer<MinecraftServer, ServerPlayer>> PLAYER_TASKS = new ArrayList<>();
 
-    /// Schedules a task to run after a certain number of ticks.
-    ///
-    /// @param ticks    the number of ticks to wait before running the task
-    /// @param runnable the task to run, which accepts the Minecraft server as an argument
+    /// Schedules a one-shot task on the server tick loop.
     public static void runLater(int ticks, Consumer<MinecraftServer> runnable) {
         runTaskTimer(ticks, 0, runnable);
     }
 
-    /// Schedules a task to run repeatedly with a certain period after an initial delay.
-    ///
-    /// @param delay    the number of ticks to wait before running the task for the first time
-    /// @param period   the number of ticks to wait between subsequent runs of the task (0 for no repetition)
-    /// @param runnable the task to run, which accepts the Minecraft server as an argument
+    /// Schedules a task on the server tick loop; period 0 makes it one-shot.
     public static void runTaskTimer(int delay, int period, Consumer<MinecraftServer> runnable) {
         TASKS.add(new ScheduledTask(new AtomicInteger(delay), period, runnable));
     }
 
-    /// Schedules a task to run for each player on every server tick.
-    ///
-    /// @param task the task to run, which accepts the Minecraft server and the player as arguments
+    /// Registers a task that runs once per online player each server tick.
     public static void addPlayerTask(BiConsumer<MinecraftServer, ServerPlayer> task) {
         PLAYER_TASKS.add(task);
     }
 
     private record ScheduledTask(AtomicInteger ticksLeft, int period, Consumer<MinecraftServer> runnable) { }
 
-    /// Called on every server tick to check for scheduled tasks and run them when their delay has elapsed.
+    /// Runs scheduled tasks and per-player tasks for the current server tick.
     public static void onServerTick(MinecraftServer server) {
         var iterator = TASKS.iterator();
         while (iterator.hasNext()) {

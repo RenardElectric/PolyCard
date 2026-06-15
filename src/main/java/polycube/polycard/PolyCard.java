@@ -26,8 +26,7 @@ import polycube.polycard.utils.CardHelper;
 import polycube.polycard.utils.Cooldowns;
 import polycube.polycard.utils.Helpers;
 
-/// The main class of the PolyCard mod.
-/// It initializes the mod, registers commands, events, and sets up the card manager and equipment GUI.
+/// Fabric entrypoint that wires storage, commands, callbacks, loot events, and card effects.
 public class PolyCard implements ModInitializer {
     public static final String MOD_ID = "polycard";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);

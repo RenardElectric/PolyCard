@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
 
+/// Re-applies saved equipment state whenever Minecraft creates a ServerPlayer instance.
 @Mixin(ServerPlayer.class)
 public abstract class PlayerListMixin {
     @Inject(method = "<init>", at = @At("TAIL"))

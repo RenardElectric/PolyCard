@@ -15,14 +15,10 @@ import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.utils.Helpers;
 
-/// Handles equipping cards when a player uses a card item.
-/// Prevents equipping if the player is sneaking,
-/// already has a card of the same type equipped,
-/// or has 5 cards equipped.
-/// Swaps cards if the player equips a card of the same type but different rarity levels.
+/// Equips a card from the player's hand, or swaps it with an equipped card of the same type.
+/// Sneaking leaves the item use untouched so players can still access normal item behavior.
 public class CardItemUseEvent implements ItemUseEventCallback {
     public InteractionResult interact(ServerPlayer player, Level world, InteractionHand hand) {
-        // Prevent equipping cards while sneaking
         if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
@@ -42,7 +38,6 @@ public class CardItemUseEvent implements ItemUseEventCallback {
         var playerData = PolyCard.STORAGE.getPlayerData(player);
         var equippedRarityLevel = playerData.equippedCards().get(card.cardType());
 
-        // Swap the card if the player already has a card of the same type equipped
         if (equippedRarityLevel != null) {
             if (equippedRarityLevel == card.rarityLevel()) {
                 Helpers.playFailure(player);
@@ -51,7 +46,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
                 return InteractionResult.FAIL;
             }
 
-            // Swap the cards
+            // Different rarity of the same type: equip the held card and return the old one.
             if (playerData.unequipCardType(card.cardType())) {
                 var equippedCard = new Card(card.cardType(), equippedRarityLevel);
                 CardEventCallback.UNEQUIPPED.invoker().cardEvent(player, equippedCard);
@@ -62,7 +57,6 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             return InteractionResult.FAIL;
         }
 
-        // Check if player already has 5 cards equipped
         if (playerData.equippedCards().size() >= PlayerData.MAX_EQUIPPED_CARDS) {
             Helpers.playFailure(player);
             player.sendSystemMessage(Component.literal("You already have " + PlayerData.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
@@ -70,7 +64,6 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             return InteractionResult.FAIL;
         }
 
-        // Equip the card
         return equipCard(playerData, item, player, card);
     }
 

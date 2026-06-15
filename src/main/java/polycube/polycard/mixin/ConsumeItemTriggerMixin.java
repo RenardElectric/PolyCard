@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 
-
+/// Reuses vanilla's consume-item advancement trigger before item effects are applied.
 @Mixin(ConsumeItemTrigger.class)
 public abstract class ConsumeItemTriggerMixin {
     @Inject(method = "trigger", at = @At("HEAD"))

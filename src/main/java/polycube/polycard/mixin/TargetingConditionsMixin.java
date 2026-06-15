@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 
+/// Lets card effects override mob targeting without replacing the original targeting predicate.
 @Mixin(TargetingConditions.class)
 public abstract class TargetingConditionsMixin {
 

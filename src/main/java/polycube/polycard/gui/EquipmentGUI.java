@@ -14,20 +14,14 @@ import polycube.polycard.card.Card;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.utils.Helpers;
 
-/// Manages the equipment GUI for players to equip and unequip cards in the PolyCard mod,
-/// allowing them to see their currently equipped cards and manage them in a user-friendly interface.
+/// Server-side card equipment GUI backed by PlayerData's syncing container.
 public class EquipmentGUI {
-    /// Opens the equipment GUI for a player, showing their own equipped cards.
-    ///
-    /// @param player The player to open the GUI for.
+    /// Opens a player's own equipment manager.
     public static void openEquipmentGUI(ServerPlayer player) {
         openEquipmentGUI(player, player);
     }
 
-    /// Opens the equipment GUI for a player - single line with 5 centered slots.
-    ///
-    /// @param viewer       The player to open the GUI for.
-    /// @param targetPlayer The player whose equipment is being managed (can be the player).
+    /// Opens an equipment manager where viewer edits targetPlayer's cards.
     public static void openEquipmentGUI(ServerPlayer viewer, ServerPlayer targetPlayer) {
         var playerData = PolyCard.STORAGE.getPlayerData(targetPlayer);
         var container = playerData.asContainer(targetPlayer, viewer);
@@ -73,7 +67,7 @@ public class EquipmentGUI {
                 }
 
                 if (playerData.hasCardType(card.cardType())) {
-                    player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));  // TODO: Not sure, makes a lot of messages when shift clicking
+                    player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));
                     Helpers.playFailure(player);
                     Helpers.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.cardType());
                     return false;

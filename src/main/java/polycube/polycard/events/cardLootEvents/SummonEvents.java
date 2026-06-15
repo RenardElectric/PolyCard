@@ -1,6 +1,5 @@
 package polycube.polycard.events.cardLootEvents;
 
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.golem.CopperGolem;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.animal.golem.SnowGolem;
@@ -10,10 +9,10 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.events.callBacks.EntitySummonedEventCallback;
 import polycube.polycard.utils.CardHelper;
 
+/// Awards cards from player-created entities and boss summons.
 public class SummonEvents {
     public static void register() {
         EntitySummonedEventCallback.EVENT.register((player, entity) -> {
-
             switch (entity) {
                 case IronGolem _ -> CardHelper.receiveCard(player, CardType.IRON_GOLEM);
                 case WitherBoss _ -> CardHelper.receiveCard(player, CardType.WITHER);
@@ -21,8 +20,6 @@ public class SummonEvents {
                 case CopperGolem _, SnowGolem _ -> { }
                 default -> { }
             }
-
-            return InteractionResult.PASS;
         });
     }
 }

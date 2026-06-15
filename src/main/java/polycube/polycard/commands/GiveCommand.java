@@ -56,7 +56,7 @@ public class GiveCommand extends PolyCardCommand {
         }
         var cardType = optionalCardType.get();
 
-        // Get rarity (default to minimum rarity level of the card)
+        // No rarity argument means "give the first rarity this card type supports."
         RarityLevel rarityLevel = cardType.minRarityLevel();
         if (withRarityLevel) {
             var optionalRarityLevel = RarityLevelArgument.getRarity(cts, "rarityLevel");
@@ -66,13 +66,14 @@ public class GiveCommand extends PolyCardCommand {
                 return 0;
             }
             rarityLevel = optionalRarityLevel.get();
-
-            if (!cardType.hasRarity(rarityLevel)) {
-                source.sendFailure(Component.literal(cardType + " does not support " + rarityLevel + " rarity."));
-                return 0;
-            }
         }
-        var card = new Card(cardType, rarityLevel);
+
+        var optionalCard = Card.tryCreate(cardType, rarityLevel);
+        if (optionalCard.isEmpty()) {
+            source.sendFailure(Component.literal(cardType + " does not support " + rarityLevel + " rarity."));
+            return 0;
+        }
+        var card = optionalCard.get();
         CardHelper.giveCard(player, card);
 
         source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormattedName()), true);

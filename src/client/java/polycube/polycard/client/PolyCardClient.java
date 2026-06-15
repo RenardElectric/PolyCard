@@ -14,6 +14,7 @@ import polycube.polycard.card.CardType;
 import java.util.HashMap;
 import java.util.Map;
 
+/// Registers generated card item ids used by the item model data generator.
 public class PolyCardClient implements ClientModInitializer {
     public static final Map<Card, Item> CARD_ITEM_MAP = new HashMap<>();
 

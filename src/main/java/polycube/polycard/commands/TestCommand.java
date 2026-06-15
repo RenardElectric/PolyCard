@@ -47,7 +47,7 @@ public class TestCommand extends PolyCardCommand {
         try {
             cardNumber = IntegerArgumentType.getInteger(context, "cardNumber");
         } catch (Exception e) {
-            // Ignore, use default
+            // Optional argument was omitted; keep the default sample size.
         }
         int none = 0;
         int common = 0;
@@ -71,7 +71,6 @@ public class TestCommand extends PolyCardCommand {
         }
         var message = Component.literal("Roll: " + none + " / " + common + " / " + uncommon + " / " + rare + " / " + epic + " / " + legendary);
         context.getSource().sendSuccess(() -> message, false);
-//        source.sendSuccess(() -> Component.literal("Expected: 500 / 250 / 150 / 90 / 10"), false);
 
         return 1;
     }

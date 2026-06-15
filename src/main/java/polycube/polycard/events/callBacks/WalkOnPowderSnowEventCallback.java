@@ -5,12 +5,8 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 
-/// Callback for an entity walking on powder snow.
-///
-/// Upon return:
-/// - SUCCESS cancels further processing and allows the entity to walk on the powder snow
-/// - PASS falls back to further processing and defaults to the original result if no other listeners are available
-/// - FAIL cancels further processing and prevents the entity from walking on the powder snow
+/// Lets card effects override whether an entity can walk on powder snow.
+/// PASS keeps the vanilla result, SUCCESS forces true, and FAIL forces false.
 public interface WalkOnPowderSnowEventCallback {
     Event<WalkOnPowderSnowEventCallback> EVENT = EventFactory.createArrayBacked(WalkOnPowderSnowEventCallback.class,
             (listeners) -> (entity, originalResult) -> {

@@ -26,8 +26,9 @@ import polycube.polycard.PolyCard;
 import java.util.*;
 import java.util.function.Function;
 
-/// Represents a card with a specific type and rarity level,
-/// which can be converted to an ItemStack for use in Minecraft.
+/// A concrete card that can exist in-game.
+/// The constructor enforces that the selected rarity is supported by the card type;
+/// use tryCreate when reading untrusted data from commands, storage, or item stacks.
 public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     public static final Codec<Card> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -42,29 +43,46 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     private static final String RARITY_LEVEL_KEY = "rarityLevel";
     private static final Map<Card, ItemStackTemplate> itemStackCache = new HashMap<>();
 
-    public boolean isValid() {
-        return cardType.hasRarity(rarityLevel);
+    public Card {
+        Objects.requireNonNull(cardType, "cardType");
+        Objects.requireNonNull(rarityLevel, "rarityLevel");
+        if (!cardType.hasRarity(rarityLevel)) {
+            throw new IllegalArgumentException(cardType + " does not support " + rarityLevel + " rarity.");
+        }
     }
 
-    /// Converts this Card to an ItemStack that can be used in Minecraft,
-    /// with appropriate custom data and display properties.
-    ///
-    /// @return an ItemStack representing this Card
+    /// Creates a card from a raw type/rarity pair if that pair is valid.
+    public static Optional<Card> tryCreate(CardType cardType, RarityLevel rarityLevel) {
+        if (cardType == null || rarityLevel == null || !cardType.hasRarity(rarityLevel)) {
+            return Optional.empty();
+        }
+        return Optional.of(new Card(cardType, rarityLevel));
+    }
+
+    /// Returns this card's configured rarity data.
+    public Rarity rarity() {
+        return cardType.getRarity(rarityLevel).orElseThrow();
+    }
+
+    /// Returns the next higher card if this card type supports that rarity.
+    public Optional<Card> next() {
+        return rarityLevel.next()
+                .filter(cardType::hasRarity)
+                .map(nextRarityLevel -> new Card(cardType, nextRarityLevel));
+    }
+
+    /// Creates an ItemStack carrying this card's identifying data and display components.
     public ItemStack asItem() {
         return getItemTemplate().create();
     }
 
-    /// Retrieves the ItemStackTemplate for this Card, using a cache to avoid redundant creation.
-    /// If the template is not already cached, it will be created and stored in the cache.
+    /// Templates are immutable for a card, so cache them instead of rebuilding hover/item components.
     public ItemStackTemplate getItemTemplate() {
         // TODO: Still not sure if it is a good idea to make a cache for it
         return itemStackCache.computeIfAbsent(this, Card::createCardItemTemplate);
     }
 
-    /// Returns a formatted Component representing the name of this Card,
-    /// which includes the card type and rarity level, and shows item details on hover.
-    ///
-    /// @return a Component representing the formatted name of this Card
+    /// Returns a colored, hoverable card name for chat messages.
     public Component getFormattedName() {
         return ComponentUtils.wrapInSquareBrackets(
                 Component.literal(toString()).withStyle(
@@ -75,35 +93,22 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         ).withStyle(rarityLevel.color());
     }
 
-    /// Retrieves the attribute modifiers associated with this Card based on its type and rarity level.
-    ///
-    /// @return a Multimap of attribute modifiers for this Card
+    /// Returns cumulative attribute modifiers through this card's rarity.
     public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers() {
         return cardType.getAttributeModifiers(rarityLevel);
     }
 
-    /// Retrieves the probability of obtaining this Card based on its type and rarity level.
-    ///
-    /// @return the probability of obtaining this Card
+    /// Returns the configured roll probability for this exact card.
     public float getProbability() {
-        return cardType.getRarity(rarityLevel)
-                .map(Rarity::probability)
-                .orElse(0.0f);
+        return rarity().probability();
     }
 
-    /// Determines whether this Card should have an enchanted appearance based on its type and rarity level.
-    ///
-    /// @return true if this Card should have an enchanted appearance, false otherwise
+    /// Returns whether this card should render with the enchantment glint.
     public boolean isEnchanted() {
-        return cardType.getRarity(rarityLevel)
-                .map(Rarity::isEnchanted)
-                .orElse(false);
+        return rarity().isEnchanted();
     }
 
-    /// Retrieves a list of Components representing the descriptions of this Card based on its type and rarity level.
-    /// The descriptions include the condition for acquiring the card and the effects or properties of the card at each rarity level up to the current rarity level.
-    ///
-    /// @return a list of Components representing the descriptions of this Card
+    /// Builds lore for the acquisition condition and all effects unlocked up to this rarity.
     public List<Component> getDescriptions() {
         var descriptions = new ArrayList<Component>();
         descriptions.add(
@@ -117,9 +122,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return descriptions;
     }
 
-    /// Retrieves the unique identifier for this Card, which is a combination of the card type's ID and the rarity level's serialized name.
-    ///
-    /// @return the unique identifier for this Card, formatted as "cardTypeId/rarityLevelSerializedName"
+    /// Returns the item model identifier path, such as "hostile/zombie/rare".
     public String getId() {
         return cardType.getFullId() + "/" + rarityLevel.getSerializedName();
     }
@@ -129,14 +132,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return rarityLevel + " " + cardType + " card";
     }
 
-    // Helper methods to manipulate card ItemStacks
-
-    /// Creates an ItemStackTemplate for a given Card,
-    /// which includes custom data tags and display properties
-    /// based on the card's type and rarity.
-    ///
-    /// @param card the Card for which to create the ItemStackTemplate
-    /// @return an ItemStackTemplate representing the given Card
+    /// Creates the base stack template for a card item.
     private static ItemStackTemplate createCardItemTemplate(Card card) {
         var rarityLevel = card.rarityLevel();
         var cardType = card.cardType();
@@ -161,48 +157,29 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return new ItemStackTemplate(CARD_ITEM, components.build());
     }
 
-    /// Checks if a given ItemStack represents a valid Card
-    /// by verifying the presence of card type and rarity data.
-    ///
-    /// @param item the ItemStack to check
-    /// @return true if the ItemStack represents a valid Card, false otherwise
+    /// Returns whether the stack contains a valid PolyCard payload.
     public static boolean isCard(ItemStack item) {
         return getCard(item).isPresent();
     }
 
-    /// Retrieves a Card instance from a given ItemStack if it represents a valid Card,
-    /// by extracting the card type and rarity data from the item's custom data.
-    ///
-    /// @param item the ItemStack from which to retrieve the Card
-    /// @return an Optional containing the Card if the ItemStack is valid, or empty if not
+    /// Reads a concrete Card from an ItemStack's custom data.
     public static Optional<Card> getCard(ItemStack item) {
         var cardType = getCardType(item);
         var rarity = getCardRarity(item);
-        if (cardType.isPresent() && rarity.isPresent() && cardType.get().hasRarity(rarity.get())) {
-            return Optional.of(new Card(cardType.get(), rarity.get()));
-        }
-        return Optional.empty();
+        return cardType.flatMap(type -> rarity.flatMap(rarityLevel -> tryCreate(type, rarityLevel)));
     }
 
-    /// Retrieves the CardType from a given ItemStack if it represents a valid Card,
-    /// by extracting the card type data from the item's custom data.
-    ///
-    /// @param item the ItemStack from which to retrieve the CardType
-    /// @return an Optional containing the CardType if the ItemStack is valid, or empty
+    /// Reads the stored card type without requiring the full card pair to be valid.
     public static Optional<CardType> getCardType(ItemStack item) {
         return getCardData(item, CARD_TYPE_KEY, CardType::deserialize);
     }
 
-    /// Retrieves the RarityType from a given ItemStack if it represents a valid Card,
-    /// by extracting the rarity level data from the item's custom data.
-    ///
-    /// @param item the ItemStack from which to retrieve the RarityType
+    /// Reads the stored rarity level without requiring the full card pair to be valid.
     public static Optional<RarityLevel> getCardRarity(ItemStack item) {
         return getCardData(item, RARITY_LEVEL_KEY, RarityLevel::deserialize);
     }
 
-    /// A helper method to extract specific card data (such as card type or rarity) from an ItemStack's custom data,
-    /// using a provided key and a deserialization function.
+    /// Extracts one value from the PolyCard custom data compound.
     private static <T> Optional<T> getCardData(ItemStack item, String key, Function<String, Optional<T>> fromId) {
         var customData = item.get(DataComponents.CUSTOM_DATA);
         if (customData == null) return Optional.empty();

@@ -14,12 +14,9 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
-/// Manages card creation, storage, and cooldowns for the PolyCard mod.
+/// Card creation, drop rolling, inventory delivery, and equipment-attribute helpers.
 public class CardHelper {
-    /// Give a card to a player, creating it with a random rarity level based on the card type's probabilities.
-    ///
-    /// @param player   The player to give the card to.
-    /// @param cardType The type of card to give.
+    /// Rolls for a card of this type and gives it to the player if the roll succeeds.
     public static void receiveCard(ServerPlayer player, CardType cardType) {
         createCard(cardType).ifPresent(
                 card -> {
@@ -35,54 +32,37 @@ public class CardHelper {
         );
     }
 
-    /// Load a player's attributes based on their equipped cards, adding the attribute modifiers from each card to the player.
-    ///
-    /// @param player The player to load the attributes for.
+    /// Re-applies equipped-card attributes when a player object is created.
     public static void loadPlayerAttributes(ServerPlayer player) {
-        for (var entry : PolyCard.STORAGE.getPlayerData(player).equippedCards().entrySet()) {
-            addCardAttributes(player, new Card(entry.getKey(), entry.getValue()));
+        for (var card : PolyCard.STORAGE.getPlayerData(player).getEquippedCards()) {
+            addCardAttributes(player, card);
         }
     }
 
-    /// Add the attribute modifiers from a card to a player, applying the effects of the card to the player.
-    ///
-    /// @param player The player to add the attributes to.
-    /// @param card   The card to add the attributes from.
+    /// Adds this card's transient attribute modifiers to the player.
     public static void addCardAttributes(ServerPlayer player, Card card) {
         player.getAttributes().addTransientAttributeModifiers(card.getAttributeModifiers());
     }
 
-    /// Remove the attribute modifiers from a card from a player, removing the effects of the card from the player.
-    ///
-    /// @param player The player to remove the attributes from.
-    /// @param card   The card to remove the attributes from.
+    /// Removes this card's transient attribute modifiers from the player.
     public static void removeCardAttributes(ServerPlayer player, Card card) {
         player.getAttributes().removeAttributeModifiers(card.getAttributeModifiers());
     }
 
-    /// Give a specific card to a player.
-    ///
-    /// @param player The player to give the card to.
-    /// @param card   The card to give to the player.
+    /// Gives a concrete card item and plays pickup feedback.
     public static void giveCard(ServerPlayer player, Card card) {
         player.getInventory().placeItemBackInInventory(card.asItem());
         Helpers.playSound(player, SoundEvents.ITEM_PICKUP);
     }
 
-    /// Create a card with a random rarity level based on the card type's probabilities.
-    ///
-    /// @param card The card type to create.
-    /// @return An optional containing the created card, or empty if no rarity level was selected.
+    /// Creates a concrete card if any supported rarity roll succeeds.
     public static Optional<Card> createCard(CardType card) {
         return getRandomRarityLevel(card).map(
                 rarityLevel -> new Card(card, rarityLevel)
         );
     }
 
-    /// Get a random rarity level for a card type based on its probabilities.
-    ///
-    /// @param cardType The card type to get a random rarity level for.
-    /// @return An optional containing the random rarity level, or empty if no rarity level was selected.
+    /// Rolls rarities from highest to lowest; each configured probability is tested independently.
     public static Optional<RarityLevel> getRandomRarityLevel(CardType cardType) {
         var rarities = new ArrayList<>(cardType.getRarities());
         Collections.reverse(rarities);

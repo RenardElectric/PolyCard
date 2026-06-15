@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import polycube.polycard.events.callBacks.ItemDurabilityChangeEventCallback;
 
+/// Lets card effects reduce or cancel durability loss before ItemStack applies it.
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
     @WrapMethod(method = "processDurabilityChange")

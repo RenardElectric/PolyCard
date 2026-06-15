@@ -36,13 +36,12 @@ public class WitherEffects {
         EntityHurtEventCallback.EVENT.register(WitherEffects::onHurt);
     }
 
-    private static InteractionResult onKill(ServerPlayer player, Entity entity, DamageSource damageSource) {
+    private static void onKill(ServerPlayer player, Entity entity, DamageSource damageSource) {
         if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.COMMON)) {
             if (player.getRandom().nextFloat() < WITHER_ROSE_DROP_PROBABILITY) {
                 entity.spawnAtLocation(player.level(), Items.WITHER_ROSE);
             }
         }
-        return InteractionResult.PASS;
     }
 
     private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {

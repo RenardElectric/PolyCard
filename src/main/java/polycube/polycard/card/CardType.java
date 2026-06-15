@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 
 import static polycube.polycard.utils.Helpers.probToStr;
 
-/// Represents the type of a card, which determines the conditions for obtaining the card and its potential effects based on rarity levels.
+/// Defines each card family: its identifier, acquisition text, group, and supported rarity data.
+/// Runtime effects live in the cardEffects classes; this enum references their constants for display text.
 public enum CardType implements StringRepresentable {
     // Passive
 
@@ -110,54 +111,34 @@ public enum CardType implements StringRepresentable {
         this.cardGroup = cardGroup;
     }
 
-    /// Adds a rarity level to this card type with the specified properties.
-    ///
-    /// @param rarityLevel The rarity level to add.
-    /// @param probability The probability of obtaining this card at the specified rarity level.
-    /// @param isEnchanted Whether the card should have an enchanted appearance at this rarity level.
-    /// @param description A description of the effects or properties of the card at this rarity level.
-    /// @return The created Rarity object representing the added rarity level.
+    /// Adds one supported rarity tier to this card type.
     protected Rarity addRarity(RarityLevel rarityLevel, float probability, boolean isEnchanted, String description) {
         var rarity = new Rarity(rarityLevel, probability, isEnchanted, description, HashMultimap.create());
         rarities.put(rarityLevel, rarity);
         return rarity;
     }
 
-    /// Gets the minimum rarity level available for this card type.
-    ///
-    /// @return The minimum rarity level available for this card type.
+    /// Returns the lowest rarity this card type supports.
     public RarityLevel minRarityLevel() {
         return rarities.keySet().iterator().next();
     }
 
-    /// Gets the rarity data for a specific rarity level, if this card type supports it.
-    ///
-    /// @param rarityLevel The rarity level to get the data for.
-    /// @return An Optional containing the Rarity data for the specified rarity level,
-    /// or empty if this card type does not support that rarity level.
+    /// Returns configuration for a supported rarity level.
     public Optional<Rarity> getRarity(RarityLevel rarityLevel) {
         return Optional.ofNullable(rarities.get(rarityLevel));
     }
 
-    /// Returns whether this card type can exist at the given rarity level.
-    ///
-    /// @param rarityLevel The rarity level to check for support.
-    /// @return true if this card type supports the given rarity level, false otherwise.
+    /// Returns whether this card type can exist at the given rarity.
     public boolean hasRarity(RarityLevel rarityLevel) {
         return rarities.containsKey(rarityLevel);
     }
 
-    /// Gets a collection of all rarities available for this card.
-    ///
-    /// @return A collection of rarities for this card.
+    /// Returns all rarity tiers supported by this card type, in enum-rank order.
     public Collection<Rarity> getRarities() {
         return rarities.values();
     }
 
-    /// Gets a multimap of attribute modifiers for this card type, including all modifiers from rarities up to the specified maximum rarity level.
-    ///
-    /// @param maxRarity The maximum rarity level to include when gathering attribute modifiers.
-    /// @return A multimap of attribute modifiers for this card type, including all modifiers from rarities up to the specified maximum rarity level.
+    /// Returns attribute modifiers from every supported rarity up to and including maxRarity.
     public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(RarityLevel maxRarity) {
         Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
         int maxRank = maxRarity.rank();
@@ -169,24 +150,17 @@ public enum CardType implements StringRepresentable {
         return attributes;
     }
 
-    /// Gets the condition for obtaining this card type, which describes how a player can acquire the card.
-    ///
-    /// @return The condition for obtaining this card type.
+    /// Returns the player-facing acquisition condition.
     public String getCondition() {
         return condition;
     }
 
-    /// Gets the full identifier for this card type, which is a combination of the card group and the identifier of the card type.
-    ///
-    /// @return The full identifier for this card type, formatted as "cardGroup/identifier".
+    /// Returns the grouped resource path, formatted as cardGroup/identifier, such as "hostile/zombie".
     public String getFullId() {
         return cardGroup + "/" + id;
     }
 
-    /// Deserializes a CardType from a string.
-    ///
-    /// @param string the string to deserialize
-    /// @return an Optional containing the deserialized CardType, or empty if the string is invalid
+    /// Parses a serialized card type id.
     public static Optional<CardType> deserialize(String string) {
         if (string == null) {
             return Optional.empty();

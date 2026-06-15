@@ -27,22 +27,20 @@ public class CombineCommand extends PolyCardCommand {
         }
 
         var mainItemStack = player.getMainHandItem();
-        var optionalCard = Card.getCard(mainItemStack);
-        if (mainItemStack.isEmpty() || optionalCard.isEmpty() || mainItemStack.getCount() < Card.CARDS_FOR_NEXT_LEVEL) {
+        var card = Card.getCard(mainItemStack);
+        if (mainItemStack.isEmpty() || card.isEmpty() || mainItemStack.getCount() < Card.CARDS_FOR_NEXT_LEVEL) {
             source.sendFailure(Component.literal("You must be holding at least " + Card.CARDS_FOR_NEXT_LEVEL + " cards in your main hand to combine them."));
             return 0;
         }
 
-        var card = optionalCard.get();
-        var nextRarityLevel = card.rarityLevel().next();
-        if (nextRarityLevel.isEmpty()) {
+        var nextCard = card.get().next();
+        if (nextCard.isEmpty()) {
             source.sendFailure(Component.literal("The cards you are trying to combine are already at the highest rarity level."));
             return 0;
         }
 
         mainItemStack.shrink(Card.CARDS_FOR_NEXT_LEVEL);
-        var newCard = new Card(card.cardType(), nextRarityLevel.get());
-        CardHelper.giveCard(player, newCard);
+        CardHelper.giveCard(player, nextCard.get());
         return 1;
     }
 }

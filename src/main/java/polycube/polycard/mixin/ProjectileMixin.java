@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
 
+/// Lets card effects cancel projectile hit handling after Minecraft computes the hit result.
 @Mixin(Projectile.class)
 public abstract class ProjectileMixin extends Entity implements TraceableEntity {
     public ProjectileMixin(EntityType<?> type, Level level) {
@@ -20,7 +21,7 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
 
     @Inject(method = "onHit", at = @At("HEAD"), cancellable = true)
     private void projectileHit(HitResult hitResult, CallbackInfo ci) {
-        var result = ProjectileOnHitEventCallback.EVENT.invoker().interact((Projectile) (Object) this, hitResult); // Trick the compiler into accepting this mixin as a Projectile
+        var result = ProjectileOnHitEventCallback.EVENT.invoker().interact((Projectile) (Object) this, hitResult);
         if (result != net.minecraft.world.InteractionResult.PASS) {
             ci.cancel();
         }

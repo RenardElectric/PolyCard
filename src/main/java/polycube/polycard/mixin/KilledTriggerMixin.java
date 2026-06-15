@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import polycube.polycard.events.callBacks.KillEventCallback;
 
+/// Reuses vanilla's kill advancement trigger as the source of card-award events.
 @Mixin(KilledTrigger.class)
 public abstract class KilledTriggerMixin extends SimpleCriterionTrigger<KilledTrigger.TriggerInstance> {
     @Inject(method = "trigger", at = @At("HEAD"))

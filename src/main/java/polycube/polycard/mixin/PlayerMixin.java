@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 
+/// Exposes player damage to card effects and writes back damage mutations.
 @Mixin(Player.class)
 public abstract class PlayerMixin extends Avatar implements ContainerUser {
     protected PlayerMixin(EntityType<? extends LivingEntity> type, Level level) {
@@ -27,6 +28,7 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
     @Unique
     private MutableFloat modifiedDamage = null;
 
+    // Player hurtServer has a different local-variable shape from LivingEntity, so it needs its own hook.
     @ModifyVariable(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/damagesource/DamageSource;scalesWithDifficulty()Z"), argsOnly = true, name = "damage")
     private float modifyDamage(float damage) {
         if (modifiedDamage != null) {

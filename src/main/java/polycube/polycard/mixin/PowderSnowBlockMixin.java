@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.PowderSnowBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import polycube.polycard.events.callBacks.WalkOnPowderSnowEventCallback;
 
+/// Lets card effects override PowderSnowBlock's walkability check.
 @Mixin(PowderSnowBlock.class)
 public class PowderSnowBlockMixin {
     @WrapMethod(method = "canEntityWalkOnPowderSnow")

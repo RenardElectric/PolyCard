@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 
+/// Exposes non-player LivingEntity damage to card effects and writes back damage mutations.
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements Attackable, WaypointTransmitter {
     public LivingEntityMixin(EntityType<?> type, Level level) {
@@ -29,6 +30,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Wa
     @Unique
     private MutableFloat modifiedDamage = null;
 
+    // The callback runs before vanilla consumes the damage variable; this hook writes back any mutation.
     @ModifyVariable(method = "hurtServer", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;noActionTime:I", opcode = Opcodes.PUTFIELD), argsOnly = true, name = "damage")
     private float modifyDamage(float damage) {
         if (modifiedDamage != null) {

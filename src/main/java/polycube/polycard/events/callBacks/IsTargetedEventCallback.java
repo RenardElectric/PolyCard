@@ -8,6 +8,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import org.jspecify.annotations.Nullable;
 
+/// Lets card effects override the result of TargetingConditions.test.
+/// PASS keeps the vanilla result, SUCCESS forces targetable, and FAIL forces untargetable.
 public interface IsTargetedEventCallback {
     Event<IsTargetedEventCallback> EVENT = EventFactory.createArrayBacked(IsTargetedEventCallback.class,
             (listeners) -> (level, targeter, target, targetingConditions) -> {

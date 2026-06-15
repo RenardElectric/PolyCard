@@ -5,8 +5,7 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
-/// Callback for consuming an item.
-/// Called after the item is consumed but before effects are applied
+/// Fired by the consume-item advancement trigger before the consumed item's effects are applied.
 public interface ItemConsumedEventCallback {
     Event<ItemConsumedEventCallback> EVENT = EventFactory.createArrayBacked(ItemConsumedEventCallback.class,
             (listeners) -> (player, itemStack) -> {

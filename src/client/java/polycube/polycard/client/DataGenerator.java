@@ -37,8 +37,7 @@ import polycube.polycard.card.RarityLevel;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-/// This class is responsible for generating the advancements for the mod.
-/// It uses the Fabric Data Generator API to create advancements based on the card types and rarities defined in the mod.
+/// Fabric data-generation entrypoint for generated advancements and layered card item models.
 public class DataGenerator implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {

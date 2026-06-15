@@ -12,6 +12,7 @@ import polycube.polycard.utils.CardHelper;
 
 import static net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL;
 
+/// Awards cards from block interactions that vanilla advancement triggers do not cover.
 public class UseItemOnEvents {
     public static void register() {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {

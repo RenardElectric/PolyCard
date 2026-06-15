@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.server.level.ServerPlayer;
 
+/// Fired when a ServerPlayer instance is constructed so equipment attributes can be re-applied.
 public interface PlayerLoadEventCallback {
     Event<PlayerLoadEventCallback> JOIN = EventFactory.createArrayBacked(PlayerLoadEventCallback.class,
             callbacks -> player -> {

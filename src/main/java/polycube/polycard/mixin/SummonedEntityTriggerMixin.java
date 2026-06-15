@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import polycube.polycard.events.callBacks.EntitySummonedEventCallback;
 
+/// Reuses vanilla's summon advancement trigger as the source of card-award events.
 @Mixin(SummonedEntityTrigger.class)
 public abstract class SummonedEntityTriggerMixin extends SimpleCriterionTrigger<SummonedEntityTrigger.TriggerInstance> {
     @Inject(method = "trigger", at = @At("HEAD"))
