@@ -76,7 +76,7 @@ public class IronGolemEffects {
                             xd = source.getSourcePosition().x() - entity.getX();
                             zd = source.getSourcePosition().z() - entity.getZ();
                         }
-                        entity.knockback(KNOCKBACK_POWER, xd, zd);
+                        entity.knockback(KNOCKBACK_POWER, xd, zd, player.damageSources().playerAttack(player), 0);
                         Helpers.playSound(level, SoundEvents.MACE_SMASH_AIR, entity.position());
                         level.sendParticles(ParticleTypes.ELECTRIC_SPARK, entity.getX(), entity.getY() + 1, entity.getZ(), 10, 0.5, 0.5, 0.5, 0.1);
                     }
@@ -104,7 +104,8 @@ public class IronGolemEffects {
             nearby.knockback(
                     0.8 + Math.min(0.8, fallDistance * 0.04),
                     player.getX() - nearby.getX(),
-                    player.getZ() - nearby.getZ()
+                    player.getZ() - nearby.getZ(),
+                    player.damageSources().playerAttack(player), 0
             );
 
             double squaredDistance = nearby.position().subtract(center).lengthSqr();

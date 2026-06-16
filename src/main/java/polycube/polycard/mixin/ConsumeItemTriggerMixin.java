@@ -1,6 +1,6 @@
 package polycube.polycard.mixin;
 
-import net.minecraft.advancements.criterion.ConsumeItemTrigger;
+import net.minecraft.advancements.triggers.ConsumeItemTrigger;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;

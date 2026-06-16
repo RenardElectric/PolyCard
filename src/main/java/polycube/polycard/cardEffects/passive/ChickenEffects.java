@@ -10,7 +10,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEgg;
@@ -58,7 +58,7 @@ public class ChickenEffects {
                         var eggTime = eggTimes.computeIfAbsent(uuid, _ -> player.getRandom().nextInt(6000) + 6000);
                         if (--eggTime < 0) {
                             var level = player.level();
-                            var chicken = EntityType.CHICKEN.create(level, EntitySpawnReason.TRIGGERED);
+                            var chicken = EntityTypes.CHICKEN.create(level, EntitySpawnReason.TRIGGERED);
                             if (chicken != null) {
                                 chicken.remove(Entity.RemovalReason.DISCARDED);
                                 if (chicken.dropFromGiftLootTable(level, BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {

@@ -7,7 +7,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.monster.zombie.Zombie;
@@ -52,7 +52,7 @@ public class ZombifiedPiglinEffects {
                         int x = Mth.floor(player.getX());
                         int y = Mth.floor(player.getY());
                         int z = Mth.floor(player.getZ());
-                        var type = EntityType.ZOMBIFIED_PIGLIN;
+                        var type = EntityTypes.ZOMBIFIED_PIGLIN;
                         Zombie reinforcement = type.create(level, EntitySpawnReason.REINFORCEMENT);
                         if (reinforcement == null) return InteractionResult.PASS;
 

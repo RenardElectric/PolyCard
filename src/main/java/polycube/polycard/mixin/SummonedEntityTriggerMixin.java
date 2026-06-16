@@ -1,7 +1,7 @@
 package polycube.polycard.mixin;
 
-import net.minecraft.advancements.criterion.SimpleCriterionTrigger;
-import net.minecraft.advancements.criterion.SummonedEntityTrigger;
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger;
+import net.minecraft.advancements.triggers.SummonedEntityTrigger;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
