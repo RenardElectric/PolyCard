@@ -44,6 +44,11 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 0.004f, true, probToStr(ChickenEffects.THROW_EGG_PROBABILITY) + "% chance to shoot an egg when hit");
         addRarity(RarityLevel.LEGENDARY, 0.0004f, true, "Slow Falling when sneaking mid-air");
     }},
+    BAT("bat", "killing a Bat", "passive") {{
+        addRarity(RarityLevel.RARE, 0.04f, false, "Gain night vision");
+        addRarity(RarityLevel.EPIC, 0.01f, true, "Reveal nearby entity when sneaking");
+        addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "When hit while sneaking, chance to become invisible, gain Speed, cannot deal damage for a short time and create a smoke cloud giving blindness blindness");
+    }},
 
     // Neutral
 

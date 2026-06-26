@@ -9,6 +9,7 @@ import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
 import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.neutral.*;
+import polycube.polycard.cardEffects.passive.BatEffects;
 import polycube.polycard.cardEffects.passive.ChickenEffects;
 import polycube.polycard.cardEffects.passive.CowEffects;
 import polycube.polycard.cardEffects.passive.SquidEffects;
@@ -72,6 +73,7 @@ public class PolyCard implements ModInitializer {
         SquidEffects.register();
         BeeEffects.register();
         ChickenEffects.register();
+        BatEffects.register();
 
         // Neutral
         EnderManEffects.register();

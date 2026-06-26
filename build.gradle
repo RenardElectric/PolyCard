@@ -42,6 +42,10 @@ dependencies {
 	implementation "eu.pb4:sgui:${project.sgui_version}"
 }
 
+loom {
+	accessWidenerPath = file("src/main/resources/polycard.classtweaker")
+}
+
 processResources {
 	def version = project.version
 	inputs.property "version", version

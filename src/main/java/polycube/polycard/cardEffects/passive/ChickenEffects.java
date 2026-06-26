@@ -45,9 +45,7 @@ public class ChickenEffects {
     public static final float THROW_EGG_PROBABILITY = 0.5f;
 
     public static void register() {
-        EntityHurtEventCallback.EVENT.register(
-                ChickenEffects::onHurt
-        );
+        EntityHurtEventCallback.EVENT.register(ChickenEffects::onHurt);
 
         Map<UUID, Integer> eggTimes = new HashMap<>();
         Helpers.addPlayerTask((server, player) -> {
