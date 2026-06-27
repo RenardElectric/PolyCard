@@ -1,5 +1,6 @@
 package polycube.polycard.events.cardLootEvents;
 
+import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.squid.Squid;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.piglin.Piglin;
@@ -19,6 +20,7 @@ public class KillEvents {
                 case Piglin _ -> CardHelper.receiveCard(player, CardType.PIGLIN);
                 case ZombifiedPiglin _ -> CardHelper.receiveCard(player, CardType.ZOMBIFIED_PIGLIN);
                 case Zombie _ -> CardHelper.receiveCard(player, CardType.ZOMBIE);
+                case Bat _ -> CardHelper.receiveCard(player, CardType.BAT);
                 default -> { }
             }
         });

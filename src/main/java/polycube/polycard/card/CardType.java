@@ -11,6 +11,7 @@ import org.jspecify.annotations.NonNull;
 import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.neutral.*;
+import polycube.polycard.cardEffects.passive.BatEffects;
 import polycube.polycard.cardEffects.passive.ChickenEffects;
 import polycube.polycard.cardEffects.passive.CowEffects;
 import polycube.polycard.cardEffects.passive.SquidEffects;
@@ -47,7 +48,7 @@ public enum CardType implements StringRepresentable {
     BAT("bat", "killing a Bat", "passive") {{
         addRarity(RarityLevel.RARE, 0.04f, false, "Gain night vision");
         addRarity(RarityLevel.EPIC, 0.01f, true, "Reveal nearby entity when sneaking");
-        addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "When hit while sneaking, chance to become invisible, gain Speed, cannot deal damage for a short time and create a smoke cloud giving blindness blindness");
+        addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "While sneaking, being hit blinds the attacker and grants you Invisibility, Speed, and Invulnerability, but disables your damage. Lasts " + BatEffects.INVISIBILITY_DURATION + "s and ends early if you stop sneaking.");
     }},
 
     // Neutral
