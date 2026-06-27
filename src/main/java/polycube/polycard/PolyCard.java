@@ -9,19 +9,13 @@ import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
 import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.neutral.*;
-import polycube.polycard.cardEffects.passive.BatEffects;
-import polycube.polycard.cardEffects.passive.ChickenEffects;
-import polycube.polycard.cardEffects.passive.CowEffects;
-import polycube.polycard.cardEffects.passive.SquidEffects;
+import polycube.polycard.cardEffects.passive.*;
 import polycube.polycard.commands.*;
 import polycube.polycard.data.Storage;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
-import polycube.polycard.events.cardLootEvents.BreedEvents;
-import polycube.polycard.events.cardLootEvents.KillEvents;
-import polycube.polycard.events.cardLootEvents.SummonEvents;
-import polycube.polycard.events.cardLootEvents.UseItemOnEvents;
+import polycube.polycard.events.cardLootEvents.*;
 import polycube.polycard.events.guiEvents.CardItemUseEvent;
 import polycube.polycard.utils.CardHelper;
 import polycube.polycard.utils.Cooldowns;
@@ -66,6 +60,7 @@ public class PolyCard implements ModInitializer {
         KillEvents.register();
         SummonEvents.register();
         UseItemOnEvents.register();
+        TameEvents.register();
 
         // Card effects
         // Passive
@@ -74,6 +69,7 @@ public class PolyCard implements ModInitializer {
         BeeEffects.register();
         ChickenEffects.register();
         BatEffects.register();
+        HorseEffects.register();
 
         // Neutral
         EnderManEffects.register();

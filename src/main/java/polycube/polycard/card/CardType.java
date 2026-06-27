@@ -11,10 +11,7 @@ import org.jspecify.annotations.NonNull;
 import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.neutral.*;
-import polycube.polycard.cardEffects.passive.BatEffects;
-import polycube.polycard.cardEffects.passive.ChickenEffects;
-import polycube.polycard.cardEffects.passive.CowEffects;
-import polycube.polycard.cardEffects.passive.SquidEffects;
+import polycube.polycard.cardEffects.passive.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -49,6 +46,12 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.RARE, 0.04f, false, "Gain night vision");
         addRarity(RarityLevel.EPIC, 0.01f, true, "Reveal nearby entity when sneaking");
         addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "While sneaking, being hit blinds the attacker and grants you Invisibility, Speed, and Invulnerability, but disables your damage. Lasts " + BatEffects.INVISIBILITY_DURATION + "s and ends early if you stop sneaking.");
+    }},
+    HORSE("horse", "taming a Horse", "passive") {{
+        addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Horses you ride take " + probToStr(HorseEffects.DAMAGE_IGNORED_PERCENTAGE) + "% reduced damage");
+        addRarity(RarityLevel.RARE, 0.03f, false, "Jump Boost " + (HorseEffects.JUMP_BOOST_EFFECT_AMPLIFIER + 1) + " when riding a horse");
+        addRarity(RarityLevel.EPIC, 0.008f, true, "Speed " + (HorseEffects.SPEED_EFFECT_AMPLIFIER + 1) + " when riding a horse");
+        addRarity(RarityLevel.LEGENDARY, 0.001f, true, "The more your horse sprints, the faster you go, up to " + HorseEffects.MAX_SPEED_BOOST + " speed boost");
     }},
 
     // Neutral
