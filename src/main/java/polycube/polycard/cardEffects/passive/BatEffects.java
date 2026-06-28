@@ -103,6 +103,11 @@ public class BatEffects {
                 return InteractionResult.FAIL;
             }
         }
+
+        if (source.getDirectEntity() instanceof ServerPlayer player && invisiblePlayers.contains(player.getUUID())) {
+            return InteractionResult.FAIL;
+        }
+
         return InteractionResult.PASS;
     }
 

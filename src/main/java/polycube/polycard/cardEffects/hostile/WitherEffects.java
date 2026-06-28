@@ -21,9 +21,9 @@ import polycube.polycard.utils.CardRarityConditions;
 public class WitherEffects {
     public static final CardType CARD_TYPE = CardType.WITHER;
 
-    public static final float WITHER_ROSE_DROP_PROBABILITY = 0.1f;
+    public static final float WITHER_ROSE_DROP_PROBABILITY = 0.25f;
 
-    public static final float WITHER_EFFECT_PROBABILITY = 0.1f;
+    public static final float WITHER_EFFECT_PROBABILITY = 0.2f;
     public static final int WITHER_EFFECT_DURATION = 20 * 5;
     public static final int WITHER_EFFECT_AMPLIFIER = 0;
 
