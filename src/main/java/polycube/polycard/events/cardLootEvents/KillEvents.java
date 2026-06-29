@@ -2,6 +2,7 @@ package polycube.polycard.events.cardLootEvents;
 
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.squid.Squid;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.zombie.*;
@@ -21,6 +22,7 @@ public class KillEvents {
                 case ZombifiedPiglin _ -> CardHelper.receiveCard(player, CardType.ZOMBIFIED_PIGLIN);
                 case Zombie _ -> CardHelper.receiveCard(player, CardType.ZOMBIE);
                 case Bat _ -> CardHelper.receiveCard(player, CardType.BAT);
+                case Creeper _ -> CardHelper.receiveCard(player, CardType.CREEPER);
                 default -> { }
             }
         });
