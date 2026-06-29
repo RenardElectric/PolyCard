@@ -17,6 +17,7 @@ import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.KillEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
+import polycube.polycard.utils.Helpers;
 
 public class WitherEffects {
     public static final CardType CARD_TYPE = CardType.WITHER;
@@ -39,6 +40,7 @@ public class WitherEffects {
     private static void onKill(ServerPlayer player, Entity entity, DamageSource damageSource) {
         if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.COMMON)) {
             if (player.getRandom().nextFloat() < WITHER_ROSE_DROP_PROBABILITY) {
+                Helpers.debug("{} has the common wither card and killed {}, dropping a wither rose with a probability of {}", player.getName().getString(), entity.getName().getString(), WITHER_ROSE_DROP_PROBABILITY);
                 entity.spawnAtLocation(player.level(), Items.WITHER_ROSE);
             }
         }

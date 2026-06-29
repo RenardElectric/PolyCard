@@ -18,6 +18,8 @@ import polycube.polycard.data.PlayerData;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -111,5 +113,16 @@ public final class Helpers {
 
     public static String probToStr(float prob) {
         return new DecimalFormat("#.##").format(prob * 100);
+    }
+
+    public static String snakeCaseToTitleCase(String str) {
+        var parts = str.split("_");
+        var titleCase = new StringJoiner(" ");
+        for (var part : parts) {
+            if (!part.isEmpty()) {
+                titleCase.add(part.substring(0, 1).toUpperCase(Locale.ROOT) + part.substring(1).toLowerCase(Locale.ROOT));
+            }
+        }
+        return titleCase.toString();
     }
 }

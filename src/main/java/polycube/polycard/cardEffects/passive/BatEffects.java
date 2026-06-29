@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
@@ -28,6 +29,7 @@ public class BatEffects {
 
     public static final int NIGHT_VISION_DURATION = 220;
     public static final int INVISIBILITY_DURATION = 20 * 20;
+    public static final int INVISIBILITY_COOLDOWN = 20 * 10;
     public static final int SPEED_AMPLIFIER = 30;
 
     private static final Map<UUID, Set<Entity>> entitesGlowing = new HashMap<>();
@@ -89,6 +91,7 @@ public class BatEffects {
         if (entity instanceof ServerPlayer player && PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)
                 && source.getEntity() instanceof LivingEntity attacker
                 && player.isCrouching()
+                && PolyCard.COOLDOWNS.isReadyOrCreate(player, "bat_invisibility", INVISIBILITY_COOLDOWN)
         ) {
             var uuid = player.getUUID();
             if (invisiblePlayers.add(uuid)) {

@@ -22,7 +22,7 @@ public class CowEffects {
 
     public static final int REGEN_HEALTH_GAIN_HEARTS = 8;
 
-    public static final int STILL_DELAY = 20 * 25;
+    public static final int STILL_DELAY = 20 * 20;
     public static final int REGEN_EFFECT_DURATION = 20 * 5;
     public static final int REGEN_EFFECT_AMPLIFIER = 0;
 

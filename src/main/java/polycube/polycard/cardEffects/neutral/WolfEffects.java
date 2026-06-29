@@ -49,7 +49,7 @@ public class WolfEffects {
                             if (!wolfset.contains(wolf)) {
                                 wolfset.add(wolf);
                                 wolf.setHealth(wolf.getHealth() + wolf.getMaxHealth() * HEAL_PERCENTAGE);
-                                player.sendSystemMessage(Component.literal("Your wolf has been healed for 1 second of regeneration!"));
+                                Helpers.debug("{} has the epic wolf card, healing {} by {} half hearts", player.getName().getString(), wolf.getName().getString(), HEAL_PERCENTAGE * wolf.getMaxHealth());
                             } else {
                                 playerKill.remove(player.getUUID());
                             }

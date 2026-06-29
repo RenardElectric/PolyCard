@@ -12,6 +12,7 @@ import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
+import polycube.polycard.utils.Helpers;
 
 import java.util.*;
 import java.util.function.Function;
@@ -45,7 +46,7 @@ public enum CardType implements StringRepresentable {
     BAT("bat", "killing a Bat", "passive") {{
         addRarity(RarityLevel.RARE, 0.04f, false, "Gain night vision");
         addRarity(RarityLevel.EPIC, 0.01f, true, "Reveal nearby entity when sneaking");
-        addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "While sneaking, being hit blinds the attacker and grants you Invisibility, Speed, and Invulnerability, but disables your damage. Lasts " + BatEffects.INVISIBILITY_DURATION / 20 + "s and ends early if you stop sneaking.");
+        addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "While sneaking, being hit blinds the attacker and grants you Invisibility, Speed, and Invulnerability, but disables your damage. Lasts " + BatEffects.INVISIBILITY_DURATION / 20 + "s and ends early if you stop sneaking. (" + BatEffects.INVISIBILITY_COOLDOWN/20 + "s cooldown)");
     }},
     HORSE("horse", "taming a Horse", "passive") {{
         addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Horses you ride take " + probToStr(HorseEffects.DAMAGE_IGNORED_PERCENTAGE) + "% reduced damage");
@@ -190,11 +191,6 @@ public enum CardType implements StringRepresentable {
 
     @Override
     public String toString() {
-        var words = getSerializedName().split("_");
-        var sj = new StringJoiner(" ");
-        for (String word : words) {
-            sj.add(word.substring(0, 1).toUpperCase(Locale.ROOT) + word.substring(1));
-        }
-        return sj.toString();
+        return Helpers.snakeCaseToTitleCase(this.id);
     }
 }

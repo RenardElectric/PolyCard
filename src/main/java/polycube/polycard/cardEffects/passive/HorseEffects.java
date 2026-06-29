@@ -56,7 +56,9 @@ public class HorseEffects {
     private static InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof Horse horse && horse.getControllingPassenger() instanceof ServerPlayer player) {
             if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
-                damage.setValue(damage.floatValue() * (1 - DAMAGE_IGNORED_PERCENTAGE));
+                var newDamage = damage.floatValue() * (1 - DAMAGE_IGNORED_PERCENTAGE);
+                Helpers.debug("{} has the uncommon horse card and is riding a horse. Reducing damage taken by from {} to {}.", player.getName().getString(), damage.floatValue(), newDamage);
+                damage.setValue(newDamage);
             }
         }
         return InteractionResult.PASS;

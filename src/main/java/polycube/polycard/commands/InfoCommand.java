@@ -30,12 +30,6 @@ public class InfoCommand extends PolyCardCommand {
         );
     }
 
-    @Override
-    protected int execute(CommandSourceStack source) {
-        PolyCardCommands.printModInfo(source);
-        return 1;
-    }
-
     protected int execute(CommandContext<CommandSourceStack> context) {
         var optionalCardType = CardTypeArgument.getType(context, "cardType");
         if (optionalCardType.isPresent()) {

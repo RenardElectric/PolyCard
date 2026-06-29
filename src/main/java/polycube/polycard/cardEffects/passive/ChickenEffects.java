@@ -60,6 +60,7 @@ public class ChickenEffects {
                             if (chicken != null) {
                                 chicken.remove(Entity.RemovalReason.DISCARDED);
                                 if (chicken.dropFromGiftLootTable(level, BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {
+                                    Helpers.debug("{} has the common chicken card and laid an egg.", player.getName().getString());
                                     level.playSound(null, player.getX(), player.getY() - 1, player.getZ(), SoundEvents.CHICKEN_EGG, SoundSource.PLAYERS, 0.2f, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
                                     eggTime = player.getRandom().nextInt(6000) + 6000;
                                 }
@@ -89,6 +90,7 @@ public class ChickenEffects {
             if (egg.getOwner() instanceof ServerPlayer player) {
                 if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
                     ignore = true;
+                    Helpers.debug("{} has the uncommon chicken card and hit {} with an egg. Hurting the entity for {} damage.", player.getName().getString(), entity.getName().getString(), EGG_DAMAGE);
                     entity.hurtServer(level, egg.damageSources().thrown(egg, player), EGG_DAMAGE);
                     ignore = false;
                 }
@@ -112,6 +114,7 @@ public class ChickenEffects {
                             pos.z()
                     );
                     if (eggAim != null) {
+                        Helpers.debug("{} has the epic chicken card and is throwing an egg at {}.", player.getName().getString(), attacker != null ? attacker.getName().getString() : "position " + pos);
                         Projectile.spawnProjectileUsingShoot(
                                 egg,
                                 level,
@@ -122,11 +125,11 @@ public class ChickenEffects {
                                 (float) eggAim.length(),
                                 0.0F
                         );
+                        level.playSound(
+                                null, player.getX(), player.getY(), player.getZ(), SoundEvents.EGG_THROW,
+                                SoundSource.PLAYERS, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+                        );
                     }
-                    level.playSound(
-                            null, player.getX(), player.getY(), player.getZ(), SoundEvents.EGG_THROW,
-                            SoundSource.PLAYERS, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
-                    );
                 }
             }
         }

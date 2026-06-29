@@ -66,6 +66,13 @@ public class Cooldowns {
         }
     }
 
-    private record Cooldown(int startTime, int endTime) {
+    public Map<String, Integer> getCooldownsForPlayer(Player player) {
+        return cooldowns.getOrDefault(player.getUUID(), new HashMap<>())
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().endTime > tickCount)
+                .collect(HashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue().endTime - tickCount), HashMap::putAll);
     }
+
+    public record Cooldown(int startTime, int endTime) { }
 }

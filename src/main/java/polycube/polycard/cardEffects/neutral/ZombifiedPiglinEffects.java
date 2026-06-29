@@ -19,6 +19,7 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
+import polycube.polycard.utils.Helpers;
 
 public class ZombifiedPiglinEffects {
     public static final CardType CARD_TYPE = CardType.ZOMBIFIED_PIGLIN;
@@ -75,6 +76,8 @@ public class ZombifiedPiglinEffects {
                                 }
                             }
                         }
+
+                        Helpers.debug("{} has the legendary Zombified Piglin card, spawning {} reinforcements against {}!", player.getName().getString(), MAX_REINFORCEMENTS, attackingPlayer.getName().getString());
                     }
                 }
             }

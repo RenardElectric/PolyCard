@@ -50,7 +50,8 @@ public class PolyCard implements ModInitializer {
                 new EquipCommand(),
                 new CombineCommand(),
                 new GiveCommand(),
-                new TestCommand()
+                new TestCommand(),
+                new CooldownCommand()
         );
 
         ItemUseEventCallback.register(new CardItemUseEvent());
