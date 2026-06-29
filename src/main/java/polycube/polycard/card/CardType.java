@@ -106,9 +106,9 @@ public enum CardType implements StringRepresentable {
     ZOMBIE("zombie", "killing a zombie", "hostile") {{
         addRarity(RarityLevel.COMMON, 0.20f, false, "No hunger when eating rotten flesh");
         addRarity(RarityLevel.UNCOMMON, 0.07f, false, "Rotten flesh gives +" + ZombieEffects.ROTTEN_FLESH_FOOD_INCREASE + " food");
-        addRarity(RarityLevel.RARE, 0.025f, false, "Rotten flesh gives +" + ZombieEffects.ROTTEN_FLESH_FOOD_INCREASE + " food");
-        addRarity(RarityLevel.EPIC, 0.004f, true, "Rotten flesh gives strength " + (ZombieEffects.STRENGTH_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.STRENGTH_EFFECT_DURATION / 20 + "s");
-        addRarity(RarityLevel.LEGENDARY, 0.00035f, true, "Rotten flesh gives regeneration " + (ZombieEffects.REGENERATION_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.REGENERATION_EFFECT_DURATION / 20 + "s");
+        addRarity(RarityLevel.RARE, 0.025f, false, "Rotten flesh gives strength " + (ZombieEffects.STRENGTH_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.STRENGTH_EFFECT_DURATION / 20 + "s");
+        addRarity(RarityLevel.EPIC, 0.004f, true, "Rotten flesh gives regeneration " + (ZombieEffects.REGENERATION_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.REGENERATION_EFFECT_DURATION / 20 + "s");
+        addRarity(RarityLevel.LEGENDARY, 0.00035f, true, "All zombies variants do not attack you");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

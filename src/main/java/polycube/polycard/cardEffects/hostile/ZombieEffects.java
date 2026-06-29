@@ -1,11 +1,23 @@
 package polycube.polycard.cardEffects.hostile;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.camel.CamelHusk;
+import net.minecraft.world.entity.animal.equine.ZombieHorse;
+import net.minecraft.world.entity.animal.nautilus.ZombieNautilus;
+import net.minecraft.world.entity.monster.Zoglin;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.CardType;
+import polycube.polycard.card.RarityLevel;
+import polycube.polycard.data.PlayerData;
+import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
@@ -23,6 +35,7 @@ public class ZombieEffects {
 
     public static void register() {
         ItemConsumedEventCallback.EVENT.register(ZombieEffects::onRottenFleshConsumed);
+        IsTargetedEventCallback.EVENT.register(ZombieEffects::onTargeted);
     }
 
     private static void onRottenFleshConsumed(ServerPlayer player, ItemStack itemStack) {
@@ -36,18 +49,25 @@ public class ZombieEffects {
                         Helpers.debug("{} has the uncommon zombie card and consumed rotten flesh, adding 2 hunger points", player.getName().getString());
                         player.getFoodData().eat(ROTTEN_FLESH_FOOD_INCREASE, 0);
                     })
-                    .hasRare(() -> {
+                    .hasEpic(() -> {
                         Helpers.debug("{} has the rare zombie card and consumed rotten flesh, adding 2 hunger points", player.getName().getString());
                         player.getFoodData().eat(ROTTEN_FLESH_FOOD_INCREASE, 0);
                     })
-                    .hasEpic(() -> {
+                    .hasLegendary(() -> {
                         Helpers.debug("{} has the epic zombie card and consumed rotten flesh, adding strength effect", player.getName().getString());
                         player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, STRENGTH_EFFECT_DURATION, STRENGTH_EFFECT_AMPLIFIER));
-                    })
-                    .hasLegendary(() -> {
-                        Helpers.debug("{} has the legendary zombie card and consumed rotten flesh, adding regeneration effect", player.getName().getString());
-                        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGENERATION_EFFECT_DURATION, REGENERATION_EFFECT_AMPLIFIER));
                     });
         }
+    }
+
+    private static InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData data) {
+        if (target instanceof ServerPlayer player) {
+            if (targeter instanceof Zombie || targeter instanceof ZombieHorse || targeter instanceof ZombieNautilus || targeter instanceof CamelHusk || targeter instanceof Zoglin) {
+                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)) {
+                    return InteractionResult.FAIL;
+                }
+            }
+        }
+        return InteractionResult.PASS;
     }
 }
