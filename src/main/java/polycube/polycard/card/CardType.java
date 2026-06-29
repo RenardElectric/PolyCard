@@ -8,6 +8,7 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jspecify.annotations.NonNull;
+import polycube.polycard.cardEffects.hostile.CreeperEffects;
 import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.neutral.*;
@@ -110,6 +111,12 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.RARE, 0.025f, false, "Rotten flesh gives strength " + (ZombieEffects.STRENGTH_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.STRENGTH_EFFECT_DURATION / 20 + "s");
         addRarity(RarityLevel.EPIC, 0.004f, true, "Rotten flesh gives regeneration " + (ZombieEffects.REGENERATION_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.REGENERATION_EFFECT_DURATION / 20 + "s");
         addRarity(RarityLevel.LEGENDARY, 0.00035f, true, "All zombies variants do not attack you");
+    }},
+    CREEPER("creeper", "killing a Creeper", "hostile") {{
+        addRarity(RarityLevel.UNCOMMON, 0.06f, false, "Explosions damage you " + probToStr(CreeperEffects.EXPLOSION_DAMAGE_REDUCTION) + "% less");
+        addRarity(RarityLevel.RARE, 0.025f, false, "Explosions knock you back " + probToStr(CreeperEffects.EXPLOSION_KNOCKBACK_REDUCTION) + "% less");
+        addRarity(RarityLevel.EPIC, 0.006f, true, "When hit, " + probToStr(CreeperEffects.EXPLOSION_PROBABILITY) + "% chance to create a blast (no blocks damage)");
+        addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Creepers do not attack you");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
