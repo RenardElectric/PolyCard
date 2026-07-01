@@ -24,14 +24,14 @@ public class InfoCommand extends PolyCardCommand {
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
-                Commands.argument("cardType", StringArgumentType.string())
+                Commands.argument(CardTypeArgument.NAME, StringArgumentType.word())
                         .suggests(CardTypeArgument::suggestCards)
                         .executes(this::execute)
         );
     }
 
     protected int execute(CommandContext<CommandSourceStack> context) {
-        var optionalCardType = CardTypeArgument.getType(context, "cardType");
+        var optionalCardType = CardTypeArgument.getType(context);
         if (optionalCardType.isPresent()) {
             var cardType = optionalCardType.get();
             var message = Component.literal("\n" + cardType + " card");
@@ -47,7 +47,7 @@ public class InfoCommand extends PolyCardCommand {
             }
             context.getSource().sendSuccess(() -> message, false);
         } else {
-            context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, "cardType")));
+            context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
             return 0;
         }
 

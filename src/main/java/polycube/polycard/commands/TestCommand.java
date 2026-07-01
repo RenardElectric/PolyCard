@@ -25,7 +25,7 @@ public class TestCommand extends PolyCardCommand {
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
-                Commands.argument("cardType", StringArgumentType.string())
+                Commands.argument(CardTypeArgument.NAME, StringArgumentType.word())
                         .suggests(CardTypeArgument::suggestCards)
                         .executes(this::execute)
                         .then(
@@ -36,9 +36,9 @@ public class TestCommand extends PolyCardCommand {
     }
 
     protected int execute(CommandContext<CommandSourceStack> context) {
-        var optionalCardType = CardTypeArgument.getType(context, "cardType");
+        var optionalCardType = CardTypeArgument.getType(context);
         if (optionalCardType.isEmpty()) {
-            context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, "cardType")));
+            context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
             return 0;
         }
 

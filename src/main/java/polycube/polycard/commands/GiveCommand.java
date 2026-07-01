@@ -10,20 +10,20 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.commands.commandArguments.RarityLevelArgument;
 import polycube.polycard.utils.CardHelper;
+import polycube.polycard.utils.Helpers;
 
 public class GiveCommand extends PolyCardCommand {
 
     public GiveCommand() {
         super(
                 "give",
-                "Give a card to a player",
-                "<player> <cardType> [rarityLevel]",
+                "Give a card to some players",
+                "<players> <cardType> [rarityLevel]",
                 PermissionLevel.GAMEMASTERS
         );
     }
@@ -31,13 +31,13 @@ public class GiveCommand extends PolyCardCommand {
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
-                Commands.argument("player", EntityArgument.player())
+                Commands.argument("player", EntityArgument.players())
                         .then(
-                                Commands.argument("cardType", StringArgumentType.string())
+                                Commands.argument(CardTypeArgument.NAME, StringArgumentType.word())
                                         .suggests(CardTypeArgument::suggestCards)
                                         .executes(cts -> giveCard(cts, false))
                                         .then(
-                                                Commands.argument("rarityLevel", StringArgumentType.string())
+                                                Commands.argument(RarityLevelArgument.NAME, StringArgumentType.word())
                                                         .suggests(RarityLevelArgument::suggestRarities)
                                                         .executes(cts -> giveCard(cts, true))
                                         )
@@ -47,11 +47,11 @@ public class GiveCommand extends PolyCardCommand {
 
     private int giveCard(CommandContext<CommandSourceStack> cts, boolean withRarityLevel) throws CommandSyntaxException {
         var source = cts.getSource();
-        var player = EntityArgument.getPlayer(cts, "player");
-        var optionalCardType = CardTypeArgument.getType(cts, "cardType");
+        var players = EntityArgument.getPlayers(cts, "player");
+        var optionalCardType = CardTypeArgument.getType(cts);
 
         if (optionalCardType.isEmpty()) {
-            source.sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(cts, "cardType")));
+            source.sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(cts, CardTypeArgument.NAME)));
             return 0;
         }
         var cardType = optionalCardType.get();
@@ -59,10 +59,10 @@ public class GiveCommand extends PolyCardCommand {
         // No rarity argument means "give the first rarity this card type supports."
         RarityLevel rarityLevel = cardType.minRarityLevel();
         if (withRarityLevel) {
-            var optionalRarityLevel = RarityLevelArgument.getRarity(cts, "rarityLevel");
+            var optionalRarityLevel = RarityLevelArgument.getRarity(cts);
 
             if (optionalRarityLevel.isEmpty()) {
-                source.sendFailure(Component.literal("Invalid rarity level: " + StringArgumentType.getString(cts, "rarityLevel")));
+                source.sendFailure(Component.literal("Invalid rarity level: " + StringArgumentType.getString(cts, RarityLevelArgument.NAME)));
                 return 0;
             }
             rarityLevel = optionalRarityLevel.get();
@@ -74,12 +74,13 @@ public class GiveCommand extends PolyCardCommand {
             return 0;
         }
         var card = optionalCard.get();
-        CardHelper.giveCard(player, card);
 
-        source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormattedName()), true);
-        player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormattedName()));
-
-        PolyCard.LOGGER.debug("[Polycard] Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
+        for (var player : players) {
+            CardHelper.giveCard(player, card);
+            source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormattedName()), true);
+            player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormattedName()));
+            Helpers.debug("Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
+        }
 
         return 1;
     }

@@ -8,10 +8,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.SimpleExplosionDamageCalculator;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.CardType;
@@ -28,7 +25,7 @@ public class CreeperEffects {
     public static final float EXPLOSION_DAMAGE_REDUCTION = 0.5f;
     public static final float EXPLOSION_KNOCKBACK_REDUCTION = 0.5f;
     public static final float EXPLOSION_PROBABILITY = 0.25f;
-    public static final float EXPLOSION_RADIUS = 3f;
+    public static final float EXPLOSION_RADIUS = 1.5f;
 
     public static void register() {
         EntityHurtEventCallback.EVENT.register(CreeperEffects::onEntityHurt);
@@ -45,7 +42,7 @@ public class CreeperEffects {
                     damage.setValue(damageReduction);
                 }
 
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)) {
+                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
                     if (level.getRandom().nextFloat() < EXPLOSION_PROBABILITY) {
                         Helpers.debug("{} has the legendary creeper card and is took damage, triggering a small explosion", player.getName().getString());
                         level.explode(player, player.getX(), player.getY(), player.getZ(), EXPLOSION_RADIUS, false, Level.ExplosionInteraction.NONE);

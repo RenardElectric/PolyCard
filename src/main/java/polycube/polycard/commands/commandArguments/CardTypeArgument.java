@@ -3,7 +3,6 @@ package polycube.polycard.commands.commandArguments;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import polycube.polycard.card.CardType;
 
@@ -12,10 +11,12 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public final class CardTypeArgument {
+    public static final String NAME = "cardType";
+
     private static final CardType[] VALUES = CardType.values();
 
-    public static Optional<CardType> getType(final CommandContext<CommandSourceStack> context, final String name) {
-        String id = context.getArgument(name, String.class);
+    public static <S> Optional<CardType> getType(final CommandContext<S> context) {
+        String id = context.getArgument(NAME, String.class);
         return CardType.deserialize(id);
     }
 
