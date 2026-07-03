@@ -14,17 +14,15 @@ import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class ZombieEffects {
-    public static final CardType CARD_TYPE = CardType.ZOMBIE;
-
+public class ZombieEffects extends CardEffects implements ItemConsumedEventCallback, IsTargetedEventCallback {
     public static final int STRENGTH_EFFECT_DURATION = 20 * 30;
     public static final int STRENGTH_EFFECT_AMPLIFIER = 0;
 
@@ -33,14 +31,10 @@ public class ZombieEffects {
 
     public static final int ROTTEN_FLESH_FOOD_INCREASE = 2;
 
-    public static void register() {
-        ItemConsumedEventCallback.EVENT.register(ZombieEffects::onRottenFleshConsumed);
-        IsTargetedEventCallback.EVENT.register(ZombieEffects::onTargeted);
-    }
-
-    private static void onRottenFleshConsumed(ServerPlayer player, ItemStack itemStack) {
+    @Override
+    public void onItemConsumed(ServerPlayer player, ItemStack itemStack) {
         if (itemStack.is(Items.ROTTEN_FLESH)) {
-            CardRarityConditions.of(player, CARD_TYPE)
+            CardRarityConditions.of(player, cardType)
                     .hasCommon(() -> {
                         Helpers.debug("{} has the common zombie card and consumed rotten flesh, removing hunger effect", player.getName().getString());
                         Helpers.runLater(0, _ -> player.removeEffect(MobEffects.HUNGER));
@@ -60,10 +54,11 @@ public class ZombieEffects {
         }
     }
 
-    private static InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData data) {
+    @Override
+    public InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData data) {
         if (target instanceof ServerPlayer player) {
             if (targeter instanceof Zombie || targeter instanceof ZombieHorse || targeter instanceof ZombieNautilus || targeter instanceof CamelHusk || targeter instanceof Zoglin) {
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)) {
+                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.LEGENDARY)) {
                     return InteractionResult.FAIL;
                 }
             }

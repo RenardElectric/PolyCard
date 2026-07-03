@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -13,20 +14,24 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
+import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
 
-public class BatEffects {
-    public static final CardType CARD_TYPE = CardType.BAT;
-
+public class BatEffects
+        extends CardEffects
+        implements PlayerTickEventCallback, EntityHurtEventCallback,
+        IsTargetedEventCallback, ServerLivingEntityEvents.AfterDeath
+{
     public static final int NIGHT_VISION_DURATION = 220;
     public static final int INVISIBILITY_DURATION = 20 * 20;
     public static final int INVISIBILITY_COOLDOWN = 20 * 10;
@@ -34,39 +39,35 @@ public class BatEffects {
 
     private static final Map<UUID, Set<Entity>> entitesGlowing = new HashMap<>();
 
-    public static void register() {
-        Helpers.addPlayerTask((_, player) -> {
-            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.RARE)) {
-                player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_DURATION, 0, true, false));
+    @Override
+    public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
+        if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.RARE)) {
+            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_DURATION, 0, true, false));
 
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
-                    //noinspection resource
-                    Set<Entity> entitiesToGlow = player.isCrouching() ? new HashSet<>(player.level().getEntities(player, player.getBoundingBox().inflate(1000))) : new HashSet<>();
-                    Set<Entity> currentlyGlowing = new HashSet<>(entitesGlowing.getOrDefault(player.getUUID(), Collections.emptySet()));
+            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC)) {
+                //noinspection resource
+                Set<Entity> entitiesToGlow = player.isCrouching() ? new HashSet<>(player.level().getEntities(player, player.getBoundingBox().inflate(1000))) : new HashSet<>();
+                Set<Entity> currentlyGlowing = new HashSet<>(entitesGlowing.getOrDefault(player.getUUID(), Collections.emptySet()));
 
-                    for (var entity : currentlyGlowing) {
-                        if (!entity.isCurrentlyGlowing() && !entitiesToGlow.contains(entity)) {
-                            removeGlowing(entity, player);
-                        }
-                    }
-
-                    for (var entity : entitiesToGlow) {
-                        if (!entity.isCurrentlyGlowing() && !currentlyGlowing.contains(entity)) {
-                            setGlowing(entity, player);
-                        }
-                    }
-
-                    if (!player.isCrouching()) {
-                        invisiblePlayers.remove(player.getUUID());
-                        player.removeEffect(MobEffects.INVISIBILITY);
-                        player.removeEffect(MobEffects.SPEED);
+                for (var entity : currentlyGlowing) {
+                    if (!entity.isCurrentlyGlowing() && !entitiesToGlow.contains(entity)) {
+                        removeGlowing(entity, player);
                     }
                 }
+
+                for (var entity : entitiesToGlow) {
+                    if (!entity.isCurrentlyGlowing() && !currentlyGlowing.contains(entity)) {
+                        setGlowing(entity, player);
+                    }
+                }
+
+                if (!player.isCrouching()) {
+                    invisiblePlayers.remove(player.getUUID());
+                    player.removeEffect(MobEffects.INVISIBILITY);
+                    player.removeEffect(MobEffects.SPEED);
+                }
             }
-        });
-        EntityHurtEventCallback.EVENT.register(BatEffects::onHurt);
-        IsTargetedEventCallback.EVENT.register(BatEffects::onTargeted);
-        ServerLivingEntityEvents.AFTER_DEATH.register(BatEffects::onDeath);
+        }
     }
 
     private static void setGlowing(Entity entity, ServerPlayer player) {
@@ -87,8 +88,9 @@ public class BatEffects {
 
     private static final Set<UUID> invisiblePlayers = new HashSet<>();
 
-    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
-        if (entity instanceof ServerPlayer player && PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)
+    @Override
+    public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
+        if (entity instanceof ServerPlayer player && PlayerData.hasCardOrRarer(player, cardType, RarityLevel.LEGENDARY)
                 && source.getEntity() instanceof LivingEntity attacker
                 && player.isCrouching()
                 && PolyCard.COOLDOWNS.isReadyOrCreate(player, "bat_invisibility", INVISIBILITY_COOLDOWN)
@@ -114,14 +116,16 @@ public class BatEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData targetingConditionsData) {
+    @Override
+    public InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData targetingConditionsData) {
         if (target instanceof ServerPlayer player && invisiblePlayers.contains(player.getUUID())) {
             return InteractionResult.FAIL;
         }
         return InteractionResult.PASS;
     }
 
-    private static void onDeath(LivingEntity entity, DamageSource source) {
+    @Override
+    public void afterDeath(@NonNull LivingEntity entity, @NonNull DamageSource source) {
         if (entity instanceof ServerPlayer player) {
             invisiblePlayers.remove(player.getUUID());
         }

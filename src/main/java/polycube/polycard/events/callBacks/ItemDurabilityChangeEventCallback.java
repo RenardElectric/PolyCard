@@ -13,10 +13,10 @@ public interface ItemDurabilityChangeEventCallback {
     Event<ItemDurabilityChangeEventCallback> EVENT = EventFactory.createArrayBacked(ItemDurabilityChangeEventCallback.class,
             (listeners) -> (level, player, itemStack, amount) -> {
                 for (var listener : listeners) {
-                    amount = listener.interact(level, player, itemStack, amount);
+                    amount = listener.onDurabilityChange(level, player, itemStack, amount);
                 }
                 return amount;
             });
 
-    int interact(ServerLevel level, @Nullable ServerPlayer player, ItemStack itemStack, int amount);
+    int onDurabilityChange(ServerLevel level, @Nullable ServerPlayer player, ItemStack itemStack, int amount);
 }

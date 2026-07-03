@@ -10,9 +10,9 @@ public interface ItemConsumedEventCallback {
     Event<ItemConsumedEventCallback> EVENT = EventFactory.createArrayBacked(ItemConsumedEventCallback.class,
             (listeners) -> (player, itemStack) -> {
                 for (var listener : listeners) {
-                    listener.interact(player, itemStack);
+                    listener.onItemConsumed(player, itemStack);
                 }
             });
 
-    void interact(ServerPlayer player, ItemStack itemStack);
+    void onItemConsumed(ServerPlayer player, ItemStack itemStack);
 }

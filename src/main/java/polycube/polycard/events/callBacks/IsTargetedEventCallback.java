@@ -14,7 +14,7 @@ public interface IsTargetedEventCallback {
     Event<IsTargetedEventCallback> EVENT = EventFactory.createArrayBacked(IsTargetedEventCallback.class,
             (listeners) -> (level, targeter, target, targetingConditions) -> {
                 for (var listener : listeners) {
-                    InteractionResult interactionResult = listener.interact(level, targeter, target, targetingConditions);
+                    InteractionResult interactionResult = listener.onTargeted(level, targeter, target, targetingConditions);
 
                     if (interactionResult != InteractionResult.PASS) {
                         return interactionResult;
@@ -24,7 +24,7 @@ public interface IsTargetedEventCallback {
                 return InteractionResult.PASS;
             });
 
-    InteractionResult interact(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, TargetingConditionsData targetingConditions);
+    InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, TargetingConditionsData targetingConditions);
 
     record TargetingConditionsData(
             boolean isCombat, double range, boolean checkLineOfSight, boolean skipInvisible,

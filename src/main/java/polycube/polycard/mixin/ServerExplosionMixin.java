@@ -15,7 +15,7 @@ public abstract class ServerExplosionMixin implements Explosion {
 
     @WrapOperation(method = "hurtEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ExplosionDamageCalculator;getKnockbackMultiplier(Lnet/minecraft/world/entity/Entity;)F"))
     private static float knockbackMultiplier(ExplosionDamageCalculator instance, Entity entity, Operation<Float> original) {
-        return ExplosionKnockbackEventCallback.EVENT.invoker().knockback(entity, original.call(instance, entity));
+        return ExplosionKnockbackEventCallback.EVENT.invoker().onExplosionKnockback(entity, original.call(instance, entity));
     }
 
 }

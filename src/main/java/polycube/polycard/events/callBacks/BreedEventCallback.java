@@ -13,10 +13,10 @@ public interface BreedEventCallback {
     Event<BreedEventCallback> EVENT = EventFactory.createArrayBacked(BreedEventCallback.class,
             (listeners) -> (player, parent, partner, child) -> {
                 for (var listener : listeners) {
-                    listener.breed(player, parent, partner, child);
+                    listener.onBreed(player, parent, partner, child);
                 }
             });
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    void breed(ServerPlayer player, Animal parent, Animal partner, Optional<AgeableMob> child);
+    void onBreed(ServerPlayer player, Animal parent, Animal partner, Optional<AgeableMob> child);
 }

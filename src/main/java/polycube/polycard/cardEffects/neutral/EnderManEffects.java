@@ -2,6 +2,7 @@ package polycube.polycard.cardEffects.neutral;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -21,11 +22,12 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.apache.commons.lang3.mutable.MutableFloat;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
+import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
 import polycube.polycard.utils.Helpers;
 
@@ -34,9 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class EnderManEffects {
-    public static final CardType CARD_TYPE = CardType.ENDERMAN;
-
+public class EnderManEffects extends CardEffects implements PlayerTickEventCallback, ItemUseEventCallback, ProjectileOnHitEventCallback, EntityHurtEventCallback {
     public static final int RESISTANCE_EFFECT_DURATION = 20 * 2;
     public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
 
@@ -46,27 +46,23 @@ public class EnderManEffects {
             Arrays.asList(Biomes.THE_END, Biomes.END_BARRENS, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS)
     );
 
-    public static void register() {
-        ItemUseEventCallback.register(EnderManEffects::onEnderPearlUsed);
-        ProjectileOnHitEventCallback.EVENT.register(EnderManEffects::onProjectileHit);
-        EntityHurtEventCallback.EVENT.register(EnderManEffects::onEnderPearlHit);
-
-        Helpers.addPlayerTask((server, player) -> {
-            var pos = player.blockPosition();
-            //noinspection resource
-            var biome = player.level().getBiome(pos);
-            if (biome.is(endBiomes::contains)) {
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
-                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
-                }
+    @Override
+    public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
+        var pos = player.blockPosition();
+        //noinspection resource
+        var biome = player.level().getBiome(pos);
+        if (biome.is(endBiomes::contains)) {
+            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.UNCOMMON)) {
+                player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
             }
-        });
+        }
     }
 
-    private static InteractionResult onEnderPearlUsed(ServerPlayer player, Level world, InteractionHand hand) {
+    @Override
+    public InteractionResult onItemUse(ServerPlayer player, Level world, InteractionHand hand) {
         var itemStack = player.getItemInHand(hand);
         if (itemStack.getItem() == Items.ENDER_PEARL) {
-            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
+            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC)) {
                 Helpers.runLater(1, _ -> {
                     Helpers.debug("Removing ender pearl cooldown for {}", player.getName().getString());
                     var cooldowns = player.getCooldowns();
@@ -78,10 +74,11 @@ public class EnderManEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onEnderPearlHit(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
+    @Override
+    public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.RARE)) {
+                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.RARE)) {
                     Helpers.debug("{} has an uncommon or higher enderman card, removing ender pearl teleport damage", player.getName().getString());
                     return InteractionResult.FAIL;
                 }
@@ -90,11 +87,12 @@ public class EnderManEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onProjectileHit(Projectile projectile, HitResult hitResult) {
+    @Override
+    public InteractionResult onProjectileHit(Projectile projectile, HitResult hitResult) {
         if (hitResult instanceof EntityHitResult entityHitResult) {
             var hitEntity = entityHitResult.getEntity();
             if (hitEntity instanceof ServerPlayer player) {
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)) {
+                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.LEGENDARY)) {
                     var random = ThreadLocalRandom.current();
                     var randomInt = random.nextInt(0, 100);
                     if (randomInt < PROJECTILE_DODGE_PROBABILITY) {

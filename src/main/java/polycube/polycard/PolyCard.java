@@ -3,21 +3,18 @@ package polycube.polycard;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import polycube.polycard.cardEffects.hostile.CreeperEffects;
-import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
-import polycube.polycard.cardEffects.hostile.WitherEffects;
-import polycube.polycard.cardEffects.hostile.ZombieEffects;
-import polycube.polycard.cardEffects.neutral.*;
-import polycube.polycard.cardEffects.passive.*;
 import polycube.polycard.commands.*;
 import polycube.polycard.data.Storage;
+import polycube.polycard.events.CardLootEvents;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
-import polycube.polycard.events.cardLootEvents.*;
-import polycube.polycard.events.guiEvents.CardItemUseEvent;
+import polycube.polycard.events.CardItemUseEvent;
 import polycube.polycard.utils.CardHelper;
 import polycube.polycard.utils.Cooldowns;
 import polycube.polycard.utils.Helpers;
@@ -41,9 +38,16 @@ public class PolyCard implements ModInitializer {
             STORAGE = Storage.load(server);
         });
         ServerTickEvents.END_SERVER_TICK.register(Helpers::onServerTick);
-        PlayerLoadEventCallback.JOIN.register(CardHelper::loadPlayerAttributes);
+        PlayerLoadEventCallback.EVENT.register(CardHelper::loadPlayerAttributes);
         CardEventCallback.EQUIPPED.register(CardHelper::addCardAttributes);
         CardEventCallback.UNEQUIPPED.register(CardHelper::removeCardAttributes);
+
+        UseItemCallback.EVENT.register(((player, level, hand) -> {
+            if (level.isClientSide()) {
+                return InteractionResult.PASS;
+            }
+            return ItemUseEventCallback.EVENT.invoker().onItemUse((ServerPlayer) player, level, hand);
+        }));
 
         PolyCardCommands.registerCommands(
                 new HelpCommand(),
@@ -55,35 +59,7 @@ public class PolyCard implements ModInitializer {
                 new CooldownCommand()
         );
 
-        ItemUseEventCallback.register(new CardItemUseEvent());
-
-        // Card loot events
-        BreedEvents.register();
-        KillEvents.register();
-        SummonEvents.register();
-        UseItemOnEvents.register();
-        TameEvents.register();
-
-        // Card effects
-        // Passive
-        CowEffects.register();
-        SquidEffects.register();
-        BeeEffects.register();
-        ChickenEffects.register();
-        BatEffects.register();
-        HorseEffects.register();
-
-        // Neutral
-        EnderManEffects.register();
-        IronGolemEffects.register();
-        PiglinEffects.register();
-        ZombifiedPiglinEffects.register();
-        WolfEffects.register();
-
-        // Hostile
-        ZombieEffects.register();
-        WitherEffects.register();
-        EnderDragonEffects.register();
-        CreeperEffects.register();
+        new CardItemUseEvent();
+        new CardLootEvents();
     }
 }

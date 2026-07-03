@@ -15,6 +15,6 @@ import polycube.polycard.events.callBacks.EntitySummonedEventCallback;
 public abstract class SummonedEntityTriggerMixin extends SimpleCriterionTrigger<SummonedEntityTrigger.TriggerInstance> {
     @Inject(method = "trigger", at = @At("HEAD"))
     public void entitySummoned(ServerPlayer player, Entity entity, CallbackInfo ci) {
-        EntitySummonedEventCallback.EVENT.invoker().interact(player, entity);
+        EntitySummonedEventCallback.EVENT.invoker().onSummon(player, entity);
     }
 }

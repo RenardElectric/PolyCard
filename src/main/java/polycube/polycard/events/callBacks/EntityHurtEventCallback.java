@@ -15,7 +15,7 @@ public interface EntityHurtEventCallback {
     Event<EntityHurtEventCallback> EVENT = EventFactory.createArrayBacked(EntityHurtEventCallback.class,
             (listeners) -> (instance, level, source, damage) -> {
                 for (var listener : listeners) {
-                    InteractionResult result = listener.interact(instance, level, source, damage);
+                    InteractionResult result = listener.onEntityHurt(instance, level, source, damage);
 
                     if (result != InteractionResult.PASS) {
                         return result;
@@ -25,5 +25,5 @@ public interface EntityHurtEventCallback {
                 return InteractionResult.PASS;
             });
 
-    InteractionResult interact(LivingEntity instance, ServerLevel level, DamageSource source, MutableFloat damage);
+    InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage);
 }

@@ -15,10 +15,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.Card;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
@@ -26,8 +27,11 @@ import polycube.polycard.events.callBacks.ItemDurabilityChangeEventCallback;
 
 import java.util.List;
 
-public class EnderDragonEffects {
-    public static final CardType CARD_TYPE = CardType.ENDER_DRAGON;
+public class EnderDragonEffects
+        extends CardEffects
+        implements ItemDurabilityChangeEventCallback, EntityHurtEventCallback,
+        ServerEntityEvents.EquipmentChange, CardEventCallback.CardEquipEvent, CardEventCallback.CardUnequipEvent
+{
 
     public static final List<Item> chestplates = List.of(
             Items.LEATHER_CHESTPLATE, Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE,
@@ -38,26 +42,20 @@ public class EnderDragonEffects {
     private static final DataComponentPatch APPLY_GLIDER_PATCH = DataComponentPatch.builder().set(DataComponents.GLIDER, Unit.INSTANCE).build();
     private static final DataComponentPatch REMOVE_GLIDER_PATCH = DataComponentPatch.builder().remove(DataComponents.GLIDER).build();
 
-    public static void register() {
-        ItemDurabilityChangeEventCallback.EVENT.register(EnderDragonEffects::onDurabilityChange);
-        EntityHurtEventCallback.EVENT.register(EnderDragonEffects::onPlayerHurt);
-        CardEventCallback.EQUIPPED.register(EnderDragonEffects::onEquip);
-        CardEventCallback.UNEQUIPPED.register(EnderDragonEffects::onUnequip);
-        ServerEntityEvents.EQUIPMENT_CHANGE.register(EnderDragonEffects::onEquipmentChange);
-    }
-
-    private static int onDurabilityChange(ServerLevel level, @Nullable ServerPlayer player, ItemStack stack, int amount) {
-        if (player != null && PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.RARE)) {
-            if (stack.getComponents().has(DataComponents.GLIDER)) {
+    @Override
+    public int onDurabilityChange(ServerLevel level, @Nullable ServerPlayer player, ItemStack itemStack, int amount) {
+        if (player != null && PlayerData.hasCardOrRarer(player, cardType, RarityLevel.RARE)) {
+            if (itemStack.getComponents().has(DataComponents.GLIDER)) {
                 return 0;
             }
         }
         return amount;
     }
 
-    private static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
+    @Override
+    public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
-            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
+            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC)) {
                 if (source.is(DamageTypes.FLY_INTO_WALL) || (source.is(DamageTypes.FALL) && player.isFallFlying())) {
                     return InteractionResult.FAIL;
                 }
@@ -66,25 +64,28 @@ public class EnderDragonEffects {
         return InteractionResult.PASS;
     }
 
-    private static void onEquip(ServerPlayer player, Card card) {
-        if (card.cardType() == CARD_TYPE && card.rarityLevel().isAtLeast(RarityLevel.LEGENDARY)) {
+    @Override
+    public void onCardEquip(ServerPlayer player, Card card) {
+        if (card.cardType() == cardType && card.rarityLevel().isAtLeast(RarityLevel.LEGENDARY)) {
             applyGliderComponent(player.getItemBySlot(EquipmentSlot.CHEST));
         }
     }
 
-    private static void onUnequip(ServerPlayer player, Card card) {
-        if (card.cardType() == CARD_TYPE) {
+    @Override
+    public void onCardUnequip(ServerPlayer player, Card card) {
+        if (card.cardType() == cardType) {
             removeGliderComponent(player.getItemBySlot(EquipmentSlot.CHEST));
         }
     }
 
-    private static void onEquipmentChange(LivingEntity entity, EquipmentSlot slot, ItemStack previous, ItemStack next) {
-        if (entity instanceof ServerPlayer player) {
-            if (slot == EquipmentSlot.CHEST) {
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)) {
-                    applyGliderComponent(next);
+    @Override
+    public void onChange(@NonNull LivingEntity livingEntity, @NonNull EquipmentSlot equipmentSlot, @NonNull ItemStack previousStack, @NonNull ItemStack currentStack) {
+        if (livingEntity instanceof ServerPlayer player) {
+            if (equipmentSlot == EquipmentSlot.CHEST) {
+                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.LEGENDARY)) {
+                    applyGliderComponent(currentStack);
                 } else {
-                    removeGliderComponent(next);
+                    removeGliderComponent(currentStack);
                 }
             }
         }

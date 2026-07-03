@@ -8,13 +8,13 @@ import net.minecraft.world.entity.Entity;
 
 /// Fired when Minecraft's killed-entity advancement trigger runs.
 /// The return value only controls later PolyCard listeners; it does not cancel the kill.
-public interface KillEventCallback {
-    Event<KillEventCallback> EVENT = EventFactory.createArrayBacked(KillEventCallback.class,
+public interface PlayerKillEventCallback {
+    Event<PlayerKillEventCallback> EVENT = EventFactory.createArrayBacked(PlayerKillEventCallback.class,
             (listeners) -> (player, entity, killingBlow) -> {
                 for (var listener : listeners) {
-                    listener.interact(player, entity, killingBlow);
+                    listener.onPLayerKill(player, entity, killingBlow);
                 }
             });
 
-    void interact(ServerPlayer player, Entity entity, DamageSource killingBlow);
+    void onPLayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow);
 }

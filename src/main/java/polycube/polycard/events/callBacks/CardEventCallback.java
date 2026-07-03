@@ -5,20 +5,26 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.server.level.ServerPlayer;
 import polycube.polycard.card.Card;
 
-public interface CardEventCallback {
-    Event<CardEventCallback> EQUIPPED = EventFactory.createArrayBacked(CardEventCallback.class,
+public final class CardEventCallback {
+    public static final Event<CardEquipEvent> EQUIPPED = EventFactory.createArrayBacked(CardEquipEvent.class,
             (listeners) -> (player, card) -> {
                 for (var listener : listeners) {
-                    listener.cardEvent(player, card);
+                    listener.onCardEquip(player, card);
                 }
             });
 
-    Event<CardEventCallback> UNEQUIPPED = EventFactory.createArrayBacked(CardEventCallback.class,
+    public static final Event<CardUnequipEvent> UNEQUIPPED = EventFactory.createArrayBacked(CardUnequipEvent.class,
             (listeners) -> (player, card) -> {
                 for (var listener : listeners) {
-                    listener.cardEvent(player, card);
+                    listener.onCardUnequip(player, card);
                 }
             });
 
-    void cardEvent(ServerPlayer player, Card card);
+    public interface CardEquipEvent {
+        void onCardEquip(ServerPlayer player, Card card);
+    }
+
+    public interface CardUnequipEvent {
+        void onCardUnequip(ServerPlayer player, Card card);
+    }
 }

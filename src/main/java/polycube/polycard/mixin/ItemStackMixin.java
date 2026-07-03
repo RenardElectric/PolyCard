@@ -13,7 +13,7 @@ import polycube.polycard.events.callBacks.ItemDurabilityChangeEventCallback;
 public class ItemStackMixin {
     @WrapMethod(method = "processDurabilityChange")
     public int durabilityChanged(int amount, ServerLevel level, ServerPlayer player, Operation<Integer> original) {
-        int modifiedAmount = ItemDurabilityChangeEventCallback.EVENT.invoker().interact(level, player, (ItemStack) (Object) this, amount);
+        int modifiedAmount = ItemDurabilityChangeEventCallback.EVENT.invoker().onDurabilityChange(level, player, (ItemStack) (Object) this, amount);
         return original.call(modifiedAmount, level, player);
     }
 }

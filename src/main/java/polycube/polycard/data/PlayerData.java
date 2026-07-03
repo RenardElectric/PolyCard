@@ -131,7 +131,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
                 for (var card : equippedCardsSet) {
                     if (!cardsInContainer.contains(card)) {
                         equippedCards.remove(card.cardType());
-                        CardEventCallback.UNEQUIPPED.invoker().cardEvent(targetPlayer, card);
+                        CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(targetPlayer, card);
 
                         Helpers.debug("{} unequipped card {} for {}", feedbackPlayer, card, targetPlayer);
                         Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_REMOVE_ONE);
@@ -141,7 +141,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
                 for (var card : cardsInContainer) {
                     if (!equippedCardsSet.contains(card)) {
                         equippedCards.put(card.cardType(), card.rarityLevel());
-                        CardEventCallback.EQUIPPED.invoker().cardEvent(targetPlayer, card);
+                        CardEventCallback.EQUIPPED.invoker().onCardEquip(targetPlayer, card);
 
                         Helpers.debug("{} equipped card {} for {}", feedbackPlayer, card, targetPlayer);
                         Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_INSERT);

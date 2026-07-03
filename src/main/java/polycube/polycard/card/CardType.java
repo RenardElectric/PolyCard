@@ -8,15 +8,15 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jspecify.annotations.NonNull;
-import polycube.polycard.cardEffects.hostile.CreeperEffects;
-import polycube.polycard.cardEffects.hostile.WitherEffects;
-import polycube.polycard.cardEffects.hostile.ZombieEffects;
+import polycube.polycard.cardEffects.CardEffects;
+import polycube.polycard.cardEffects.hostile.*;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static polycube.polycard.utils.Helpers.probToStr;
@@ -26,30 +26,30 @@ import static polycube.polycard.utils.Helpers.probToStr;
 public enum CardType implements StringRepresentable {
     // Passive
 
-    COW("cow", "breeding two cows", "passive") {{
+    COW("cow", "breeding two cows", "passive", CowEffects::new) {{
         addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Regeneration " + (CowEffects.REGEN_EFFECT_AMPLIFIER + 1) + " for " + CowEffects.REGEN_EFFECT_DURATION / 20 + "s when standing still for " + CowEffects.STILL_DELAY / 20 + "s in plains");
         addRarity(RarityLevel.RARE, 0.025f, false, "Gain resistance " + (CowEffects.RESISTANCE_EFFECT_AMPLIFIER + 1) + " for " + CowEffects.RESISTANCE_EFFECT_DURATION / 20 + "s when near other Cow cards");
         addRarity(RarityLevel.EPIC, 0.005f, true, "Convert debuffs into Buffs when drinking milk");
         addRarity(RarityLevel.LEGENDARY, 0.0005f, true, "+" + CowEffects.REGEN_HEALTH_GAIN_HEARTS + " hearts when drinking milk");
     }},
-    SQUID("squid", "killing a squid", "passive") {{
+    SQUID("squid", "killing a squid", "passive", SquidEffects::new) {{
         addRarity(RarityLevel.RARE, 0.03f, false, probToStr(SquidEffects.BLINDNESS_WHEN_HIT_PROBABILITY) + "% chance to give blindness " + (SquidEffects.BLINDNESS_AMPLIFIER + 1) + " for " + SquidEffects.BLINDNESS_DURATION / 20 + "s when hit");
         addRarity(RarityLevel.EPIC, 0.006f, true, probToStr(SquidEffects.BLINDNESS_ON_HIT_PROBABILITY) + "% chance to give blindness " + (SquidEffects.BLINDNESS_AMPLIFIER + 1) + " for " + SquidEffects.BLINDNESS_DURATION / 20 + "s on hit");
         addRarity(RarityLevel.LEGENDARY, 0.0006f, true, "Water breathing " + (SquidEffects.WATER_BREATHING_AMPLIFIER + 1) + " when under water");
     }},
-    CHICKEN("chicken", "breeding two chicken", "passive") {{
+    CHICKEN("chicken", "breeding two chicken", "passive", ChickenEffects::new) {{
         addRarity(RarityLevel.COMMON, 0.12f, false, "Lay eggs randomly");
         addRarity(RarityLevel.UNCOMMON, 0.045f, false, "Thrown eggs hurt");
         addRarity(RarityLevel.RARE, 0.02f, false, "Speed " + (ChickenEffects.SPEED_EFFECT_AMPLIFIER + 1) + " near other Chickens cards");
         addRarity(RarityLevel.EPIC, 0.004f, true, probToStr(ChickenEffects.THROW_EGG_PROBABILITY) + "% chance to shoot an egg when hit");
         addRarity(RarityLevel.LEGENDARY, 0.0004f, true, "Slow Falling when sneaking mid-air");
     }},
-    BAT("bat", "killing a Bat", "passive") {{
+    BAT("bat", "killing a Bat", "passive", BatEffects::new) {{
         addRarity(RarityLevel.RARE, 0.04f, false, "Gain night vision");
         addRarity(RarityLevel.EPIC, 0.01f, true, "Reveal nearby entity when sneaking");
         addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "While sneaking, being hit blinds the attacker and grants you Invisibility, Speed, and Invulnerability, but disables your damage. Lasts " + BatEffects.INVISIBILITY_DURATION / 20 + "s and ends early if you stop sneaking. (" + BatEffects.INVISIBILITY_COOLDOWN/20 + "s cooldown)");
     }},
-    HORSE("horse", "taming a Horse", "passive") {{
+    HORSE("horse", "taming a Horse", "passive", HorseEffects::new) {{
         addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Horses you ride take " + probToStr(HorseEffects.DAMAGE_IGNORED_PERCENTAGE) + "% reduced damage");
         addRarity(RarityLevel.RARE, 0.03f, false, "Jump Boost " + (HorseEffects.JUMP_BOOST_EFFECT_AMPLIFIER + 1) + " when riding a horse");
         addRarity(RarityLevel.EPIC, 0.008f, true, "Speed " + (HorseEffects.SPEED_EFFECT_AMPLIFIER + 1) + " when riding a horse");
@@ -58,33 +58,33 @@ public enum CardType implements StringRepresentable {
 
     // Neutral
 
-    IRON_GOLEM("iron_golem", " summoning an Iron Golem", "neutral") {{
+    IRON_GOLEM("iron_golem", " summoning an Iron Golem", "neutral", IronGolemEffects::new) {{
         addRarity(RarityLevel.RARE, 0.10f, false, probToStr(IronGolemEffects.RESISTANCE_ON_ATTACKED_PROBABILITY) + "% chance to gain resistance " + (IronGolemEffects.RESISTANCE_AMPLIFIER + 1) + " for " + IronGolemEffects.RESISTANCE_DURATION / 20 + "s when attacked");
         addRarity(RarityLevel.EPIC, 0.025f, true, "Hitting with fist knock back enemies (" + IronGolemEffects.KNOCKBACK_HIT_COOLDOWN / 20 + "s cooldown)");
         addRarity(RarityLevel.LEGENDARY, 0.004f, true, "Falling creates shock wave (" + IronGolemEffects.SHOCKWAVE_COOLDOWN / 20 + "s cooldown)");
     }},
-    ENDERMAN("enderman", "killing an Enderman", "neutral") {{
+    ENDERMAN("enderman", "killing an Enderman", "neutral", EnderManEffects::new) {{
         addRarity(RarityLevel.UNCOMMON, 0.06f, false, "Resistance " + (EnderManEffects.RESISTANCE_EFFECT_AMPLIFIER + 1) + " in the End");
         addRarity(RarityLevel.RARE, 0.01f, false, "No ender pearl damage");
         addRarity(RarityLevel.EPIC, 0.001f, true, "No ender pearl cooldown");
         addRarity(RarityLevel.LEGENDARY, 0.0001f, true, EnderManEffects.PROJECTILE_DODGE_PROBABILITY + "% chance to dodge projectile");
     }},
-    PIGLIN("piglin", "killing a piglin", "neutral") {{
+    PIGLIN("piglin", "killing a piglin", "neutral", PiglinEffects::new) {{
         addRarity(RarityLevel.UNCOMMON, 0.07f, false, "Piglins do not attack you");
         addRarity(RarityLevel.RARE, 0.03f, false, "Gold food gives a random buff for " + PiglinEffects.BUFF_DURATION / 20 + "s when eaten");
         addRarity(RarityLevel.EPIC, 0.008f, true, "Piglin brutes do not attack you");
         addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Gold items are significantly more durable");
     }},
-    ZOMBIFIED_PIGLIN("zombified_piglin", "killing a zombified piglin", "neutral") {{
+    ZOMBIFIED_PIGLIN("zombified_piglin", "killing a zombified piglin", "neutral", ZombifiedPiglinEffects::new) {{
         addRarity(RarityLevel.EPIC, 0.003f, false, "Zombified piglins do not attack you");
         addRarity(RarityLevel.LEGENDARY, 0.0002f, true, probToStr(ZombifiedPiglinEffects.SPAWN_REINFORCEMENTS_CHANCE) + "% chance to spawn " + ZombifiedPiglinEffects.MAX_REINFORCEMENTS + " zombified piglins to help you when hit by a player");
     }},
-    BEE("bee", "collecting honey", "neutral") {{
+    BEE("bee", "collecting honey", "neutral", BeeEffects::new) {{
         addRarity(RarityLevel.RARE, 0.07f, false, "Drinking honey gives speed " + (BeeEffects.SPEED_EFFECT_AMPLIFIER + 1) + " for " + BeeEffects.SPEED_EFFECT_DURATION / 20 + "s");
         addRarity(RarityLevel.EPIC, 0.015f, true, "Drinking honey gives regeneration " + (BeeEffects.REGENERATION_EFFECT_AMPLIFIER + 1) + " for " + BeeEffects.REGENERATION_EFFECT_DURATION / 20 + "s");
         addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "Drinking honey gives health boost " + (BeeEffects.HEALTH_BOOST_EFFECT_AMPLIFIER + 1) + " for " + BeeEffects.HEALTH_BOOST_EFFECT_DURATION / 20 + "s");
     }},
-    WOLF("wolf", "taming a Wolf", "neutral") {{
+    WOLF("wolf", "taming a Wolf", "neutral", WolfEffects::new) {{
         addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Your wolves gain Resistance " + (WolfEffects.RESISTANCE_AMPLIFIER + 1));
         addRarity(RarityLevel.RARE, 0.035f, false, "Your wolves gain strength " + (WolfEffects.STRENGTH_AMPLIFIER + 1));
         addRarity(RarityLevel.EPIC, 0.01f, true, "Killing an enemy heals your wolves (" +  probToStr(WolfEffects.HEAL_PERCENTAGE) + "% of max health)");
@@ -93,26 +93,26 @@ public enum CardType implements StringRepresentable {
 
     // Hostile
 
-    ENDER_DRAGON("ender_dragon", "summoning an Ender Dragon", "hostile") {{
+    ENDER_DRAGON("ender_dragon", "summoning an Ender Dragon", "hostile", EnderDragonEffects::new) {{
         addRarity(RarityLevel.RARE, 0.35f, false, "Gliding does not consume durability");
         addRarity(RarityLevel.EPIC, 0.12f, true, "Cancel all kinetic damage while gliding");
         addRarity(RarityLevel.LEGENDARY, 0.03f, true, "Any chestplate allows gliding without elytra");
     }},
-    WITHER("wither", "summoning a Wither", "hostile") {{
+    WITHER("wither", "summoning a Wither", "hostile", WitherEffects::new) {{
         addRarity(RarityLevel.COMMON, 0.75f, false, probToStr(WitherEffects.WITHER_ROSE_DROP_PROBABILITY) + "% chance that a mob drops a wither rose when killed");
         addRarity(RarityLevel.UNCOMMON, 0.45f, true, "Immunity to wither effect");
         addRarity(RarityLevel.RARE, 0.22f, true, probToStr(WitherEffects.WITHER_EFFECT_PROBABILITY) + "% chance to inflict wither " + (WitherEffects.WITHER_EFFECT_AMPLIFIER + 1) + " effect on hit for " + WitherEffects.WITHER_EFFECT_DURATION / 20 + "s");
         addRarity(RarityLevel.EPIC, 0.09f, true, "Increase damage on enemies with wither effect (" + probToStr(WitherEffects.DAMAGE_INCREASE_PROBABILITY) + "% chance per damage point)");
         addRarity(RarityLevel.LEGENDARY, 0.035f, true, "Heal based on the damage dealt on enemies with wither effect (" + probToStr(WitherEffects.LIFE_STEAL_PROBABILITY) + "% chance per damage point)");
     }},
-    ZOMBIE("zombie", "killing a zombie", "hostile") {{
+    ZOMBIE("zombie", "killing a zombie", "hostile", ZombieEffects::new) {{
         addRarity(RarityLevel.COMMON, 0.20f, false, "No hunger when eating rotten flesh");
         addRarity(RarityLevel.UNCOMMON, 0.07f, false, "Rotten flesh gives +" + ZombieEffects.ROTTEN_FLESH_FOOD_INCREASE + " food");
         addRarity(RarityLevel.RARE, 0.025f, false, "Rotten flesh gives strength " + (ZombieEffects.STRENGTH_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.STRENGTH_EFFECT_DURATION / 20 + "s");
         addRarity(RarityLevel.EPIC, 0.004f, true, "Rotten flesh gives regeneration " + (ZombieEffects.REGENERATION_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.REGENERATION_EFFECT_DURATION / 20 + "s");
         addRarity(RarityLevel.LEGENDARY, 0.00035f, true, "All zombies variants do not attack you");
     }},
-    CREEPER("creeper", "killing a Creeper", "hostile") {{
+    CREEPER("creeper", "killing a Creeper", "hostile", CreeperEffects::new) {{
         addRarity(RarityLevel.UNCOMMON, 0.06f, false, "Explosions damage you " + probToStr(CreeperEffects.EXPLOSION_DAMAGE_REDUCTION) + "% less");
         addRarity(RarityLevel.RARE, 0.025f, false, "Explosions knock you back " + probToStr(CreeperEffects.EXPLOSION_KNOCKBACK_REDUCTION) + "% less");
         addRarity(RarityLevel.EPIC, 0.006f, true, "When hit, " + probToStr(CreeperEffects.EXPLOSION_PROBABILITY) + "% chance to create a blast (no blocks damage)");
@@ -128,10 +128,11 @@ public enum CardType implements StringRepresentable {
     private final String condition;
     private final String cardGroup;
 
-    CardType(String id, String condition, String cardGroup) {
+    CardType(String id, String condition, String cardGroup, Supplier<CardEffects> effectRegistration) {
         this.id = id;
         this.condition = condition;
         this.cardGroup = cardGroup;
+        effectRegistration.get().setCardType(this);
     }
 
     /// Adds one supported rarity tier to this card type.

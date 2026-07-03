@@ -6,11 +6,12 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import polycube.polycard.card.CardType;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class BeeEffects {
+public class BeeEffects extends CardEffects implements ItemConsumedEventCallback {
     public static final CardType CARD_TYPE = CardType.BEE;
 
     public static final int SPEED_EFFECT_DURATION = 20 * 60;
@@ -22,11 +23,8 @@ public class BeeEffects {
     public static final int HEALTH_BOOST_EFFECT_DURATION = 20 * 60;
     public static final int HEALTH_BOOST_EFFECT_AMPLIFIER = 1;
 
-    public static void register() {
-        ItemConsumedEventCallback.EVENT.register(BeeEffects::onHoneyBottleConsumed);
-    }
-
-    private static void onHoneyBottleConsumed(ServerPlayer player, ItemStack itemStack) {
+    @Override
+    public void onItemConsumed(ServerPlayer player, ItemStack itemStack) {
         if (itemStack.is(Items.HONEY_BOTTLE)) {
             var playerName = player.getDisplayName().getString();
             CardRarityConditions.of(player, CARD_TYPE)

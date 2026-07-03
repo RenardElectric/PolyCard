@@ -10,9 +10,9 @@ public interface TameEventCallback {
     Event<TameEventCallback> EVENT = EventFactory.createArrayBacked(TameEventCallback.class,
             (listeners) -> (player, animal) -> {
                 for (var listener : listeners) {
-                    listener.tame(player, animal);
+                    listener.onTame(player, animal);
                 }
             });
 
-    void tame(ServerPlayer player, Animal animal);
+    void onTame(ServerPlayer player, Animal animal);
 }

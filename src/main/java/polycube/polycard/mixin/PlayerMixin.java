@@ -41,7 +41,7 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
     @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;removeEntitiesOnShoulder()V"), cancellable = true)
     private void onHurt(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         modifiedDamage = new MutableFloat(damage);
-        if (EntityHurtEventCallback.EVENT.invoker().interact(this, level, source, modifiedDamage) == InteractionResult.FAIL) {
+        if (EntityHurtEventCallback.EVENT.invoker().onEntityHurt(this, level, source, modifiedDamage) == InteractionResult.FAIL) {
             cir.setReturnValue(false);
         }
     }

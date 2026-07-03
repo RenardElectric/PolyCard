@@ -1,4 +1,4 @@
-package polycube.polycard.events.guiEvents;
+package polycube.polycard.events;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -17,8 +17,8 @@ import polycube.polycard.utils.Helpers;
 
 /// Equips a card from the player's hand, or swaps it with an equipped card of the same type.
 /// Sneaking leaves the item use untouched so players can still access normal item behavior.
-public class CardItemUseEvent implements ItemUseEventCallback {
-    public InteractionResult interact(ServerPlayer player, Level world, InteractionHand hand) {
+public class CardItemUseEvent extends EventHandler implements ItemUseEventCallback {
+    public InteractionResult onItemUse(ServerPlayer player, Level world, InteractionHand hand) {
         if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
@@ -49,7 +49,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
             // Different rarity of the same type: equip the held card and return the old one.
             if (playerData.unequipCardType(card.cardType())) {
                 var equippedCard = new Card(card.cardType(), equippedRarityLevel);
-                CardEventCallback.UNEQUIPPED.invoker().cardEvent(player, equippedCard);
+                CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, equippedCard);
                 var result = equipCard(playerData, item, player, card);
                 player.getInventory().placeItemBackInInventory(equippedCard.asItem());
                 return result;
@@ -69,7 +69,7 @@ public class CardItemUseEvent implements ItemUseEventCallback {
 
     private InteractionResult equipCard(PlayerData playerData, ItemStack item, ServerPlayer player, Card card) {
         if (playerData.equipCard(card)) {
-            CardEventCallback.EQUIPPED.invoker().cardEvent(player, card);
+            CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
             item.shrink(1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormattedName()));
             Helpers.debug("{} equipped card: {}", player.getName().getString(), card);

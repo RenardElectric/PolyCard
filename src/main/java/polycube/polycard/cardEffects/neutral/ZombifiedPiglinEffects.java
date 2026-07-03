@@ -14,28 +14,22 @@ import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jspecify.annotations.Nullable;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.utils.Helpers;
 
-public class ZombifiedPiglinEffects {
-    public static final CardType CARD_TYPE = CardType.ZOMBIFIED_PIGLIN;
-
+public class ZombifiedPiglinEffects extends CardEffects implements IsTargetedEventCallback, EntityHurtEventCallback {
     public static final float SPAWN_REINFORCEMENTS_CHANCE = 0.25f;
     public static final int MAX_REINFORCEMENTS = 3;
 
-    public static void register() {
-        IsTargetedEventCallback.EVENT.register(ZombifiedPiglinEffects::canBeTargeted);
-        EntityHurtEventCallback.EVENT.register(ZombifiedPiglinEffects::onPlayerHurt);
-    }
-
-    private static InteractionResult canBeTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData targetingConditionsData) {
+    @Override
+    public InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData targetingConditionsData) {
         if (target instanceof ServerPlayer player) {
             if (targeter instanceof ZombifiedPiglin) {
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
+                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC)) {
                     return InteractionResult.FAIL;
                 }
             }
@@ -44,10 +38,11 @@ public class ZombifiedPiglinEffects {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
+    @Override
+    public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
             if (source.getEntity() instanceof ServerPlayer attackingPlayer) {
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.LEGENDARY)) {
+                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.LEGENDARY)) {
                     var random = player.getRandom();
                     if (random.nextFloat() < SPAWN_REINFORCEMENTS_CHANCE && level.isSpawningMonsters()) {
                         int x = Mth.floor(player.getX());

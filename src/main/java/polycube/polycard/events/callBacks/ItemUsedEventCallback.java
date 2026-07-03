@@ -16,9 +16,9 @@ public interface ItemUsedEventCallback {
                 }
 
                 for (var listener : listeners) {
-                    listener.interact(player, level, hand, itemUseResult);
+                    listener.onItemUsed(player, level, hand, itemUseResult);
                 }
             });
 
-    void interact(ServerPlayer player, ServerLevel level, InteractionHand hand, InteractionResult itemUseResult);
+    void onItemUsed(ServerPlayer player, ServerLevel level, InteractionHand hand, InteractionResult itemUseResult);
 }

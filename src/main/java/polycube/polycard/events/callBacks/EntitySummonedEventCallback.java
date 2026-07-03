@@ -10,9 +10,9 @@ public interface EntitySummonedEventCallback {
     Event<EntitySummonedEventCallback> EVENT = EventFactory.createArrayBacked(EntitySummonedEventCallback.class,
             (listeners) -> (player, entity) -> {
                 for (var listener : listeners) {
-                    listener.interact(player, entity);
+                    listener.onSummon(player, entity);
                 }
             });
 
-    void interact(ServerPlayer player, Entity entity);
+    void onSummon(ServerPlayer player, Entity entity);
 }

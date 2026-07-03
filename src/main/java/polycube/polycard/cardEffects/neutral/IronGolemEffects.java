@@ -14,16 +14,14 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.PolyCard;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class IronGolemEffects {
-    public static final CardType CARD_TYPE = CardType.IRON_GOLEM;
-
+public class IronGolemEffects extends CardEffects implements EntityHurtEventCallback {
     public static final float RESISTANCE_ON_ATTACKED_PROBABILITY = 0.2f;
     public static final int RESISTANCE_DURATION = 20 * 10;
     public static final int RESISTANCE_AMPLIFIER = 0;
@@ -37,14 +35,11 @@ public class IronGolemEffects {
     public static final int SHOCKWAVE_COOLDOWN = 200;
     public static final int MAX_SHOCKWAVE_DAMAGE = 15;
 
-    public static void register() {
-        EntityHurtEventCallback.EVENT.register(IronGolemEffects::onPlayerHurt);
-    }
-
-    public static InteractionResult onPlayerHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
+    @Override
+    public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
 
         if (entity instanceof ServerPlayer player) {
-            CardRarityConditions.of(player, CARD_TYPE)
+            CardRarityConditions.of(player, cardType)
                     .hasRare(() -> {
                         if (source.is(DamageTypeTags.IS_PROJECTILE)) {
                             Helpers.debug("{} has a rare or higher Iron Golem card and was attacked. Chance to gain resistance: {}%", player.getName().getString(), RESISTANCE_ON_ATTACKED_PROBABILITY);
@@ -67,7 +62,7 @@ public class IronGolemEffects {
 
         if (source.getEntity() instanceof ServerPlayer player) {
             if (source.isDirect() && source.getWeaponItem() != null && source.getWeaponItem().is(Items.AIR)) {
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC)) {
+                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC)) {
                     if (PolyCard.COOLDOWNS.isReadyOrCreate(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
                         Helpers.debug("{} has an epic or higher Iron Golem card, applying knockback on hit", player.getName().getString());
                         double xd = 0.0;

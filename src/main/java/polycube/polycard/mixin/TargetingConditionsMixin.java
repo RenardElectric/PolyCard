@@ -36,7 +36,7 @@ public abstract class TargetingConditionsMixin {
     private boolean isTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, Operation<Boolean> original) {
         var result = original.call(level, targeter, target);
         var targetingConditionsData = new IsTargetedEventCallback.TargetingConditionsData(isCombat, range, checkLineOfSight, testInvisible, selector, result);
-        var interactionResult = IsTargetedEventCallback.EVENT.invoker().interact(level, targeter, target, targetingConditionsData);
+        var interactionResult = IsTargetedEventCallback.EVENT.invoker().onTargeted(level, targeter, target, targetingConditionsData);
         return interactionResult != InteractionResult.FAIL && (interactionResult == InteractionResult.SUCCESS || result);
     }
 }

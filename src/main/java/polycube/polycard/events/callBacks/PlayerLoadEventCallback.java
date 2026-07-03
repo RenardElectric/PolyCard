@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 /// Fired when a ServerPlayer instance is constructed so equipment attributes can be re-applied.
 public interface PlayerLoadEventCallback {
-    Event<PlayerLoadEventCallback> JOIN = EventFactory.createArrayBacked(PlayerLoadEventCallback.class,
+    Event<PlayerLoadEventCallback> EVENT = EventFactory.createArrayBacked(PlayerLoadEventCallback.class,
             callbacks -> player -> {
                 for (var callback : callbacks) {
                     callback.interact(player);

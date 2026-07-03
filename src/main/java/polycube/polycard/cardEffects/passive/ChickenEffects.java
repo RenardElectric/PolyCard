@@ -1,5 +1,6 @@
 package polycube.polycard.cardEffects.passive;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -19,10 +20,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableFloat;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
+import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
@@ -30,9 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class ChickenEffects {
-    public static final CardType CARD_TYPE = CardType.CHICKEN;
-
+public class ChickenEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback {
     public static final float EGG_DAMAGE = 1.0F;
 
     public static final int SPEED_EFFECT_DURATION = 20 * 2;
@@ -44,51 +44,50 @@ public class ChickenEffects {
 
     public static final float THROW_EGG_PROBABILITY = 0.5f;
 
-    public static void register() {
-        EntityHurtEventCallback.EVENT.register(ChickenEffects::onHurt);
+    private static final Map<UUID, Integer> EGG_TIMES = new HashMap<>();
 
-        Map<UUID, Integer> eggTimes = new HashMap<>();
-        Helpers.addPlayerTask((server, player) -> {
-            var uuid = player.getUUID();
+    @Override
+    public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
+        var uuid = player.getUUID();
 
-            CardRarityConditions.of(player, CARD_TYPE)
-                    .hasCommon(() -> {
-                        var eggTime = eggTimes.computeIfAbsent(uuid, _ -> player.getRandom().nextInt(6000) + 6000);
-                        if (--eggTime < 0) {
-                            var level = player.level();
-                            var chicken = EntityTypes.CHICKEN.create(level, EntitySpawnReason.TRIGGERED);
-                            if (chicken != null) {
-                                chicken.remove(Entity.RemovalReason.DISCARDED);
-                                if (chicken.dropFromGiftLootTable(level, BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {
-                                    Helpers.debug("{} has the common chicken card and laid an egg.", player.getName().getString());
-                                    level.playSound(null, player.getX(), player.getY() - 1, player.getZ(), SoundEvents.CHICKEN_EGG, SoundSource.PLAYERS, 0.2f, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
-                                    eggTime = player.getRandom().nextInt(6000) + 6000;
-                                }
+        CardRarityConditions.of(player, cardType)
+                .hasCommon(() -> {
+                    var eggTime = EGG_TIMES.computeIfAbsent(uuid, _ -> player.getRandom().nextInt(6000) + 6000);
+                    if (--eggTime < 0) {
+                        var level = player.level();
+                        var chicken = EntityTypes.CHICKEN.create(level, EntitySpawnReason.TRIGGERED);
+                        if (chicken != null) {
+                            chicken.remove(Entity.RemovalReason.DISCARDED);
+                            if (chicken.dropFromGiftLootTable(level, BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {
+                                Helpers.debug("{} has the common chicken card and laid an egg.", player.getName().getString());
+                                level.playSound(null, player.getX(), player.getY() - 1, player.getZ(), SoundEvents.CHICKEN_EGG, SoundSource.PLAYERS, 0.2f, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
+                                eggTime = player.getRandom().nextInt(6000) + 6000;
                             }
                         }
-                        eggTimes.put(uuid, eggTime);
-                    }, () -> eggTimes.remove(uuid))
-                    .hasRare(() -> {
-                        if (Helpers.nearPlayerWithCard(player, CARD_TYPE, RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
-                            player.addEffect(new MobEffectInstance(MobEffects.SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_AMPLIFIER, true, true));
-                        }
-                    })
-                    .hasLegendary(() -> {
-                        if (player.fallDistance > 2 && player.isCrouching()) {
-                            player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, SLOW_FALLING_DURATION, SLOW_FALLING_AMPLIFIER, false, true, true));
-                        }
-                    });
-        });
+                    }
+                    EGG_TIMES.put(uuid, eggTime);
+                }, () -> EGG_TIMES.remove(uuid))
+                .hasRare(() -> {
+                    if (Helpers.nearPlayerWithCard(player, cardType, RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
+                        player.addEffect(new MobEffectInstance(MobEffects.SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_AMPLIFIER, true, true));
+                    }
+                })
+                .hasLegendary(() -> {
+                    if (player.fallDistance > 2 && player.isCrouching()) {
+                        player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, SLOW_FALLING_DURATION, SLOW_FALLING_AMPLIFIER, false, true, true));
+                    }
+                });
     }
 
     private static boolean ignore = false;
 
-    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
+    @Override
+    public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (ignore) return InteractionResult.PASS;
 
         if (source.getDirectEntity() instanceof ThrownEgg egg) {
             if (egg.getOwner() instanceof ServerPlayer player) {
-                if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
+                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.UNCOMMON)) {
                     ignore = true;
                     Helpers.debug("{} has the uncommon chicken card and hit {} with an egg. Hurting the entity for {} damage.", player.getName().getString(), entity.getName().getString(), EGG_DAMAGE);
                     entity.hurtServer(level, egg.damageSources().thrown(egg, player), EGG_DAMAGE);
@@ -98,7 +97,7 @@ public class ChickenEffects {
         }
 
         if (entity instanceof ServerPlayer player) {
-            if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.EPIC) && player.getRandom().nextFloat() < THROW_EGG_PROBABILITY) {
+            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC) && player.getRandom().nextFloat() < THROW_EGG_PROBABILITY) {
                 var pos = source.getSourcePosition();
                 var attacker = source.getEntity();
                 if (attacker != null) {

@@ -45,7 +45,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Wa
         modifiedDamage = new MutableFloat(damage);
         var entity = (LivingEntity) (Object) this;
         if (!(entity instanceof Player)) {
-            if (EntityHurtEventCallback.EVENT.invoker().interact(entity, level, source, modifiedDamage) == InteractionResult.FAIL) {
+            if (EntityHurtEventCallback.EVENT.invoker().onEntityHurt(entity, level, source, modifiedDamage) == InteractionResult.FAIL) {
                 cir.setReturnValue(false);
             }
         }

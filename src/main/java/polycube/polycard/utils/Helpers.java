@@ -14,6 +14,7 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
+import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -72,7 +73,6 @@ public final class Helpers {
     }
 
     private static final List<ScheduledTask> TASKS = new ArrayList<>();
-    private static final List<BiConsumer<MinecraftServer, ServerPlayer>> PLAYER_TASKS = new ArrayList<>();
 
     /// Schedules a one-shot task on the server tick loop.
     public static void runLater(int ticks, Consumer<MinecraftServer> runnable) {
@@ -82,11 +82,6 @@ public final class Helpers {
     /// Schedules a task on the server tick loop; period 0 makes it one-shot.
     public static void runTaskTimer(int delay, int period, Consumer<MinecraftServer> runnable) {
         TASKS.add(new ScheduledTask(new AtomicInteger(delay), period, runnable));
-    }
-
-    /// Registers a task that runs once per online player each server tick.
-    public static void addPlayerTask(BiConsumer<MinecraftServer, ServerPlayer> task) {
-        PLAYER_TASKS.add(task);
     }
 
     private record ScheduledTask(AtomicInteger ticksLeft, int period, Consumer<MinecraftServer> runnable) { }
@@ -107,7 +102,7 @@ public final class Helpers {
         }
 
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            PLAYER_TASKS.forEach(task -> task.accept(server, player));
+            PlayerTickEventCallback.EVENT.invoker().onPlayerTick(server, player);
         }
     }
 

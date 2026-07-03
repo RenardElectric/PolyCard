@@ -12,7 +12,7 @@ public interface ProjectileOnHitEventCallback {
     Event<ProjectileOnHitEventCallback> EVENT = EventFactory.createArrayBacked(ProjectileOnHitEventCallback.class,
             (listeners) -> (projectile, hitResult) -> {
                 for (var listener : listeners) {
-                    InteractionResult result = listener.interact(projectile, hitResult);
+                    InteractionResult result = listener.onProjectileHit(projectile, hitResult);
 
                     if (result != InteractionResult.PASS) {
                         return result;
@@ -22,5 +22,5 @@ public interface ProjectileOnHitEventCallback {
                 return InteractionResult.PASS;
             });
 
-    InteractionResult interact(Projectile projectile, HitResult hitResult);
+    InteractionResult onProjectileHit(Projectile projectile, HitResult hitResult);
 }

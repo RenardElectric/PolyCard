@@ -19,6 +19,6 @@ import java.util.Optional;
 public abstract class BredAnimalsTriggerMixin extends SimpleCriterionTrigger<BredAnimalsTrigger.TriggerInstance> {
     @Inject(method = "trigger", at = @At("HEAD"))
     private void animalBred(ServerPlayer player, Animal parent, Animal partner, @Nullable AgeableMob child, CallbackInfo ci) {
-        BreedEventCallback.EVENT.invoker().breed(player, parent, partner, Optional.ofNullable(child));
+        BreedEventCallback.EVENT.invoker().onBreed(player, parent, partner, Optional.ofNullable(child));
     }
 }

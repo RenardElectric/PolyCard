@@ -11,17 +11,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.mutable.MutableFloat;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
-import polycube.polycard.events.callBacks.KillEventCallback;
+import polycube.polycard.events.callBacks.PlayerKillEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class WitherEffects {
-    public static final CardType CARD_TYPE = CardType.WITHER;
-
+public class WitherEffects extends CardEffects implements PlayerKillEventCallback, EntityHurtEventCallback {
     public static final float WITHER_ROSE_DROP_PROBABILITY = 0.25f;
 
     public static final float WITHER_EFFECT_PROBABILITY = 0.2f;
@@ -32,13 +30,9 @@ public class WitherEffects {
 
     public static final float LIFE_STEAL_PROBABILITY = 0.1f;
 
-    public static void register() {
-        KillEventCallback.EVENT.register(WitherEffects::onKill);
-        EntityHurtEventCallback.EVENT.register(WitherEffects::onHurt);
-    }
-
-    private static void onKill(ServerPlayer player, Entity entity, DamageSource damageSource) {
-        if (PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.COMMON)) {
+    @Override
+    public void onPLayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {
+        if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.COMMON)) {
             if (player.getRandom().nextFloat() < WITHER_ROSE_DROP_PROBABILITY) {
                 Helpers.debug("{} has the common wither card and killed {}, dropping a wither rose with a probability of {}", player.getName().getString(), entity.getName().getString(), WITHER_ROSE_DROP_PROBABILITY);
                 entity.spawnAtLocation(player.level(), Items.WITHER_ROSE);
@@ -46,9 +40,10 @@ public class WitherEffects {
         }
     }
 
-    private static InteractionResult onHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
+    @Override
+    public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
-            if (source.is(DamageTypes.WITHER) && PlayerData.hasCardOrRarer(player, CARD_TYPE, RarityLevel.UNCOMMON)) {
+            if (source.is(DamageTypes.WITHER) && PlayerData.hasCardOrRarer(player, cardType, RarityLevel.UNCOMMON)) {
                 return InteractionResult.FAIL;
             }
         }
@@ -56,7 +51,7 @@ public class WitherEffects {
         var attacker = source.getEntity();
         if (attacker instanceof ServerPlayer player) {
             var random = player.getRandom();
-            CardRarityConditions.of(player, CARD_TYPE)
+            CardRarityConditions.of(player, cardType)
                     .hasRare(() -> {
                         if (random.nextFloat() < WITHER_EFFECT_PROBABILITY)
                             entity.addEffect(new MobEffectInstance(MobEffects.WITHER, WITHER_EFFECT_DURATION, WITHER_EFFECT_AMPLIFIER, false, true), player);

@@ -1,6 +1,7 @@
 package polycube.polycard.cardEffects.passive;
 
 import net.minecraft.core.Holder;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -9,17 +10,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.Vec3;
-import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
+import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
 
-public class CowEffects {
-    public static final CardType CARD_TYPE = CardType.COW;
-
+public class CowEffects extends CardEffects implements PlayerTickEventCallback, ItemConsumedEventCallback {
     public static final int REGEN_HEALTH_GAIN_HEARTS = 8;
 
     public static final int STILL_DELAY = 20 * 20;
@@ -46,49 +46,47 @@ public class CowEffects {
     private static final Map<UUID, Vec3> lastLocations = new HashMap<>();
     private static final Map<UUID, Integer> lastMoveTimes = new HashMap<>();
 
-    public static void register() {
-        ItemConsumedEventCallback.EVENT.register(CowEffects::onBucketUsed);
-
-        Helpers.addPlayerTask((server, player) -> {
-            CardRarityConditions.of(player, CARD_TYPE)
-                    .hasUncommon(() -> {
-                        var pos = player.blockPosition();
-                        //noinspection resource
-                        var level = player.level();
-                        var biome = level.getBiome(pos);
-                        if (!biome.is(Biomes.PLAINS)) {
-                            lastLocations.remove(player.getUUID());
-                            lastMoveTimes.remove(player.getUUID());
-                            return;
-                        }
-
-                        UUID playerId = player.getUUID();
-                        Vec3 currentLocation = player.position();
-                        Vec3 previousLocation = lastLocations.put(playerId, currentLocation);
-                        if (previousLocation == null || previousLocation.distanceToSqr(currentLocation) > 0.0001D) {
-                            lastMoveTimes.remove(playerId);
-                            return;
-                        }
-                        Integer lastMoveTime = lastMoveTimes.put(playerId, lastMoveTimes.getOrDefault(playerId, 0) + 1);
-                        if (lastMoveTime != null && lastMoveTime >= STILL_DELAY) {
-                            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER, true, true));
-                        }
-                    }, () -> {
+    @Override
+    public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
+        CardRarityConditions.of(player, cardType)
+                .hasUncommon(() -> {
+                    var pos = player.blockPosition();
+                    //noinspection resource
+                    var level = player.level();
+                    var biome = level.getBiome(pos);
+                    if (!biome.is(Biomes.PLAINS)) {
                         lastLocations.remove(player.getUUID());
                         lastMoveTimes.remove(player.getUUID());
-                    })
-                    .hasRare(() -> {
-                        if (Helpers.nearPlayerWithCard(player, CARD_TYPE, RarityLevel.RARE, RESISTANCE_DISTANCE_SQUARED)) {
-                            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
-                        }
-                    });
-        });
+                        return;
+                    }
+
+                    UUID playerId = player.getUUID();
+                    Vec3 currentLocation = player.position();
+                    Vec3 previousLocation = lastLocations.put(playerId, currentLocation);
+                    if (previousLocation == null || previousLocation.distanceToSqr(currentLocation) > 0.0001D) {
+                        lastMoveTimes.remove(playerId);
+                        return;
+                    }
+                    Integer lastMoveTime = lastMoveTimes.put(playerId, lastMoveTimes.getOrDefault(playerId, 0) + 1);
+                    if (lastMoveTime != null && lastMoveTime >= STILL_DELAY) {
+                        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER, true, true));
+                    }
+                }, () -> {
+                    lastLocations.remove(player.getUUID());
+                    lastMoveTimes.remove(player.getUUID());
+                })
+                .hasRare(() -> {
+                    if (Helpers.nearPlayerWithCard(player, cardType, RarityLevel.RARE, RESISTANCE_DISTANCE_SQUARED)) {
+                        player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
+                    }
+                });
     }
 
-    private static void onBucketUsed(ServerPlayer player, ItemStack itemStack) {
+    @Override
+    public void onItemConsumed(ServerPlayer player, ItemStack itemStack) {
         if (itemStack.getItem() == Items.MILK_BUCKET) {
 
-            CardRarityConditions.of(player, CARD_TYPE)
+            CardRarityConditions.of(player, cardType)
                     .hasEpic(() -> {
                         var random = new Random();
                         List<MobEffectInstance> effectsGained = new ArrayList<>();
