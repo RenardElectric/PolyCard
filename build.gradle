@@ -2,8 +2,7 @@ plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 }
 
-version = project.mod_version
-base.archivesName = rootProject.name
+version = mod_version
 
 repositories {
 	maven {
@@ -46,18 +45,34 @@ dependencies {
 }
 
 processResources {
-	def resourceProperties = [version: project.version]
+	def resourceProperties = [
+			version: mod_version,
+			minecraft_version: minecraft_version,
+			loader_version: loader_version,
+			java_version: java_version
+	]
 	inputs.properties(resourceProperties)
 	filesMatching("fabric.mod.json") {
 		expand(resourceProperties)
 	}
 }
 
+def targetJavaVersion = Integer.parseInt(java_version)
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = "UTF-8"
-	options.release = 25
+	options.release = targetJavaVersion
+}
+
+java {
+	def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+	if (JavaVersion.current() < javaVersion) {
+		toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+	}
+	withSourcesJar()
 }
 
 jar {
-	from("LICENSE")
+	from("LICENSE") {
+		rename { "${it}_$name" }
+	}
 }

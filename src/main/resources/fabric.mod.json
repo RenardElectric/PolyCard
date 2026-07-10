@@ -26,9 +26,9 @@
     "polycard.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.19.3",
-    "minecraft": "~26.2",
-    "java": ">=25",
+    "java": ">=${java_version}",
+    "minecraft": "${minecraft_version}",
+    "fabricloader": ">=${loader_version}",
     "fabric-api": "*"
   },
   "accessWidener": "polycard.classtweaker"
