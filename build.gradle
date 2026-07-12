@@ -57,7 +57,7 @@ processResources {
 	}
 }
 
-def targetJavaVersion = Integer.parseInt(java_version)
+def targetJavaVersion = java_version as int
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = "UTF-8"
 	options.release = targetJavaVersion
