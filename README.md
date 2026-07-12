@@ -35,9 +35,13 @@ Achievements track the player's progress in obtaining cards.
   - Combine the cards the player is holding into a new card of a greater rarity.
 
 
+- /polycard cooldown
+  - Gets the currently active cooldowns for a player
+
+
 - /polycard give \<player> \<cardType> \[rarityLevel]
     - Give a card to a player (admins only).
 
 
-- /polycard test \<cardType>
+- /polycard test \<cardType> \[cardsNumber]
     - Test the card rolling system (admins only).

@@ -17,7 +17,7 @@ public class TestCommand extends PolyCardCommand {
         super(
                 "test",
                 "Test the card rolling system",
-                "<cardType>",
+                "<cardType> [cardsNumber]",
                 PermissionLevel.GAMEMASTERS
         );
     }
@@ -29,7 +29,7 @@ public class TestCommand extends PolyCardCommand {
                         .suggests(CardTypeArgument::suggestCards)
                         .executes(this::execute)
                         .then(
-                                Commands.argument("cardNumber", IntegerArgumentType.integer(1, 10000))
+                                Commands.argument("cardsNumber", IntegerArgumentType.integer(1, 10000))
                                         .executes(this::execute)
                         )
         );
@@ -43,9 +43,9 @@ public class TestCommand extends PolyCardCommand {
         }
 
         var cardType = optionalCardType.get();
-        var cardNumber = 1000;
+        var cardsNumber = 1000;
         try {
-            cardNumber = IntegerArgumentType.getInteger(context, "cardNumber");
+            cardsNumber = IntegerArgumentType.getInteger(context, "cardsNumber");
         } catch (Exception e) {
             // Optional argument was omitted; keep the default sample size.
         }
@@ -55,7 +55,7 @@ public class TestCommand extends PolyCardCommand {
         int rare = 0;
         int epic = 0;
         int legendary = 0;
-        for (int i = 0; i < cardNumber; i++) {
+        for (int i = 0; i < cardsNumber; i++) {
             var rarity = CardHelper.getRandomRarityLevel(cardType);
             if (rarity.isPresent()) {
                 switch (rarity.get()) {
