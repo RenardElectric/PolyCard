@@ -13,24 +13,40 @@ import polycube.polycard.card.CardType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-/// Registers generated card item ids used by the item model data generator.
+/// Registers placeholder card items used only while generating item-model JSON.
+///
+/// The real card stacks are knowledge books with a custom ITEM_MODEL component, so registering
+/// these placeholders during a normal client launch would create client-only registry entries
+/// that are absent from a dedicated server.
 public class PolyCardClient implements ClientModInitializer {
-    public static final Map<Card, Item> CARD_ITEM_MAP = new HashMap<>();
+    private static final String DATAGEN_PROPERTY = "fabric-api.datagen";
+    private static final Map<Card, Item> DATAGEN_CARD_ITEMS = new HashMap<>();
 
     @Override
     public void onInitializeClient() {
+        if (System.getProperty(DATAGEN_PROPERTY) == null) {
+            PolyCard.LOGGER.debug("Skipping datagen-only card item registration");
+            return;
+        }
+
         for (var cardType : CardType.values()) {
             for (var rarity : cardType.getRarities()) {
                 var rarityLevel = rarity.rarityLevel();
                 Card card = new Card(cardType, rarityLevel);
-                Item item = register(card);
-                CARD_ITEM_MAP.put(card, item);
+                Item item = registerDatagenItem(card);
+                DATAGEN_CARD_ITEMS.put(card, item);
             }
         }
+        PolyCard.LOGGER.debug("Registered {} placeholder card items for data generation", DATAGEN_CARD_ITEMS.size());
     }
 
-    public static Item register(Card card) {
+    static Item getDatagenItem(Card card) {
+        return Objects.requireNonNull(DATAGEN_CARD_ITEMS.get(card), "Missing datagen item for " + card);
+    }
+
+    private static Item registerDatagenItem(Card card) {
         ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId()));
         Item item = new Item(new Item.Properties().setId(itemKey));
         Registry.register(BuiltInRegistries.ITEM, itemKey, item);

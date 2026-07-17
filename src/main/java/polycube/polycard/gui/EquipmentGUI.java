@@ -8,14 +8,16 @@ import net.minecraft.world.Container;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jspecify.annotations.NonNull;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.utils.Helpers;
 
 /// Server-side card equipment GUI backed by PlayerData's syncing container.
-public class EquipmentGUI {
+public final class EquipmentGUI {
+    private EquipmentGUI() {
+    }
+
     /// Opens a player's own equipment manager.
     public static void openEquipmentGUI(ServerPlayer player) {
         openEquipmentGUI(player, player);
@@ -23,7 +25,7 @@ public class EquipmentGUI {
 
     /// Opens an equipment manager where viewer edits targetPlayer's cards.
     public static void openEquipmentGUI(ServerPlayer viewer, ServerPlayer targetPlayer) {
-        var playerData = PolyCard.STORAGE.getPlayerData(targetPlayer);
+        var playerData = PolyCard.storage().getPlayerData(targetPlayer);
         var container = playerData.asContainer(targetPlayer, viewer);
 
         SimpleGui gui = new SimpleGui(MenuType.HOPPER, viewer, false);
@@ -33,17 +35,18 @@ public class EquipmentGUI {
                 .append(Component.literal(" ༻✦").withStyle(ChatFormatting.DARK_RED))
         );
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < PlayerData.MAX_EQUIPPED_CARDS; i++) {
             gui.setSlot(i, getSlot(container, viewer, playerData, i));
         }
 
         gui.open();
+        Helpers.debug("{} opened the equipment manager for {}", viewer.getName().getString(), targetPlayer.getName().getString());
     }
 
     private static Slot getSlot(Container container, ServerPlayer player, PlayerData playerData, int slot) {
         return new Slot(container, slot, 0, 0) {
             @Override
-            public boolean mayPlace(@NonNull ItemStack itemStack) {
+            public boolean mayPlace(ItemStack itemStack) {
                 if (itemStack.isEmpty()) {
                     Helpers.debug("{} attempted to place empty item in equipment slot {}", player.getName().getString(), getContainerSlot());
                     return false;

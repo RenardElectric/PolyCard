@@ -1,5 +1,6 @@
 package polycube.polycard.mixin;
 
+import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.advancements.triggers.KilledTrigger;
 import net.minecraft.advancements.triggers.SimpleCriterionTrigger;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,6 +17,8 @@ import polycube.polycard.events.callBacks.PlayerKillEventCallback;
 public abstract class KilledTriggerMixin extends SimpleCriterionTrigger<KilledTrigger.TriggerInstance> {
     @Inject(method = "trigger", at = @At("HEAD"))
     private void entityKilled(ServerPlayer player, Entity entity, DamageSource killingBlow, CallbackInfo ci) {
-        PlayerKillEventCallback.EVENT.invoker().onPLayerKill(player, entity, killingBlow);
+        if ((Object) this == CriteriaTriggers.PLAYER_KILLED_ENTITY) {
+            PlayerKillEventCallback.EVENT.invoker().onPlayerKill(player, entity, killingBlow);
+        }
     }
 }

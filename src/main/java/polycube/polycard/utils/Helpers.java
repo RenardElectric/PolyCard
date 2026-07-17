@@ -17,12 +17,8 @@ import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static polycube.polycard.PolyCard.LOGGER;
@@ -30,18 +26,24 @@ import static polycube.polycard.PolyCard.MOD_ID;
 
 /// Shared server-side helpers for sounds, lightweight tick scheduling, and debug logging.
 public final class Helpers {
-    private static final RandomSource random = RandomSource.create();
+    private static final RandomSource RANDOM = RandomSource.create();
     private static final int FAILURE_SOUND_COOLDOWN = 20;
+    private static final ThreadLocal<DecimalFormat> PROBABILITY_FORMAT = ThreadLocal.withInitial(
+            () -> new DecimalFormat("#.##", DecimalFormatSymbols.getInstance(Locale.ROOT))
+    );
+
+    private Helpers() {
+    }
 
     /// Plays a sound packet only for this player.
     public static void playSound(ServerPlayer player, SoundEvent sound) {
-        player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0f, 1.0f, random.nextLong()));
+        player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0f, 1.0f, RANDOM.nextLong()));
     }
 
     /// Plays a player-local sound if its per-player cooldown has expired.
     public static void playSound(ServerPlayer player, SoundEvent sound, int cooldown) {
-        var key = sound.toString();
-        if (PolyCard.COOLDOWNS.isReadyOrCreate(player, key, cooldown)) {
+        var key = "sound:" + BuiltInRegistries.SOUND_EVENT.getKey(sound);
+        if (PolyCard.cooldowns().tryStartCooldown(player, key, cooldown)) {
             playSound(player, sound);
         }
     }
@@ -58,11 +60,10 @@ public final class Helpers {
 
     /// Returns whether another nearby player has this card type at the requested rarity or higher.
     public static boolean nearPlayerWithCard(ServerPlayer player, CardType cardType, RarityLevel rarityLevel, double distanceSquared) {
-        //noinspection resource
         var level = player.level();
         var playerPos = player.position();
         return !level.getPlayers(p ->
-                p != player &&
+                !p.equals(player) &&
                         p.position().distanceToSqr(playerPos) <= distanceSquared &&
                         PlayerData.hasCardOrRarer(p, cardType, rarityLevel), 1).isEmpty();
     }
@@ -72,46 +73,80 @@ public final class Helpers {
         LOGGER.debug("[" + MOD_ID + "] " + format, args);
     }
 
-    private static final List<ScheduledTask> TASKS = new ArrayList<>();
+    private static final Deque<ScheduledTask> TASKS = new ArrayDeque<>();
 
-    /// Schedules a one-shot task on the server tick loop.
+    /// Schedules a one-shot task on the server tick loop. Zero runs in the current end-of-tick pass
+    /// and a positive delay waits that many complete ticks.
     public static void runLater(int ticks, Consumer<MinecraftServer> runnable) {
         runTaskTimer(ticks, 0, runnable);
     }
 
     /// Schedules a task on the server tick loop; period 0 makes it one-shot.
     public static void runTaskTimer(int delay, int period, Consumer<MinecraftServer> runnable) {
-        TASKS.add(new ScheduledTask(new AtomicInteger(delay), period, runnable));
+        if (delay < 0) {
+            throw new IllegalArgumentException("Scheduled-task delay cannot be negative");
+        }
+        TASKS.add(new ScheduledTask(Math.addExact(delay, 1), period, Objects.requireNonNull(runnable, "runnable")));
     }
 
-    private record ScheduledTask(AtomicInteger ticksLeft, int period, Consumer<MinecraftServer> runnable) { }
+    /// Discards tasks that captured state from a server which is shutting down.
+    public static int clearScheduledTasks() {
+        int count = TASKS.size();
+        TASKS.clear();
+        return count;
+    }
+
+    private static final class ScheduledTask {
+        private int ticksLeft;
+        private final int period;
+        private final Consumer<MinecraftServer> runnable;
+
+        private ScheduledTask(int ticksLeft, int period, Consumer<MinecraftServer> runnable) {
+            this.ticksLeft = ticksLeft;
+            this.period = period;
+            this.runnable = runnable;
+        }
+
+        private boolean tick(MinecraftServer server) {
+            if (--ticksLeft > 0) {
+                return false;
+            }
+            runnable.accept(server);
+            return true;
+        }
+    }
+
 
     /// Runs scheduled tasks and per-player tasks for the current server tick.
     public static void onServerTick(MinecraftServer server) {
-        var iterator = TASKS.iterator();
-        while (iterator.hasNext()) {
-            ScheduledTask task = iterator.next();
-            if (task.ticksLeft.decrementAndGet() <= 0) {
-                task.runnable.accept(server);
-                if (task.period > 0) {
-                    task.ticksLeft.set(task.period);
-                } else {
-                    iterator.remove();
-                }
-            }
-        }
-
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             PlayerTickEventCallback.EVENT.invoker().onPlayerTick(server, player);
         }
+
+        int tasksToProcess = TASKS.size();
+        for (int i = 0; i < tasksToProcess; i++) {
+            var task = TASKS.removeFirst();
+            try {
+                if (!task.tick(server)) {
+                    TASKS.addLast(task);
+                } else if (task.period > 0) {
+                    task.ticksLeft += task.period;
+                    TASKS.addLast(task);
+                }
+            } catch (RuntimeException exception) {
+                LOGGER.error("Scheduled PolyCard task failed", exception);
+            }
+        }
+
     }
 
     public static String probToStr(float prob) {
-        return new DecimalFormat("#.##").format(prob * 100);
+        return PROBABILITY_FORMAT.get().format(prob * 100);
     }
 
-    public static String snakeCaseToTitleCase(String str) {
-        var parts = str.split("_");
+    /// Turns namespaced/snake-case keys into readable command output.
+    public static String identifierToTitleCase(String str) {
+        var parts = str.split("[_:./]+");
         var titleCase = new StringJoiner(" ");
         for (var part : parts) {
             if (!part.isEmpty()) {

@@ -5,13 +5,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.card.Card;
 import polycube.polycard.utils.CardHelper;
+import polycube.polycard.utils.Helpers;
 
 public class CombineCommand extends PolyCardCommand {
 
     public CombineCommand() {
         super(
                 "combine",
-                "Combine " + Card.CARDS_FOR_NEXT_LEVEL + " of the cards the player is holding into a new card of the next rarity level.",
+                "Combine " + Card.CARDS_FOR_NEXT_LEVEL + " held cards into one card of the next rarity",
                 "",
                 PermissionLevel.ALL
         );
@@ -41,6 +42,9 @@ public class CombineCommand extends PolyCardCommand {
 
         mainItemStack.shrink(Card.CARDS_FOR_NEXT_LEVEL);
         CardHelper.giveCard(player, nextCard.get());
+        source.sendSuccess(() -> Component.literal("Combined " + Card.CARDS_FOR_NEXT_LEVEL + " cards into ")
+                .append(nextCard.get().getFormattedName()), false);
+        Helpers.debug("{} combined {} into {}", player.getName().getString(), card.get(), nextCard.get());
         return 1;
     }
 }

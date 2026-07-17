@@ -7,10 +7,17 @@ import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
+import polycube.polycard.utils.Helpers;
 
-public class PolyCardCommands {
-    private static PolyCardCommand[] commands;
+import java.util.Objects;
+
+public final class PolyCardCommands {
+    private static PolyCardCommand @Nullable [] commands;
+
+    private PolyCardCommands() {
+    }
 
     public static void registerCommands(PolyCardCommand... commands) {
         PolyCardCommands.commands = commands;
@@ -21,6 +28,7 @@ public class PolyCardCommands {
                 baseCommand.then(command.getCommand());
             }
             dispatcher.register(baseCommand);
+            Helpers.debug("Registered {} PolyCard subcommand(s)", commands.length);
         });
     }
 
@@ -46,6 +54,6 @@ public class PolyCardCommands {
     }
 
     public static PolyCardCommand[] getCommands() {
-        return commands;
+        return Objects.requireNonNull(commands, "PolyCard commands are unavailable before registration");
     }
 }

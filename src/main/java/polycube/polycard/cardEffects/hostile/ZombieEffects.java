@@ -34,22 +34,27 @@ public class ZombieEffects extends CardEffects implements ItemConsumedEventCallb
     @Override
     public void onItemConsumed(ServerPlayer player, ItemStack itemStack) {
         if (itemStack.is(Items.ROTTEN_FLESH)) {
-            CardRarityConditions.of(player, cardType)
+            CardRarityConditions.of(player, cardType())
                     .hasCommon(() -> {
-                        Helpers.debug("{} has the common zombie card and consumed rotten flesh, removing hunger effect", player.getName().getString());
-                        Helpers.runLater(0, _ -> player.removeEffect(MobEffects.HUNGER));
+                        var existingHunger = player.getEffect(MobEffects.HUNGER);
+                        Helpers.debug("{} consumed rotten flesh with a Common Zombie card; suppressing only its Hunger penalty", player.getName().getString());
+                        Helpers.runLater(0, _ -> {
+                            if (existingHunger == null) {
+                                player.removeEffect(MobEffects.HUNGER);
+                            }
+                        });
                     })
                     .hasUncommon(() -> {
                         Helpers.debug("{} has the uncommon zombie card and consumed rotten flesh, adding 2 hunger points", player.getName().getString());
                         player.getFoodData().eat(ROTTEN_FLESH_FOOD_INCREASE, 0);
                     })
-                    .hasEpic(() -> {
-                        Helpers.debug("{} has the rare zombie card and consumed rotten flesh, adding 2 hunger points", player.getName().getString());
-                        player.getFoodData().eat(ROTTEN_FLESH_FOOD_INCREASE, 0);
-                    })
-                    .hasLegendary(() -> {
-                        Helpers.debug("{} has the epic zombie card and consumed rotten flesh, adding strength effect", player.getName().getString());
+                    .hasRare(() -> {
+                        Helpers.debug("{} has the rare zombie card and consumed rotten flesh, applying strength", player.getName().getString());
                         player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, STRENGTH_EFFECT_DURATION, STRENGTH_EFFECT_AMPLIFIER));
+                    })
+                    .hasEpic(() -> {
+                        Helpers.debug("{} has the epic zombie card and consumed rotten flesh, applying regeneration", player.getName().getString());
+                        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGENERATION_EFFECT_DURATION, REGENERATION_EFFECT_AMPLIFIER));
                     });
         }
     }
@@ -58,7 +63,7 @@ public class ZombieEffects extends CardEffects implements ItemConsumedEventCallb
     public InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData data) {
         if (target instanceof ServerPlayer player) {
             if (targeter instanceof Zombie || targeter instanceof ZombieHorse || targeter instanceof ZombieNautilus || targeter instanceof CamelHusk || targeter instanceof Zoglin) {
-                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.LEGENDARY)) {
+                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
                     return InteractionResult.FAIL;
                 }
             }

@@ -14,12 +14,13 @@ import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
+import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerKillEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class WitherEffects extends CardEffects implements PlayerKillEventCallback, EntityHurtEventCallback {
+public class WitherEffects extends CardEffects implements PlayerKillEventCallback, EntityHurtEventCallback, EntityAfterHurtEventCallback {
     public static final float WITHER_ROSE_DROP_PROBABILITY = 0.25f;
 
     public static final float WITHER_EFFECT_PROBABILITY = 0.2f;
@@ -29,12 +30,14 @@ public class WitherEffects extends CardEffects implements PlayerKillEventCallbac
     public static final float DAMAGE_INCREASE_PROBABILITY = 0.2f;
 
     public static final float LIFE_STEAL_PROBABILITY = 0.1f;
+    public static final int MAX_DAMAGE_ROLLS = 100;
 
     @Override
-    public void onPLayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {
-        if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.COMMON)) {
+    public void onPlayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {
+        if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.COMMON)) {
             if (player.getRandom().nextFloat() < WITHER_ROSE_DROP_PROBABILITY) {
-                Helpers.debug("{} has the common wither card and killed {}, dropping a wither rose with a probability of {}", player.getName().getString(), entity.getName().getString(), WITHER_ROSE_DROP_PROBABILITY);
+                Helpers.debug("{} dropped a Wither Rose from {} with a Common Wither card ({}% chance)",
+                        player.getName().getString(), entity.getName().getString(), Helpers.probToStr(WITHER_ROSE_DROP_PROBABILITY));
                 entity.spawnAtLocation(player.level(), Items.WITHER_ROSE);
             }
         }
@@ -43,7 +46,7 @@ public class WitherEffects extends CardEffects implements PlayerKillEventCallbac
     @Override
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
-            if (source.is(DamageTypes.WITHER) && PlayerData.hasCardOrRarer(player, cardType, RarityLevel.UNCOMMON)) {
+            if (source.is(DamageTypes.WITHER) && PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.UNCOMMON)) {
                 return InteractionResult.FAIL;
             }
         }
@@ -51,31 +54,52 @@ public class WitherEffects extends CardEffects implements PlayerKillEventCallbac
         var attacker = source.getEntity();
         if (attacker instanceof ServerPlayer player) {
             var random = player.getRandom();
-            CardRarityConditions.of(player, cardType)
-                    .hasRare(() -> {
-                        if (random.nextFloat() < WITHER_EFFECT_PROBABILITY)
-                            entity.addEffect(new MobEffectInstance(MobEffects.WITHER, WITHER_EFFECT_DURATION, WITHER_EFFECT_AMPLIFIER, false, true), player);
-                    })
+            CardRarityConditions.of(player, cardType())
                     .hasEpic(() -> {
                         if (entity.hasEffect(MobEffects.WITHER)) {
                             int damageIncrease = 0;
-                            for (int i = 0; i < damage.floatValue(); i++) {
+                            int rolls = boundedDamageRolls(damage.floatValue());
+                            for (int i = 0; i < rolls; i++) {
                                 if (random.nextFloat() < DAMAGE_INCREASE_PROBABILITY) damageIncrease++;
                             }
                             damage.setValue(damage.floatValue() + damageIncrease);
-                        }
-                    })
-                    .hasLegendary(() -> {
-                        if (entity.hasEffect(MobEffects.WITHER)) {
-                            int life = 0;
-                            for (int i = 0; i < damage.floatValue(); i++) {
-                                if (random.nextFloat() < LIFE_STEAL_PROBABILITY) life++;
+                            if (damageIncrease > 0) {
+                                Helpers.debug("{} gained {} Wither-card bonus damage against {}", player.getName().getString(), damageIncrease, entity.getName().getString());
                             }
-                            player.heal(life);
                         }
                     });
         }
 
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
+        if (!(source.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+
+        if (damageDealt > 0.0F
+                && entity.hasEffect(MobEffects.WITHER)
+                && PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
+            int life = 0;
+            int rolls = boundedDamageRolls(damageDealt);
+            for (int i = 0; i < rolls; i++) {
+                if (player.getRandom().nextFloat() < LIFE_STEAL_PROBABILITY) life++;
+            }
+            player.heal(life);
+            if (life > 0) {
+                Helpers.debug("{} healed {} health from {} actual Wither-card damage", player.getName().getString(), life, damageDealt);
+            }
+        }
+
+        if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.RARE) && player.getRandom().nextFloat() < WITHER_EFFECT_PROBABILITY) {
+            entity.addEffect(new MobEffectInstance(MobEffects.WITHER, WITHER_EFFECT_DURATION, WITHER_EFFECT_AMPLIFIER, false, true), player);
+            Helpers.debug("{} inflicted Wither on {} after an accepted hit", player.getName().getString(), entity.getName().getString());
+        }
+    }
+
+    private static int boundedDamageRolls(float damage) {
+        return Math.clamp((int) Math.floor(damage), 0, MAX_DAMAGE_ROLLS);
     }
 }

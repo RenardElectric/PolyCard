@@ -19,7 +19,7 @@ public interface ItemUseEventCallback {
 
                 for (var listener : listeners) {
                     var result = listener.onItemUse(player, level, hand);
-                    if (result != InteractionResult.PASS) {
+                    if (!result.equals(InteractionResult.PASS)) {
                         int slot = hand == InteractionHand.MAIN_HAND ? player.getInventory().getSelectedSlot() : Inventory.SLOT_OFFHAND;
                         player.connection.send(player.getInventory().createInventoryUpdatePacket(slot));
                         return result;

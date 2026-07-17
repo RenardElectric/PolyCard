@@ -20,7 +20,6 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
-import org.jspecify.annotations.NonNull;
 import polycube.polycard.PolyCard;
 
 import java.util.*;
@@ -78,7 +77,6 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     /// Templates are immutable for a card, so cache them instead of rebuilding hover/item components.
     public ItemStackTemplate getItemTemplate() {
-        // TODO: Still not sure if it is a good idea to make a cache for it
         return itemStackCache.computeIfAbsent(this, Card::createCardItemTemplate);
     }
 
@@ -128,7 +126,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     }
 
     @Override
-    public @NonNull String toString() {
+    public String toString() {
         return rarityLevel + " " + cardType + " card";
     }
 

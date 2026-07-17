@@ -16,7 +16,7 @@ public interface IsTargetedEventCallback {
                 for (var listener : listeners) {
                     InteractionResult interactionResult = listener.onTargeted(level, targeter, target, targetingConditions);
 
-                    if (interactionResult != InteractionResult.PASS) {
+                    if (interactionResult.equals(InteractionResult.FAIL)) {
                         return interactionResult;
                     }
                 }
@@ -29,5 +29,6 @@ public interface IsTargetedEventCallback {
     record TargetingConditionsData(
             boolean isCombat, double range, boolean checkLineOfSight, boolean skipInvisible,
             TargetingConditions.@Nullable Selector selector, boolean originalResult
-    ) { }
+    ) {
+    }
 }

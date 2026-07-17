@@ -9,13 +9,14 @@ import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 /// Card creation, drop rolling, inventory delivery, and equipment-attribute helpers.
-public class CardHelper {
+public final class CardHelper {
+    private CardHelper() {
+    }
+
     /// Rolls for a card of this type and gives it to the player if the roll succeeds.
     public static void receiveCard(ServerPlayer player, CardType cardType) {
         createCard(cardType).ifPresent(
@@ -34,8 +35,12 @@ public class CardHelper {
 
     /// Re-applies equipped-card attributes when a player object is created.
     public static void loadPlayerAttributes(ServerPlayer player) {
-        for (var card : PolyCard.STORAGE.getPlayerData(player).getEquippedCards()) {
+        var equippedCards = PolyCard.storage().getPlayerData(player).getEquippedCards();
+        for (var card : equippedCards) {
             addCardAttributes(player, card);
+        }
+        if (!equippedCards.isEmpty()) {
+            Helpers.debug("Restored attributes for {} equipped card(s) on {}", equippedCards.size(), player.getName().getString());
         }
     }
 
@@ -62,23 +67,29 @@ public class CardHelper {
         );
     }
 
-    /// Rolls rarities from highest to lowest; each configured probability is tested independently.
+    /// Uses one roll against cumulative rarity thresholds and returns the highest matching tier.
+    /// For example, thresholds of 20% Common and 7% Uncommon produce 13% Common and 7%+
+    /// Uncommon; this keeps the displayed "this rarity or better" odds truthful.
     public static Optional<RarityLevel> getRandomRarityLevel(CardType cardType) {
-        var rarities = new ArrayList<>(cardType.getRarities());
-        Collections.reverse(rarities);
-        for (var rarity : rarities) {
-            if (rollsUnder(rarity.probability())) {
-                return Optional.of(rarity.rarityLevel());
-            }
-        }
-        return Optional.empty();
+        return selectRarity(cardType, ThreadLocalRandom.current().nextFloat());
     }
 
-    private static boolean rollsUnder(float probability) {
-        if (probability <= 0) {
-            return false;
+    /// Maps a supplied [0,1) roll to the highest cumulative rarity it satisfies.
+    /// Keeping this deterministic core separate makes probability boundaries straightforward to test.
+    public static Optional<RarityLevel> selectRarity(CardType cardType, float roll) {
+        if (!Float.isFinite(roll) || roll < 0.0F || roll >= 1.0F) {
+            throw new IllegalArgumentException("Card roll must be finite and in [0, 1): " + roll);
         }
 
-        return ThreadLocalRandom.current().nextFloat() < Math.min(probability, 1);
+        RarityLevel selected = null;
+        for (var rarity : cardType.getRarities()) {
+            if (roll < rarity.probability()) {
+                selected = rarity.rarityLevel();
+            } else {
+                // Thresholds are validated as non-increasing, so no later tier can match.
+                break;
+            }
+        }
+        return Optional.ofNullable(selected);
     }
 }

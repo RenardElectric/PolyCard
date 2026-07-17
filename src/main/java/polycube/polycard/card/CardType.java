@@ -4,12 +4,16 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import org.jspecify.annotations.NonNull;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.cardEffects.hostile.*;
+import polycube.polycard.cardEffects.hostile.CreeperEffects;
+import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
+import polycube.polycard.cardEffects.hostile.WitherEffects;
+import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
 import polycube.polycard.utils.Helpers;
@@ -30,14 +34,19 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Regeneration " + (CowEffects.REGEN_EFFECT_AMPLIFIER + 1) + " for " + CowEffects.REGEN_EFFECT_DURATION / 20 + "s when standing still for " + CowEffects.STILL_DELAY / 20 + "s in plains");
         addRarity(RarityLevel.RARE, 0.025f, false, "Gain resistance " + (CowEffects.RESISTANCE_EFFECT_AMPLIFIER + 1) + " for " + CowEffects.RESISTANCE_EFFECT_DURATION / 20 + "s when near other Cow cards");
         addRarity(RarityLevel.EPIC, 0.005f, true, "Convert debuffs into Buffs when drinking milk");
-        addRarity(RarityLevel.LEGENDARY, 0.0005f, true, "+" + CowEffects.REGEN_HEALTH_GAIN_HEARTS + " hearts when drinking milk");
+        addRarity(RarityLevel.LEGENDARY, 0.0005f, true, "+" + CowEffects.REGEN_HEALTH_GAIN_HEARTS + " hearts when drinking milk")
+                .withAttribute(Attributes.MAX_HEALTH, new AttributeModifier(
+                        Identifier.fromNamespaceAndPath("polycard", "cow_regen_health_gain"),
+                        10,
+                        AttributeModifier.Operation.ADD_VALUE
+                ));
     }},
     SQUID("squid", "killing a squid", "passive", SquidEffects::new) {{
         addRarity(RarityLevel.RARE, 0.03f, false, probToStr(SquidEffects.BLINDNESS_WHEN_HIT_PROBABILITY) + "% chance to give blindness " + (SquidEffects.BLINDNESS_AMPLIFIER + 1) + " for " + SquidEffects.BLINDNESS_DURATION / 20 + "s when hit");
         addRarity(RarityLevel.EPIC, 0.006f, true, probToStr(SquidEffects.BLINDNESS_ON_HIT_PROBABILITY) + "% chance to give blindness " + (SquidEffects.BLINDNESS_AMPLIFIER + 1) + " for " + SquidEffects.BLINDNESS_DURATION / 20 + "s on hit");
         addRarity(RarityLevel.LEGENDARY, 0.0006f, true, "Water breathing " + (SquidEffects.WATER_BREATHING_AMPLIFIER + 1) + " when under water");
     }},
-    CHICKEN("chicken", "breeding two chicken", "passive", ChickenEffects::new) {{
+    CHICKEN("chicken", "breeding two chickens", "passive", ChickenEffects::new) {{
         addRarity(RarityLevel.COMMON, 0.12f, false, "Lay eggs randomly");
         addRarity(RarityLevel.UNCOMMON, 0.045f, false, "Thrown eggs hurt");
         addRarity(RarityLevel.RARE, 0.02f, false, "Speed " + (ChickenEffects.SPEED_EFFECT_AMPLIFIER + 1) + " near other Chickens cards");
@@ -47,13 +56,13 @@ public enum CardType implements StringRepresentable {
     BAT("bat", "killing a Bat", "passive", BatEffects::new) {{
         addRarity(RarityLevel.RARE, 0.04f, false, "Gain night vision");
         addRarity(RarityLevel.EPIC, 0.01f, true, "Reveal nearby entity when sneaking");
-        addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "While sneaking, being hit blinds the attacker and grants you Invisibility, Speed, and Invulnerability, but disables your damage. Lasts " + BatEffects.INVISIBILITY_DURATION / 20 + "s and ends early if you stop sneaking. (" + BatEffects.INVISIBILITY_COOLDOWN/20 + "s cooldown)");
+        addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "While sneaking, being hit blinds the attacker and grants you Invisibility, Speed, and Invulnerability, but disables your damage. Lasts " + BatEffects.INVISIBILITY_DURATION / 20 + "s and ends early if you stop sneaking. (" + BatEffects.INVISIBILITY_COOLDOWN / 20 + "s cooldown)");
     }},
     HORSE("horse", "taming a Horse", "passive", HorseEffects::new) {{
         addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Horses you ride take " + probToStr(HorseEffects.DAMAGE_IGNORED_PERCENTAGE) + "% reduced damage");
         addRarity(RarityLevel.RARE, 0.03f, false, "Jump Boost " + (HorseEffects.JUMP_BOOST_EFFECT_AMPLIFIER + 1) + " when riding a horse");
         addRarity(RarityLevel.EPIC, 0.008f, true, "Speed " + (HorseEffects.SPEED_EFFECT_AMPLIFIER + 1) + " when riding a horse");
-        addRarity(RarityLevel.LEGENDARY, 0.001f, true, "The more your horse sprints, the faster you go, up to " + HorseEffects.MAX_SPEED_BOOST + " speed boost");
+        addRarity(RarityLevel.LEGENDARY, 0.001f, true, "The more your horse moves, the faster it goes, up to Speed " + (HorseEffects.MAX_SPEED_BOOST + 1));
     }},
 
     // Neutral
@@ -77,7 +86,7 @@ public enum CardType implements StringRepresentable {
     }},
     ZOMBIFIED_PIGLIN("zombified_piglin", "killing a zombified piglin", "neutral", ZombifiedPiglinEffects::new) {{
         addRarity(RarityLevel.EPIC, 0.003f, false, "Zombified piglins do not attack you");
-        addRarity(RarityLevel.LEGENDARY, 0.0002f, true, probToStr(ZombifiedPiglinEffects.SPAWN_REINFORCEMENTS_CHANCE) + "% chance to spawn " + ZombifiedPiglinEffects.MAX_REINFORCEMENTS + " zombified piglins to help you when hit by a player");
+        addRarity(RarityLevel.LEGENDARY, 0.0002f, true, probToStr(ZombifiedPiglinEffects.SPAWN_REINFORCEMENTS_CHANCE) + "% chance to spawn up to " + ZombifiedPiglinEffects.MAX_REINFORCEMENTS + " zombified piglins to help you when hit by a player (" + ZombifiedPiglinEffects.REINFORCEMENT_COOLDOWN / 20 + "s cooldown)");
     }},
     BEE("bee", "collecting honey", "neutral", BeeEffects::new) {{
         addRarity(RarityLevel.RARE, 0.07f, false, "Drinking honey gives speed " + (BeeEffects.SPEED_EFFECT_AMPLIFIER + 1) + " for " + BeeEffects.SPEED_EFFECT_DURATION / 20 + "s");
@@ -87,7 +96,7 @@ public enum CardType implements StringRepresentable {
     WOLF("wolf", "taming a Wolf", "neutral", WolfEffects::new) {{
         addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Your wolves gain Resistance " + (WolfEffects.RESISTANCE_AMPLIFIER + 1));
         addRarity(RarityLevel.RARE, 0.035f, false, "Your wolves gain strength " + (WolfEffects.STRENGTH_AMPLIFIER + 1));
-        addRarity(RarityLevel.EPIC, 0.01f, true, "Killing an enemy heals your wolves (" +  probToStr(WolfEffects.HEAL_PERCENTAGE) + "% of max health)");
+        addRarity(RarityLevel.EPIC, 0.01f, true, "Killing an enemy heals your wolves (" + probToStr(WolfEffects.HEAL_PERCENTAGE) + "% of max health)");
         addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "When low health, your wolves gain Strength " + (WolfEffects.IMPROVED_STRENGTH_AMPLIFIER + 1) + " and Speed " + (WolfEffects.IMPROVED_SPEED_AMPLIFIER + 1));
     }},
 
@@ -123,23 +132,50 @@ public enum CardType implements StringRepresentable {
     public static final Map<String, CardType> BY_ID = Arrays.stream(values())
             .collect(Collectors.toMap(CardType::getSerializedName, Function.identity()));
 
+    static {
+        // All enum constants and their rarity tables must exist before effect classes can refer
+        // back to CardType or register listeners. This prevents circular-initialization nulls.
+        for (var cardType : values()) {
+            cardType.validateConfiguration();
+            cardType.effectRegistration.get().initialize(cardType);
+        }
+    }
+
     private final EnumMap<RarityLevel, Rarity> rarities = new EnumMap<>(RarityLevel.class);
     private final String id;
     private final String condition;
     private final String cardGroup;
+    private final Supplier<CardEffects> effectRegistration;
 
     CardType(String id, String condition, String cardGroup, Supplier<CardEffects> effectRegistration) {
         this.id = id;
         this.condition = condition;
         this.cardGroup = cardGroup;
-        effectRegistration.get().setCardType(this);
+        this.effectRegistration = effectRegistration;
     }
 
     /// Adds one supported rarity tier to this card type.
     protected Rarity addRarity(RarityLevel rarityLevel, float probability, boolean isEnchanted, String description) {
+        Objects.requireNonNull(rarityLevel, "rarityLevel");
+        Objects.requireNonNull(description, "description");
+
         var rarity = new Rarity(rarityLevel, probability, isEnchanted, description, HashMultimap.create());
         rarities.put(rarityLevel, rarity);
         return rarity;
+    }
+
+    /// Validates invariants that can only be checked after an enum constant's rarity initializer runs.
+    private void validateConfiguration() {
+        if (rarities.isEmpty()) {
+            throw new IllegalStateException(this + " must define at least one rarity");
+        }
+
+        int expectedRank = minRarityLevel().rank();
+        for (var rarityLevel : rarities.keySet()) {
+            if (rarityLevel.rank() != expectedRank++) {
+                throw new IllegalStateException(this + " rarity tiers must be contiguous from its minimum rarity");
+            }
+        }
     }
 
     /// Returns the lowest rarity this card type supports.
@@ -159,7 +195,7 @@ public enum CardType implements StringRepresentable {
 
     /// Returns all rarity tiers supported by this card type, in enum-rank order.
     public Collection<Rarity> getRarities() {
-        return rarities.values();
+        return Collections.unmodifiableCollection(rarities.values());
     }
 
     /// Returns attribute modifiers from every supported rarity up to and including maxRarity.
@@ -169,7 +205,7 @@ public enum CardType implements StringRepresentable {
         for (int i = 0; i <= maxRank; i++) {
             Optional.ofNullable(rarities.get(RarityLevel.BY_RANK.get(i)))
                     .map(Rarity::attributeModifiers)
-                    .map(attributes::putAll);
+                    .ifPresent(attributes::putAll);
         }
         return attributes;
     }
@@ -186,19 +222,16 @@ public enum CardType implements StringRepresentable {
 
     /// Parses a serialized card type id.
     public static Optional<CardType> deserialize(String string) {
-        if (string == null) {
-            return Optional.empty();
-        }
         return Optional.ofNullable(BY_ID.get(string.toLowerCase(Locale.ROOT)));
     }
 
     @Override
-    public @NonNull String getSerializedName() {
+    public String getSerializedName() {
         return this.id;
     }
 
     @Override
     public String toString() {
-        return Helpers.snakeCaseToTitleCase(this.id);
+        return Helpers.identifierToTitleCase(this.id);
     }
 }

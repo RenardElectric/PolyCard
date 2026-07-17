@@ -1,5 +1,7 @@
 package polycube.polycard.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -16,9 +18,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 
-/// Exposes player damage to card effects and writes back damage mutations.
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+/// Exposes validated player damage to card effects and writes back mutations.
 @Mixin(Player.class)
 public abstract class PlayerMixin extends Avatar implements ContainerUser {
     protected PlayerMixin(EntityType<? extends LivingEntity> type, Level level) {
@@ -26,23 +32,38 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
     }
 
     @Unique
-    private MutableFloat modifiedDamage = null;
+    private final Deque<MutableFloat> polycard$modifiedDamageStack = new ArrayDeque<>();
 
-    // Player hurtServer has a different local-variable shape from LivingEntity, so it needs its own hook.
-    @ModifyVariable(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/damagesource/DamageSource;scalesWithDifficulty()Z"), argsOnly = true, name = "damage")
-    private float modifyDamage(float damage) {
-        if (modifiedDamage != null) {
-            damage = modifiedDamage.floatValue();
-            modifiedDamage = null;
+    @WrapMethod(method = "hurtServer")
+    private boolean afterHurt(ServerLevel level, DamageSource source, float damage, Operation<Boolean> original) {
+        var player = (Player) (Object) this;
+        float effectiveHealthBefore = player.getHealth() + player.getAbsorptionAmount();
+        boolean accepted = original.call(level, source, damage);
+        if (accepted) {
+            float damageDealt = Math.max(0.0F, effectiveHealthBefore - player.getHealth() - player.getAbsorptionAmount());
+            EntityAfterHurtEventCallback.EVENT.invoker().afterEntityHurt(player, level, source, damageDealt);
         }
-        return damage;
+        return accepted;
     }
 
+    // Player has additional creative/dead guards before this point and applies difficulty scaling
+    // afterward. Keep the original ordering while supporting nested damage callbacks.
     @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;removeEntitiesOnShoulder()V"), cancellable = true)
     private void onHurt(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
-        modifiedDamage = new MutableFloat(damage);
-        if (EntityHurtEventCallback.EVENT.invoker().onEntityHurt(this, level, source, modifiedDamage) == InteractionResult.FAIL) {
+        var modifiedDamage = new MutableFloat(damage);
+        polycard$modifiedDamageStack.push(modifiedDamage);
+        var player = (Player) (Object) this;
+        if (EntityHurtEventCallback.EVENT.invoker().onEntityHurt(player, level, source, modifiedDamage).equals(InteractionResult.FAIL)) {
+            polycard$modifiedDamageStack.pop();
             cir.setReturnValue(false);
         }
+    }
+
+    @ModifyVariable(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/damagesource/DamageSource;scalesWithDifficulty()Z"), argsOnly = true, name = "damage")
+    private float applyModifiedDamage(float damage) {
+        if (!polycard$modifiedDamageStack.isEmpty()) {
+            return polycard$modifiedDamageStack.pop().floatValue();
+        }
+        return damage;
     }
 }

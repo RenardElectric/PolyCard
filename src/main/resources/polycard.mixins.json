@@ -12,7 +12,6 @@
     "PlayerMixin",
     "ProjectileMixin",
     "ServerExplosionMixin",
-    "ServerPlayerGameModeMixin",
     "SummonedEntityTriggerMixin",
     "TameAnimalTriggerMixin",
     "TargetingConditionsMixin"

@@ -2,15 +2,14 @@ package polycube.polycard.utils;
 
 import net.minecraft.world.entity.player.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /// Tick-based cooldowns keyed by player UUID and effect-specific string keys.
 public class Cooldowns {
+    private static final int CLEANUP_INTERVAL_TICKS = 20;
 
     private final Map<UUID, Map<String, Cooldown>> cooldowns;
-    private int tickCount = 0;
+    private long tickCount = 0;
 
     public Cooldowns() {
         cooldowns = new HashMap<>();
@@ -19,14 +18,16 @@ public class Cooldowns {
     /// Advances time by one tick and removes expired cooldown entries.
     public void tick() {
         ++tickCount;
-        if (!this.cooldowns.isEmpty()) {
+        // Read operations already ignore expired entries. Sweeping once per second avoids walking
+        // every active player's cooldown map on every server tick.
+        if (tickCount % CLEANUP_INTERVAL_TICKS == 0 && !this.cooldowns.isEmpty()) {
             var playerIterator = this.cooldowns.entrySet().iterator();
             while (playerIterator.hasNext()) {
                 var playerCooldowns = playerIterator.next().getValue();
                 var cooldownIterator = playerCooldowns.entrySet().iterator();
                 while (cooldownIterator.hasNext()) {
                     var cooldown = cooldownIterator.next().getValue();
-                    if (cooldown.endTime <= tickCount) {
+                    if (cooldown.endTick <= tickCount) {
                         cooldownIterator.remove();
                     }
                 }
@@ -38,41 +39,56 @@ public class Cooldowns {
     }
 
     /// Returns true while the cooldown is still active.
-    public boolean isReady(Player player, String cooldownKey) {
+    public boolean isOnCooldown(Player player, String cooldownKey) {
         var playerCooldowns = cooldowns.get(player.getUUID());
-        return playerCooldowns != null &&
-                playerCooldowns.containsKey(cooldownKey) &&
-                playerCooldowns.get(cooldownKey).endTime > tickCount;
+        if (playerCooldowns != null) {
+            var playerCooldown = playerCooldowns.get(cooldownKey);
+            return playerCooldown != null && playerCooldown.endTick > tickCount;
+        }
+        return false;
     }
 
     /// Starts a cooldown and returns true only when no active cooldown already existed.
-    public boolean isReadyOrCreate(Player player, String cooldownKey, int time) {
-        if (isReady(player, cooldownKey)) {
+    public boolean tryStartCooldown(Player player, String cooldownKey, int durationTicks) {
+        if (isOnCooldown(player, cooldownKey)) {
             return false;
         }
-        addCooldown(player, cooldownKey, time);
+        startCooldown(player, cooldownKey, durationTicks);
         return true;
     }
 
     /// Adds or replaces a cooldown measured in server ticks.
-    public void addCooldown(Player player, String cooldownKey, int time) {
-        cooldowns.computeIfAbsent(player.getUUID(), _ -> new HashMap<>()).put(cooldownKey, new Cooldown(tickCount, tickCount + time));
+    public void startCooldown(Player player, String cooldownKey, int durationTicks) {
+        if (durationTicks <= 0) {
+            throw new IllegalArgumentException("Cooldown duration must be positive");
+        }
+        cooldowns.computeIfAbsent(player.getUUID(), _ -> new HashMap<>())
+                .put(cooldownKey, new Cooldown(tickCount + durationTicks));
     }
 
     /// Clears a cooldown key for this player.
     public void removeCooldown(Player player, String cooldownKey) {
-        if (cooldowns.containsKey(player.getUUID())) {
-            cooldowns.get(player.getUUID()).remove(cooldownKey);
+        var playerCooldowns = cooldowns.get(player.getUUID());
+        if (playerCooldowns != null) {
+            playerCooldowns.remove(cooldownKey);
+            if (playerCooldowns.isEmpty()) {
+                cooldowns.remove(player.getUUID());
+            }
         }
     }
 
+    /// Returns an immutable, alphabetically ordered snapshot of active cooldowns and remaining ticks.
     public Map<String, Integer> getCooldownsForPlayer(Player player) {
-        return cooldowns.getOrDefault(player.getUUID(), new HashMap<>())
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getValue().endTime > tickCount)
-                .collect(HashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue().endTime - tickCount), HashMap::putAll);
+        var result = new TreeMap<String, Integer>();
+        cooldowns.getOrDefault(player.getUUID(), Map.of()).forEach((key, cooldown) -> {
+            long remainingTicks = cooldown.endTick - tickCount;
+            if (remainingTicks > 0) {
+                result.put(key, Math.toIntExact(remainingTicks));
+            }
+        });
+        return Collections.unmodifiableMap(result);
     }
 
-    public record Cooldown(int startTime, int endTime) { }
+    private record Cooldown(long endTick) {
+    }
 }

@@ -12,9 +12,9 @@ public interface PlayerKillEventCallback {
     Event<PlayerKillEventCallback> EVENT = EventFactory.createArrayBacked(PlayerKillEventCallback.class,
             (listeners) -> (player, entity, killingBlow) -> {
                 for (var listener : listeners) {
-                    listener.onPLayerKill(player, entity, killingBlow);
+                    listener.onPlayerKill(player, entity, killingBlow);
                 }
             });
 
-    void onPLayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow);
+    void onPlayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow);
 }

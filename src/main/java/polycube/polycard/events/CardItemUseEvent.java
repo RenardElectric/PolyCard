@@ -18,6 +18,7 @@ import polycube.polycard.utils.Helpers;
 /// Equips a card from the player's hand, or swaps it with an equipped card of the same type.
 /// Sneaking leaves the item use untouched so players can still access normal item behavior.
 public class CardItemUseEvent extends EventHandler implements ItemUseEventCallback {
+    @Override
     public InteractionResult onItemUse(ServerPlayer player, Level world, InteractionHand hand) {
         if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
@@ -35,8 +36,8 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
         }
         var card = optionalCard.get();
 
-        var playerData = PolyCard.STORAGE.getPlayerData(player);
-        var equippedRarityLevel = playerData.equippedCards().get(card.cardType());
+        var playerData = PolyCard.storage().getPlayerData(player);
+        var equippedRarityLevel = playerData.equippedRarity(card.cardType());
 
         if (equippedRarityLevel != null) {
             if (equippedRarityLevel == card.rarityLevel()) {
@@ -51,13 +52,19 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
                 var equippedCard = new Card(card.cardType(), equippedRarityLevel);
                 CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, equippedCard);
                 var result = equipCard(playerData, item, player, card);
-                player.getInventory().placeItemBackInInventory(equippedCard.asItem());
+                if (result.equals(InteractionResult.SUCCESS)) {
+                    player.getInventory().placeItemBackInInventory(equippedCard.asItem());
+                } else {
+                    playerData.equipCard(equippedCard);
+                    CardEventCallback.EQUIPPED.invoker().onCardEquip(player, equippedCard);
+                    Helpers.debug("Rolled back a failed card swap for {}", player.getName().getString());
+                }
                 return result;
             }
             return InteractionResult.FAIL;
         }
 
-        if (playerData.equippedCards().size() >= PlayerData.MAX_EQUIPPED_CARDS) {
+        if (playerData.equippedCardCount() >= PlayerData.MAX_EQUIPPED_CARDS) {
             Helpers.playFailure(player);
             player.sendSystemMessage(Component.literal("You already have " + PlayerData.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
             Helpers.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), PlayerData.MAX_EQUIPPED_CARDS, card);
@@ -74,7 +81,7 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormattedName()));
             Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
             Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
-            PolyCard.STORAGE.save();
+            PolyCard.storage().markDirty();
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;

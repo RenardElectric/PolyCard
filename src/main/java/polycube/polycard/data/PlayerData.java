@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
+import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
@@ -27,10 +28,19 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
 
     public PlayerData(Map<CardType, RarityLevel> equippedCards) {
         this.equippedCards = new EnumMap<>(CardType.class);
-        for (var entry : equippedCards.entrySet()) {
-            if (Card.tryCreate(entry.getKey(), entry.getValue()).isPresent()) {
-                this.equippedCards.put(entry.getKey(), entry.getValue());
+        for (var cardType : CardType.values()) {
+            var rarityLevel = equippedCards.get(cardType);
+            if (rarityLevel != null && Card.tryCreate(cardType, rarityLevel).isPresent()) {
+                if (this.equippedCards.size() == MAX_EQUIPPED_CARDS) {
+                    break;
+                }
+                this.equippedCards.put(cardType, rarityLevel);
             }
+        }
+        int ignoredEntries = equippedCards.size() - this.equippedCards.size();
+        if (ignoredEntries > 0) {
+            Helpers.debug("Ignored {} invalid or excess equipped-card entr{} while loading player data",
+                    ignoredEntries, ignoredEntries == 1 ? "y" : "ies");
         }
     }
 
@@ -38,6 +48,15 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
     @Override
     public Map<CardType, RarityLevel> equippedCards() {
         return Collections.unmodifiableMap(equippedCards);
+    }
+
+    /// Returns the equipped rarity without allocating a read-only map wrapper on hot event paths.
+    public @Nullable RarityLevel equippedRarity(CardType cardType) {
+        return equippedCards.get(cardType);
+    }
+
+    public int equippedCardCount() {
+        return equippedCards.size();
     }
 
     /// Returns equipped cards as concrete, validated Card instances.
@@ -148,7 +167,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
                     }
                 }
 
-                PolyCard.STORAGE.save();
+                PolyCard.storage().markDirty();
             }
 
             @Override
@@ -167,6 +186,6 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
 
     /// Convenience threshold check for server-player based card effects.
     public static boolean hasCardOrRarer(ServerPlayer player, CardType cardType, RarityLevel rarityLevel) {
-        return PolyCard.STORAGE.getPlayerData(player).hasCardOrRarer(cardType, rarityLevel);
+        return PolyCard.storage().getPlayerData(player).hasCardOrRarer(cardType, rarityLevel);
     }
 }

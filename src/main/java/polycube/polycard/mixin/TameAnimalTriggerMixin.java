@@ -14,7 +14,7 @@ import polycube.polycard.events.callBacks.TameEventCallback;
 @Mixin(TameAnimalTrigger.class)
 public abstract class TameAnimalTriggerMixin extends SimpleCriterionTrigger<TameAnimalTrigger.TriggerInstance> {
     @Inject(method = "trigger", at = @At("HEAD"))
-    private void animalBred(ServerPlayer player, Animal animal, CallbackInfo ci) {
+    private void animalTamed(ServerPlayer player, Animal animal, CallbackInfo ci) {
         TameEventCallback.EVENT.invoker().onTame(player, animal);
     }
 }

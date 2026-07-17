@@ -30,7 +30,7 @@ public abstract class PolyCardCommand {
     }
 
     protected String getUsage() {
-        return "/" + PolyCard.MOD_ID + " " + name + " " + usage;
+        return "/" + PolyCard.MOD_ID + " " + name + (usage.isBlank() ? "" : " " + usage);
     }
 
     protected PermissionLevel getPermissionLevel() {

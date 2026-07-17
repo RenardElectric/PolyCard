@@ -164,7 +164,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                     ItemModel.Unbaked cardTypeModel = ItemModelUtils.plainModel(cardTypeId);
 
                     itemModelGenerators.itemModelOutput.accept(
-                            PolyCardClient.CARD_ITEM_MAP.get(new Card(cardType, rarityLevel)),
+                            PolyCardClient.getDatagenItem(new Card(cardType, rarityLevel)),
                             ItemModelUtils.composite(rarityModel, cardTypeModel)
                     );
                 }

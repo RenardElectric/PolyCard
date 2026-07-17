@@ -26,7 +26,7 @@ public class CooldownCommand extends PolyCardCommand {
             return 0;
         }
 
-        var cooldowns = PolyCard.COOLDOWNS.getCooldownsForPlayer(player);
+        var cooldowns = PolyCard.cooldowns().getCooldownsForPlayer(player);
         var sb = new StringBuilder();
         if (cooldowns.isEmpty()) {
             sb.append("\nNo active cooldowns.");
@@ -34,10 +34,10 @@ public class CooldownCommand extends PolyCardCommand {
             sb.append("\nActive cooldowns for player ").append(player.getName().getString()).append(":");
             for (var entry : cooldowns.entrySet()) {
                 sb.append("\n")
-                    .append(Helpers.snakeCaseToTitleCase(entry.getKey()))
-                    .append(": ")
-                    .append(entry.getValue())
-                    .append(" ticks remaining");
+                        .append(Helpers.identifierToTitleCase(entry.getKey()))
+                        .append(": ")
+                        .append(entry.getValue())
+                        .append(" ticks remaining");
             }
         }
         source.sendSuccess(() -> Component.literal(sb.toString()), false);

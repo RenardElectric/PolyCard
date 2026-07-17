@@ -1,9 +1,11 @@
 package polycube.polycard.cardEffects.passive;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,13 +15,16 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.apache.commons.lang3.mutable.MutableFloat;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
+import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
+import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
@@ -30,86 +35,130 @@ import java.util.*;
 public class BatEffects
         extends CardEffects
         implements PlayerTickEventCallback, EntityHurtEventCallback,
-        IsTargetedEventCallback, ServerLivingEntityEvents.AfterDeath
-{
+        IsTargetedEventCallback, ServerLivingEntityEvents.AfterDeath,
+        CardEventCallback.CardUnequipEvent, ServerPlayerEvents.Leave {
     public static final int NIGHT_VISION_DURATION = 220;
     public static final int INVISIBILITY_DURATION = 20 * 20;
     public static final int INVISIBILITY_COOLDOWN = 20 * 10;
     public static final int SPEED_AMPLIFIER = 30;
+    public static final double GLOW_RANGE = 32.0;
 
-    private static final Map<UUID, Set<Entity>> entitesGlowing = new HashMap<>();
+    private static final int GLOW_UPDATE_INTERVAL = 10;
+    private static final int GLOWING_FLAG = 1 << 6;
+    private static final Identifier SPEED_MODIFIER_ID = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "bat_invisibility_speed");
+    private static final AttributeModifier SPEED_MODIFIER = new AttributeModifier(
+            SPEED_MODIFIER_ID,
+            0.2D * (SPEED_AMPLIFIER + 1),
+            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+    );
+
+    private static final Map<UUID, Set<Integer>> GLOWING_ENTITY_IDS = new HashMap<>();
+    private static final Map<UUID, BatInvisibility> INVISIBLE_PLAYERS = new HashMap<>();
+    private static long nextInvisibilityId;
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
-        if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.RARE)) {
+        var equippedRarity = PolyCard.storage().getPlayerData(player).equippedRarity(cardType());
+        boolean hasRare = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.RARE);
+        boolean hasEpic = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.EPIC);
+        boolean hasLegendary = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.LEGENDARY);
+
+        if (hasRare) {
             player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_DURATION, 0, true, false));
+        }
 
-            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC)) {
-                //noinspection resource
-                Set<Entity> entitiesToGlow = player.isCrouching() ? new HashSet<>(player.level().getEntities(player, player.getBoundingBox().inflate(1000))) : new HashSet<>();
-                Set<Entity> currentlyGlowing = new HashSet<>(entitesGlowing.getOrDefault(player.getUUID(), Collections.emptySet()));
+        if (hasEpic && player.isCrouching()) {
+            if (player.tickCount % GLOW_UPDATE_INTERVAL == 0) {
+                updateGlowingEntities(player);
+            }
+        } else {
+            clearGlowingEntities(player);
+        }
 
-                for (var entity : currentlyGlowing) {
-                    if (!entity.isCurrentlyGlowing() && !entitiesToGlow.contains(entity)) {
-                        removeGlowing(entity, player);
-                    }
+        var invisibility = INVISIBLE_PLAYERS.get(player.getUUID());
+        if (invisibility != null && (!hasLegendary || !player.isCrouching())) {
+            endInvisibility(player);
+        }
+    }
+
+    private static void updateGlowingEntities(ServerPlayer player) {
+        var level = player.level();
+        var nearbyEntities = level.getEntities(
+                player,
+                player.getBoundingBox().inflate(GLOW_RANGE),
+                entity -> entity instanceof LivingEntity && entity.isAlive() && !entity.isSpectator()
+        );
+        var desiredEntities = new HashMap<Integer, Entity>();
+        for (var entity : nearbyEntities) {
+            if (!entity.isCurrentlyGlowing()) {
+                desiredEntities.put(entity.getId(), entity);
+            }
+        }
+
+        var currentIds = GLOWING_ENTITY_IDS.computeIfAbsent(player.getUUID(), _ -> new HashSet<>());
+        for (var entityId : new HashSet<>(currentIds)) {
+            if (!desiredEntities.containsKey(entityId)) {
+                var entity = level.getEntity(entityId);
+                if (entity != null) {
+                    sendEntityFlags(player, entity, false);
                 }
+                currentIds.remove(entityId);
+            }
+        }
+        for (var entry : desiredEntities.entrySet()) {
+            currentIds.add(entry.getKey());
+            sendEntityFlags(player, entry.getValue(), true);
+        }
 
-                for (var entity : entitiesToGlow) {
-                    if (!entity.isCurrentlyGlowing() && !currentlyGlowing.contains(entity)) {
-                        setGlowing(entity, player);
-                    }
-                }
+        if (currentIds.isEmpty()) {
+            GLOWING_ENTITY_IDS.remove(player.getUUID());
+        }
+    }
 
-                if (!player.isCrouching()) {
-                    invisiblePlayers.remove(player.getUUID());
-                    player.removeEffect(MobEffects.INVISIBILITY);
-                    player.removeEffect(MobEffects.SPEED);
-                }
+    private static void clearGlowingEntities(ServerPlayer player) {
+        var entityIds = GLOWING_ENTITY_IDS.remove(player.getUUID());
+        if (entityIds == null) {
+            return;
+        }
+        var level = player.level();
+        for (var entityId : entityIds) {
+            var entity = level.getEntity(entityId);
+            if (entity != null) {
+                sendEntityFlags(player, entity, false);
             }
         }
     }
 
-    private static void setGlowing(Entity entity, ServerPlayer player) {
-        entitesGlowing.computeIfAbsent(player.getUUID(), _ -> new HashSet<>()).add(entity);
-        byte currentValue = entity.getEntityData().get(Entity.DATA_SHARED_FLAGS_ID);
-        currentValue |= (1 << 6);
-        List<SynchedEntityData.DataValue<?>> packedValues = List.of(SynchedEntityData.DataValue.create(Entity.DATA_SHARED_FLAGS_ID, currentValue));
-        player.connection.send(new ClientboundSetEntityDataPacket(entity.getId(), packedValues));
+    private static void sendEntityFlags(ServerPlayer viewer, Entity entity, boolean forceGlowing) {
+        byte flags = entity.getEntityData().get(Entity.DATA_SHARED_FLAGS_ID);
+        if (forceGlowing) {
+            flags |= GLOWING_FLAG;
+        }
+        List<SynchedEntityData.DataValue<?>> packedValues = List.of(
+                SynchedEntityData.DataValue.create(Entity.DATA_SHARED_FLAGS_ID, flags)
+        );
+        viewer.connection.send(new ClientboundSetEntityDataPacket(entity.getId(), packedValues));
     }
-
-    private static void removeGlowing(Entity entity, ServerPlayer player) {
-        entitesGlowing.computeIfAbsent(player.getUUID(), _ -> new HashSet<>()).remove(entity);
-        byte currentValue = entity.getEntityData().get(Entity.DATA_SHARED_FLAGS_ID);
-        currentValue &= ~(1 << 6);
-        List<SynchedEntityData.DataValue<?>> packedValues = List.of(SynchedEntityData.DataValue.create(Entity.DATA_SHARED_FLAGS_ID, currentValue));
-        player.connection.send(new ClientboundSetEntityDataPacket(entity.getId(), packedValues));
-    }
-
-    private static final Set<UUID> invisiblePlayers = new HashSet<>();
 
     @Override
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
-        if (entity instanceof ServerPlayer player && PlayerData.hasCardOrRarer(player, cardType, RarityLevel.LEGENDARY)
+        if (entity instanceof ServerPlayer player
+                && !INVISIBLE_PLAYERS.containsKey(player.getUUID())
+                && PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)
                 && source.getEntity() instanceof LivingEntity attacker
                 && player.isCrouching()
-                && PolyCard.COOLDOWNS.isReadyOrCreate(player, "bat_invisibility", INVISIBILITY_COOLDOWN)
+                && PolyCard.cooldowns().tryStartCooldown(player, "bat_invisibility", INVISIBILITY_COOLDOWN)
         ) {
-            var uuid = player.getUUID();
-            if (invisiblePlayers.add(uuid)) {
-                player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, INVISIBILITY_DURATION, 0, false, false));
-                player.addEffect(new MobEffectInstance(MobEffects.SPEED, INVISIBILITY_DURATION, SPEED_AMPLIFIER, false, false));
-                level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);
-                level.sendParticles(ParticleTypes.LARGE_SMOKE, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);
-                level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, player.getX(), player.getY() + 1, player.getZ(), 50, 1, 1, 1, 0.25);
-                attacker.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, INVISIBILITY_DURATION, 0, false, true));
-                Helpers.runLater(INVISIBILITY_DURATION, (_) -> invisiblePlayers.remove(uuid));
-            } else {
-                return InteractionResult.FAIL;
-            }
+            startInvisibility(player, attacker, level);
         }
 
-        if (source.getDirectEntity() instanceof ServerPlayer player && invisiblePlayers.contains(player.getUUID())) {
+        // The triggering hit and all later incoming damage are cancelled while the state is active.
+        if (entity instanceof ServerPlayer player && INVISIBLE_PLAYERS.containsKey(player.getUUID())) {
+            return InteractionResult.FAIL;
+        }
+
+        // Block melee and player-owned projectile damage dealt by an active Bat player.
+        if (source.getEntity() instanceof ServerPlayer player && INVISIBLE_PLAYERS.containsKey(player.getUUID())) {
             return InteractionResult.FAIL;
         }
 
@@ -117,17 +166,79 @@ public class BatEffects
     }
 
     @Override
-    public InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData targetingConditionsData) {
-        if (target instanceof ServerPlayer player && invisiblePlayers.contains(player.getUUID())) {
+    public InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData data) {
+        if (target instanceof ServerPlayer player && INVISIBLE_PLAYERS.containsKey(player.getUUID())) {
             return InteractionResult.FAIL;
         }
         return InteractionResult.PASS;
     }
 
     @Override
-    public void afterDeath(@NonNull LivingEntity entity, @NonNull DamageSource source) {
+    public void onCardUnequip(ServerPlayer player, Card card) {
+        if (card.cardType() == cardType()) {
+            clearGlowingEntities(player);
+            endInvisibility(player);
+        }
+    }
+
+    @Override
+    public void onLeave(ServerPlayer player) {
+        GLOWING_ENTITY_IDS.remove(player.getUUID());
+        endInvisibility(player);
+    }
+
+    @Override
+    public void afterDeath(LivingEntity entity, DamageSource source) {
         if (entity instanceof ServerPlayer player) {
-            invisiblePlayers.remove(player.getUUID());
+            clearGlowingEntities(player);
+            endInvisibility(player);
         }
     }
+
+    private static void startInvisibility(ServerPlayer player, LivingEntity attacker, ServerLevel level) {
+        long invisibilityId = ++nextInvisibilityId;
+        long expiresAtPlayerTick = (long) player.tickCount + INVISIBILITY_DURATION;
+        var invisibility = new BatInvisibility(invisibilityId, expiresAtPlayerTick);
+
+        player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, INVISIBILITY_DURATION, 0, false, false));
+
+        var movementSpeed = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (movementSpeed != null) {
+            movementSpeed.removeModifier(SPEED_MODIFIER_ID);
+            movementSpeed.addTransientModifier(SPEED_MODIFIER);
+        }
+
+        INVISIBLE_PLAYERS.put(player.getUUID(), invisibility);
+        Helpers.runLater(INVISIBILITY_DURATION, _ -> endInvisibility(player, invisibilityId));
+
+        level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);
+        level.sendParticles(ParticleTypes.LARGE_SMOKE, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);
+        level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, player.getX(), player.getY() + 1, player.getZ(), 50, 1, 1, 1, 0.25);
+        attacker.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, INVISIBILITY_DURATION, 0, false, true));
+        Helpers.debug("Activated legendary Bat state for {}", player.getName().getString());
+    }
+
+    private static void endInvisibility(ServerPlayer player, long expectedInvisibilityId) {
+        var invisibility = INVISIBLE_PLAYERS.get(player.getUUID());
+        if (invisibility != null && invisibility.id == expectedInvisibilityId) {
+            endInvisibility(player);
+        }
+    }
+
+    private static void endInvisibility(ServerPlayer player) {
+        var invisibility = INVISIBLE_PLAYERS.remove(player.getUUID());
+        if (invisibility == null) {
+            return;
+        }
+
+        var movementSpeed = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (movementSpeed != null) {
+            movementSpeed.removeModifier(SPEED_MODIFIER_ID);
+        }
+
+        player.removeEffect(MobEffects.INVISIBILITY);
+        Helpers.debug("Ended legendary Bat state for {}", player.getName().getString());
+    }
+
+    private record BatInvisibility(long id, long expiresAtPlayerTick) { }
 }

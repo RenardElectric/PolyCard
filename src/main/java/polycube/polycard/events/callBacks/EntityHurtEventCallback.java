@@ -9,16 +9,15 @@ import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
 /// Fired before server-side hurt damage is applied.
-/// Listeners may mutate damage; the first non-PASS result stops later PolyCard listeners.
-/// FAIL cancels the damage, while SUCCESS keeps vanilla hurt processing with the current damage value.
+/// Listeners may mutate damage; FAIL cancels it, while PASS and SUCCESS allow later listeners.
 public interface EntityHurtEventCallback {
     Event<EntityHurtEventCallback> EVENT = EventFactory.createArrayBacked(EntityHurtEventCallback.class,
             (listeners) -> (instance, level, source, damage) -> {
                 for (var listener : listeners) {
                     InteractionResult result = listener.onEntityHurt(instance, level, source, damage);
 
-                    if (result != InteractionResult.PASS) {
-                        return result;
+                    if (result.equals(InteractionResult.FAIL)) {
+                        return InteractionResult.FAIL;
                     }
                 }
 

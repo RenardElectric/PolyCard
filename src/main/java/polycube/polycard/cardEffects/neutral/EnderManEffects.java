@@ -1,7 +1,6 @@
 package polycube.polycard.cardEffects.neutral;
 
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,8 +16,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.apache.commons.lang3.mutable.MutableFloat;
@@ -31,39 +28,26 @@ import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
 import polycube.polycard.utils.Helpers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-
 public class EnderManEffects extends CardEffects implements PlayerTickEventCallback, ItemUseEventCallback, ProjectileOnHitEventCallback, EntityHurtEventCallback {
     public static final int RESISTANCE_EFFECT_DURATION = 20 * 2;
     public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
 
     public static final int PROJECTILE_DODGE_PROBABILITY = 20;
 
-    public static final List<ResourceKey<Biome>> endBiomes = new ArrayList<>(
-            Arrays.asList(Biomes.THE_END, Biomes.END_BARRENS, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS)
-    );
-
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
-        var pos = player.blockPosition();
-        //noinspection resource
-        var biome = player.level().getBiome(pos);
-        if (biome.is(endBiomes::contains)) {
-            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.UNCOMMON)) {
-                player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
-            }
+        if (player.level().dimension().equals(Level.END)
+                && PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.UNCOMMON)) {
+            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
         }
     }
 
     @Override
     public InteractionResult onItemUse(ServerPlayer player, Level world, InteractionHand hand) {
         var itemStack = player.getItemInHand(hand);
-        if (itemStack.getItem() == Items.ENDER_PEARL) {
-            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC)) {
-                Helpers.runLater(1, _ -> {
+        if (itemStack.getItem().equals(Items.ENDER_PEARL)) {
+            if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)) {
+                Helpers.runLater(0, _ -> {
                     Helpers.debug("Removing ender pearl cooldown for {}", player.getName().getString());
                     var cooldowns = player.getCooldowns();
                     cooldowns.removeCooldown(cooldowns.getCooldownGroup(Items.ENDER_PEARL.getDefaultInstance()));
@@ -78,8 +62,8 @@ public class EnderManEffects extends CardEffects implements PlayerTickEventCallb
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
-                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.RARE)) {
-                    Helpers.debug("{} has an uncommon or higher enderman card, removing ender pearl teleport damage", player.getName().getString());
+                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.RARE)) {
+                    Helpers.debug("{} ignored ender-pearl damage with a Rare Enderman card", player.getName().getString());
                     return InteractionResult.FAIL;
                 }
             }
@@ -92,13 +76,11 @@ public class EnderManEffects extends CardEffects implements PlayerTickEventCallb
         if (hitResult instanceof EntityHitResult entityHitResult) {
             var hitEntity = entityHitResult.getEntity();
             if (hitEntity instanceof ServerPlayer player) {
-                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.LEGENDARY)) {
-                    var random = ThreadLocalRandom.current();
-                    var randomInt = random.nextInt(0, 100);
+                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
+                    var randomInt = player.getRandom().nextInt(100);
                     if (randomInt < PROJECTILE_DODGE_PROBABILITY) {
-                        Helpers.debug("{} has a epic or higher enderman card and rolled a {} to dodge a projectile", player.getName().getString(), randomInt);
+                        Helpers.debug("{} dodged a projectile with a Legendary Enderman card (roll {})", player.getName().getString(), randomInt);
 
-                        //noinspection resource
                         var level = player.level();
                         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_TELEPORT, SoundSource.PLAYERS);
                         level.sendParticles(ParticleTypes.PORTAL, player.getX(), player.getY() + 0.5, player.getZ(), 50, 0.5, 1, 0.5, 1);

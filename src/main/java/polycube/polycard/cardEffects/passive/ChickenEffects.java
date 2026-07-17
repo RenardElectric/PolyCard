@@ -1,5 +1,6 @@
 package polycube.polycard.cardEffects.passive;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,19 +21,22 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
+import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
-import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class ChickenEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback {
+public class ChickenEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback,
+        EntityAfterHurtEventCallback, ServerPlayerEvents.Leave {
     public static final float EGG_DAMAGE = 1.0F;
 
     public static final int SPEED_EFFECT_DURATION = 20 * 2;
@@ -49,93 +53,102 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         var uuid = player.getUUID();
+        var equippedRarity = PolyCard.storage().getPlayerData(player).equippedRarity(cardType());
+        if (equippedRarity == null) {
+            EGG_TIMES.remove(uuid);
+            return;
+        }
 
-        CardRarityConditions.of(player, cardType)
-                .hasCommon(() -> {
-                    var eggTime = EGG_TIMES.computeIfAbsent(uuid, _ -> player.getRandom().nextInt(6000) + 6000);
-                    if (--eggTime < 0) {
-                        var level = player.level();
-                        var chicken = EntityTypes.CHICKEN.create(level, EntitySpawnReason.TRIGGERED);
-                        if (chicken != null) {
-                            chicken.remove(Entity.RemovalReason.DISCARDED);
-                            if (chicken.dropFromGiftLootTable(level, BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {
-                                Helpers.debug("{} has the common chicken card and laid an egg.", player.getName().getString());
-                                level.playSound(null, player.getX(), player.getY() - 1, player.getZ(), SoundEvents.CHICKEN_EGG, SoundSource.PLAYERS, 0.2f, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
-                                eggTime = player.getRandom().nextInt(6000) + 6000;
-                            }
-                        }
+        var eggTime = EGG_TIMES.computeIfAbsent(uuid, _ -> nextEggDelay(player));
+        if (--eggTime <= 0) {
+            eggTime = nextEggDelay(player);
+            var level = player.level();
+            var chicken = EntityTypes.CHICKEN.create(level, EntitySpawnReason.TRIGGERED);
+            if (chicken != null) {
+                chicken.setPos(player.position());
+                try {
+                    if (chicken.dropFromGiftLootTable(level, BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {
+                        Helpers.debug("{} laid an egg from a Common Chicken card", player.getName().getString());
+                        level.playSound(null, player.getX(), player.getY() - 1, player.getZ(), SoundEvents.CHICKEN_EGG, SoundSource.PLAYERS, 0.2f, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
                     }
-                    EGG_TIMES.put(uuid, eggTime);
-                }, () -> EGG_TIMES.remove(uuid))
-                .hasRare(() -> {
-                    if (Helpers.nearPlayerWithCard(player, cardType, RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
-                        player.addEffect(new MobEffectInstance(MobEffects.SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_AMPLIFIER, true, true));
-                    }
-                })
-                .hasLegendary(() -> {
-                    if (player.fallDistance > 2 && player.isCrouching()) {
-                        player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, SLOW_FALLING_DURATION, SLOW_FALLING_AMPLIFIER, false, true, true));
-                    }
-                });
+                } finally {
+                    chicken.remove(Entity.RemovalReason.DISCARDED);
+                }
+            }
+        }
+        EGG_TIMES.put(uuid, eggTime);
+
+        if (equippedRarity.isAtLeast(RarityLevel.RARE)
+                && player.tickCount % 20 == 0
+                && Helpers.nearPlayerWithCard(player, cardType(), RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
+            player.addEffect(new MobEffectInstance(MobEffects.SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_AMPLIFIER, true, true));
+        }
+
+        if (equippedRarity.isAtLeast(RarityLevel.LEGENDARY) && player.fallDistance > 2 && player.isCrouching()) {
+            player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, SLOW_FALLING_DURATION, SLOW_FALLING_AMPLIFIER, false, true));
+        }
     }
 
-    private static boolean ignore = false;
+    private static int nextEggDelay(ServerPlayer player) {
+        return player.getRandom().nextInt(6000) + 6000;
+    }
+
+    @Override
+    public void onLeave(ServerPlayer player) {
+        EGG_TIMES.remove(player.getUUID());
+    }
 
     @Override
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
-        if (ignore) return InteractionResult.PASS;
-
         if (source.getDirectEntity() instanceof ThrownEgg egg) {
             if (egg.getOwner() instanceof ServerPlayer player) {
-                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.UNCOMMON)) {
-                    ignore = true;
-                    Helpers.debug("{} has the uncommon chicken card and hit {} with an egg. Hurting the entity for {} damage.", player.getName().getString(), entity.getName().getString(), EGG_DAMAGE);
-                    entity.hurtServer(level, egg.damageSources().thrown(egg, player), EGG_DAMAGE);
-                    ignore = false;
+                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.UNCOMMON)) {
+                    Helpers.debug("{} dealt {} damage to {} with an Uncommon Chicken egg", player.getName().getString(), EGG_DAMAGE, entity.getName().getString());
+                    damage.setValue(EGG_DAMAGE);
                 }
             }
         }
 
-        if (entity instanceof ServerPlayer player) {
-            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC) && player.getRandom().nextFloat() < THROW_EGG_PROBABILITY) {
-                var pos = source.getSourcePosition();
-                var attacker = source.getEntity();
-                if (attacker != null) {
-                    pos = attacker.position();
-                }
-                if (pos != null) {
-                    ItemStack eggStack = new ItemStack(Items.EGG);
-                    ThrownEgg egg = new ThrownEgg(level, player, eggStack);
-                    Vec3 eggAim = getProjectileAim(
-                            egg,
-                            pos.x(),
-                            pos.y() + 0.5,
-                            pos.z()
-                    );
-                    if (eggAim != null) {
-                        Helpers.debug("{} has the epic chicken card and is throwing an egg at {}.", player.getName().getString(), attacker != null ? attacker.getName().getString() : "position " + pos);
-                        Projectile.spawnProjectileUsingShoot(
-                                egg,
-                                level,
-                                eggStack,
-                                eggAim.x,
-                                eggAim.y,
-                                eggAim.z,
-                                (float) eggAim.length(),
-                                0.0F
-                        );
-                        level.playSound(
-                                null, player.getX(), player.getY(), player.getZ(), SoundEvents.EGG_THROW,
-                                SoundSource.PLAYERS, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
-                        );
-                    }
-                }
-            }
-        }
         return InteractionResult.PASS;
     }
 
-    private static Vec3 getProjectileAim(
+    @Override
+    public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
+        if (!(entity instanceof ServerPlayer player)
+                || !PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)
+                || player.getRandom().nextFloat() >= THROW_EGG_PROBABILITY) {
+            return;
+        }
+
+        var pos = source.getSourcePosition();
+        var attacker = source.getEntity();
+        if (attacker != null) {
+            pos = attacker.position();
+        }
+        if (pos == null) {
+            return;
+        }
+
+        ItemStack eggStack = new ItemStack(Items.EGG);
+        ThrownEgg egg = new ThrownEgg(level, player, eggStack);
+        Vec3 eggAim = getProjectileAim(egg, pos.x(), pos.y() + 0.5, pos.z());
+        if (eggAim == null) {
+            return;
+        }
+
+        Helpers.debug("{} is retaliating with an Epic Chicken egg against {}",
+                player.getName().getString(), attacker != null ? attacker.getName().getString() : "position " + pos);
+        Projectile.spawnProjectileUsingShoot(
+                egg, level, eggStack, eggAim.x, eggAim.y, eggAim.z,
+                (float) eggAim.length(), 0.0F
+        );
+        level.playSound(
+                null, player.getX(), player.getY(), player.getZ(), SoundEvents.EGG_THROW,
+                SoundSource.PLAYERS, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+        );
+    }
+
+    private static @Nullable Vec3 getProjectileAim(
             Projectile projectile,
             double targetX,
             double targetY,

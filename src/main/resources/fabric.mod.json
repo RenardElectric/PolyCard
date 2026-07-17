@@ -29,7 +29,7 @@
     "java": ">=${java_version}",
     "minecraft": "${minecraft_version}",
     "fabricloader": ">=${loader_version}",
-    "fabric-api": "*"
+    "fabric-api": ">=${fabric_api_version}"
   },
   "accessWidener": "polycard.classtweaker"
 }

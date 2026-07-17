@@ -5,23 +5,21 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.item.Items;
-import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
-import polycube.polycard.events.callBacks.EntityHurtEventCallback;
+import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class IronGolemEffects extends CardEffects implements EntityHurtEventCallback {
+public class IronGolemEffects extends CardEffects implements EntityAfterHurtEventCallback {
     public static final float RESISTANCE_ON_ATTACKED_PROBABILITY = 0.2f;
     public static final int RESISTANCE_DURATION = 20 * 10;
     public static final int RESISTANCE_AMPLIFIER = 0;
@@ -36,23 +34,23 @@ public class IronGolemEffects extends CardEffects implements EntityHurtEventCall
     public static final int MAX_SHOCKWAVE_DAMAGE = 15;
 
     @Override
-    public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
+    public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
 
         if (entity instanceof ServerPlayer player) {
-            CardRarityConditions.of(player, cardType)
+            CardRarityConditions.of(player, cardType())
                     .hasRare(() -> {
-                        if (source.is(DamageTypeTags.IS_PROJECTILE)) {
-                            Helpers.debug("{} has a rare or higher Iron Golem card and was attacked. Chance to gain resistance: {}%", player.getName().getString(), RESISTANCE_ON_ATTACKED_PROBABILITY);
-                            var random = player.getRandom().nextFloat();
-                            if (random < RESISTANCE_ON_ATTACKED_PROBABILITY) {
-                                player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER));
-                            }
+                        if (source.getEntity() instanceof LivingEntity attacker
+                                && !attacker.equals(player)
+                                && player.getRandom().nextFloat() < RESISTANCE_ON_ATTACKED_PROBABILITY) {
+                            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER));
+                            Helpers.debug("{} gained Resistance from a Rare Iron Golem card after an attack by {} ({}% chance)",
+                                    player.getName().getString(), attacker.getName().getString(), Helpers.probToStr(RESISTANCE_ON_ATTACKED_PROBABILITY));
                         }
                     })
                     .hasLegendary(() -> {
                         if (source.is(DamageTypeTags.IS_FALL) &&
                                 player.fallDistance >= SHOCKWAVE_MIN_FALL_DISTANCE &&
-                                PolyCard.COOLDOWNS.isReadyOrCreate(player, SHOCKWAVE_COOLDOWN_KEY, SHOCKWAVE_COOLDOWN)
+                                PolyCard.cooldowns().tryStartCooldown(player, SHOCKWAVE_COOLDOWN_KEY, SHOCKWAVE_COOLDOWN)
                         ) {
                             Helpers.debug("{} has a legendary or higher Iron Golem card and fell from a height of {}. Triggering shockwave.", player.getName().getString(), player.fallDistance);
                             triggerShockwave(player, player.fallDistance);
@@ -62,8 +60,8 @@ public class IronGolemEffects extends CardEffects implements EntityHurtEventCall
 
         if (source.getEntity() instanceof ServerPlayer player) {
             if (source.isDirect() && source.getWeaponItem() != null && source.getWeaponItem().is(Items.AIR)) {
-                if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.EPIC)) {
-                    if (PolyCard.COOLDOWNS.isReadyOrCreate(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
+                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)) {
+                    if (PolyCard.cooldowns().tryStartCooldown(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
                         Helpers.debug("{} has an epic or higher Iron Golem card, applying knockback on hit", player.getName().getString());
                         double xd = 0.0;
                         double zd = 0.0;
@@ -79,7 +77,6 @@ public class IronGolemEffects extends CardEffects implements EntityHurtEventCall
             }
         }
 
-        return InteractionResult.PASS;
     }
 
     private static void triggerShockwave(ServerPlayer player, double fallDistance) {
@@ -95,6 +92,8 @@ public class IronGolemEffects extends CardEffects implements EntityHurtEventCall
         var condition = TargetingConditions.forNonCombat().ignoreLineOfSight().ignoreInvisibilityTesting().range(radius);
         for (LivingEntity nearby : level.getNearbyEntities(LivingEntity.class, condition, player, player.getBoundingBox().inflate(radius, 2.5, radius))) {
             if (nearby.equals(player)) continue;
+            if (player.isAlliedTo(nearby)) continue;
+            if (nearby instanceof ServerPlayer otherPlayer && !player.canHarmPlayer(otherPlayer)) continue;
 
             nearby.knockback(
                     0.8 + Math.min(0.8, fallDistance * 0.04),

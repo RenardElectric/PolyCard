@@ -1,5 +1,6 @@
 package polycube.polycard.cardEffects.passive;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,19 +11,19 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.equine.Horse;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
-import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class HorseEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback {
+public class HorseEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback, ServerPlayerEvents.Leave {
     public static final float DAMAGE_IGNORED_PERCENTAGE = 0.5f;
 
     public static final int SPEED_EFFECT_AMPLIFIER = 2;
@@ -30,33 +31,59 @@ public class HorseEffects extends CardEffects implements PlayerTickEventCallback
     public static final int SPEED_INCREMENT_TIME = 20 * 10;
     public static final int MAX_SPEED_BOOST = 7;
 
-    private static final Map<UUID, Integer> speedBoostMap = new HashMap<>();
+    private static final int MAX_SPEED_BOOST_TICKS = (MAX_SPEED_BOOST - SPEED_EFFECT_AMPLIFIER) * SPEED_INCREMENT_TIME;
+    private static final Map<UUID, Integer> SPEED_BOOST_TICKS = new HashMap<>();
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
-        if (player.getControlledVehicle() instanceof Horse horse) {
-            CardRarityConditions.of(player, cardType)
-                .hasRare(() -> horse.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 2, JUMP_BOOST_EFFECT_AMPLIFIER, true, false)))
-                .hasEpic(() -> horse.addEffect(new MobEffectInstance(MobEffects.SPEED, 2, SPEED_EFFECT_AMPLIFIER, true, false)))
-                .hasLegendary(() -> {
-                    if (player.getKnownMovement().lengthSqr() > 0) {
-                        int timeSprinting = speedBoostMap.getOrDefault(player.getUUID(), 0) + 1;
-                        speedBoostMap.put(player.getUUID(), timeSprinting);
-                        int speed = Math.min(SPEED_EFFECT_AMPLIFIER + timeSprinting / SPEED_INCREMENT_TIME, MAX_SPEED_BOOST);
-                        horse.addEffect(new MobEffectInstance(MobEffects.SPEED, 2, speed, true, false));
-                    } else {
-                        speedBoostMap.remove(player.getUUID());
-                    }
-                }, () -> speedBoostMap.remove(player.getUUID()));
+        UUID playerId = player.getUUID();
+        if (!(player.getControlledVehicle() instanceof Horse horse)) {
+            SPEED_BOOST_TICKS.remove(playerId);
+            return;
         }
+
+        RarityLevel rarity = PolyCard.storage().getPlayerData(player).equippedRarity(cardType());
+        if (rarity == null || !rarity.isAtLeast(RarityLevel.RARE)) {
+            SPEED_BOOST_TICKS.remove(playerId);
+            return;
+        }
+
+        horse.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 2, JUMP_BOOST_EFFECT_AMPLIFIER, true, false));
+
+        if (!rarity.isAtLeast(RarityLevel.EPIC)) {
+            SPEED_BOOST_TICKS.remove(playerId);
+            return;
+        }
+
+        int speedAmplifier = SPEED_EFFECT_AMPLIFIER;
+        if (rarity.isAtLeast(RarityLevel.LEGENDARY) && player.getKnownMovement().lengthSqr() > 0) {
+            speedAmplifier = incrementSpeedBoost(playerId);
+        } else {
+            SPEED_BOOST_TICKS.remove(playerId);
+        }
+
+        horse.addEffect(new MobEffectInstance(MobEffects.SPEED, 2, speedAmplifier, true, false));
+    }
+
+    private static int incrementSpeedBoost(UUID playerId) {
+        int movingTicks = SPEED_BOOST_TICKS.getOrDefault(playerId, 0);
+        if (movingTicks < MAX_SPEED_BOOST_TICKS) {
+            SPEED_BOOST_TICKS.put(playerId, ++movingTicks);
+        }
+        return SPEED_EFFECT_AMPLIFIER + movingTicks / SPEED_INCREMENT_TIME;
+    }
+
+    @Override
+    public void onLeave(ServerPlayer player) {
+        SPEED_BOOST_TICKS.remove(player.getUUID());
     }
 
     @Override
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof Horse horse && horse.getControllingPassenger() instanceof ServerPlayer player) {
-            if (PlayerData.hasCardOrRarer(player, cardType, RarityLevel.UNCOMMON)) {
+            if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.UNCOMMON)) {
                 var newDamage = damage.floatValue() * (1 - DAMAGE_IGNORED_PERCENTAGE);
-                Helpers.debug("{} has the uncommon horse card and is riding a horse. Reducing damage taken by from {} to {}.", player.getName().getString(), damage.floatValue(), newDamage);
+                Helpers.debug("{} reduced ridden-horse damage from {} to {} with an Uncommon Horse card", player.getName().getString(), damage.floatValue(), newDamage);
                 damage.setValue(newDamage);
             }
         }

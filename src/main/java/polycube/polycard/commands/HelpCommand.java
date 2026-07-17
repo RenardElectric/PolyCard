@@ -22,7 +22,7 @@ public class HelpCommand extends PolyCardCommand {
                 helpMessage.append("\n\n")
                         .append(command.getUsage())
                         .append("\n")
-                        .append("    -")
+                        .append("    - ")
                         .append(command.getDescription());
             }
         }
