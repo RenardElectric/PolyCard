@@ -63,9 +63,9 @@ public final class Helpers {
         var level = player.level();
         var playerPos = player.position();
         return !level.getPlayers(p ->
-                !p.equals(player) &&
-                        p.position().distanceToSqr(playerPos) <= distanceSquared &&
-                        PlayerData.hasCardOrRarer(p, cardType, rarityLevel), 1).isEmpty();
+                !p.equals(player)
+                        && p.position().distanceToSqr(playerPos) <= distanceSquared
+                        && PolyCard.storage().getPlayerData(p).hasCardOrRarer(cardType, rarityLevel), 1).isEmpty();
     }
 
     /// Logs a debug message with the mod id prefix.
@@ -154,5 +154,13 @@ public final class Helpers {
             }
         }
         return titleCase.toString();
+    }
+
+    public static int binomialSelection(float probability, int count) {
+        int result = 0;
+        for (int i = 0; i < count; i++) {
+            if (RANDOM.nextFloat() < probability) result++;
+        }
+        return result;
     }
 }

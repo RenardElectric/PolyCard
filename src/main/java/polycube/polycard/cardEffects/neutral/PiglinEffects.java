@@ -49,12 +49,12 @@ public class PiglinEffects extends CardEffects implements IsTargetedEventCallbac
         if (targetingConditionsData.isCombat() && target instanceof ServerPlayer player) {
             switch (targeter) {
                 case Piglin _ -> {
-                    if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.UNCOMMON)) {
+                    if (hasCardOrRarer(player, RarityLevel.UNCOMMON)) {
                         return InteractionResult.FAIL;
                     }
                 }
                 case PiglinBrute _ -> {
-                    if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)) {
+                    if (hasCardOrRarer(player, RarityLevel.EPIC)) {
                         return InteractionResult.FAIL;
                     }
                 }
@@ -70,7 +70,7 @@ public class PiglinEffects extends CardEffects implements IsTargetedEventCallbac
     public int onDurabilityChange(ServerLevel level, @Nullable ServerPlayer player, ItemStack itemStack, int amount) {
         if (player != null) {
             if (itemStack.is(ItemTags.PIGLIN_LOVED)) {
-                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
+                if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
                     if (itemStack.is(ItemTags.ARMOR_ENCHANTABLE)) {
                         return (int) PIGLIN_ARMOR_BINOMIAL.process(0, level.getRandom(), amount);
                     }
@@ -84,7 +84,7 @@ public class PiglinEffects extends CardEffects implements IsTargetedEventCallbac
     @Override
     public void onItemConsumed(ServerPlayer player, ItemStack item) {
         if (GOLD_FOOD.contains(item.getItem())) {
-            if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.RARE)) {
+            if (hasCardOrRarer(player, RarityLevel.RARE)) {
                 var effect = BUFFS.get(player.level().getRandom().nextInt(BUFFS.size()));
                 Helpers.debug("{} has the rare piglin card and consumed a gold food item. Applying random buff {}.", player.getName().getString(), effect.value().getDescriptionId());
                 player.addEffect(new MobEffectInstance(effect, BUFF_DURATION, BUFF_AMPLIFIER));

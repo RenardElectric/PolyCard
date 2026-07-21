@@ -183,9 +183,4 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
 
         return container;
     }
-
-    /// Convenience threshold check for server-player based card effects.
-    public static boolean hasCardOrRarer(ServerPlayer player, CardType cardType, RarityLevel rarityLevel) {
-        return PolyCard.storage().getPlayerData(player).hasCardOrRarer(cardType, rarityLevel);
-    }
 }

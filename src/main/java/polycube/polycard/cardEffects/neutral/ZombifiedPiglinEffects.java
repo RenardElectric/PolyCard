@@ -34,7 +34,7 @@ public class ZombifiedPiglinEffects extends CardEffects implements IsTargetedEve
     public InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData targetingConditionsData) {
         if (target instanceof ServerPlayer player) {
             if (targeter instanceof ZombifiedPiglin) {
-                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)) {
+                if (hasCardOrRarer(player, RarityLevel.EPIC)) {
                     return InteractionResult.FAIL;
                 }
             }
@@ -47,7 +47,7 @@ public class ZombifiedPiglinEffects extends CardEffects implements IsTargetedEve
     public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
         if (entity instanceof ServerPlayer player) {
             if (source.getEntity() instanceof ServerPlayer attackingPlayer && !attackingPlayer.equals(player)) {
-                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
+                if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
                     var random = player.getRandom();
                     if (random.nextFloat() < SPAWN_REINFORCEMENTS_CHANCE
                             && level.isSpawningMonsters()

@@ -1,7 +1,10 @@
 package polycube.polycard.cardEffects;
 
+import net.minecraft.server.level.ServerPlayer;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
+import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.EventHandler;
 
 import java.util.Objects;
@@ -23,5 +26,9 @@ public abstract class CardEffects extends EventHandler {
 
     public CardType cardType() {
         return Objects.requireNonNull(cardType, "Cannot access CardType before initialize() is called");
+    }
+
+    public boolean hasCardOrRarer(ServerPlayer player, RarityLevel rarityLevel) {
+        return PolyCard.storage().getPlayerData(player).hasCardOrRarer(cardType(), rarityLevel);
     }
 }

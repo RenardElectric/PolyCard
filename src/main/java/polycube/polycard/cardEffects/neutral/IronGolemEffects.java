@@ -60,7 +60,7 @@ public class IronGolemEffects extends CardEffects implements EntityAfterHurtEven
 
         if (source.getEntity() instanceof ServerPlayer player) {
             if (source.isDirect() && source.getWeaponItem() != null && source.getWeaponItem().is(Items.AIR)) {
-                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)) {
+                if (hasCardOrRarer(player, RarityLevel.EPIC)) {
                     if (PolyCard.cooldowns().tryStartCooldown(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
                         Helpers.debug("{} has an epic or higher Iron Golem card, applying knockback on hit", player.getName().getString());
                         double xd = 0.0;

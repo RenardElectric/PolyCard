@@ -59,7 +59,7 @@ public class WolfEffects extends CardEffects implements PlayerKillEventCallback,
 
     @Override
     public void onPlayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {
-        if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)) {
+        if (hasCardOrRarer(player, RarityLevel.EPIC)) {
             int healedWolves = 0;
             for (var level : player.level().getServer().getAllLevels()) {
                 for (var wolf : level.getEntities(EntityTypes.WOLF, LivingEntity::isAlive)) {

@@ -63,7 +63,7 @@ public class ZombieEffects extends CardEffects implements ItemConsumedEventCallb
     public InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData data) {
         if (target instanceof ServerPlayer player) {
             if (targeter instanceof Zombie || targeter instanceof ZombieHorse || targeter instanceof ZombieNautilus || targeter instanceof CamelHusk || targeter instanceof Zoglin) {
-                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
+                if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
                     return InteractionResult.FAIL;
                 }
             }

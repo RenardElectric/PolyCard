@@ -144,7 +144,7 @@ public class BatEffects
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player
                 && !INVISIBLE_PLAYERS.containsKey(player.getUUID())
-                && PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)
+                && hasCardOrRarer(player, RarityLevel.LEGENDARY)
                 && source.getEntity() instanceof LivingEntity attacker
                 && player.isCrouching()
                 && PolyCard.cooldowns().tryStartCooldown(player, "bat_invisibility", INVISIBILITY_COOLDOWN)

@@ -37,7 +37,7 @@ public class EnderManEffects extends CardEffects implements PlayerTickEventCallb
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         if (player.level().dimension().equals(Level.END)
-                && PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.UNCOMMON)) {
+                && hasCardOrRarer(player, RarityLevel.UNCOMMON)) {
             player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
         }
     }
@@ -46,7 +46,7 @@ public class EnderManEffects extends CardEffects implements PlayerTickEventCallb
     public InteractionResult onItemUse(ServerPlayer player, Level world, InteractionHand hand) {
         var itemStack = player.getItemInHand(hand);
         if (itemStack.getItem().equals(Items.ENDER_PEARL)) {
-            if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)) {
+            if (hasCardOrRarer(player, RarityLevel.EPIC)) {
                 Helpers.runLater(0, _ -> {
                     Helpers.debug("Removing ender pearl cooldown for {}", player.getName().getString());
                     var cooldowns = player.getCooldowns();
@@ -62,7 +62,7 @@ public class EnderManEffects extends CardEffects implements PlayerTickEventCallb
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
-                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.RARE)) {
+                if (hasCardOrRarer(player, RarityLevel.RARE)) {
                     Helpers.debug("{} ignored ender-pearl damage with a Rare Enderman card", player.getName().getString());
                     return InteractionResult.FAIL;
                 }
@@ -76,7 +76,7 @@ public class EnderManEffects extends CardEffects implements PlayerTickEventCallb
         if (hitResult instanceof EntityHitResult entityHitResult) {
             var hitEntity = entityHitResult.getEntity();
             if (hitEntity instanceof ServerPlayer player) {
-                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
+                if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
                     var randomInt = player.getRandom().nextInt(100);
                     if (randomInt < PROJECTILE_DODGE_PROBABILITY) {
                         Helpers.debug("{} dodged a projectile with a Legendary Enderman card (roll {})", player.getName().getString(), randomInt);

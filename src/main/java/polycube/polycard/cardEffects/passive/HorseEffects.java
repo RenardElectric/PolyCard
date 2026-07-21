@@ -81,7 +81,7 @@ public class HorseEffects extends CardEffects implements PlayerTickEventCallback
     @Override
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof Horse horse && horse.getControllingPassenger() instanceof ServerPlayer player) {
-            if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.UNCOMMON)) {
+            if (hasCardOrRarer(player, RarityLevel.UNCOMMON)) {
                 var newDamage = damage.floatValue() * (1 - DAMAGE_IGNORED_PERCENTAGE);
                 Helpers.debug("{} reduced ridden-horse damage from {} to {} with an Uncommon Horse card", player.getName().getString(), damage.floatValue(), newDamage);
                 damage.setValue(newDamage);

@@ -1,0 +1,15 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "polycard:item/epic"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "polycard:item/passive/turtle"
+      }
+    ]
+  }
+}

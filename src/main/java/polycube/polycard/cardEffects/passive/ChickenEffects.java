@@ -102,7 +102,7 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (source.getDirectEntity() instanceof ThrownEgg egg) {
             if (egg.getOwner() instanceof ServerPlayer player) {
-                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.UNCOMMON)) {
+                if (hasCardOrRarer(player, RarityLevel.UNCOMMON)) {
                     Helpers.debug("{} dealt {} damage to {} with an Uncommon Chicken egg", player.getName().getString(), EGG_DAMAGE, entity.getName().getString());
                     damage.setValue(EGG_DAMAGE);
                 }
@@ -115,7 +115,7 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
     @Override
     public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
         if (!(entity instanceof ServerPlayer player)
-                || !PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)
+                || !hasCardOrRarer(player, RarityLevel.EPIC)
                 || player.getRandom().nextFloat() >= THROW_EGG_PROBABILITY) {
             return;
         }

@@ -18,6 +18,7 @@ import net.minecraft.world.entity.animal.golem.CopperGolem;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.animal.golem.SnowGolem;
 import net.minecraft.world.entity.animal.squid.Squid;
+import net.minecraft.world.entity.animal.turtle.Turtle;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
@@ -51,6 +52,7 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
         switch (parent) {
             case Cow _ -> CardHelper.receiveCard(player, CardType.COW);
             case Chicken _ -> CardHelper.receiveCard(player, CardType.CHICKEN);
+            case Turtle _ -> CardHelper.receiveCard(player, CardType.TURTLE);
             default -> {
             }
         }

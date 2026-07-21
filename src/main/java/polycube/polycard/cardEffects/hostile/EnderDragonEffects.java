@@ -32,13 +32,13 @@ public class EnderDragonEffects
 
     @Override
     public boolean cancelGliderWear(ServerPlayer player, ItemStack glider, EquipmentSlot slot) {
-        return PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.RARE);
+        return hasCardOrRarer(player, RarityLevel.RARE);
     }
 
     @Override
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
-            if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.EPIC)) {
+            if (hasCardOrRarer(player, RarityLevel.EPIC)) {
                 if (source.is(DamageTypes.FLY_INTO_WALL) || (source.is(DamageTypes.FALL) && player.isFallFlying())) {
                     return InteractionResult.FAIL;
                 }
@@ -68,7 +68,7 @@ public class EnderDragonEffects
         if (livingEntity instanceof ServerPlayer player) {
             if (equipmentSlot == EquipmentSlot.CHEST) {
                 removeOwnedGliderFromInventory(player);
-                if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
+                if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
                     applyGliderComponent(currentStack);
                 } else {
                     removeGliderComponent(currentStack);
@@ -120,7 +120,7 @@ public class EnderDragonEffects
     /// Removes stale marked components, then restores the live capability only when still eligible.
     private void synchronizeOwnedGlider(ServerPlayer player) {
         removeOwnedGliderFromInventory(player);
-        if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
+        if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
             applyGliderComponent(player.getItemBySlot(EquipmentSlot.CHEST));
         }
     }

@@ -34,7 +34,7 @@ public class WitherEffects extends CardEffects implements PlayerKillEventCallbac
 
     @Override
     public void onPlayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {
-        if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.COMMON)) {
+        if (hasCardOrRarer(player, RarityLevel.COMMON)) {
             if (player.getRandom().nextFloat() < WITHER_ROSE_DROP_PROBABILITY) {
                 Helpers.debug("{} dropped a Wither Rose from {} with a Common Wither card ({}% chance)",
                         player.getName().getString(), entity.getName().getString(), Helpers.probToStr(WITHER_ROSE_DROP_PROBABILITY));
@@ -46,24 +46,19 @@ public class WitherEffects extends CardEffects implements PlayerKillEventCallbac
     @Override
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player) {
-            if (source.is(DamageTypes.WITHER) && PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.UNCOMMON)) {
+            if (source.is(DamageTypes.WITHER) && hasCardOrRarer(player, RarityLevel.UNCOMMON)) {
                 return InteractionResult.FAIL;
             }
         }
 
         var attacker = source.getEntity();
         if (attacker instanceof ServerPlayer player) {
-            var random = player.getRandom();
             CardRarityConditions.of(player, cardType())
                     .hasEpic(() -> {
                         if (entity.hasEffect(MobEffects.WITHER)) {
-                            int damageIncrease = 0;
-                            int rolls = boundedDamageRolls(damage.floatValue());
-                            for (int i = 0; i < rolls; i++) {
-                                if (random.nextFloat() < DAMAGE_INCREASE_PROBABILITY) damageIncrease++;
-                            }
-                            damage.setValue(damage.floatValue() + damageIncrease);
+                            int damageIncrease = Helpers.binomialSelection(DAMAGE_INCREASE_PROBABILITY, damage.intValue());
                             if (damageIncrease > 0) {
+                                damage.setValue(damage.floatValue() + damageIncrease);
                                 Helpers.debug("{} gained {} Wither-card bonus damage against {}", player.getName().getString(), damageIncrease, entity.getName().getString());
                             }
                         }
@@ -81,25 +76,17 @@ public class WitherEffects extends CardEffects implements PlayerKillEventCallbac
 
         if (damageDealt > 0.0F
                 && entity.hasEffect(MobEffects.WITHER)
-                && PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
-            int life = 0;
-            int rolls = boundedDamageRolls(damageDealt);
-            for (int i = 0; i < rolls; i++) {
-                if (player.getRandom().nextFloat() < LIFE_STEAL_PROBABILITY) life++;
-            }
-            player.heal(life);
+                && hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
+            int life = Helpers.binomialSelection(LIFE_STEAL_PROBABILITY, (int) damageDealt);
             if (life > 0) {
+                player.heal(life);
                 Helpers.debug("{} healed {} health from {} actual Wither-card damage", player.getName().getString(), life, damageDealt);
             }
         }
 
-        if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.RARE) && player.getRandom().nextFloat() < WITHER_EFFECT_PROBABILITY) {
+        if (hasCardOrRarer(player, RarityLevel.RARE) && player.getRandom().nextFloat() < WITHER_EFFECT_PROBABILITY) {
             entity.addEffect(new MobEffectInstance(MobEffects.WITHER, WITHER_EFFECT_DURATION, WITHER_EFFECT_AMPLIFIER, false, true), player);
             Helpers.debug("{} inflicted Wither on {} after an accepted hit", player.getName().getString(), entity.getName().getString());
         }
-    }
-
-    private static int boundedDamageRolls(float damage) {
-        return Math.clamp((int) Math.floor(damage), 0, MAX_DAMAGE_ROLLS);
     }
 }

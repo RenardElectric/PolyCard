@@ -26,7 +26,7 @@ public class SquidEffects extends CardEffects implements PlayerTickEventCallback
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
-        if (PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.LEGENDARY)) {
+        if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
             if (player.isEyeInFluid(FluidTags.WATER)) {
                 player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER, true, true), player);
             }
@@ -39,7 +39,7 @@ public class SquidEffects extends CardEffects implements PlayerTickEventCallback
         if (entity instanceof ServerPlayer player
                 && attacker instanceof LivingEntity livingAttacker
                 && !attacker.equals(entity)
-                && PlayerData.hasCardOrRarer(player, cardType(), RarityLevel.RARE)
+                && hasCardOrRarer(player, RarityLevel.RARE)
                 && level.getRandom().nextFloat() < BLINDNESS_WHEN_HIT_PROBABILITY) {
             Helpers.debug("{} triggered Rare Squid blindness against {}", player.getName().getString(), livingAttacker.getName().getString());
             livingAttacker.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), player);
@@ -47,7 +47,7 @@ public class SquidEffects extends CardEffects implements PlayerTickEventCallback
 
         if (attacker instanceof ServerPlayer sourcePlayer
                 && !entity.equals(sourcePlayer)
-                && PlayerData.hasCardOrRarer(sourcePlayer, cardType(), RarityLevel.EPIC)
+                && hasCardOrRarer(sourcePlayer, RarityLevel.EPIC)
                 && level.getRandom().nextFloat() < BLINDNESS_ON_HIT_PROBABILITY) {
             Helpers.debug("{} triggered Epic Squid blindness against {}", sourcePlayer.getName().getString(), entity.getName().getString());
             entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), sourcePlayer);
