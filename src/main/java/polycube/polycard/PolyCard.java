@@ -18,7 +18,7 @@ import polycube.polycard.events.CardLootEvents;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
-import polycube.polycard.utils.CardHelper;
+import polycube.polycard.utils.CardHelpers;
 import polycube.polycard.utils.Cooldowns;
 import polycube.polycard.utils.Helpers;
 
@@ -62,10 +62,10 @@ public class PolyCard implements ModInitializer {
             cooldowns().tick();
             Helpers.onServerTick(server);
         });
-        PlayerLoadEventCallback.EVENT.register(CardHelper::loadPlayerAttributes);
-        ServerPlayerEvents.AFTER_RESPAWN.register((_, newPlayer, _) -> CardHelper.loadPlayerAttributes(newPlayer));
-        CardEventCallback.EQUIPPED.register(CardHelper::addCardAttributes);
-        CardEventCallback.UNEQUIPPED.register(CardHelper::removeCardAttributes);
+        PlayerLoadEventCallback.EVENT.register(CardHelpers::loadPlayerAttributes);
+        ServerPlayerEvents.AFTER_RESPAWN.register((_, newPlayer, _) -> CardHelpers.loadPlayerAttributes(newPlayer));
+        CardEventCallback.EQUIPPED.register(CardHelpers::addCardAttributes);
+        CardEventCallback.UNEQUIPPED.register(CardHelpers::removeCardAttributes);
 
         UseItemCallback.EVENT.register((player, level, hand) -> {
             if (!(player instanceof ServerPlayer serverPlayer)) {

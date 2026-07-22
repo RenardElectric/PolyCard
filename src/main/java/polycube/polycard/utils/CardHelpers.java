@@ -13,9 +13,8 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 /// Card creation, drop rolling, inventory delivery, and equipment-attribute helpers.
-public final class CardHelper {
-    private CardHelper() {
-    }
+public final class CardHelpers {
+    private CardHelpers() {}
 
     /// Rolls for a card of this type and gives it to the player if the roll succeeds.
     public static void receiveCard(ServerPlayer player, CardType cardType) {

@@ -3,14 +3,12 @@ package polycube.polycard.cardEffects.passive;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.Helpers;
@@ -27,7 +25,7 @@ public class SquidEffects extends CardEffects implements PlayerTickEventCallback
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
-            if (player.isEyeInFluid(FluidTags.WATER)) {
+            if (player.isUnderWater()) {
                 player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER, true, true), player);
             }
         }

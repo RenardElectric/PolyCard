@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
-import polycube.polycard.utils.CardHelper;
+import polycube.polycard.utils.CardHelpers;
 import polycube.polycard.utils.Helpers;
 
 import java.util.EnumMap;
@@ -52,7 +52,7 @@ public class TestCommand extends PolyCardCommand {
         int none = 0;
         var counts = new EnumMap<RarityLevel, Integer>(RarityLevel.class);
         for (int i = 0; i < cardsNumber; i++) {
-            var rarity = CardHelper.getRandomRarityLevel(cardType);
+            var rarity = CardHelpers.getRandomRarityLevel(cardType);
             if (rarity.isPresent()) {
                 counts.merge(rarity.get(), 1, Integer::sum);
             } else {

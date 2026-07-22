@@ -39,7 +39,7 @@ import polycube.polycard.events.callBacks.BreedEventCallback;
 import polycube.polycard.events.callBacks.EntitySummonedEventCallback;
 import polycube.polycard.events.callBacks.PlayerKillEventCallback;
 import polycube.polycard.events.callBacks.TameEventCallback;
-import polycube.polycard.utils.CardHelper;
+import polycube.polycard.utils.CardHelpers;
 import polycube.polycard.utils.Helpers;
 
 import java.util.Optional;
@@ -50,9 +50,9 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
     @Override
     public void onBreed(ServerPlayer player, Animal parent, Animal partner, Optional<AgeableMob> child) {
         switch (parent) {
-            case Cow _ -> CardHelper.receiveCard(player, CardType.COW);
-            case Chicken _ -> CardHelper.receiveCard(player, CardType.CHICKEN);
-            case Turtle _ -> CardHelper.receiveCard(player, CardType.TURTLE);
+            case Cow _ -> CardHelpers.receiveCard(player, CardType.COW);
+            case Chicken _ -> CardHelpers.receiveCard(player, CardType.CHICKEN);
+            case Turtle _ -> CardHelpers.receiveCard(player, CardType.TURTLE);
             default -> {
             }
         }
@@ -61,9 +61,9 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
     @Override
     public void onSummon(ServerPlayer player, Entity entity) {
         switch (entity) {
-            case IronGolem _ -> CardHelper.receiveCard(player, CardType.IRON_GOLEM);
-            case WitherBoss _ -> CardHelper.receiveCard(player, CardType.WITHER);
-            case EnderDragon _ -> CardHelper.receiveCard(player, CardType.ENDER_DRAGON);
+            case IronGolem _ -> CardHelpers.receiveCard(player, CardType.IRON_GOLEM);
+            case WitherBoss _ -> CardHelpers.receiveCard(player, CardType.WITHER);
+            case EnderDragon _ -> CardHelpers.receiveCard(player, CardType.ENDER_DRAGON);
             case CopperGolem _, SnowGolem _ -> {
             }
             default -> {
@@ -76,13 +76,13 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
         switch (entity) {
             case ZombieVillager _, Husk _, Drowned _ -> {
             }
-            case EnderMan _ -> CardHelper.receiveCard(player, CardType.ENDERMAN);
-            case Squid _ -> CardHelper.receiveCard(player, CardType.SQUID);
-            case Piglin _ -> CardHelper.receiveCard(player, CardType.PIGLIN);
-            case ZombifiedPiglin _ -> CardHelper.receiveCard(player, CardType.ZOMBIFIED_PIGLIN);
-            case Zombie _ -> CardHelper.receiveCard(player, CardType.ZOMBIE);
-            case Bat _ -> CardHelper.receiveCard(player, CardType.BAT);
-            case Creeper _ -> CardHelper.receiveCard(player, CardType.CREEPER);
+            case EnderMan _ -> CardHelpers.receiveCard(player, CardType.ENDERMAN);
+            case Squid _ -> CardHelpers.receiveCard(player, CardType.SQUID);
+            case Piglin _ -> CardHelpers.receiveCard(player, CardType.PIGLIN);
+            case ZombifiedPiglin _ -> CardHelpers.receiveCard(player, CardType.ZOMBIFIED_PIGLIN);
+            case Zombie _ -> CardHelpers.receiveCard(player, CardType.ZOMBIE);
+            case Bat _ -> CardHelpers.receiveCard(player, CardType.BAT);
+            case Creeper _ -> CardHelpers.receiveCard(player, CardType.CREEPER);
             default -> {
             }
         }
@@ -91,8 +91,8 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
     @Override
     public void onTame(ServerPlayer player, Animal animal) {
         switch (animal) {
-            case Horse _ -> CardHelper.receiveCard(player, CardType.HORSE);
-            case Wolf _ -> CardHelper.receiveCard(player, CardType.WOLF);
+            case Horse _ -> CardHelpers.receiveCard(player, CardType.HORSE);
+            case Wolf _ -> CardHelpers.receiveCard(player, CardType.WOLF);
             default -> {
             }
         }
@@ -114,7 +114,7 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
                 && blockState.getValue(HONEY_LEVEL) >= 5
                 && itemStack.is(Items.GLASS_BOTTLE)) {
             Helpers.debug("{} successfully collected honey; rolling for a Bee card.", serverPlayer.getName().getString());
-            CardHelper.receiveCard(serverPlayer, CardType.BEE);
+            CardHelpers.receiveCard(serverPlayer, CardType.BEE);
         }
 
         return null;
