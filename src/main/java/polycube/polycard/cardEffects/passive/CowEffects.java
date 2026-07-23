@@ -18,6 +18,7 @@ import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
+import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
@@ -66,17 +67,13 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
                 int stillTicks = lastMoveTimes.getOrDefault(playerId, 0) + 1;
                 lastMoveTimes.put(playerId, stillTicks);
                 if (stillTicks >= STILL_DELAY) {
-                    var regeneration = player.getEffect(MobEffects.REGENERATION);
-                    if (regeneration == null || regeneration.endsWithin(20)) {
-                        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, REGEN_EFFECT_DURATION, REGEN_EFFECT_AMPLIFIER, true, true));
-                    }
+                    EffectHelpers.refreshPersistentEffect(player, MobEffects.REGENERATION, REGEN_EFFECT_AMPLIFIER);
                 }
             }
         }
 
-        if (rarity.isAtLeast(RarityLevel.RARE)
-                && Helpers.nearPlayerWithCard(player, cardType(), RarityLevel.RARE, RESISTANCE_DISTANCE_SQUARED)) {
-            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
+        if (rarity.isAtLeast(RarityLevel.RARE) && Helpers.nearPlayerWithCard(player, cardType(), RarityLevel.RARE, RESISTANCE_DISTANCE_SQUARED)) {
+            EffectHelpers.refreshPersistentEffect(player, MobEffects.RESISTANCE, RESISTANCE_EFFECT_AMPLIFIER);
         }
     }
 

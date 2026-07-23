@@ -20,6 +20,7 @@ import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
 import polycube.polycard.utils.CardHelpers;
 import polycube.polycard.utils.Cooldowns;
+import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
 import java.util.Objects;
@@ -53,6 +54,7 @@ public class PolyCard implements ModInitializer {
             Helpers.debug("Initialized PolyCard state for server {}", server.getServerModName());
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(_ -> {
+            EffectHelpers.clearPersistentEffectState();
             int discardedTasks = Helpers.clearScheduledTasks();
             cooldowns = null;
             storage = null;

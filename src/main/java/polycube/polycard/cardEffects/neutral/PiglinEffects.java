@@ -19,7 +19,6 @@ import net.minecraft.world.item.enchantment.effects.RemoveBinomial;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.events.callBacks.ItemDurabilityChangeEventCallback;

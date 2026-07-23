@@ -10,7 +10,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -21,24 +20,22 @@ import net.minecraft.world.phys.HitResult;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
+import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
 public class EnderManEffects extends CardEffects implements PlayerTickEventCallback, ItemUseEventCallback, ProjectileOnHitEventCallback, EntityHurtEventCallback {
-    public static final int RESISTANCE_EFFECT_DURATION = 20 * 2;
     public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
 
     public static final int PROJECTILE_DODGE_PROBABILITY = 20;
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
-        if (player.level().dimension().equals(Level.END)
-                && hasCardOrRarer(player, RarityLevel.UNCOMMON)) {
-            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_EFFECT_DURATION, RESISTANCE_EFFECT_AMPLIFIER, true, true));
+        if (player.level().dimension().equals(Level.END) && hasCardOrRarer(player, RarityLevel.UNCOMMON)) {
+            EffectHelpers.refreshPersistentEffect(player, MobEffects.RESISTANCE, RESISTANCE_EFFECT_AMPLIFIER);
         }
     }
 

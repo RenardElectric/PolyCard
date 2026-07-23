@@ -12,7 +12,6 @@ import net.minecraft.world.entity.LivingEntity;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.PlayerKillEventCallback;
 import polycube.polycard.utils.Helpers;
 

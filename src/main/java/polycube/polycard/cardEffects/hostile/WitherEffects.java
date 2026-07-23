@@ -13,7 +13,6 @@ import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerKillEventCallback;
@@ -30,7 +29,6 @@ public class WitherEffects extends CardEffects implements PlayerKillEventCallbac
     public static final float DAMAGE_INCREASE_PROBABILITY = 0.2f;
 
     public static final float LIFE_STEAL_PROBABILITY = 0.1f;
-    public static final int MAX_DAMAGE_ROLLS = 100;
 
     @Override
     public void onPlayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {

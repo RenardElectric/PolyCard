@@ -1,5 +1,6 @@
 package polycube.polycard.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -7,7 +8,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -23,9 +26,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.FallFlyingGliderWearEventCallback;
+import polycube.polycard.utils.EffectHelpers;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 
 /// Exposes validated non-player LivingEntity damage to card effects and writes back mutations.
 @Mixin(LivingEntity.class)
@@ -74,6 +79,22 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Wa
             return polycard$modifiedDamageStack.pop().floatValue();
         }
         return damage;
+    }
+
+    @ModifyExpressionValue(method = "addAdditionalSaveData", at = @At(value = "INVOKE", target = "Ljava/util/List;copyOf(Ljava/util/Collection;)Ljava/util/List;"))
+    private List<MobEffectInstance> excludeTransientPersistentEffects(List<MobEffectInstance> effects) {
+        return EffectHelpers.effectsForSave(effects);
+    }
+
+    @ModifyExpressionValue(method = "addAdditionalSaveData", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/attributes/AttributeMap;pack()Ljava/util/List;"))
+    private List<AttributeInstance.Packed> excludeTransientPersistentEffectAttributes(List<AttributeInstance.Packed> attributes) {
+        var entity = (LivingEntity) (Object) this;
+        return EffectHelpers.attributesForSave(attributes, entity.getActiveEffects());
+    }
+
+    @ModifyExpressionValue(method = "addAdditionalSaveData", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getAbsorptionAmount()F"))
+    private float excludeTransientPersistentEffectAbsorption(float absorptionAmount) {
+        return EffectHelpers.externalAbsorptionAmount((LivingEntity) (Object) this, absorptionAmount);
     }
 
     @WrapOperation(method = "updateFallFlying", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;hurtAndBreak(ILnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;)V"))

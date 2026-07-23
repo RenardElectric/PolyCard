@@ -23,11 +23,11 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
+import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
@@ -37,7 +37,6 @@ public class BatEffects
         implements PlayerTickEventCallback, EntityHurtEventCallback,
         IsTargetedEventCallback, ServerLivingEntityEvents.AfterDeath,
         CardEventCallback.CardUnequipEvent, ServerPlayerEvents.Leave {
-    public static final int NIGHT_VISION_DURATION = 220;
     public static final int INVISIBILITY_DURATION = 20 * 20;
     public static final int INVISIBILITY_COOLDOWN = 20 * 10;
     public static final int SPEED_AMPLIFIER = 30;
@@ -64,7 +63,7 @@ public class BatEffects
         boolean hasLegendary = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.LEGENDARY);
 
         if (hasRare) {
-            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_DURATION, 0, true, false));
+            EffectHelpers.refreshPersistentEffect(player, MobEffects.NIGHT_VISION, 0);
         }
 
         if (hasEpic && player.isCrouching()) {

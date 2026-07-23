@@ -14,6 +14,7 @@ import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
+import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
 public class TurtleEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback, EntityAfterHurtEventCallback {
@@ -30,7 +31,7 @@ public class TurtleEffects extends CardEffects implements PlayerTickEventCallbac
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         if (player.isUnderWater() && hasCardOrRarer(player, RarityLevel.RARE)) {
-            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 2, RESISTANCE_AMPLIFIER, true, true), player);
+            EffectHelpers.refreshPersistentEffect(player, MobEffects.RESISTANCE, RESISTANCE_AMPLIFIER);
         }
     }
 

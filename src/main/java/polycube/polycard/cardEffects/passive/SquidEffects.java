@@ -11,6 +11,7 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
+import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
 public class SquidEffects extends CardEffects implements PlayerTickEventCallback, EntityAfterHurtEventCallback {
@@ -19,14 +20,13 @@ public class SquidEffects extends CardEffects implements PlayerTickEventCallback
     public static final int BLINDNESS_DURATION = 20 * 5;
     public static final int BLINDNESS_AMPLIFIER = 0;
 
-    public static final int WATER_BREATHING_DURATION = 20 * 2;
     public static final int WATER_BREATHING_AMPLIFIER = 0;
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
             if (player.isUnderWater()) {
-                player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, WATER_BREATHING_DURATION, WATER_BREATHING_AMPLIFIER, true, true), player);
+                EffectHelpers.refreshPersistentEffect(player, MobEffects.WATER_BREATHING, WATER_BREATHING_AMPLIFIER);
             }
         }
     }

@@ -13,7 +13,6 @@ import net.minecraft.world.phys.Vec3;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 
 import java.text.DecimalFormat;
@@ -138,6 +137,7 @@ public final class Helpers {
             }
         }
 
+        EffectHelpers.onEndServerTick();
     }
 
     public static String probToStr(float prob) {

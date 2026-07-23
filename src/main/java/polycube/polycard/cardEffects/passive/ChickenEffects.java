@@ -8,7 +8,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -25,10 +24,10 @@ import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
+import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
 import java.util.HashMap;
@@ -39,11 +38,9 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
         EntityAfterHurtEventCallback, ServerPlayerEvents.Leave {
     public static final float EGG_DAMAGE = 1.0F;
 
-    public static final int SPEED_EFFECT_DURATION = 20 * 2;
     public static final int SPEED_EFFECT_AMPLIFIER = 0;
     public static final int SPEED_DISTANCE_SQUARED = 25;
 
-    public static final int SLOW_FALLING_DURATION = 5;
     public static final int SLOW_FALLING_AMPLIFIER = 0;
 
     public static final float THROW_EGG_PROBABILITY = 0.5f;
@@ -78,14 +75,12 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
         }
         EGG_TIMES.put(uuid, eggTime);
 
-        if (equippedRarity.isAtLeast(RarityLevel.RARE)
-                && player.tickCount % 20 == 0
-                && Helpers.nearPlayerWithCard(player, cardType(), RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
-            player.addEffect(new MobEffectInstance(MobEffects.SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_AMPLIFIER, true, true));
+        if (equippedRarity.isAtLeast(RarityLevel.RARE) && Helpers.nearPlayerWithCard(player, cardType(), RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
+            EffectHelpers.refreshPersistentEffect(player, MobEffects.SPEED, SPEED_EFFECT_AMPLIFIER);
         }
 
         if (equippedRarity.isAtLeast(RarityLevel.LEGENDARY) && player.fallDistance > 2 && player.isCrouching()) {
-            player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, SLOW_FALLING_DURATION, SLOW_FALLING_AMPLIFIER, false, true));
+            EffectHelpers.refreshPersistentEffect(player, MobEffects.SLOW_FALLING, SLOW_FALLING_AMPLIFIER);
         }
     }
 

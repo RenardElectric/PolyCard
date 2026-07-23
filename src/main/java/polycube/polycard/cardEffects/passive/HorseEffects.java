@@ -6,7 +6,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.equine.Horse;
@@ -14,9 +13,9 @@ import org.apache.commons.lang3.mutable.MutableFloat;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
+import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
 import java.util.HashMap;
@@ -48,7 +47,7 @@ public class HorseEffects extends CardEffects implements PlayerTickEventCallback
             return;
         }
 
-        horse.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 2, JUMP_BOOST_EFFECT_AMPLIFIER, true, false));
+        EffectHelpers.refreshPersistentEffect(horse, MobEffects.JUMP_BOOST, JUMP_BOOST_EFFECT_AMPLIFIER);
 
         if (!rarity.isAtLeast(RarityLevel.EPIC)) {
             SPEED_BOOST_TICKS.remove(playerId);
@@ -62,7 +61,8 @@ public class HorseEffects extends CardEffects implements PlayerTickEventCallback
             SPEED_BOOST_TICKS.remove(playerId);
         }
 
-        horse.addEffect(new MobEffectInstance(MobEffects.SPEED, 2, speedAmplifier, true, false));
+        EffectHelpers.refreshPersistentEffect(horse, MobEffects.SPEED, speedAmplifier);
+
     }
 
     private static int incrementSpeedBoost(UUID playerId) {

@@ -13,7 +13,6 @@ import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.ExplosionKnockbackEventCallback;

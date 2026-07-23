@@ -5,13 +5,16 @@
   "mixins": [
     "BredAnimalsTriggerMixin",
     "ConsumeItemTriggerMixin",
+    "ConversionTypeMixin",
     "ItemStackMixin",
     "KilledTriggerMixin",
     "LivingEntityMixin",
+    "MobEffectInstanceMixin",
     "PlayerListMixin",
     "PlayerMixin",
     "ProjectileMixin",
     "ServerExplosionMixin",
+    "ServerPlayerMixin",
     "SummonedEntityTriggerMixin",
     "TameAnimalTriggerMixin",
     "TargetingConditionsMixin"
