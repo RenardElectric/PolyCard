@@ -239,5 +239,5 @@ public class BatEffects
         Helpers.debug("Ended legendary Bat state for {}", player.getName().getString());
     }
 
-    private record BatInvisibility(long id, long expiresAtPlayerTick) { }
+    private record BatInvisibility(long id, long expiresAtPlayerTick) {}
 }

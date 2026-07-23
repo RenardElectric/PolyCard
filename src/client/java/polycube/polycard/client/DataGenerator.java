@@ -11,8 +11,8 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.predicates.DataComponentMatchers;
-import net.minecraft.advancements.triggers.InventoryChangeTrigger;
 import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.advancements.triggers.InventoryChangeTrigger;
 import net.minecraft.advancements.triggers.PlayerTrigger;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -107,9 +107,9 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                                         .append(Component.literal(card.toString()).withStyle(rarityLevel.color()))
                                         .append(" by " + cardType.getCondition()),
                                 null,
-                                rarityLevel.equals(RarityLevel.LEGENDARY) ? AdvancementType.CHALLENGE : AdvancementType.TASK,
+                                rarityLevel == RarityLevel.LEGENDARY ? AdvancementType.CHALLENGE : AdvancementType.TASK,
                                 true,
-                                rarityLevel.equals(RarityLevel.LEGENDARY),
+                                rarityLevel == RarityLevel.LEGENDARY,
                                 false
                         )
                         .addCriterion(

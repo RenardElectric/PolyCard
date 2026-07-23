@@ -52,7 +52,7 @@ public final class EffectHelpers {
 
     /// Expires leases not refreshed during this tick. This must run once after all refresh calls.
     public static void onEndServerTick() {
-        for (var entityIterator = ACTIVE_EFFECTS.entrySet().iterator(); entityIterator.hasNext();) {
+        for (var entityIterator = ACTIVE_EFFECTS.entrySet().iterator(); entityIterator.hasNext(); ) {
             var entityEntry = entityIterator.next();
             var entity = entityEntry.getKey();
             var entityEffects = entityEntry.getValue();
@@ -121,9 +121,9 @@ public final class EffectHelpers {
 
     /// Transfers ownership when vanilla promotes a hidden instance into the active object.
     public static void afterHiddenEffectPromotion(MobEffectInstance current,
-                                                   @Nullable MobEffectInstance promotedEffect,
-                                                   @Nullable Object promotedOwner,
-                                                   boolean promoted) {
+                                                  @Nullable MobEffectInstance promotedEffect,
+                                                  @Nullable Object promotedOwner,
+                                                  boolean promoted) {
         if (promoted) {
             setOwner(current, promotedOwner);
             setOwner(promotedEffect, null);
@@ -266,7 +266,7 @@ public final class EffectHelpers {
         replaceActiveEffect(entity, effect, currentEffect, remainingEffect, silentExternalHandoff);
 
         if (expiredOwners != null) {
-            for (var iterator = state.byAmplifier.values().iterator(); iterator.hasNext();) {
+            for (var iterator = state.byAmplifier.values().iterator(); iterator.hasNext(); ) {
                 var lease = iterator.next();
                 if (expiredOwners.contains(lease)) {
                     lease.active = false;
@@ -380,7 +380,7 @@ public final class EffectHelpers {
             setOwner(removed, null);
         }
 
-        for (var parent = root; parent != null;) {
+        for (var parent = root; parent != null; ) {
             var child = parent.hiddenEffect;
             while (child != null && shouldRemove(child, expiredOwners)) {
                 var removed = child;
