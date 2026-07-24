@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /// Persistent card equipment for one player.
-/// Internally cards are stored as a compact type-to-rarity map; public card operations use validated Card values.
+/// Internally, cards are stored as a compact type-to-rarity map; public card operations use validated Card values.
 public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
     public static final int MAX_EQUIPPED_CARDS = 5;
     public static final Codec<PlayerData> CODEC = Codec.dispatchedMap(CardType.CODEC, _ -> RarityLevel.CODEC).xmap(PlayerData::new, PlayerData::equippedCards);
@@ -39,12 +39,12 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
         }
         int ignoredEntries = equippedCards.size() - this.equippedCards.size();
         if (ignoredEntries > 0) {
-            Helpers.debug("Ignored {} invalid or excess equipped-card entr{} while loading player data",
-                    ignoredEntries, ignoredEntries == 1 ? "y" : "ies");
+            Helpers.debug("Ignored {} invalid or excess equipped-card {} while loading player data",
+                    ignoredEntries, ignoredEntries == 1 ? "entry" : "entries");
         }
     }
 
-    /// Exposes equipped cards as a read-only map for threshold checks.
+    /// Exposes equipped cards as a read-only map.
     @Override
     public Map<CardType, RarityLevel> equippedCards() {
         return Collections.unmodifiableMap(equippedCards);
@@ -55,6 +55,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
         return equippedCards.get(cardType);
     }
 
+    /// Returns the number of equipped cards.
     public int equippedCardCount() {
         return equippedCards.size();
     }
@@ -69,6 +70,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
     }
 
     /// Returns whether this exact card is equipped.
+    @SuppressWarnings("unused")
     public boolean hasCard(Card card) {
         return hasCard(card.cardType(), card.rarityLevel());
     }
@@ -94,40 +96,35 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
         return equippedCards.containsKey(cardType);
     }
 
-    /// Equips a card if there is room and no card of the same type is already equipped.
-    public boolean equipCard(Card card) {
-        if (equippedCards.size() >= MAX_EQUIPPED_CARDS) {
+    /// Equips a card if there is room and no card of the same type is yet equipped.
+    public static boolean equipCard(ServerPlayer player, Card card) {
+        var playerData = PolyCard.storage().getPlayerData(player);
+
+        if (playerData.equippedCardCount() >= MAX_EQUIPPED_CARDS) {
             return false;
         }
-        if (hasCardType(card.cardType())) {
+        if (playerData.hasCardType(card.cardType())) {
             return false;
         }
-        equippedCards.put(card.cardType(), card.rarityLevel());
+
+        playerData.equippedCards.put(card.cardType(), card.rarityLevel());
+        CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
+        PolyCard.storage().markDirty();
         return true;
     }
 
-    /// Unequips this exact card if it is currently equipped.
-    public boolean unequipCard(Card card) {
-        if (hasCard(card)) {
-            equippedCards.remove(card.cardType());
+    /// Unequips a card if it is currently equipped.
+    public static boolean unequipCard(ServerPlayer player, Card card) {
+        var playerData = PolyCard.storage().getPlayerData(player);
+        var removedRarityLevel = playerData.equippedCards.remove(card.cardType());
+        if (removedRarityLevel == card.rarityLevel()) {
+            CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card);
+            PolyCard.storage().markDirty();
             return true;
+        } else if (removedRarityLevel != null) {
+            playerData.equippedCards.put(card.cardType(), removedRarityLevel);
         }
         return false;
-    }
-
-    /// Unequips whichever rarity is currently equipped for this card type.
-    public boolean unequipCardType(CardType cardType) {
-        return equippedCards.remove(cardType) != null;
-    }
-
-    /// Removes every equipped card without firing card callbacks.
-    public void clearEquippedCards() {
-        equippedCards.clear();
-    }
-
-    /// Creates a GUI-backed container for a player editing their own cards.
-    public Container asContainer(ServerPlayer player) {
-        return asContainer(player, player);
     }
 
     /// Creates a GUI-backed container and syncs slot changes back into this PlayerData.
@@ -148,26 +145,18 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
                 }
 
                 for (var card : equippedCardsSet) {
-                    if (!cardsInContainer.contains(card)) {
-                        equippedCards.remove(card.cardType());
-                        CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(targetPlayer, card);
-
+                    if (!cardsInContainer.contains(card) && PlayerData.unequipCard(targetPlayer, card)) {
                         Helpers.debug("{} unequipped card {} for {}", feedbackPlayer, card, targetPlayer);
                         Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_REMOVE_ONE);
                     }
                 }
 
                 for (var card : cardsInContainer) {
-                    if (!equippedCardsSet.contains(card)) {
-                        equippedCards.put(card.cardType(), card.rarityLevel());
-                        CardEventCallback.EQUIPPED.invoker().onCardEquip(targetPlayer, card);
-
+                    if (!equippedCardsSet.contains(card) && PlayerData.equipCard(targetPlayer, card)) {
                         Helpers.debug("{} equipped card {} for {}", feedbackPlayer, card, targetPlayer);
                         Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_INSERT);
                     }
                 }
-
-                PolyCard.storage().markDirty();
             }
 
             @Override

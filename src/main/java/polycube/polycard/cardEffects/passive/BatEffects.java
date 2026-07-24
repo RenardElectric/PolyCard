@@ -151,7 +151,7 @@ public class BatEffects
             startInvisibility(player, attacker, level);
         }
 
-        // The triggering hit and all later incoming damage are cancelled while the state is active.
+        // The triggering hit and all later incoming damage are canceled while the state is active.
         if (entity instanceof ServerPlayer player && INVISIBLE_PLAYERS.containsKey(player.getUUID())) {
             return InteractionResult.FAIL;
         }

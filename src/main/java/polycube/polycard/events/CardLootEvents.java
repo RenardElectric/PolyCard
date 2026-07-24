@@ -2,7 +2,6 @@ package polycube.polycard.events;
 
 import net.fabricmc.fabric.api.event.player.BlockEvents;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -104,9 +103,7 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
             Level level, BlockPos blockPos, Player player,
             InteractionHand interactionHand, BlockHitResult blockHitResult
     ) {
-        if (player.isSpectator()
-                || !(level instanceof ServerLevel serverLevel)
-                || !(player instanceof ServerPlayer serverPlayer)) {
+        if (player.isSpectator() || !(player instanceof ServerPlayer serverPlayer)) {
             return null;
         }
 

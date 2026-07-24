@@ -67,6 +67,7 @@ public class Cooldowns {
     }
 
     /// Clears a cooldown key for this player.
+    @SuppressWarnings("unused")
     public void removeCooldown(Player player, String cooldownKey) {
         var playerCooldowns = cooldowns.get(player.getUUID());
         if (playerCooldowns != null) {

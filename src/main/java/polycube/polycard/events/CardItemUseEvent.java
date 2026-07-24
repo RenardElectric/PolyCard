@@ -11,11 +11,10 @@ import net.minecraft.world.level.Level;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.data.PlayerData;
-import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.utils.Helpers;
 
-/// Equips a card from the player's hand, or swaps it with an equipped card of the same type.
+/// Equips a card from the player's hand or swaps it with an equipped card of the same type.
 /// Sneaking leaves the item use untouched so players can still access normal item behavior.
 public class CardItemUseEvent extends EventHandler implements ItemUseEventCallback {
     @Override
@@ -47,16 +46,13 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
                 return InteractionResult.FAIL;
             }
 
-            // Different rarity of the same type: equip the held card and return the old one.
-            if (playerData.unequipCardType(card.cardType())) {
-                var equippedCard = new Card(card.cardType(), equippedRarityLevel);
-                CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, equippedCard);
-                var result = equipCard(playerData, item, player, card);
+            var equippedCard = new Card(card.cardType(), equippedRarityLevel);
+            if (PlayerData.unequipCard(player, equippedCard)) {
+                var result = equipCard(item, player, card);
                 if (result.equals(InteractionResult.SUCCESS)) {
                     player.getInventory().placeItemBackInInventory(equippedCard.asItem());
                 } else {
-                    playerData.equipCard(equippedCard);
-                    CardEventCallback.EQUIPPED.invoker().onCardEquip(player, equippedCard);
+                    PlayerData.equipCard(player, equippedCard);
                     Helpers.debug("Rolled back a failed card swap for {}", player.getName().getString());
                 }
                 return result;
@@ -71,17 +67,15 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
             return InteractionResult.FAIL;
         }
 
-        return equipCard(playerData, item, player, card);
+        return equipCard(item, player, card);
     }
 
-    private InteractionResult equipCard(PlayerData playerData, ItemStack item, ServerPlayer player, Card card) {
-        if (playerData.equipCard(card)) {
-            CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
+    private InteractionResult equipCard(ItemStack item, ServerPlayer player, Card card) {
+        if (PlayerData.equipCard(player, card)) {
             item.shrink(1);
             player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormattedName()));
             Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
             Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
-            PolyCard.storage().markDirty();
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;

@@ -3,7 +3,6 @@ package polycube.polycard.card;
 import com.mojang.serialization.Codec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.util.StringRepresentable;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -58,14 +57,11 @@ public enum RarityLevel implements StringRepresentable {
 
     /// Parses a serialized rarity id.
     public static Optional<RarityLevel> deserialize(String string) {
-        if (string == null) {
-            return Optional.empty();
-        }
         return Optional.ofNullable(BY_ID.get(string.toLowerCase(Locale.ROOT)));
     }
 
     @Override
-    public @NonNull String getSerializedName() {
+    public String getSerializedName() {
         return this.id;
     }
 

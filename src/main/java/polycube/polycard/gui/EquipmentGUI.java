@@ -23,7 +23,7 @@ public final class EquipmentGUI {
         openEquipmentGUI(player, player);
     }
 
-    /// Opens an equipment manager where viewer edits targetPlayer's cards.
+    /// Opens an equipment manager where the viewer edits targetPlayer's cards.
     public static void openEquipmentGUI(ServerPlayer viewer, ServerPlayer targetPlayer) {
         var playerData = PolyCard.storage().getPlayerData(targetPlayer);
         var container = playerData.asContainer(targetPlayer, viewer);

@@ -142,7 +142,7 @@ public final class EffectHelpers {
     }
 
     /// Returns saved attributes as they would be without transient managed layers. Effect modifiers
-    /// are permanent modifiers in vanilla and therefore need to be reconciled independently from
+    /// are permanent modifiers in vanilla and therefore need to be reconciled independently of
     /// the saved effect list.
     public static List<AttributeInstance.Packed> attributesForSave(List<AttributeInstance.Packed> attributes, Collection<MobEffectInstance> effects) {
         Map<Holder<Attribute>, AttributeChanges> changes = new HashMap<>();

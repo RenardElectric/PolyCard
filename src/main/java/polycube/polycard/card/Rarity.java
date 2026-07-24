@@ -17,6 +17,7 @@ public record Rarity(
     }
 
     /// Adds a modifier applied while a card of this rarity or higher is equipped.
+    @SuppressWarnings("unused")
     public Rarity withAttribute(Holder<Attribute> attribute, AttributeModifier modifier) {
         attributeModifiers.put(attribute, modifier);
         return this;

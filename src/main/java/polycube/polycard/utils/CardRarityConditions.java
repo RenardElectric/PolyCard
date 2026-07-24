@@ -7,6 +7,7 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 
 /// Snapshot helper for running effects unlocked by a player's equipped rarity.
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public final class CardRarityConditions {
     private final @Nullable RarityLevel equippedRarity;
 

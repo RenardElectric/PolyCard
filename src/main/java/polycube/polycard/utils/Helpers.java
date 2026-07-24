@@ -31,8 +31,7 @@ public final class Helpers {
             () -> new DecimalFormat("#.##", DecimalFormatSymbols.getInstance(Locale.ROOT))
     );
 
-    private Helpers() {
-    }
+    private Helpers() {}
 
     /// Plays a sound packet only for this player.
     public static void playSound(ServerPlayer player, SoundEvent sound) {
@@ -69,6 +68,7 @@ public final class Helpers {
 
     /// Logs a debug message with the mod id prefix.
     public static void debug(final String format, final Object... args) {
+        //noinspection StringConcatenationArgumentToLogCall
         LOGGER.debug("[" + MOD_ID + "] " + format, args);
     }
 

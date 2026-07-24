@@ -153,6 +153,7 @@ public enum CardType implements StringRepresentable {
     }
 
     /// Adds one supported rarity tier to this card type.
+    @SuppressWarnings("UnusedReturnValue")
     protected Rarity addRarity(RarityLevel rarityLevel, float probability, boolean isEnchanted, String description) {
         Objects.requireNonNull(rarityLevel, "rarityLevel");
         Objects.requireNonNull(description, "description");
@@ -198,6 +199,7 @@ public enum CardType implements StringRepresentable {
 
     /// Returns attribute modifiers from every supported rarity up to and including maxRarity.
     public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(RarityLevel maxRarity) {
+        //noinspection NullableProblems
         Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
         int maxRank = maxRarity.rank();
         for (int i = 0; i <= maxRank; i++) {

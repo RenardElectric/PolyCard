@@ -1,8 +1,6 @@
 package polycube.polycard.card;
 
 import com.google.common.collect.Multimap;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
@@ -26,14 +24,9 @@ import java.util.*;
 import java.util.function.Function;
 
 /// A concrete card that can exist in-game.
-/// The constructor enforces that the selected rarity is supported by the card type;
+/// The constructor enforces that the card type supports the selected rarity;
 /// use tryCreate when reading untrusted data from commands, storage, or item stacks.
 public record Card(CardType cardType, RarityLevel rarityLevel) {
-
-    public static final Codec<Card> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            CardType.CODEC.fieldOf("cardType").forGetter(Card::cardType),
-            RarityLevel.CODEC.fieldOf("rarityLevel").forGetter(Card::rarityLevel)
-    ).apply(instance, Card::new));
 
     public static final int CARDS_FOR_NEXT_LEVEL = 10;
     public static final Item CARD_ITEM = Items.KNOWLEDGE_BOOK;
@@ -52,7 +45,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     /// Creates a card from a raw type/rarity pair if that pair is valid.
     public static Optional<Card> tryCreate(CardType cardType, RarityLevel rarityLevel) {
-        if (cardType == null || rarityLevel == null || !cardType.hasRarity(rarityLevel)) {
+        if (!cardType.hasRarity(rarityLevel)) {
             return Optional.empty();
         }
         return Optional.of(new Card(cardType, rarityLevel));
@@ -97,6 +90,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     }
 
     /// Returns the configured roll probability for this exact card.
+    @SuppressWarnings("unused")
     public float getProbability() {
         return rarity().probability();
     }
@@ -156,6 +150,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     }
 
     /// Returns whether the stack contains a valid PolyCard payload.
+    @SuppressWarnings("unused")
     public static boolean isCard(ItemStack item) {
         return getCard(item).isPresent();
     }

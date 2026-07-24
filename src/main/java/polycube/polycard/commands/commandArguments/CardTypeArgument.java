@@ -20,6 +20,7 @@ public final class CardTypeArgument {
         return CardType.deserialize(id);
     }
 
+    @SuppressWarnings("unused")
     public static <S> CompletableFuture<Suggestions> suggestCards(final CommandContext<S> context, final SuggestionsBuilder builder) {
         return SharedSuggestionProvider.suggest(Arrays.stream(VALUES).map(CardType::getSerializedName), builder);
     }
