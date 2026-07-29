@@ -29,7 +29,7 @@ import java.util.function.Function;
 public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     public static final int CARDS_FOR_NEXT_LEVEL = 10;
-    public static final Item CARD_ITEM = Items.KNOWLEDGE_BOOK;
+    public static final Item CARD_ITEM = Items.POISONOUS_POTATO;
 
     private static final String CARD_TYPE_KEY = "cardType";
     private static final String RARITY_LEVEL_KEY = "rarityLevel";
@@ -144,7 +144,9 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
                 .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, card.isEnchanted())
                 .set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag))
                 .set(DataComponents.MAX_STACK_SIZE, 64)
-                .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId()));
+                .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId()))
+                .remove(DataComponents.CONSUMABLE)
+                .remove(DataComponents.FOOD);
 
         return new ItemStackTemplate(CARD_ITEM, components.build());
     }

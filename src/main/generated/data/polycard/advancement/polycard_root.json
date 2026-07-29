@@ -12,7 +12,7 @@
       "components": {
         "minecraft:item_model": "polycard:polycard_icon"
       },
-      "id": "minecraft:knowledge_book"
+      "id": "minecraft:poisonous_potato"
     },
     "show_toast": false,
     "title": "PolyCard"

@@ -31,7 +31,7 @@
         "minecraft:enchantment_glint_override": true,
         "minecraft:item_model": "polycard:neutral/bee/legendary"
       },
-      "id": "minecraft:knowledge_book"
+      "id": "minecraft:poisonous_potato"
     },
     "title": "Legendary Bee card"
   },

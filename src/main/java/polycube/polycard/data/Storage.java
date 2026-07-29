@@ -46,9 +46,10 @@ public class Storage extends SavedData {
     }
 
     /// Marks this SavedData dirty so Minecraft writes it on the next save.
-    public void markDirty() {
+    @Override
+    public void setDirty() {
         Helpers.debug("Marked card equipment storage dirty");
-        this.setDirty();
+        super.setDirty();
     }
 
     /// Loads or creates the world-level PolyCard storage.

@@ -31,7 +31,7 @@
         "minecraft:enchantment_glint_override": true,
         "minecraft:item_model": "polycard:neutral/enderman/epic"
       },
-      "id": "minecraft:knowledge_book"
+      "id": "minecraft:poisonous_potato"
     },
     "title": "Epic Enderman card"
   },

@@ -109,7 +109,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
 
         playerData.equippedCards.put(card.cardType(), card.rarityLevel());
         CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
-        PolyCard.storage().markDirty();
+        PolyCard.storage().setDirty();
         return true;
     }
 
@@ -119,7 +119,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
         var removedRarityLevel = playerData.equippedCards.remove(card.cardType());
         if (removedRarityLevel == card.rarityLevel()) {
             CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card);
-            PolyCard.storage().markDirty();
+            PolyCard.storage().setDirty();
             return true;
         } else if (removedRarityLevel != null) {
             playerData.equippedCards.put(card.cardType(), removedRarityLevel);

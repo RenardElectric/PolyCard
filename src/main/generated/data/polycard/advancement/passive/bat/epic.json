@@ -31,7 +31,7 @@
         "minecraft:enchantment_glint_override": true,
         "minecraft:item_model": "polycard:passive/bat/epic"
       },
-      "id": "minecraft:knowledge_book"
+      "id": "minecraft:poisonous_potato"
     },
     "title": "Epic Bat card"
   },
