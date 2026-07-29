@@ -8,6 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
+import polycube.polycard.commands.commandArguments.CardGroupArgument;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.utils.Helpers;
 
@@ -16,7 +17,7 @@ public class InfoCommand extends PolyCardCommand {
         super(
                 "info",
                 "Get information about a specific card",
-                "<cardType>",
+                "<cardGroup> <cardType>",
                 PermissionLevel.ALL
         );
     }
@@ -24,13 +25,22 @@ public class InfoCommand extends PolyCardCommand {
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
-                Commands.argument(CardTypeArgument.NAME, StringArgumentType.word())
-                        .suggests(CardTypeArgument::suggestCards)
-                        .executes(this::execute)
+                Commands.argument(CardGroupArgument.NAME, StringArgumentType.word())
+                        .suggests(CardGroupArgument::suggestGroups)
+                        .then(
+                                Commands.argument(CardTypeArgument.NAME, StringArgumentType.word())
+                                        .suggests(CardTypeArgument::suggestCards)
+                                        .executes(this::execute)
+                        )
         );
     }
 
     protected int execute(CommandContext<CommandSourceStack> context) {
+        if (CardGroupArgument.getType(context).isEmpty()) {
+            context.getSource().sendFailure(Component.literal("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
+            return 0;
+        }
+
         var optionalCardType = CardTypeArgument.getType(context);
         if (optionalCardType.isPresent()) {
             var cardType = optionalCardType.get();

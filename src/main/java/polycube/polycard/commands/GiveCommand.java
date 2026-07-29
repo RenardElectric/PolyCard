@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.commands.commandArguments.CardGroupArgument;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.commands.commandArguments.RarityLevelArgument;
 import polycube.polycard.utils.CardHelpers;
@@ -21,10 +22,10 @@ public class GiveCommand extends PolyCardCommand {
 
     public GiveCommand() {
         super(
-                "give",
-                "Give a card to some players",
-                "<players> <cardType> [rarityLevel]",
-                PermissionLevel.GAMEMASTERS
+            "give",
+            "Give a card to some players",
+            "<players> <cardGroup> <cardType> [rarityLevel]",
+            PermissionLevel.GAMEMASTERS
         );
     }
 
@@ -33,13 +34,17 @@ public class GiveCommand extends PolyCardCommand {
         return super.getCommand().then(
                 Commands.argument("player", EntityArgument.players())
                         .then(
-                                Commands.argument(CardTypeArgument.NAME, StringArgumentType.word())
-                                        .suggests(CardTypeArgument::suggestCards)
-                                        .executes(cts -> giveCard(cts, false))
+                                Commands.argument(CardGroupArgument.NAME, StringArgumentType.word())
+                                        .suggests(CardGroupArgument::suggestGroups)
                                         .then(
-                                                Commands.argument(RarityLevelArgument.NAME, StringArgumentType.word())
-                                                        .suggests(RarityLevelArgument::suggestRarities)
-                                                        .executes(cts -> giveCard(cts, true))
+                                                Commands.argument(CardTypeArgument.NAME, StringArgumentType.word())
+                                                        .suggests(CardTypeArgument::suggestCards)
+                                                        .executes(cts -> giveCard(cts, false))
+                                                        .then(
+                                                                Commands.argument(RarityLevelArgument.NAME, StringArgumentType.word())
+                                                                        .suggests(RarityLevelArgument::suggestRarities)
+                                                                        .executes(cts -> giveCard(cts, true))
+                                                        )
                                         )
                         )
         );
@@ -48,6 +53,12 @@ public class GiveCommand extends PolyCardCommand {
     private int giveCard(CommandContext<CommandSourceStack> cts, boolean withRarityLevel) throws CommandSyntaxException {
         var source = cts.getSource();
         var players = EntityArgument.getPlayers(cts, "player");
+
+        if (CardGroupArgument.getType(cts).isEmpty()) {
+            source.sendFailure(Component.literal("Invalid card group: " + StringArgumentType.getString(cts, CardGroupArgument.NAME)));
+            return 0;
+        }
+
         var optionalCardType = CardTypeArgument.getType(cts);
 
         if (optionalCardType.isEmpty()) {

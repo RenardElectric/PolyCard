@@ -20,8 +20,14 @@ public final class CardTypeArgument {
         return CardType.deserialize(id);
     }
 
-    @SuppressWarnings("unused")
     public static <S> CompletableFuture<Suggestions> suggestCards(final CommandContext<S> context, final SuggestionsBuilder builder) {
-        return SharedSuggestionProvider.suggest(Arrays.stream(VALUES).map(CardType::getSerializedName), builder);
+        var group = CardGroupArgument.getType(context);
+        return SharedSuggestionProvider.suggest(
+                group.map(cardGroup -> Arrays.stream(VALUES).filter(cardType -> cardType.getCardGroup() == cardGroup))
+                        .orElseGet(() -> Arrays.stream(VALUES))
+                        .map(CardType::getSerializedName),
+                builder
+        );
+
     }
 }

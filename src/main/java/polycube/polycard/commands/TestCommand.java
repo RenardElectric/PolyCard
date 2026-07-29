@@ -9,6 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.commands.commandArguments.CardGroupArgument;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.utils.CardHelpers;
 import polycube.polycard.utils.Helpers;
@@ -23,7 +24,7 @@ public class TestCommand extends PolyCardCommand {
         super(
                 "test",
                 "Test the card rolling system",
-                "<cardType> [cardsNumber]",
+                "<cardGroup> <cardType> [cardsNumber]",
                 PermissionLevel.GAMEMASTERS
         );
     }
@@ -31,17 +32,26 @@ public class TestCommand extends PolyCardCommand {
     @Override
     public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
         return super.getCommand().then(
-                Commands.argument(CardTypeArgument.NAME, StringArgumentType.word())
-                        .suggests(CardTypeArgument::suggestCards)
-                        .executes(context -> execute(context, DEFAULT_ROLL_COUNT))
+                Commands.argument(CardGroupArgument.NAME, StringArgumentType.word())
+                        .suggests(CardGroupArgument::suggestGroups)
                         .then(
-                                Commands.argument("cardsNumber", IntegerArgumentType.integer(1, MAX_ROLL_COUNT))
-                                        .executes(context -> execute(context, IntegerArgumentType.getInteger(context, "cardsNumber")))
+                                Commands.argument(CardTypeArgument.NAME, StringArgumentType.word())
+                                        .suggests(CardTypeArgument::suggestCards)
+                                        .executes(context -> execute(context, DEFAULT_ROLL_COUNT))
+                                        .then(
+                                                Commands.argument("cardsNumber", IntegerArgumentType.integer(1, MAX_ROLL_COUNT))
+                                                        .executes(context -> execute(context, IntegerArgumentType.getInteger(context, "cardsNumber")))
+                                        )
                         )
         );
     }
 
     private int execute(CommandContext<CommandSourceStack> context, int cardsNumber) {
+        if (CardGroupArgument.getType(context).isEmpty()) {
+            context.getSource().sendFailure(Component.literal("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
+            return 0;
+        }
+
         var optionalCardType = CardTypeArgument.getType(context);
         if (optionalCardType.isEmpty()) {
             context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
