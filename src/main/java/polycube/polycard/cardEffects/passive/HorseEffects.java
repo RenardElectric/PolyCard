@@ -41,7 +41,7 @@ public class HorseEffects extends CardEffects implements PlayerTickEventCallback
             return;
         }
 
-        RarityLevel rarity = PolyCard.storage().getPlayerData(player).equippedRarity(cardType());
+        RarityLevel rarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
         if (rarity == null || !rarity.isAtLeast(RarityLevel.RARE)) {
             SPEED_BOOST_TICKS.remove(playerId);
             return;

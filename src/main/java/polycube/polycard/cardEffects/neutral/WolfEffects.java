@@ -36,7 +36,7 @@ public class WolfEffects extends CardEffects implements PlayerKillEventCallback,
 
         for (var wolf : level.getEntities(EntityTypes.WOLF, LivingEntity::isAlive)) {
             if (wolf.getRootOwner() instanceof ServerPlayer player) {
-                var rarity = PolyCard.storage().getPlayerData(player).equippedRarity(cardType());
+                var rarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
                 if (rarity == null) {
                     continue;
                 }

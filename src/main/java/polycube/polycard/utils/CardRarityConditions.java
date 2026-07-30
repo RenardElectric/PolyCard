@@ -12,7 +12,7 @@ public final class CardRarityConditions {
     private final @Nullable RarityLevel equippedRarity;
 
     private CardRarityConditions(ServerPlayer player, CardType cardType) {
-        equippedRarity = PolyCard.storage().getPlayerData(player).equippedRarity(cardType);
+        equippedRarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType);
     }
 
     /// Captures the player's current rarity thresholds for this card type.

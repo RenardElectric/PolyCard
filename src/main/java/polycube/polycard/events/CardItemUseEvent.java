@@ -36,7 +36,7 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
         var card = optionalCard.get();
 
         var playerData = PolyCard.storage().getPlayerData(player);
-        var equippedRarityLevel = playerData.equippedRarity(card.cardType());
+        var equippedRarityLevel = playerData.equippedRarityLevel(card.cardType());
 
         if (equippedRarityLevel != null) {
             if (equippedRarityLevel == card.rarityLevel()) {

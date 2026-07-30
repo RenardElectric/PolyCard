@@ -7,11 +7,13 @@ import net.minecraft.core.Holder;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.cardEffects.hostile.CreeperEffects;
 import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
 import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
+import polycube.polycard.cardEffects.misc.LifeEffects;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
 import polycube.polycard.utils.Helpers;
@@ -124,6 +126,21 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.RARE, 0.025f, false, "Explosions knock you back " + probToStr(CreeperEffects.EXPLOSION_KNOCKBACK_REDUCTION) + "% less");
         addRarity(RarityLevel.EPIC, 0.006f, true, "When hit, " + probToStr(CreeperEffects.EXPLOSION_PROBABILITY) + "% chance to create a blast (no blocks damage)");
         addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Creepers do not attack you");
+    }},
+
+    // Misc
+
+    LIFE("life", "TODO", CardGroup.MISC, LifeEffects::new) {{
+        addRarity(RarityLevel.COMMON, 1.0f, true, "+1 heart but loose one rarity level on death")
+                .withAttribute(Attributes.MAX_HEALTH, "life_common", 2, AttributeModifier.Operation.ADD_VALUE);
+        addRarity(RarityLevel.UNCOMMON, 1.0f, true, "+2 hearts but loose one rarity level on death")
+                .withAttribute(Attributes.MAX_HEALTH, "life_uncommon", 4, AttributeModifier.Operation.ADD_VALUE);
+        addRarity(RarityLevel.RARE, 1.0f, true, "+2 hearts but loose one rarity level on death")
+                .withAttribute(Attributes.MAX_HEALTH, "life_rare", 4, AttributeModifier.Operation.ADD_VALUE);
+        addRarity(RarityLevel.EPIC, 1.0f, true, "+2 hearts but loose one rarity level on death")
+                .withAttribute(Attributes.MAX_HEALTH, "life_epic", 4, AttributeModifier.Operation.ADD_VALUE);
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "+3 hearts but loose one rarity level on death")
+                .withAttribute(Attributes.MAX_HEALTH, "life_legendary", 6, AttributeModifier.Operation.ADD_VALUE);
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

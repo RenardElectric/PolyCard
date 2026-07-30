@@ -50,7 +50,7 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         var uuid = player.getUUID();
-        var equippedRarity = PolyCard.storage().getPlayerData(player).equippedRarity(cardType());
+        var equippedRarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
         if (equippedRarity == null) {
             EGG_TIMES.remove(uuid);
             return;

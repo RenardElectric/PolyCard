@@ -3,9 +3,11 @@ package polycube.polycard.card;
 import com.google.common.collect.Multimap;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 
 /// Configuration for one supported rarity tier of a card type.
 public record Rarity(
@@ -17,7 +19,12 @@ public record Rarity(
     }
 
     /// Adds a modifier applied while a card of this rarity or higher is equipped.
-    @SuppressWarnings("unused")
+    @SuppressWarnings("UnusedReturnValue")
+    public Rarity withAttribute(Holder<Attribute> attribute, String id, double amount, AttributeModifier.Operation operation) {
+        return this.withAttribute(attribute, new AttributeModifier(Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, id), amount, operation));
+    }
+
+    /// Adds a modifier applied while a card of this rarity or higher is equipped.
     public Rarity withAttribute(Holder<Attribute> attribute, AttributeModifier modifier) {
         attributeModifiers.put(attribute, modifier);
         return this;

@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 public enum CardGroup implements StringRepresentable {
     PASSIVE("passive"),
     NEUTRAL("neutral"),
-    HOSTILE("hostile");
+    HOSTILE("hostile"),
+    MISC("misc");
 
     public static final Map<String, CardGroup> BY_ID = Arrays.stream(values())
             .collect(Collectors.toMap(CardGroup::getSerializedName, Function.identity()));

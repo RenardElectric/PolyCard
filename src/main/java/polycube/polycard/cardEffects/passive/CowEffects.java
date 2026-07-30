@@ -48,7 +48,7 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         UUID playerId = player.getUUID();
-        var rarity = PolyCard.storage().getPlayerData(player).equippedRarity(cardType());
+        var rarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
         if (rarity == null || !rarity.isAtLeast(RarityLevel.UNCOMMON)) {
             clearMovementState(playerId);
             return;

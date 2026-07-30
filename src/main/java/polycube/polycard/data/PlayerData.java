@@ -51,7 +51,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
     }
 
     /// Returns the equipped rarity without allocating a read-only map wrapper on hot event paths.
-    public @Nullable RarityLevel equippedRarity(CardType cardType) {
+    public @Nullable RarityLevel equippedRarityLevel(CardType cardType) {
         return equippedCards.get(cardType);
     }
 

@@ -1,0 +1,44 @@
+{
+  "parent": "polycard:misc/life/uncommon",
+  "criteria": {
+    "got_card": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:item_model": "polycard:misc/life/rare"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "extra": [
+        {
+          "color": "blue",
+          "text": "Rare Life card"
+        },
+        " by TODO"
+      ],
+      "text": "Unlock the "
+    },
+    "icon": {
+      "components": {
+        "minecraft:enchantment_glint_override": true,
+        "minecraft:item_model": "polycard:misc/life/rare"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Rare Life card"
+  },
+  "requirements": [
+    [
+      "got_card"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -55,6 +55,11 @@ public enum RarityLevel implements StringRepresentable {
         return Optional.ofNullable(BY_RANK.get(rank + 1));
     }
 
+    /// Returns the previous rank in the global rarity ladder.
+    public Optional<RarityLevel> previous() {
+        return Optional.ofNullable(BY_RANK.get(rank - 1));
+    }
+
     /// Parses a serialized rarity id.
     public static Optional<RarityLevel> deserialize(String string) {
         return Optional.ofNullable(BY_ID.get(string.toLowerCase(Locale.ROOT)));
