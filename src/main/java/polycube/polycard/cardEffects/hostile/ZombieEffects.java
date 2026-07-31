@@ -21,7 +21,7 @@ import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class ZombieEffects extends CardEffects implements ItemConsumedEventCallback, IsTargetedEventCallback {
+public final class ZombieEffects extends CardEffects implements ItemConsumedEventCallback, IsTargetedEventCallback {
     public static final int STRENGTH_EFFECT_DURATION = 20 * 30;
     public static final int STRENGTH_EFFECT_AMPLIFIER = 0;
 

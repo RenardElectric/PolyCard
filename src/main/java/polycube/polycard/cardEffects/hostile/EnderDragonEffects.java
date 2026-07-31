@@ -22,7 +22,7 @@ import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.FallFlyingGliderWearEventCallback;
 import polycube.polycard.utils.Helpers;
 
-public class EnderDragonEffects
+public final class EnderDragonEffects
         extends CardEffects
         implements FallFlyingGliderWearEventCallback, EntityHurtEventCallback,
         ServerEntityEvents.EquipmentChange, CardEventCallback.CardEquipEvent, CardEventCallback.CardUnequipEvent,

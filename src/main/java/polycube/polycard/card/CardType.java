@@ -1,13 +1,7 @@
 package polycube.polycard.card;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
-import net.minecraft.core.Holder;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.cardEffects.hostile.CreeperEffects;
 import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
@@ -131,16 +125,11 @@ public enum CardType implements StringRepresentable {
     // Misc
 
     LIFE("life", "TODO", CardGroup.MISC, LifeEffects::new) {{
-        addRarity(RarityLevel.COMMON, 1.0f, true, "+1 heart but loose one rarity level on death")
-                .withAttribute(Attributes.MAX_HEALTH, "life_common", 2, AttributeModifier.Operation.ADD_VALUE);
-        addRarity(RarityLevel.UNCOMMON, 1.0f, true, "+2 hearts but loose one rarity level on death")
-                .withAttribute(Attributes.MAX_HEALTH, "life_uncommon", 4, AttributeModifier.Operation.ADD_VALUE);
-        addRarity(RarityLevel.RARE, 1.0f, true, "+2 hearts but loose one rarity level on death")
-                .withAttribute(Attributes.MAX_HEALTH, "life_rare", 4, AttributeModifier.Operation.ADD_VALUE);
-        addRarity(RarityLevel.EPIC, 1.0f, true, "+2 hearts but loose one rarity level on death")
-                .withAttribute(Attributes.MAX_HEALTH, "life_epic", 4, AttributeModifier.Operation.ADD_VALUE);
-        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "+3 hearts but loose one rarity level on death")
-                .withAttribute(Attributes.MAX_HEALTH, "life_legendary", 6, AttributeModifier.Operation.ADD_VALUE);
+        addRarity(RarityLevel.COMMON, 1.0f, true, "+1 heart but loose one rarity level on death");
+        addRarity(RarityLevel.UNCOMMON, 1.0f, true, "+2 hearts but loose one rarity level on death");
+        addRarity(RarityLevel.RARE, 1.0f, true, "+2 hearts but loose one rarity level on death");
+        addRarity(RarityLevel.EPIC, 1.0f, true, "+2 hearts but loose one rarity level on death");
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "+3 hearts but loose one rarity level on death");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
@@ -170,14 +159,8 @@ public enum CardType implements StringRepresentable {
     }
 
     /// Adds one supported rarity tier to this card type.
-    @SuppressWarnings("UnusedReturnValue")
-    protected Rarity addRarity(RarityLevel rarityLevel, float probability, boolean isEnchanted, String description) {
-        Objects.requireNonNull(rarityLevel, "rarityLevel");
-        Objects.requireNonNull(description, "description");
-
-        var rarity = new Rarity(rarityLevel, probability, isEnchanted, description, HashMultimap.create());
-        rarities.put(rarityLevel, rarity);
-        return rarity;
+    protected void addRarity(RarityLevel rarityLevel, float probability, boolean isEnchanted, String description) {
+        rarities.put(rarityLevel, new Rarity(rarityLevel, probability, isEnchanted, description));
     }
 
     /// Validates invariants that can only be checked after an enum constant's rarity initializer runs.
@@ -212,19 +195,6 @@ public enum CardType implements StringRepresentable {
     /// Returns all rarity tiers supported by this card type, in enum-rank order.
     public Collection<Rarity> getRarities() {
         return Collections.unmodifiableCollection(rarities.values());
-    }
-
-    /// Returns attribute modifiers from every supported rarity up to and including maxRarity.
-    public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(RarityLevel maxRarity) {
-        //noinspection NullableProblems
-        Multimap<Holder<Attribute>, AttributeModifier> attributes = HashMultimap.create();
-        int maxRank = maxRarity.rank();
-        for (int i = 0; i <= maxRank; i++) {
-            Optional.ofNullable(rarities.get(RarityLevel.BY_RANK.get(i)))
-                    .map(Rarity::attributeModifiers)
-                    .ifPresent(attributes::putAll);
-        }
-        return attributes;
     }
 
     /// Returns the player-facing acquisition condition.

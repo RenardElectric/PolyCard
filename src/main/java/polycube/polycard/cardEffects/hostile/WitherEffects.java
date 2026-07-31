@@ -19,7 +19,7 @@ import polycube.polycard.events.callBacks.PlayerKillEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class WitherEffects extends CardEffects implements PlayerKillEventCallback, EntityHurtEventCallback, EntityAfterHurtEventCallback {
+public final class WitherEffects extends CardEffects implements PlayerKillEventCallback, EntityHurtEventCallback, EntityAfterHurtEventCallback {
     public static final float WITHER_ROSE_DROP_PROBABILITY = 0.25f;
 
     public static final float WITHER_EFFECT_PROBABILITY = 0.2f;

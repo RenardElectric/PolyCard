@@ -4,7 +4,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
@@ -30,27 +29,6 @@ public final class CardHelpers {
                     );
                 }
         );
-    }
-
-    /// Re-applies equipped-card attributes when a player object is created.
-    public static void loadPlayerAttributes(ServerPlayer player) {
-        var equippedCards = PolyCard.storage().getPlayerData(player).getEquippedCards();
-        for (var card : equippedCards) {
-            addCardAttributes(player, card);
-        }
-        if (!equippedCards.isEmpty()) {
-            Helpers.debug("Restored attributes for {} equipped card(s) on {}", equippedCards.size(), player.getName().getString());
-        }
-    }
-
-    /// Adds this card's transient attribute modifiers to the player.
-    public static void addCardAttributes(ServerPlayer player, Card card) {
-        player.getAttributes().addTransientAttributeModifiers(card.getAttributeModifiers());
-    }
-
-    /// Removes this card's transient attribute modifiers from the player.
-    public static void removeCardAttributes(ServerPlayer player, Card card) {
-        player.getAttributes().removeAttributeModifiers(card.getAttributeModifiers());
     }
 
     /// Gives a concrete card item and plays pickup feedback.

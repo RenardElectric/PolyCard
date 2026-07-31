@@ -26,7 +26,7 @@ import polycube.polycard.utils.Helpers;
 
 import java.util.List;
 
-public class PiglinEffects extends CardEffects implements IsTargetedEventCallback, ItemDurabilityChangeEventCallback, ItemConsumedEventCallback {
+public final class PiglinEffects extends CardEffects implements IsTargetedEventCallback, ItemDurabilityChangeEventCallback, ItemConsumedEventCallback {
     public static final int BUFF_DURATION = 20 * 15;
     public static final int BUFF_AMPLIFIER = 0;
 

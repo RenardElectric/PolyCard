@@ -17,7 +17,7 @@ import polycube.polycard.utils.Helpers;
 
 import java.util.Objects;
 
-public class WolfEffects extends CardEffects implements PlayerKillEventCallback, ServerTickEvents.EndLevelTick {
+public final class WolfEffects extends CardEffects implements PlayerKillEventCallback, ServerTickEvents.EndLevelTick {
 
     public static final int RESISTANCE_AMPLIFIER = 0;
     public static final int STRENGTH_AMPLIFIER = 0;

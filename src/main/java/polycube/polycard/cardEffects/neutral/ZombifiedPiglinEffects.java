@@ -21,7 +21,7 @@ import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.utils.Helpers;
 
-public class ZombifiedPiglinEffects extends CardEffects implements IsTargetedEventCallback, EntityAfterHurtEventCallback {
+public final class ZombifiedPiglinEffects extends CardEffects implements IsTargetedEventCallback, EntityAfterHurtEventCallback {
     public static final float SPAWN_REINFORCEMENTS_CHANCE = 0.25f;
     public static final int MAX_REINFORCEMENTS = 3;
     public static final int REINFORCEMENT_COOLDOWN = 20 * 30;

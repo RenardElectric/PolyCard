@@ -18,7 +18,7 @@ import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class IronGolemEffects extends CardEffects implements EntityAfterHurtEventCallback {
+public final class IronGolemEffects extends CardEffects implements EntityAfterHurtEventCallback {
     public static final float RESISTANCE_ON_ATTACKED_PROBABILITY = 0.2f;
     public static final int RESISTANCE_DURATION = 20 * 10;
     public static final int RESISTANCE_AMPLIFIER = 0;

@@ -27,7 +27,7 @@ import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
 import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
-public class EnderManEffects extends CardEffects implements PlayerTickEventCallback, ItemUseEventCallback, ProjectileOnHitEventCallback, EntityHurtEventCallback {
+public final class EnderManEffects extends CardEffects implements PlayerTickEventCallback, ItemUseEventCallback, ProjectileOnHitEventCallback, EntityHurtEventCallback {
     public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
 
     public static final int PROJECTILE_DODGE_PROBABILITY = 20;

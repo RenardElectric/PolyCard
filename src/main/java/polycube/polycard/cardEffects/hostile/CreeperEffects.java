@@ -19,7 +19,7 @@ import polycube.polycard.events.callBacks.ExplosionKnockbackEventCallback;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.utils.Helpers;
 
-public class CreeperEffects
+public final class CreeperEffects
         extends CardEffects
         implements EntityHurtEventCallback, EntityAfterHurtEventCallback,
         ExplosionKnockbackEventCallback, IsTargetedEventCallback {

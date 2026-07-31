@@ -10,7 +10,7 @@ import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
-public class BeeEffects extends CardEffects implements ItemConsumedEventCallback {
+public final class BeeEffects extends CardEffects implements ItemConsumedEventCallback {
     public static final int SPEED_EFFECT_DURATION = 20 * 60;
     public static final int SPEED_EFFECT_AMPLIFIER = 0;
 
