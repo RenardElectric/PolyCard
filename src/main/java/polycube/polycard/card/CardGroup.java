@@ -19,6 +19,7 @@ public enum CardGroup implements StringRepresentable {
             .collect(Collectors.toMap(CardGroup::getSerializedName, Function.identity()));
 
     private final String id;
+
     CardGroup(String id) {
         this.id = id;
     }

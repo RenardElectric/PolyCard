@@ -22,10 +22,10 @@ public class GiveCommand extends PolyCardCommand {
 
     public GiveCommand() {
         super(
-            "give",
-            "Give a card to some players",
-            "<players> <cardGroup> <cardType> [rarityLevel]",
-            PermissionLevel.GAMEMASTERS
+                "give",
+                "Give a card to some players",
+                "<players> <cardGroup> <cardType> [rarityLevel]",
+                PermissionLevel.GAMEMASTERS
         );
     }
 
