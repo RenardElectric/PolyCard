@@ -1,6 +1,8 @@
 package polycube.polycard.utils;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -26,7 +28,7 @@ import static polycube.polycard.PolyCard.MOD_ID;
 /// Shared server-side helpers for sounds, lightweight tick scheduling, and debug logging.
 public final class Helpers {
     private static final RandomSource RANDOM = RandomSource.create();
-    private static final int FAILURE_SOUND_COOLDOWN = 20;
+    private static final int FAILURE_COOLDOWN = 20;
     private static final ThreadLocal<DecimalFormat> PROBABILITY_FORMAT = ThreadLocal.withInitial(
             () -> new DecimalFormat("#.##", DecimalFormatSymbols.getInstance(Locale.ROOT))
     );
@@ -38,17 +40,13 @@ public final class Helpers {
         player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0f, 1.0f, RANDOM.nextLong()));
     }
 
-    /// Plays a player-local sound if its per-player cooldown has expired.
-    public static void playSound(ServerPlayer player, SoundEvent sound, int cooldown) {
-        var key = "sound:" + BuiltInRegistries.SOUND_EVENT.getKey(sound);
-        if (PolyCard.cooldowns().tryStartCooldown(player, key, cooldown)) {
-            playSound(player, sound);
-        }
-    }
-
     /// Plays the standard failure sound with spam protection.
-    public static void playFailure(ServerPlayer player) {
-        playSound(player, SoundEvents.VILLAGER_NO, FAILURE_SOUND_COOLDOWN);
+    public static void SendFailure(ServerPlayer player, MutableComponent reason) {
+        var key = "sound:" + BuiltInRegistries.SOUND_EVENT.getKey(SoundEvents.VILLAGER_NO);
+        if (PolyCard.cooldowns().tryStartCooldown(player, key, FAILURE_COOLDOWN)) {
+            playSound(player, SoundEvents.VILLAGER_NO);
+            player.sendSystemMessage(reason.withStyle(ChatFormatting.RED));
+        }
     }
 
     /// Plays a world sound at the given position.

@@ -4,18 +4,52 @@ import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
+import polycube.polycard.card.CardType;
 import polycube.polycard.data.PlayerData;
+import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.utils.Helpers;
 
-/// Server-side card equipment GUI backed by PlayerData's syncing container.
-public final class EquipmentGUI {
-    private EquipmentGUI() {}
+import java.util.*;
+import java.util.stream.Collectors;
+
+/// Server-side GUI for viewing and editing a player's equipped cards.
+public final class EquipmentGUI extends SimpleGui {
+    private static final Component TITLE = Component.literal("七ㇺ十").withStyle(ChatFormatting.WHITE)
+            .append(Component.literal("✦༺ ").withStyle(ChatFormatting.DARK_RED))
+            .append(Component.literal("Equipped Cards").withStyle(style ->
+                    style.withColor(ChatFormatting.BLACK).withUnderlined(true)))
+            .append(Component.literal(" ༻✦").withStyle(ChatFormatting.DARK_RED));
+
+    private static final Map<UUID, Set<EquipmentGUI>> OPEN_GUIS = new HashMap<>();
+
+    static {
+        CardEventCallback.EQUIPPED.register((player, _) -> markOpenGuisDirty(player));
+        CardEventCallback.UNEQUIPPED.register((player, _) -> markOpenGuisDirty(player));
+    }
+
+    private final ServerPlayer targetPlayer;
+    private final PlayerData playerData;
+    private final EquipmentContainer container;
+    private boolean dirty;
+
+    private EquipmentGUI(ServerPlayer viewer, ServerPlayer targetPlayer) {
+        super(MenuType.HOPPER, viewer, false);
+        this.targetPlayer = targetPlayer;
+        this.playerData = PolyCard.storage().getPlayerData(targetPlayer);
+        this.container = new EquipmentContainer();
+
+        setTitle(TITLE);
+        for (int slot = 0; slot < PlayerData.MAX_EQUIPPED_CARDS; slot++) {
+            setSlot(slot, createEquipmentSlot(slot));
+        }
+    }
 
     /// Opens a player's own equipment manager.
     public static void openEquipmentGUI(ServerPlayer player) {
@@ -24,61 +58,191 @@ public final class EquipmentGUI {
 
     /// Opens an equipment manager where the viewer edits targetPlayer's cards.
     public static void openEquipmentGUI(ServerPlayer viewer, ServerPlayer targetPlayer) {
-        var playerData = PolyCard.storage().getPlayerData(targetPlayer);
-        var container = playerData.asContainer(targetPlayer, viewer);
-
-        SimpleGui gui = new SimpleGui(MenuType.HOPPER, viewer, false);
-        gui.setTitle(Component.literal("七ㇺ十").withStyle(ChatFormatting.WHITE)
-                .append(Component.literal("✦༺ ").withStyle(ChatFormatting.DARK_RED))
-                .append(Component.literal("Equipped Cards").withStyle(s -> s.withColor(ChatFormatting.BLACK).withUnderlined(true)))
-                .append(Component.literal(" ༻✦").withStyle(ChatFormatting.DARK_RED))
-        );
-
-        for (int i = 0; i < PlayerData.MAX_EQUIPPED_CARDS; i++) {
-            gui.setSlot(i, getSlot(container, viewer, playerData, i));
+        var gui = new EquipmentGUI(viewer, targetPlayer);
+        if (gui.open()) {
+            gui.register();
+            Helpers.debug("{} opened the equipment manager for {}",
+                    viewer.getName().getString(), targetPlayer.getName().getString());
         }
-
-        gui.open();
-        Helpers.debug("{} opened the equipment manager for {}", viewer.getName().getString(), targetPlayer.getName().getString());
     }
 
-    private static Slot getSlot(Container container, ServerPlayer player, PlayerData playerData, int slot) {
+    @Override
+    public void onTick() {
+        refreshIfDirty();
+    }
+
+    @Override
+    public void onRemoved() {
+        unregister();
+    }
+
+    private static void markOpenGuisDirty(ServerPlayer player) {
+        var openGuis = OPEN_GUIS.get(player.getUUID());
+        if (openGuis != null) {
+            openGuis.forEach(EquipmentGUI::markDirty);
+        }
+    }
+
+    private void markDirty() {
+        dirty = true;
+    }
+
+    private void refreshIfDirty() {
+        if (dirty) {
+            dirty = false;
+            container.syncFromPlayerData();
+        }
+    }
+
+    private void register() {
+        OPEN_GUIS.computeIfAbsent(targetPlayer.getUUID(), _ -> new HashSet<>()).add(this);
+    }
+
+    private void unregister() {
+        var targetId = targetPlayer.getUUID();
+        var openGuis = OPEN_GUIS.get(targetId);
+        if (openGuis == null) {
+            return;
+        }
+
+        openGuis.remove(this);
+        if (openGuis.isEmpty()) {
+            OPEN_GUIS.remove(targetId);
+        }
+    }
+
+    private Slot createEquipmentSlot(int slot) {
         return new Slot(container, slot, 0, 0) {
             @Override
             public boolean mayPlace(ItemStack itemStack) {
-                if (itemStack.isEmpty()) {
-                    Helpers.debug("{} attempted to place empty item in equipment slot {}", player.getName().getString(), getContainerSlot());
-                    return false;
-                }
-
-                var optionalCard = Card.getCard(itemStack);
-                if (optionalCard.isEmpty()) {
-                    Helpers.playFailure(player);
-                    Helpers.debug("{} attempted to place non-card item in equipment slot: {}", player.getName().getString(), itemStack.getHoverName().getString());
-                    return false;
-                }
-                var card = optionalCard.get();
-
-                var currentItem = getItem();
-                if (!currentItem.isEmpty()) {
-                    var currentCard = Card.getCard(currentItem);
-                    if (currentCard.isPresent() && currentCard.get().cardType() == card.cardType()) {
-                        Helpers.debug("{} is replacing card {} in slot {} with {}", player.getName().getString(), currentCard.get(), getContainerSlot(), card);
-                        return true;
-                    }
-                }
-
-                if (playerData.hasCardType(card.cardType())) {
-                    player.sendSystemMessage(Component.literal("You cannot equip the same card type twice.").withStyle(ChatFormatting.RED));
-                    Helpers.playFailure(player);
-                    Helpers.debug("{} attempted to equip duplicate card type: {}", player.getName().getString(), card.cardType());
-                    return false;
-                }
-
-                Helpers.debug("{} is equipping card {} in slot {}", player.getName().getString(), card, getContainerSlot());
-                return true;
+                return canPlaceCard(this, itemStack);
             }
         };
     }
-}
 
+    private boolean canPlaceCard(Slot slot, ItemStack itemStack) {
+        var viewer = getPlayer();
+        var card = Card.getCard(itemStack).orElse(null);
+        if (card == null) {
+            if (!itemStack.isEmpty()) {
+                Helpers.SendFailure(
+                        viewer,
+                        Component.literal("You can only equip card items.")
+                );
+                Helpers.debug("{} attempted to place a non-card item in an equipment slot: {}",
+                        viewer.getName().getString(), itemStack.getHoverName().getString());
+            }
+            return false;
+        }
+
+        var currentCard = Card.getCard(slot.getItem()).orElse(null);
+        if (currentCard != null && currentCard.cardType() == card.cardType()) {
+            Helpers.debug("{} is replacing card {} in slot {} with {}",
+                    viewer.getName().getString(), currentCard, slot.getContainerSlot(), card);
+            return true;
+        }
+
+        if (playerData.hasCardType(card.cardType())) {
+            Helpers.SendFailure(
+                    viewer,
+                    Component.literal("You cannot equip the same card type twice.")
+            );
+            Helpers.debug("{} attempted to equip duplicate card type: {}",
+                    viewer.getName().getString(), card.cardType());
+            return false;
+        }
+
+        Helpers.debug("{} is equipping card {} in slot {}",
+                viewer.getName().getString(), card, slot.getContainerSlot());
+        return true;
+    }
+
+    private final class EquipmentContainer extends SimpleContainer {
+        private EquipmentContainer() {
+            super(PlayerData.MAX_EQUIPPED_CARDS);
+            syncFromPlayerData();
+        }
+
+        @Override
+        public ItemStack getItem(int slot) {
+            refreshIfDirty();
+            return super.getItem(slot);
+        }
+
+        @Override
+        public void setChanged() {
+            var displayedCards = items.stream()
+                    .map(Card::getCard)
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.toSet());
+            var equippedCards = new HashSet<>(playerData.getEquippedCards());
+
+            if (equippedCards.equals(displayedCards)) {
+                return;
+            }
+
+            for (var card : equippedCards) {
+                if (!displayedCards.contains(card) && PlayerData.unequipCard(targetPlayer, card)) {
+                    Helpers.debug("{} unequipped card {} for {}", getPlayer(), card, targetPlayer);
+                    Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_REMOVE_ONE);
+                }
+            }
+
+            for (var card : displayedCards) {
+                if (!equippedCards.contains(card) && PlayerData.equipCard(targetPlayer, card)) {
+                    Helpers.debug("{} equipped card {} for {}", getPlayer(), card, targetPlayer);
+                    Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_INSERT);
+                }
+            }
+
+            markDirty();
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
+        }
+
+        private void syncFromPlayerData() {
+            var cardsToPlace = new EnumMap<CardType, Card>(CardType.class);
+            for (var card : playerData.getEquippedCards()) {
+                cardsToPlace.put(card.cardType(), card);
+            }
+
+            for (int slot = 0; slot < items.size(); slot++) {
+                var item = items.get(slot);
+                var displayedCard = Card.getCard(item).orElse(null);
+                if (displayedCard == null) {
+                    if (!item.isEmpty()) {
+                        items.set(slot, ItemStack.EMPTY);
+                    }
+                    continue;
+                }
+
+                var equippedCard = cardsToPlace.remove(displayedCard.cardType());
+                if (equippedCard == null) {
+                    items.set(slot, ItemStack.EMPTY);
+                } else if (!equippedCard.equals(displayedCard)) {
+                    items.set(slot, equippedCard.asItem());
+                }
+            }
+
+            for (var card : cardsToPlace.values()) {
+                var emptySlot = firstEmptySlot();
+                if (emptySlot == -1) {
+                    break;
+                }
+                items.set(emptySlot, card.asItem());
+            }
+        }
+
+        private int firstEmptySlot() {
+            for (int slot = 0; slot < items.size(); slot++) {
+                if (items.get(slot).isEmpty()) {
+                    return slot;
+                }
+            }
+            return -1;
+        }
+    }
+}

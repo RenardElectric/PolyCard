@@ -2,9 +2,6 @@ package polycube.polycard.data;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
@@ -14,7 +11,6 @@ import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /// Persistent card equipment for one player.
 /// Internally, cards are stored as a compact type-to-rarity map; public card operations use validated Card values.
@@ -125,51 +121,5 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
             playerData.equippedCards.put(card.cardType(), removedRarityLevel);
         }
         return false;
-    }
-
-    /// Creates a GUI-backed container and syncs slot changes back into this PlayerData.
-    /// targetPlayer owns the data; feedbackPlayer receives sounds/messages for the edit.
-    public Container asContainer(ServerPlayer targetPlayer, ServerPlayer feedbackPlayer) {
-        var container = new SimpleContainer(MAX_EQUIPPED_CARDS) {
-            @Override
-            public void setChanged() {
-                var cardsInContainer = items.stream()
-                        .map(Card::getCard)
-                        .flatMap(Optional::stream)
-                        .collect(Collectors.toSet());
-
-                var equippedCardsSet = new HashSet<>(PlayerData.this.getEquippedCards());
-
-                if (equippedCardsSet.equals(cardsInContainer)) {
-                    return;
-                }
-
-                for (var card : equippedCardsSet) {
-                    if (!cardsInContainer.contains(card) && PlayerData.unequipCard(targetPlayer, card)) {
-                        Helpers.debug("{} unequipped card {} for {}", feedbackPlayer, card, targetPlayer);
-                        Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_REMOVE_ONE);
-                    }
-                }
-
-                for (var card : cardsInContainer) {
-                    if (!equippedCardsSet.contains(card) && PlayerData.equipCard(targetPlayer, card)) {
-                        Helpers.debug("{} equipped card {} for {}", feedbackPlayer, card, targetPlayer);
-                        Helpers.playSound(feedbackPlayer, SoundEvents.BUNDLE_INSERT);
-                    }
-                }
-            }
-
-            @Override
-            public int getMaxStackSize() {
-                return 1;
-            }
-        };
-
-        int index = 0;
-        for (var card : getEquippedCards()) {
-            container.items.set(index++, card.asItem());
-        }
-
-        return container;
     }
 }

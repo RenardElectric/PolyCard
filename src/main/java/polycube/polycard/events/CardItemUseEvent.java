@@ -40,8 +40,10 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
 
         if (equippedRarityLevel != null) {
             if (equippedRarityLevel == card.rarityLevel()) {
-                Helpers.playFailure(player);
-                player.sendSystemMessage(Component.literal("You already equipped this card!").withStyle(ChatFormatting.RED));
+                Helpers.SendFailure(
+                        player,
+                        Component.literal("You already equipped this card!")
+                );
                 Helpers.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
                 return InteractionResult.FAIL;
             }
@@ -61,8 +63,10 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
         }
 
         if (playerData.equippedCardCount() >= PlayerData.MAX_EQUIPPED_CARDS) {
-            Helpers.playFailure(player);
-            player.sendSystemMessage(Component.literal("You already have " + PlayerData.MAX_EQUIPPED_CARDS + " cards equipped!").withStyle(ChatFormatting.RED));
+            Helpers.SendFailure(
+                    player,
+                    Component.literal("You already have " + PlayerData.MAX_EQUIPPED_CARDS + " cards equipped!")
+            );
             Helpers.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), PlayerData.MAX_EQUIPPED_CARDS, card);
             return InteractionResult.FAIL;
         }
