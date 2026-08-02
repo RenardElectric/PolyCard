@@ -15,8 +15,7 @@ import polycube.polycard.utils.Helpers;
 
 /// Server-side card equipment GUI backed by PlayerData's syncing container.
 public final class EquipmentGUI {
-    private EquipmentGUI() {
-    }
+    private EquipmentGUI() {}
 
     /// Opens a player's own equipment manager.
     public static void openEquipmentGUI(ServerPlayer player) {

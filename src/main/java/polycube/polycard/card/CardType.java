@@ -8,6 +8,7 @@ import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
 import polycube.polycard.cardEffects.hostile.WitherEffects;
 import polycube.polycard.cardEffects.hostile.ZombieEffects;
 import polycube.polycard.cardEffects.misc.LifeEffects;
+import polycube.polycard.cardEffects.misc.TotemEffects;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
 import polycube.polycard.utils.Helpers;
@@ -125,11 +126,18 @@ public enum CardType implements StringRepresentable {
     // Misc
 
     LIFE("life", "TODO", CardGroup.MISC, LifeEffects::new) {{
-        addRarity(RarityLevel.COMMON, 1.0f, true, "+1 heart but loose one rarity level on death");
-        addRarity(RarityLevel.UNCOMMON, 1.0f, true, "+2 hearts but loose one rarity level on death");
-        addRarity(RarityLevel.RARE, 1.0f, true, "+2 hearts but loose one rarity level on death");
+        addRarity(RarityLevel.COMMON, 1.0f, false, "+1 heart but loose one rarity level on death");
+        addRarity(RarityLevel.UNCOMMON, 1.0f, false, "+2 hearts but loose one rarity level on death");
+        addRarity(RarityLevel.RARE, 1.0f, false, "+2 hearts but loose one rarity level on death");
         addRarity(RarityLevel.EPIC, 1.0f, true, "+2 hearts but loose one rarity level on death");
         addRarity(RarityLevel.LEGENDARY, 1.0f, true, "+3 hearts but loose one rarity level on death");
+    }},
+    TOTEM("totem", "TODO", CardGroup.MISC, TotemEffects::new) {{
+        addRarity(RarityLevel.COMMON, 1.0f, false, "Count as a totem of undying consumed when used");
+        addRarity(RarityLevel.UNCOMMON, 1.0f, false, "Count as a totem of undying consumed when used");
+        addRarity(RarityLevel.RARE, 1.0f, false, "Count as a totem of undying consumed when used");
+        addRarity(RarityLevel.EPIC, 1.0f, true, "Count as a totem of undying consumed when used");
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Count as a totem of undying consumed when used");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

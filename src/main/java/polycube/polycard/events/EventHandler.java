@@ -28,7 +28,9 @@ public class EventHandler {
             of(ExplosionKnockbackEventCallback.class, ExplosionKnockbackEventCallback.EVENT),
             of(PlayerKillEventCallback.class, PlayerKillEventCallback.EVENT),
             of(ProjectileOnHitEventCallback.class, ProjectileOnHitEventCallback.EVENT),
+            of(ServerLivingEntityEvents.AllowDeath.class, ServerLivingEntityEvents.ALLOW_DEATH),
             of(ServerLivingEntityEvents.AfterDeath.class, ServerLivingEntityEvents.AFTER_DEATH),
+            of(ServerLivingEntityEvents.AfterDamage.class, ServerLivingEntityEvents.AFTER_DAMAGE),
 
             of(IsTargetedEventCallback.class, IsTargetedEventCallback.EVENT),
 
@@ -52,8 +54,7 @@ public class EventHandler {
 
     private boolean eventsRegistered;
 
-    protected EventHandler() {
-    }
+    protected EventHandler() {}
 
     /// Registers every callback interface implemented by this fully constructed handler.
     public final void registerCallbacks() {

@@ -9,6 +9,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
+import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.EventHandler;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public abstract class CardEffects extends EventHandler {
     private @Nullable CardType cardType = null;
@@ -50,8 +52,8 @@ public abstract class CardEffects extends EventHandler {
             attributeMap = new HashMap<>();
 
             PlayerLoadEventCallback.EVENT.register(this::loadPlayerAttributes);
-            CardEventCallback.EQUIPPED.register((player, card) -> this.addCardAttributes(player, card.rarityLevel()));
-            CardEventCallback.UNEQUIPPED.register((player, card) -> this.removeCardAttributes(player, card.rarityLevel()));
+            CardEventCallback.EQUIPPED.register((player, card) -> this.setCardAttributes(card, player.getAttributes()::addTransientAttributeModifiers));
+            CardEventCallback.UNEQUIPPED.register((player, card) -> this.setCardAttributes(card, player.getAttributes()::removeAttributeModifiers));
         }
 
         attributeMap.computeIfAbsent(rarityLevel, _ -> HashMultimap.create())
@@ -61,25 +63,16 @@ public abstract class CardEffects extends EventHandler {
     private void loadPlayerAttributes(ServerPlayer player) {
         var rarityLevel = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
         if (rarityLevel != null) {
-            addCardAttributes(player, rarityLevel);
+            setCardAttributes(new Card(cardType(), rarityLevel), player.getAttributes()::removeAttributeModifiers);
         }
     }
 
-    private void addCardAttributes(ServerPlayer player, RarityLevel rarityLevel) {
-        if (attributeMap == null) return;
-        int maxRank = rarityLevel.rank();
+    private void setCardAttributes(Card card, Consumer<Multimap<Holder<Attribute>, AttributeModifier>> consumer) {
+        if (attributeMap == null || card.cardType() != cardType()) return;
+        int maxRank = card.rarityLevel().rank();
         for (int i = 0; i <= maxRank; i++) {
             Optional.ofNullable(attributeMap.get(RarityLevel.BY_RANK.get(i)))
-                    .ifPresent(player.getAttributes()::addTransientAttributeModifiers);
-        }
-    }
-
-    private void removeCardAttributes(ServerPlayer player, RarityLevel rarityLevel) {
-        if (attributeMap == null) return;
-        int maxRank = rarityLevel.rank();
-        for (int i = 0; i <= maxRank; i++) {
-            Optional.ofNullable(attributeMap.get(RarityLevel.BY_RANK.get(i)))
-                    .ifPresent(player.getAttributes()::removeAttributeModifiers);
+                    .ifPresent(consumer);
         }
     }
 }
