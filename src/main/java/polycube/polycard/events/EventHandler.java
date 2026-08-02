@@ -60,8 +60,23 @@ public class EventHandler {
         if (eventsRegistered) {
             throw new IllegalStateException(getClass().getName() + " registered its events more than once");
         }
+        validateCallbackInterfaces();
         eventsRegistered = true;
         REGISTRATIONS.forEach(this::handle);
+    }
+
+    /// Fails before registering anything if a handler implements a callback that was omitted from REGISTRATIONS.
+    private void validateCallbackInterfaces() {
+        for (Class<?> handlerType = getClass(); handlerType != EventHandler.class; handlerType = handlerType.getSuperclass()) {
+            for (var callbackType : handlerType.getInterfaces()) {
+                boolean isRegistered = REGISTRATIONS.stream()
+                        .anyMatch(registration -> registration.type().isAssignableFrom(callbackType));
+                if (!isRegistered) {
+                    throw new IllegalStateException(getClass().getName() + " implements unregistered callback "
+                            + callbackType.getName() + "; add it to EventHandler.REGISTRATIONS");
+                }
+            }
+        }
     }
 
     private <T> void handle(EventRegistration<T> registration) {

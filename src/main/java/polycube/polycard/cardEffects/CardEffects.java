@@ -24,8 +24,7 @@ public abstract class CardEffects extends EventHandler {
     private @Nullable CardType cardType = null;
     private @Nullable Map<RarityLevel, Multimap<Holder<Attribute>, AttributeModifier>> attributeMap = null;
 
-    protected CardEffects() {
-    }
+    protected CardEffects() {}
 
     /// Assigns the owning card before making this effect visible to any event invoker.
     public final void initialize(CardType cardType) {

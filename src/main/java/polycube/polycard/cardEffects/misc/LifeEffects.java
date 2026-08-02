@@ -15,7 +15,6 @@ import polycube.polycard.data.PlayerData;
 public final class LifeEffects extends CardEffects implements ServerLivingEntityEvents.AfterDeath {
 
     public LifeEffects() {
-        super();
         addAttribute(RarityLevel.COMMON, Attributes.MAX_HEALTH, "life_common", 2, AttributeModifier.Operation.ADD_VALUE);
         addAttribute(RarityLevel.UNCOMMON, Attributes.MAX_HEALTH, "life_uncommon", 4, AttributeModifier.Operation.ADD_VALUE);
         addAttribute(RarityLevel.RARE, Attributes.MAX_HEALTH, "life_rare", 4, AttributeModifier.Operation.ADD_VALUE);
