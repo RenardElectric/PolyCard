@@ -10,7 +10,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.equine.Horse;
 import org.apache.commons.lang3.mutable.MutableFloat;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
@@ -41,7 +40,7 @@ public class HorseEffects extends CardEffects implements PlayerTickEventCallback
             return;
         }
 
-        RarityLevel rarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
+        RarityLevel rarity = equippedRarityLevel(player);
         if (rarity == null || !rarity.isAtLeast(RarityLevel.RARE)) {
             SPEED_BOOST_TICKS.remove(playerId);
             return;

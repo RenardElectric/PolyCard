@@ -1,0 +1,44 @@
+{
+  "parent": "polycard:misc/totem/uncommon",
+  "criteria": {
+    "got_card": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:item_model": "polycard:misc/totem/rare"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "extra": [
+        {
+          "color": "blue",
+          "text": "Rare Totem card"
+        },
+        " by TODO"
+      ],
+      "text": "Unlock the "
+    },
+    "icon": {
+      "components": {
+        "minecraft:enchantment_glint_override": false,
+        "minecraft:item_model": "polycard:misc/totem/rare"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Rare Totem card"
+  },
+  "requirements": [
+    [
+      "got_card"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

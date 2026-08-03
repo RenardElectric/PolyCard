@@ -9,7 +9,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.PlayerKillEventCallback;
@@ -36,7 +35,7 @@ public final class WolfEffects extends CardEffects implements PlayerKillEventCal
 
         for (var wolf : level.getEntities(EntityTypes.WOLF, LivingEntity::isAlive)) {
             if (wolf.getRootOwner() instanceof ServerPlayer player) {
-                var rarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
+                var rarity = equippedRarityLevel(player);
                 if (rarity == null) {
                     continue;
                 }

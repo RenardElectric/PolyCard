@@ -7,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
-import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 public final class BeeEffects extends CardEffects implements ItemConsumedEventCallback {
@@ -24,7 +23,7 @@ public final class BeeEffects extends CardEffects implements ItemConsumedEventCa
     public void onItemConsumed(ServerPlayer player, ItemStack itemStack) {
         if (itemStack.is(Items.HONEY_BOTTLE)) {
             var playerName = player.getDisplayName().getString();
-            CardRarityConditions.of(player, cardType())
+            conditionsFor(player)
                     .hasRare(() -> {
                         Helpers.debug("{} has the rare bee card and consumed a honey bottle. Applying speed.", playerName);
                         player.addEffect(new MobEffectInstance(MobEffects.SPEED, SPEED_EFFECT_DURATION, SPEED_EFFECT_AMPLIFIER));

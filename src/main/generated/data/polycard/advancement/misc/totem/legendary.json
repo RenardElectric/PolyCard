@@ -1,0 +1,44 @@
+{
+  "parent": "polycard:misc/totem/epic",
+  "criteria": {
+    "got_card": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:item_model": "polycard:misc/totem/legendary"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "extra": [
+        {
+          "color": "gold",
+          "text": "Legendary Totem card"
+        },
+        " by TODO"
+      ],
+      "text": "Unlock the "
+    },
+    "frame": "challenge",
+    "icon": {
+      "components": {
+        "minecraft:enchantment_glint_override": true,
+        "minecraft:item_model": "polycard:misc/totem/legendary"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Legendary Totem card"
+  },
+  "requirements": [
+    [
+      "got_card"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

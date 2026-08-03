@@ -49,7 +49,13 @@ public class EventHandler {
             of(ServerEntityEvents.EquipmentChange.class, ServerEntityEvents.EQUIPMENT_CHANGE),
 
             of(ServerTickEvents.EndLevelTick.class, ServerTickEvents.END_LEVEL_TICK),
-            of(PlayerTickEventCallback.class, PlayerTickEventCallback.EVENT)
+            of(PlayerTickEventCallback.class, PlayerTickEventCallback.EVENT),
+
+            of(EquippedRarityLevelOverrideCallback.class, EquippedRarityLevelOverrideCallback.EVENT),
+            of(HasCardOrRarerOverrideCallback.class, HasCardOrRarerOverrideCallback.EVENT),
+            of(GetBedRuleEventCallback.class, GetBedRuleEventCallback.EVENT),
+
+            of(ServerTickEvents.EndTick.class, ServerTickEvents.END_SERVER_TICK)
     );
 
     private boolean eventsRegistered;

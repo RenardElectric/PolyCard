@@ -12,12 +12,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.Vec3;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
-import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
@@ -48,7 +46,7 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         UUID playerId = player.getUUID();
-        var rarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
+        var rarity = equippedRarityLevel(player);
         if (rarity == null || !rarity.isAtLeast(RarityLevel.UNCOMMON)) {
             clearMovementState(playerId);
             return;
@@ -72,7 +70,7 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
             }
         }
 
-        if (rarity.isAtLeast(RarityLevel.RARE) && Helpers.nearPlayerWithCard(player, cardType(), RarityLevel.RARE, RESISTANCE_DISTANCE_SQUARED)) {
+        if (rarity.isAtLeast(RarityLevel.RARE) && nearPlayerWithCard(player, RarityLevel.RARE, RESISTANCE_DISTANCE_SQUARED)) {
             EffectHelpers.refreshPersistentEffect(player, MobEffects.RESISTANCE, RESISTANCE_EFFECT_AMPLIFIER);
         }
     }
@@ -91,7 +89,7 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
     public void onItemConsumed(ServerPlayer player, ItemStack itemStack) {
         if (itemStack.getItem().equals(Items.MILK_BUCKET)) {
 
-            CardRarityConditions.of(player, cardType())
+            conditionsFor(player)
                     .hasEpic(() -> {
                         List<MobEffectInstance> effectsGained = new ArrayList<>();
                         var availableBuffs = new ArrayList<>(BUFFS);

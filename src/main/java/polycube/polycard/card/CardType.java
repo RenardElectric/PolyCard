@@ -3,14 +3,10 @@ package polycube.polycard.card;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.cardEffects.hostile.CreeperEffects;
-import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
-import polycube.polycard.cardEffects.hostile.WitherEffects;
-import polycube.polycard.cardEffects.hostile.ZombieEffects;
-import polycube.polycard.cardEffects.misc.LifeEffects;
-import polycube.polycard.cardEffects.misc.TotemEffects;
+import polycube.polycard.cardEffects.hostile.*;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
+import polycube.polycard.cardEffects.misc.*;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
@@ -18,6 +14,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static polycube.polycard.utils.Helpers.decimalFormat;
 import static polycube.polycard.utils.Helpers.probToStr;
 
 /// Defines each card family: its identifier, acquisition text, group, and supported rarity data.
@@ -124,7 +121,9 @@ public enum CardType implements StringRepresentable {
     }},
 
     // Misc
-
+    INVENTORY("inventory", "TODO", CardGroup.MISC, InventoryEffects::new) {{
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Keep inventory but on death loose one rarity level in a random equipped card");
+    }},
     LIFE("life", "TODO", CardGroup.MISC, LifeEffects::new) {{
         addRarity(RarityLevel.COMMON, 1.0f, false, "+1 heart but loose one rarity level on death");
         addRarity(RarityLevel.UNCOMMON, 1.0f, false, "+2 hearts but loose one rarity level on death");
@@ -138,6 +137,16 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.RARE, 1.0f, false, "Count as a totem of undying consumed when used");
         addRarity(RarityLevel.EPIC, 1.0f, true, "Count as a totem of undying consumed when used");
         addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Count as a totem of undying consumed when used");
+    }},
+    LUCKY("lucky", "TODO", CardGroup.MISC, LuckyEffects::new) {{
+        addRarity(RarityLevel.COMMON, 1.0f, false, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max common rarity)");
+        addRarity(RarityLevel.UNCOMMON, 1.0f, false, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max uncommon rarity)");
+        addRarity(RarityLevel.RARE, 1.0f, false, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max rare rarity)");
+        addRarity(RarityLevel.EPIC, 1.0f, true, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max epic rarity)");
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max legendary rarity)");
+    }},
+    NETHER("nether", "TODO", CardGroup.MISC, NetherEffects::new) {{
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Fire resistance but can only respawn in the nether");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
@@ -201,8 +210,8 @@ public enum CardType implements StringRepresentable {
     }
 
     /// Returns all rarity tiers supported by this card type, in enum-rank order.
-    public Collection<Rarity> getRarities() {
-        return Collections.unmodifiableCollection(rarities.values());
+    public List<Rarity> getRarities() {
+        return List.copyOf(rarities.values());
     }
 
     /// Returns the player-facing acquisition condition.

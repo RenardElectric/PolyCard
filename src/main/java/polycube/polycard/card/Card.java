@@ -59,6 +59,13 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
                 .map(nextRarityLevel -> new Card(cardType, nextRarityLevel));
     }
 
+    /// Returns the previous lower card if this card type supports that rarity.
+    public Optional<Card> previous() {
+        return rarityLevel.previous()
+                .filter(cardType::hasRarity)
+                .map(prevRarityLevel -> new Card(cardType, prevRarityLevel));
+    }
+
     /// Creates an ItemStack carrying this card's identifying data and display components.
     public ItemStack asItem() {
         return getItemTemplate().create();

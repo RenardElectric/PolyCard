@@ -14,6 +14,8 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.EventHandler;
 import polycube.polycard.events.callBacks.CardEventCallback;
+import polycube.polycard.events.callBacks.EquippedRarityLevelOverrideCallback;
+import polycube.polycard.events.callBacks.HasCardOrRarerOverrideCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
 
 import java.util.HashMap;
@@ -42,7 +44,23 @@ public abstract class CardEffects extends EventHandler {
     }
 
     public boolean hasCardOrRarer(ServerPlayer player, RarityLevel rarityLevel) {
-        return PolyCard.storage().getPlayerData(player).hasCardOrRarer(cardType(), rarityLevel);
+        var original = PolyCard.storage().getPlayerData(player).hasCardOrRarer(cardType(), rarityLevel);
+        return HasCardOrRarerOverrideCallback.EVENT.invoker().hasCardOrRarerOverride(player, cardType(), rarityLevel, original);
+    }
+
+    public @Nullable RarityLevel equippedRarityLevel(ServerPlayer player) {
+        var original = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
+        return EquippedRarityLevelOverrideCallback.EVENT.invoker().equippedRarityLevelOverride(player, cardType(), original);
+    }
+
+    /// Returns whether another nearby player has this card type at the requested rarity or higher.
+    public boolean nearPlayerWithCard(ServerPlayer player, RarityLevel minRarityLevel, double distanceSquared) {
+        var level = player.level();
+        var playerPos = player.position();
+        return !level.getPlayers(p ->
+                !p.equals(player)
+                        && p.position().distanceToSqr(playerPos) <= distanceSquared
+                        && hasCardOrRarer(p, minRarityLevel), 1).isEmpty();
     }
 
     @SuppressWarnings({"SameParameterValue", "NullableProblems"})
@@ -61,9 +79,9 @@ public abstract class CardEffects extends EventHandler {
     }
 
     private void loadPlayerAttributes(ServerPlayer player) {
-        var rarityLevel = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
+        var rarityLevel = equippedRarityLevel(player);
         if (rarityLevel != null) {
-            setCardAttributes(new Card(cardType(), rarityLevel), player.getAttributes()::removeAttributeModifiers);
+            setCardAttributes(new Card(cardType(), rarityLevel), player.getAttributes()::addTransientAttributeModifiers);
         }
     }
 
@@ -73,6 +91,89 @@ public abstract class CardEffects extends EventHandler {
         for (int i = 0; i <= maxRank; i++) {
             Optional.ofNullable(attributeMap.get(RarityLevel.BY_RANK.get(i)))
                     .ifPresent(consumer);
+        }
+    }
+
+    /// Captures the player's current rarity thresholds for this card type.
+    public CardRarityConditions conditionsFor(ServerPlayer player) {
+        return new CardRarityConditions(player);
+    }
+
+    @SuppressWarnings({"unused", "UnusedReturnValue"})
+    public final class CardRarityConditions {
+        private final @Nullable RarityLevel equippedRarity;
+
+        private CardRarityConditions(ServerPlayer player) {
+            equippedRarity = equippedRarityLevel(player);
+        }
+
+        /// Runs when the player has this card type at common or higher.
+        public CardRarityConditions hasCommon(Runnable runnable) {
+            if (hasAtLeast(RarityLevel.COMMON)) runnable.run();
+            return this;
+        }
+
+        /// Runs when the player has this card type at uncommon or higher.
+        public CardRarityConditions hasUncommon(Runnable runnable) {
+            if (hasAtLeast(RarityLevel.UNCOMMON)) runnable.run();
+            return this;
+        }
+
+        /// Runs when the player has this card type at rare or higher.
+        public CardRarityConditions hasRare(Runnable runnable) {
+            if (hasAtLeast(RarityLevel.RARE)) runnable.run();
+            return this;
+        }
+
+        /// Runs when the player has this card type at epic or higher.
+        public CardRarityConditions hasEpic(Runnable runnable) {
+            if (hasAtLeast(RarityLevel.EPIC)) runnable.run();
+            return this;
+        }
+
+        /// Runs when the player has this card type at legendary.
+        public CardRarityConditions hasLegendary(Runnable runnable) {
+            if (hasAtLeast(RarityLevel.LEGENDARY)) runnable.run();
+            return this;
+        }
+
+        /// Runs one branch depending on whether common-or-higher is unlocked.
+        public CardRarityConditions hasCommon(Runnable runnable, Runnable elseCaseRunnable) {
+            if (hasAtLeast(RarityLevel.COMMON)) runnable.run();
+            else elseCaseRunnable.run();
+            return this;
+        }
+
+        /// Runs one branch depending on whether uncommon-or-higher is unlocked.
+        public CardRarityConditions hasUncommon(Runnable runnable, Runnable elseCaseRunnable) {
+            if (hasAtLeast(RarityLevel.UNCOMMON)) runnable.run();
+            else elseCaseRunnable.run();
+            return this;
+        }
+
+        /// Runs one branch depending on whether rare-or-higher is unlocked.
+        public CardRarityConditions hasRare(Runnable runnable, Runnable elseCaseRunnable) {
+            if (hasAtLeast(RarityLevel.RARE)) runnable.run();
+            else elseCaseRunnable.run();
+            return this;
+        }
+
+        /// Runs one branch depending on whether epic-or-higher is unlocked.
+        public CardRarityConditions hasEpic(Runnable runnable, Runnable elseCaseRunnable) {
+            if (hasAtLeast(RarityLevel.EPIC)) runnable.run();
+            else elseCaseRunnable.run();
+            return this;
+        }
+
+        /// Runs one branch depending on whether legendary is unlocked.
+        public CardRarityConditions hasLegendary(Runnable runnable, Runnable elseCaseRunnable) {
+            if (hasAtLeast(RarityLevel.LEGENDARY)) runnable.run();
+            else elseCaseRunnable.run();
+            return this;
+        }
+
+        private boolean hasAtLeast(RarityLevel rarity) {
+            return equippedRarity != null && equippedRarity.isAtLeast(rarity);
         }
     }
 }

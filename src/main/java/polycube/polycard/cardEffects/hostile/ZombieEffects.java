@@ -18,7 +18,6 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
-import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 public final class ZombieEffects extends CardEffects implements ItemConsumedEventCallback, IsTargetedEventCallback {
@@ -33,7 +32,7 @@ public final class ZombieEffects extends CardEffects implements ItemConsumedEven
     @Override
     public void onItemConsumed(ServerPlayer player, ItemStack itemStack) {
         if (itemStack.is(Items.ROTTEN_FLESH)) {
-            CardRarityConditions.of(player, cardType())
+            conditionsFor(player)
                     .hasCommon(() -> {
                         var existingHunger = player.getEffect(MobEffects.HUNGER);
                         Helpers.debug("{} consumed rotten flesh with a Common Zombie card; suppressing only its Hunger penalty", player.getName().getString());

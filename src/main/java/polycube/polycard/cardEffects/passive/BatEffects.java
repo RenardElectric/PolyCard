@@ -57,7 +57,7 @@ public class BatEffects
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
-        var equippedRarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
+        var equippedRarity = equippedRarityLevel(player);
         boolean hasRare = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.RARE);
         boolean hasEpic = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.EPIC);
         boolean hasLegendary = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.LEGENDARY);

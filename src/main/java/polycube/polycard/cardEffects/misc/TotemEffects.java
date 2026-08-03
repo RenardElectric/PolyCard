@@ -9,7 +9,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
@@ -28,12 +27,11 @@ public class TotemEffects extends CardEffects implements ServerLivingEntityEvent
                 }
             }
 
-            var rarityLevel = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
+            var rarityLevel = equippedRarityLevel(player);
             if (rarityLevel != null) {
-                PlayerData.unequipCard(player, new Card(cardType(), rarityLevel));
-                rarityLevel.previous().ifPresent(
-                        previousRarity -> PlayerData.equipCard(player, new Card(cardType(), previousRarity))
-                );
+                var card = new Card(cardType(), rarityLevel);
+                if (PlayerData.unequipCard(player, card))
+                    card.previous().ifPresent(previousCard -> PlayerData.equipCard(player, previousCard));
 
                 mainHand = player.getItemInHand(InteractionHand.OFF_HAND);
                 player.setItemInHand(InteractionHand.OFF_HAND, Items.TOTEM_OF_UNDYING.getDefaultInstance());

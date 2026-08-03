@@ -57,7 +57,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
     }
 
     /// Returns equipped cards as concrete, validated Card instances.
-    public Collection<Card> getEquippedCards() {
+    public List<Card> getEquippedCards() {
         var cards = new ArrayList<Card>(equippedCards.size());
         for (var entry : equippedCards.entrySet()) {
             cards.add(new Card(entry.getKey(), entry.getValue()));
@@ -65,20 +65,10 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
         return cards;
     }
 
-    /// Returns whether this exact card is equipped.
-    @SuppressWarnings("unused")
-    public boolean hasCard(Card card) {
-        return hasCard(card.cardType(), card.rarityLevel());
-    }
-
     /// Returns whether this exact type/rarity pair is equipped.
+    @SuppressWarnings("unused")
     public boolean hasCard(CardType cardType, RarityLevel rarityLevel) {
         return equippedCards.get(cardType) == rarityLevel;
-    }
-
-    /// Returns whether the equipped card satisfies this card's rarity threshold.
-    public boolean hasCardOrRarer(Card card) {
-        return hasCardOrRarer(card.cardType(), card.rarityLevel());
     }
 
     /// Returns whether the equipped card for this type is at least the requested rarity.

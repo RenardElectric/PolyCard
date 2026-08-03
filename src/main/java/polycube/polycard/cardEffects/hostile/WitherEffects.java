@@ -16,7 +16,6 @@ import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerKillEventCallback;
-import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 public final class WitherEffects extends CardEffects implements PlayerKillEventCallback, EntityHurtEventCallback, EntityAfterHurtEventCallback {
@@ -51,7 +50,7 @@ public final class WitherEffects extends CardEffects implements PlayerKillEventC
 
         var attacker = source.getEntity();
         if (attacker instanceof ServerPlayer player) {
-            CardRarityConditions.of(player, cardType())
+            conditionsFor(player)
                     .hasEpic(() -> {
                         if (entity.hasEffect(MobEffects.WITHER)) {
                             int damageIncrease = Helpers.binomialSelection(DAMAGE_INCREASE_PROBABILITY, damage.intValue());

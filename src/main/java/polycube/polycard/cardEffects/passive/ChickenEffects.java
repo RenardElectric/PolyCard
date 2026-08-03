@@ -21,7 +21,6 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jspecify.annotations.Nullable;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
@@ -50,7 +49,7 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         var uuid = player.getUUID();
-        var equippedRarity = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
+        var equippedRarity = equippedRarityLevel(player);
         if (equippedRarity == null) {
             EGG_TIMES.remove(uuid);
             return;
@@ -75,7 +74,7 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
         }
         EGG_TIMES.put(uuid, eggTime);
 
-        if (equippedRarity.isAtLeast(RarityLevel.RARE) && Helpers.nearPlayerWithCard(player, cardType(), RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
+        if (equippedRarity.isAtLeast(RarityLevel.RARE) && nearPlayerWithCard(player, RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
             EffectHelpers.refreshPersistentEffect(player, MobEffects.SPEED, SPEED_EFFECT_AMPLIFIER);
         }
 

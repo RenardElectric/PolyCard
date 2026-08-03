@@ -13,8 +13,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import polycube.polycard.PolyCard;
-import polycube.polycard.card.CardType;
-import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 
 import java.text.DecimalFormat;
@@ -29,7 +27,7 @@ import static polycube.polycard.PolyCard.MOD_ID;
 public final class Helpers {
     private static final RandomSource RANDOM = RandomSource.create();
     private static final int FAILURE_COOLDOWN = 20;
-    private static final ThreadLocal<DecimalFormat> PROBABILITY_FORMAT = ThreadLocal.withInitial(
+    private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT = ThreadLocal.withInitial(
             () -> new DecimalFormat("#.##", DecimalFormatSymbols.getInstance(Locale.ROOT))
     );
 
@@ -52,16 +50,6 @@ public final class Helpers {
     /// Plays a world sound at the given position.
     public static void playSound(ServerLevel level, SoundEvent sound, Vec3 position) {
         level.playSound(null, position.x, position.y, position.z, sound, SoundSource.PLAYERS, 1.0f, 1.0f);
-    }
-
-    /// Returns whether another nearby player has this card type at the requested rarity or higher.
-    public static boolean nearPlayerWithCard(ServerPlayer player, CardType cardType, RarityLevel rarityLevel, double distanceSquared) {
-        var level = player.level();
-        var playerPos = player.position();
-        return !level.getPlayers(p ->
-                !p.equals(player)
-                        && p.position().distanceToSqr(playerPos) <= distanceSquared
-                        && PolyCard.storage().getPlayerData(p).hasCardOrRarer(cardType, rarityLevel), 1).isEmpty();
     }
 
     /// Logs a debug message with the mod id prefix.
@@ -138,8 +126,12 @@ public final class Helpers {
         EffectHelpers.onEndServerTick();
     }
 
-    public static String probToStr(float prob) {
-        return PROBABILITY_FORMAT.get().format(prob * 100);
+    public static String decimalFormat(double input) {
+        return DECIMAL_FORMAT.get().format(input);
+    }
+
+    public static String probToStr(double prob) {
+        return decimalFormat(prob * 100);
     }
 
     /// Turns namespaced/snake-case keys into readable command output.

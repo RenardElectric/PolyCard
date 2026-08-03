@@ -15,7 +15,6 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
-import polycube.polycard.utils.CardRarityConditions;
 import polycube.polycard.utils.Helpers;
 
 public final class IronGolemEffects extends CardEffects implements EntityAfterHurtEventCallback {
@@ -36,7 +35,7 @@ public final class IronGolemEffects extends CardEffects implements EntityAfterHu
     public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
 
         if (entity instanceof ServerPlayer player) {
-            CardRarityConditions.of(player, cardType())
+            conditionsFor(player)
                     .hasRare(() -> {
                         if (source.getEntity() instanceof LivingEntity attacker
                                 && !attacker.equals(player)

@@ -3,6 +3,7 @@
   "package": "polycube.polycard.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "BedBlockMixin",
     "BredAnimalsTriggerMixin",
     "ConsumeItemTriggerMixin",
     "ConversionTypeMixin",
