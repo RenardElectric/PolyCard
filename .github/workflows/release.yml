@@ -1,0 +1,206 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without a leading v (for example, 1.2.3 or 1.2.3-beta.1)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  copilot-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish v${{ inputs.version }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate release
+        id: release
+        shell: bash
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ "$GITHUB_REF_TYPE" != "branch" || "$GITHUB_REF_NAME" != "$DEFAULT_BRANCH" ]]; then
+            echo "::error::Releases must be run from the default branch ($DEFAULT_BRANCH)."
+            exit 1
+          fi
+
+          if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Version must look like 1.2.3 or 1.2.3-beta.1 (without a leading v)."
+            exit 1
+          fi
+
+          tag="v$RELEASE_VERSION"
+          if git rev-parse --verify --quiet "refs/tags/$tag" >/dev/null || gh release view "$tag" >/dev/null 2>&1; then
+            echo "::error::Tag or release $tag already exists."
+            exit 1
+          fi
+
+          echo "version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Bump project version
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          current_version="$(sed -n 's/^mod_version=//p' gradle.properties | tr -d '\r')"
+          if [[ -z "$current_version" ]]; then
+            echo "::error::mod_version was not found in gradle.properties."
+            exit 1
+          fi
+
+          sed -i "s/^mod_version=.*/mod_version=$RELEASE_VERSION/" gradle.properties
+
+      - name: Read project metadata
+        id: project
+        shell: bash
+        run: bash .github/scripts/read-project-metadata.sh
+
+      - name: Set up JDK ${{ steps.project.outputs.java_version }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ steps.project.outputs.java_version }}
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Build and test
+        run: ./gradlew build --stacktrace
+
+      - name: Verify release artifacts
+        shell: bash
+        run: |
+          shopt -s nullglob
+          jars=(build/libs/*.jar)
+          if (( ${#jars[@]} == 0 )); then
+            echo "::error::The build did not produce any JAR files in build/libs."
+            exit 1
+          fi
+          printf 'Release assets:\n'
+          printf '  %s\n' "${jars[@]}"
+
+      - name: Prepare release context
+        id: release-context
+        shell: bash
+        env:
+          OUTPUT_DIR: .release-context
+          RELEASE_SHA: ${{ github.sha }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: bash .github/scripts/prepare-release-context.sh
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+
+      - name: Install GitHub Copilot CLI
+        run: npm install --global @github/copilot
+
+      - name: Generate release notes with Copilot
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          copilot \
+            --prompt "$(cat .github/copilot/prompts/release-notes.md)" \
+            --silent \
+            --allow-tool=read \
+            --no-ask-user \
+            > release-notes.md
+
+          if [[ ! -s release-notes.md ]]; then
+            echo "::error::Copilot did not generate release notes."
+            exit 1
+          fi
+
+      - name: Add changelog link to release notes
+        shell: bash
+        env:
+          PREVIOUS_TAG: ${{ steps.release-context.outputs.previous_tag }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          {
+            echo
+            if [[ -n "$PREVIOUS_TAG" ]]; then
+              echo "**Full changelog:** [$PREVIOUS_TAG...$RELEASE_TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/$PREVIOUS_TAG...$RELEASE_TAG)"
+            else
+              echo "**Commit history:** [$RELEASE_TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commits/$RELEASE_TAG)"
+            fi
+          } >> release-notes.md
+
+      - name: Commit version bump
+        id: commit
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          if ! git diff --quiet -- gradle.properties; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add gradle.properties
+            git commit -m "chore: release $RELEASE_TAG"
+            git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"
+          else
+            echo "gradle.properties is already set to ${{ steps.release.outputs.version }}; no version commit is needed."
+          fi
+
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        id: github-release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MOD_NAME: ${{ steps.project.outputs.mod_name }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_NOTES_FILE: release-notes.md
+          TARGET_SHA: ${{ steps.commit.outputs.sha }}
+        run: |
+          args=(
+            release create "$RELEASE_TAG"
+            build/libs/*.jar
+            --repo "$GITHUB_REPOSITORY"
+            --target "$TARGET_SHA"
+            --title "$MOD_NAME $RELEASE_VERSION"
+            --notes-file "$RELEASE_NOTES_FILE"
+          )
+
+          if [[ "$RELEASE_VERSION" == *-* ]]; then
+            args+=(--prerelease)
+          fi
+
+          gh "${args[@]}"
+          release_url="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url --jq .url)"
+          echo "url=$release_url" >> "$GITHUB_OUTPUT"
+
+      - name: Add release summary
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_URL: ${{ steps.github-release.outputs.url }}
+        run: |
+          {
+            echo "## Release published"
+            echo
+            echo "[$RELEASE_TAG]($RELEASE_URL) was built, tagged, and published with generated release notes."
+          } >> "$GITHUB_STEP_SUMMARY"
