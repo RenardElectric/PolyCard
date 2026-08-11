@@ -5,7 +5,7 @@ read_property() {
   sed -n "s/^$1=//p" "${2:-gradle.properties}" | tr -d '\r' | head -n 1
 }
 
-for property in mod_version minecraft_version java_version; do
+for property in mod_id mod_version minecraft_version java_version; do
   value="$(read_property "$property")"
   [[ -n "$value" ]] || {
     echo "::error::Could not read project versions from gradle.properties"
