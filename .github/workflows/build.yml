@@ -36,19 +36,110 @@ jobs:
           distribution: 'microsoft'
 
       - name: Set up Gradle
+        id: setup-gradle
         uses: gradle/actions/setup-gradle@v6
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
+      - name: Read project metadata
+        id: project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          read_property() {
+            sed -n "s/^$1=//p" gradle.properties | tr -d '\r' | head -n 1
+          }
+
+          mod_version="$(read_property mod_version)"
+          minecraft_version="$(read_property minecraft_version)"
+          java_version="$(read_property java_version)"
+
+          if [[ -z "$mod_version" || -z "$minecraft_version" || -z "$java_version" ]]; then
+            echo "::error::Could not read project versions from gradle.properties"
+            exit 1
+          fi
+
+          short_sha="${GITHUB_SHA:0:7}"
+          artifact_name="polyhorn-${mod_version}-minecraft-${minecraft_version}-${short_sha}"
+
+          {
+            echo "mod_version=$mod_version"
+            echo "minecraft_version=$minecraft_version"
+            echo "java_version=$java_version"
+            echo "short_sha=$short_sha"
+            echo "artifact_name=$artifact_name"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Build and test
+        id: build
         run: ./gradlew build --stacktrace
 
       - name: Upload build artifacts
+        id: upload
         uses: actions/upload-artifact@v7
         with:
-          name: polycard-${{ github.run_number }}-${{ github.run_attempt }}
+          name: ${{ steps.project.outputs.artifact_name }}
           path: build/libs/*.jar
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
+
+      - name: Add build summary
+        if: ${{ always() }}
+        shell: bash
+        env:
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+          MOD_VERSION: ${{ steps.project.outputs.mod_version }}
+          MINECRAFT_VERSION: ${{ steps.project.outputs.minecraft_version }}
+          JAVA_VERSION: ${{ steps.project.outputs.java_version }}
+          GRADLE_VERSION: ${{ steps.setup-gradle.outputs.gradle-version }}
+          SHORT_SHA: ${{ steps.project.outputs.short_sha }}
+          ARTIFACT_NAME: ${{ steps.project.outputs.artifact_name }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
+        run: |
+          case "$BUILD_OUTCOME" in
+            success) result="Passed" ;;
+            failure) result="Failed" ;;
+            cancelled) result="Cancelled" ;;
+            *) result="${BUILD_OUTCOME:-Not run}" ;;
+          esac
+
+          {
+            echo "## PolyHorn build"
+            echo
+            echo "| Detail | Value |"
+            echo "| --- | --- |"
+            printf '| Result | **%s** |\n' "$result"
+            printf '| Mod version | `%s` |\n' "${MOD_VERSION:-Unknown}"
+            printf '| Minecraft | `%s` |\n' "${MINECRAFT_VERSION:-Unknown}"
+            printf '| Toolchain | Java `%s`, Gradle `%s` |\n' \
+              "${JAVA_VERSION:-Unknown}" "${GRADLE_VERSION:-Unknown}"
+
+            if [[ -n "$SHORT_SHA" ]]; then
+              printf '| Commit | [`%s`](%s/%s/commit/%s) |\n' \
+                "$SHORT_SHA" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_SHA"
+            fi
+
+            if [[ "$UPLOAD_OUTCOME" == "success" && -n "$ARTIFACT_URL" ]]; then
+              printf '| Artifact | [`%s`](%s) (retained for 14 days) |\n' \
+                "$ARTIFACT_NAME" "$ARTIFACT_URL"
+              printf '| Artifact SHA-256 | `%s` |\n' "$ARTIFACT_DIGEST"
+            else
+              printf '| Artifact | Not available (`%s`) |\n' "${UPLOAD_OUTCOME:-not run}"
+            fi
+
+            shopt -s nullglob
+            jars=(build/libs/*.jar)
+            if (( ${#jars[@]} > 0 )); then
+              echo
+              echo "### Packaged files"
+              echo
+              for jar in "${jars[@]}"; do
+                printf -- '- `%s` — %s bytes\n' "$(basename "$jar")" "$(stat --format='%s' "$jar")"
+              done
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
