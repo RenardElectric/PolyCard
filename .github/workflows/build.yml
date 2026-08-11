@@ -1,6 +1,23 @@
 name: Build
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      checkout_ref:
+        description: Optional commit, tag, or branch to build
+        required: false
+        default: ""
+        type: string
+    outputs:
+      artifact_name:
+        description: Name of the uploaded JAR artifact
+        value: ${{ jobs.build.outputs.artifact_name }}
+      mod_name:
+        description: Display name of the built mod
+        value: ${{ jobs.build.outputs.mod_name }}
 
 permissions:
   contents: read
@@ -14,11 +31,15 @@ jobs:
     name: Build and test
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    outputs:
+      artifact_name: ${{ steps.project.outputs.artifact_name }}
+      mod_name: ${{ steps.project.outputs.mod_name }}
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.checkout_ref || github.sha }}
           persist-credentials: false
 
       - name: Read project metadata
