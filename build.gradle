@@ -52,6 +52,8 @@ dependencies {
 
 processResources {
 	def resourceProperties = [
+			mod_id: mod_id,
+			mod_name: mod_name,
 			version: mod_version,
 			minecraft_version: minecraft_version,
 			loader_version: loader_version,
@@ -88,7 +90,8 @@ java {
 }
 
 jar {
+	def licenseFileName = "LICENSE_${mod_id}"
 	from("LICENSE") {
-		rename { "${it}_$name" }
+		rename("LICENSE", licenseFileName)
 	}
 }

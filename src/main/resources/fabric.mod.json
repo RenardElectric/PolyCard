@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "polycard",
+  "id": "${mod_id}",
   "version": "${version}",
-  "name": "PolyCard",
+  "name": "${mod_name}",
   "description": "Collectible card system - find cards and equip them for buffs.",
   "authors": [
     "RenardElectric",
