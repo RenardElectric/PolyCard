@@ -69,9 +69,7 @@ jobs:
         id: setup-gradle
         uses: gradle/actions/setup-gradle@v6
         with:
-          build-scan-publish: true
-          build-scan-terms-of-use-url: 'https://gradle.com/terms-of-service'
-          build-scan-terms-of-use-agree: 'yes'
+          gradle-version: wrapper
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
@@ -104,7 +102,6 @@ jobs:
           ARTIFACT_NAME: ${{ steps.project.outputs.artifact_name }}
           ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
           ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
-          BUILD_SCAN_URL: ${{ steps.build.outputs.build-scan-url }}
         run: |
           case "$BUILD_OUTCOME" in
             success) result="Passed" ;;
@@ -127,10 +124,6 @@ jobs:
             if [[ -n "$SHORT_SHA" ]]; then
               printf '| Commit | [`%s`](%s/%s/commit/%s) |\n' \
                 "$SHORT_SHA" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_SHA"
-            fi
-
-            if [[ -n "$BUILD_SCAN_URL" ]]; then
-              printf '| Build Scan | [Open public scan](%s) |\n' "$BUILD_SCAN_URL"
             fi
 
             if [[ "$UPLOAD_OUTCOME" == "success" && -n "$ARTIFACT_URL" ]]; then
