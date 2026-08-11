@@ -15,27 +15,28 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  validate:
-    name: Validate release
+  prepare:
+    name: Prepare release commit
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
-      contents: read
+      contents: write
     outputs:
-      tag: ${{ steps.release.outputs.tag }}
       version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag }}
+      sha: ${{ steps.target.outputs.sha }}
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          persist-credentials: false
 
-      - name: Validate version and tag
+      - name: Validate release
         id: release
-        shell: bash
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           RELEASE_VERSION: ${{ inputs.version }}
@@ -51,8 +52,20 @@ jobs:
             exit 1
           fi
 
+          git fetch --no-tags origin "refs/heads/$GITHUB_REF_NAME"
+          if [[ "$(git rev-parse FETCH_HEAD)" != "$GITHUB_SHA" ]]; then
+            echo "::error::$GITHUB_REF_NAME changed since this release started. Run it again."
+            exit 1
+          fi
+
           tag="v$RELEASE_VERSION"
-          if git rev-parse --verify --quiet "refs/tags/$tag" >/dev/null || gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          if ! git check-ref-format "refs/tags/$tag"; then
+            echo "::error::$tag is not a valid Git tag."
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --refs --tags origin "refs/tags/$tag" >/dev/null 2>&1 || \
+              gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "::error::Tag or release $tag already exists."
             exit 1
           fi
@@ -60,45 +73,11 @@ jobs:
           echo "version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
-  prepare:
-    name: Prepare release commit
-    needs: validate
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      contents: write
-    outputs:
-      sha: ${{ steps.commit.outputs.sha }}
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Confirm release target is unchanged
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
-        run: |
-          git fetch --no-tags origin "refs/heads/$GITHUB_REF_NAME"
-          if [[ "$(git rev-parse FETCH_HEAD)" != "$GITHUB_SHA" ]]; then
-            echo "::error::$GITHUB_REF_NAME changed since this release workflow started. Run it again."
-            exit 1
-          fi
-
-          if git rev-parse --verify --quiet "refs/tags/$RELEASE_TAG" >/dev/null || gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "::error::Tag or release $RELEASE_TAG already exists."
-            exit 1
-          fi
-
       - name: Commit version bump when needed
-        id: commit
-        shell: bash
+        id: target
         env:
-          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
-          RELEASE_VERSION: ${{ needs.validate.outputs.version }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
         run: |
           current_version="$(sed -n 's/^mod_version=//p' gradle.properties | tr -d '\r')"
           if [[ -z "$current_version" ]]; then
@@ -112,6 +91,8 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add gradle.properties
             git commit -m "chore: release $RELEASE_TAG"
+
+            # GITHUB_TOKEN pushes do not trigger push workflows; build.yml is called below.
             git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"
           else
             echo "gradle.properties is already set to $RELEASE_VERSION; reusing the current commit."
@@ -121,9 +102,7 @@ jobs:
 
   release-notes:
     name: Generate release notes
-    needs:
-      - validate
-      - prepare
+    needs: prepare
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -131,7 +110,7 @@ jobs:
       copilot-requests: write
 
     steps:
-      - name: Check out repository without write credentials
+      - name: Check out release commit without write credentials
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.prepare.outputs.sha }}
@@ -139,30 +118,28 @@ jobs:
           persist-credentials: false
 
       - name: Prepare isolated Copilot workspace
-        id: release-context
-        shell: bash
+        id: context
         env:
           OUTPUT_DIR: .release-ai/.release-context
           RELEASE_SHA: ${{ needs.prepare.outputs.sha }}
-          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
         run: |
           bash .github/scripts/prepare-release-context.sh
           cp .github/copilot/prompts/release-notes.md .release-ai/prompt.md
-
-          find .release-ai -type f -printf '%P\n' | sort > "$RUNNER_TEMP/copilot-files-before.txt"
-          find .release-ai -type f -print0 | sort -z | xargs -0 sha256sum > "$RUNNER_TEMP/copilot-checksums.txt"
+          find .release-ai -type f -exec sha256sum {} + | sort > "$RUNNER_TEMP/copilot-inputs.before"
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
+        with:
+          node-version: 24
 
       - name: Install GitHub Copilot CLI
-        run: npm install --global @github/copilot
+        run: npm install --global @github/copilot@1
 
       - name: Generate release notes with Copilot
-        shell: bash
         working-directory: .release-ai
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          COPILOT_GITHUB_TOKEN: ${{ github.token }}
         run: |
           if [[ -e release-notes.md ]]; then
             echo "::error::release-notes.md unexpectedly exists before Copilot runs."
@@ -181,15 +158,12 @@ jobs:
           fi
 
       - name: Verify Copilot changed only the release notes
-        shell: bash
         run: |
-          sha256sum --check --quiet "$RUNNER_TEMP/copilot-checksums.txt"
-
-          find .release-ai -type f ! -path '.release-ai/release-notes.md' -printf '%P\n' \
-            | sort > "$RUNNER_TEMP/copilot-files-after.txt"
-          diff -u "$RUNNER_TEMP/copilot-files-before.txt" "$RUNNER_TEMP/copilot-files-after.txt"
-
+          find .release-ai -type f ! -path '.release-ai/release-notes.md' -exec sha256sum {} + \
+            | sort > "$RUNNER_TEMP/copilot-inputs.after"
+          diff -u "$RUNNER_TEMP/copilot-inputs.before" "$RUNNER_TEMP/copilot-inputs.after"
           git diff --exit-code -- .
+
           unexpected_files="$(git ls-files --others --exclude-standard | grep -v '^\.release-ai/' || true)"
           if [[ -n "$unexpected_files" ]]; then
             echo "::error::Copilot created unexpected files outside its isolated workspace."
@@ -198,34 +172,33 @@ jobs:
           fi
 
       - name: Finalize release notes
-        shell: bash
         env:
-          PREVIOUS_TAG: ${{ steps.release-context.outputs.previous_tag }}
-          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
+          PREVIOUS_TAG: ${{ steps.context.outputs.previous_tag }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
         run: |
-          # The release already has a title, so discard any H1 Copilot adds.
-          sed -i '/./,$!d' .release-ai/release-notes.md
-          sed -i '1{/^[[:space:]]*#[[:space:]]/d;}' .release-ai/release-notes.md
-          sed -i '/./,$!d' .release-ai/release-notes.md
+          notes=.release-ai/release-notes.md
 
-          if [[ ! -s .release-ai/release-notes.md ]]; then
+          # The GitHub release already has a title, so discard any leading H1.
+          sed -i '/[^[:space:]]/,$!d' "$notes"
+          sed -i '1{/^[[:space:]]*#[[:space:]]/d;}' "$notes"
+          sed -i '/[^[:space:]]/,$!d' "$notes"
+
+          if [[ ! -s "$notes" ]]; then
             echo "::error::Release notes were empty after validation."
             exit 1
           fi
 
-          {
-            echo
-            if [[ -n "$PREVIOUS_TAG" ]]; then
-              echo "**Full changelog:** [$PREVIOUS_TAG...$RELEASE_TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/$PREVIOUS_TAG...$RELEASE_TAG)"
-            else
-              echo "**Commit history:** [$RELEASE_TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commits/$RELEASE_TAG)"
-            fi
-          } >> .release-ai/release-notes.md
+          echo >> "$notes"
+          if [[ -n "$PREVIOUS_TAG" ]]; then
+            echo "**Full changelog:** [$PREVIOUS_TAG...$RELEASE_TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/$PREVIOUS_TAG...$RELEASE_TAG)" >> "$notes"
+          else
+            echo "**Commit history:** [$RELEASE_TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commits/$RELEASE_TAG)" >> "$notes"
+          fi
 
       - name: Upload release notes
         uses: actions/upload-artifact@v7
         with:
-          name: release-notes-${{ needs.validate.outputs.tag }}
+          name: release-notes-${{ needs.prepare.outputs.tag }}
           path: .release-ai/release-notes.md
           if-no-files-found: error
           retention-days: 1
@@ -240,9 +213,8 @@ jobs:
       checkout_ref: ${{ needs.prepare.outputs.sha }}
 
   publish:
-    name: Publish ${{ needs.validate.outputs.tag }}
+    name: Publish ${{ needs.prepare.outputs.tag }}
     needs:
-      - validate
       - prepare
       - release-notes
       - build
@@ -252,29 +224,10 @@ jobs:
       contents: write
 
     steps:
-      - name: Check out repository
+      - name: Check out release commit
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.prepare.outputs.sha }}
-          fetch-depth: 0
-
-      - name: Confirm release target is unchanged
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
-          TARGET_SHA: ${{ needs.prepare.outputs.sha }}
-        run: |
-          git fetch --no-tags origin "refs/heads/$GITHUB_REF_NAME"
-          if [[ "$(git rev-parse FETCH_HEAD)" != "$TARGET_SHA" ]]; then
-            echo "::error::$GITHUB_REF_NAME changed while the release was being prepared. Run the workflow again."
-            exit 1
-          fi
-
-          if git rev-parse --verify --quiet "refs/tags/$RELEASE_TAG" >/dev/null || gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "::error::Tag or release $RELEASE_TAG already exists."
-            exit 1
-          fi
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -285,59 +238,52 @@ jobs:
       - name: Download release notes
         uses: actions/download-artifact@v8
         with:
-          name: release-notes-${{ needs.validate.outputs.tag }}
+          name: release-notes-${{ needs.prepare.outputs.tag }}
           path: release-inputs
 
-      - name: Verify release inputs
-        shell: bash
-        run: |
-          shopt -s nullglob
-          jars=(release-assets/*.jar)
-          if (( ${#jars[@]} == 0 )); then
-            echo "::error::The reusable build workflow did not provide any JAR files."
-            exit 1
-          fi
-
-          if [[ ! -s release-inputs/release-notes.md ]]; then
-            echo "::error::The release-notes job did not provide release notes."
-            exit 1
-          fi
-
-      - name: Create GitHub release
-        id: github-release
-        shell: bash
+      - name: Verify and publish release
         env:
           GH_TOKEN: ${{ github.token }}
           MOD_NAME: ${{ needs.build.outputs.mod_name }}
-          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
-          RELEASE_VERSION: ${{ needs.validate.outputs.version }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
           TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         run: |
+          git fetch --no-tags origin "refs/heads/$GITHUB_REF_NAME"
+          if [[ "$(git rev-parse FETCH_HEAD)" != "$TARGET_SHA" ]]; then
+            echo "::error::$GITHUB_REF_NAME changed while the release was being prepared. Run it again."
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --refs --tags origin "refs/tags/$RELEASE_TAG" >/dev/null 2>&1 || \
+              gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Tag or release $RELEASE_TAG already exists."
+            exit 1
+          fi
+
+          shopt -s nullglob
+          jars=(release-assets/*.jar)
+          if (( ${#jars[@]} == 0 )) || [[ ! -s release-inputs/release-notes.md ]]; then
+            echo "::error::Release artifacts or notes are missing."
+            exit 1
+          fi
+
           args=(
             release create "$RELEASE_TAG"
-            release-assets/*.jar
+            "${jars[@]}"
             --repo "$GITHUB_REPOSITORY"
             --target "$TARGET_SHA"
             --title "$MOD_NAME $RELEASE_VERSION"
             --notes-file release-inputs/release-notes.md
           )
-
           if [[ "$RELEASE_VERSION" == *-* ]]; then
             args+=(--prerelease)
           fi
 
-          gh "${args[@]}"
-          release_url="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url --jq .url)"
-          echo "url=$release_url" >> "$GITHUB_OUTPUT"
+          release_url="$(gh "${args[@]}")"
 
-      - name: Add release summary
-        shell: bash
-        env:
-          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
-          RELEASE_URL: ${{ steps.github-release.outputs.url }}
-        run: |
           {
             echo "## Release published"
             echo
-            echo "[$RELEASE_TAG]($RELEASE_URL) was built, tagged, and published with Copilot-generated release notes."
+            echo "[$RELEASE_TAG]($release_url) was built, tagged, and published with Copilot-generated release notes."
           } >> "$GITHUB_STEP_SUMMARY"

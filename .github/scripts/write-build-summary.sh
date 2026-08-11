@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -euo pipefail
 
 case "$BUILD_OUTCOME" in
   success) result="Passed" ;;
@@ -23,7 +23,7 @@ row() {
   row "Toolchain" "Java \`${JAVA_VERSION:-Unknown}\`, Gradle \`${GRADLE_VERSION:-Unknown}\`"
 
   if [[ -n "$SHORT_SHA" ]]; then
-    row "Commit" "[\`$SHORT_SHA\`]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA)"
+    row "Commit" "[\`$SHORT_SHA\`]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$(git rev-parse HEAD))"
   fi
 
   if [[ "$UPLOAD_OUTCOME" == "success" && -n "$ARTIFACT_URL" ]]; then

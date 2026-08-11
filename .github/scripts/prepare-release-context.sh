@@ -5,7 +5,7 @@ set -euo pipefail
 
 release_sha="${RELEASE_SHA:-HEAD}"
 output_dir="${OUTPUT_DIR:-.release-context}"
-previous_tag="$(git describe --tags --abbrev=0 "$release_sha" 2>/dev/null || true)"
+previous_tag="$(git describe --tags --abbrev=0 --match 'v[0-9]*' "$release_sha" 2>/dev/null || true)"
 
 mkdir -p "$output_dir"
 

@@ -8,8 +8,6 @@ on:
     inputs:
       checkout_ref:
         description: Optional commit, tag, or branch to build
-        required: false
-        default: ""
         type: string
     outputs:
       artifact_name:
@@ -54,7 +52,6 @@ jobs:
           java-version: ${{ steps.project.outputs.java_version }}
 
       - name: Set up Gradle
-        id: setup-gradle
         uses: gradle/actions/setup-gradle@v6
 
       - name: Make Gradle wrapper executable
@@ -75,12 +72,11 @@ jobs:
           compression-level: 0
 
       - name: Add build summary
-        if: ${{ always() }}
+        if: always()
         shell: bash
         env:
           BUILD_OUTCOME: ${{ steps.build.outcome }}
           UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
-          MOD_ID: ${{ steps.project.outputs.mod_id }}
           MOD_NAME: ${{ steps.project.outputs.mod_name }}
           MOD_VERSION: ${{ steps.project.outputs.mod_version }}
           MINECRAFT_VERSION: ${{ steps.project.outputs.minecraft_version }}

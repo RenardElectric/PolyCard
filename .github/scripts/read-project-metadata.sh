@@ -23,11 +23,10 @@ else
   exit 1
 fi
 
-short_sha="${GITHUB_SHA:0:7}"
+short_sha="$(git rev-parse --short=7 HEAD)"
 artifact_name="${mod_id}-${mod_version}-minecraft-${minecraft_version}-${short_sha}"
 
 {
-  echo "mod_id=$mod_id"
   echo "mod_name=$mod_name"
   echo "mod_version=$mod_version"
   echo "minecraft_version=$minecraft_version"
