@@ -40,7 +40,7 @@ row() {
     echo "### Packaged files"
     echo
     for jar in "${jars[@]}"; do
-      printf -- '- `%s` — %s bytes\n' "$(basename "$jar")" "$(stat --format='%s' "$jar")"
+      printf -- "- %s — %s bytes\n" "$(basename "$jar")" "$(stat --format='%s' "$jar")"
     done
   fi
 } >> "$GITHUB_STEP_SUMMARY"
