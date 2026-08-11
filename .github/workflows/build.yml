@@ -1,14 +1,6 @@
-# Automatically build the project and run any configured tests for every push
-# and submitted a pull request. This can help catch issues that only occur on
-# certain platforms or Java versions and provides a first line of defense
-# against bad commits.
-
 name: Build
 
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
+on: [push, pull_request, workflow_dispatch]
 
 permissions:
   contents: read
@@ -25,65 +17,24 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
       - name: Read project metadata
         id: project
         shell: bash
-        run: |
-          set -euo pipefail
-
-          read_property() {
-            sed -n "s/^$1=//p" gradle.properties | tr -d '\r' | head -n 1
-          }
-
-          mod_version="$(read_property mod_version)"
-          minecraft_version="$(read_property minecraft_version)"
-          java_version="$(read_property java_version)"
-          gradle_distribution_url="$(
-            sed -n 's/^distributionUrl=//p' gradle/wrapper/gradle-wrapper.properties \
-              | tr -d '\r' \
-              | head -n 1
-          )"
-
-          if [[ -z "$mod_version" || -z "$minecraft_version" || -z "$java_version" ]]; then
-            echo "::error::Could not read project versions from gradle.properties"
-            exit 1
-          fi
-
-          gradle_archive="${gradle_distribution_url##*/}"
-          if [[ "$gradle_archive" =~ ^gradle-(.+)-(bin|all)\.zip$ ]]; then
-            gradle_version="${BASH_REMATCH[1]}"
-          else
-            echo "::error::Could not read the Gradle version from gradle-wrapper.properties"
-            exit 1
-          fi
-
-          short_sha="${GITHUB_SHA:0:7}"
-          artifact_name="polyhorn-${mod_version}-minecraft-${minecraft_version}-${short_sha}"
-
-          {
-            echo "mod_version=$mod_version"
-            echo "minecraft_version=$minecraft_version"
-            echo "java_version=$java_version"
-            echo "gradle_version=$gradle_version"
-            echo "short_sha=$short_sha"
-            echo "artifact_name=$artifact_name"
-          } >> "$GITHUB_OUTPUT"
+        run: bash .github/scripts/read-project-metadata.sh
 
       - name: Set up JDK ${{ steps.project.outputs.java_version }}
         uses: actions/setup-java@v5
         with:
+          distribution: temurin
           java-version: ${{ steps.project.outputs.java_version }}
-          distribution: 'temurin'
 
       - name: Set up Gradle
         id: setup-gradle
-        uses: gradle/actions/setup-gradle@v5
-        with:
-          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
@@ -108,6 +59,7 @@ jobs:
         env:
           BUILD_OUTCOME: ${{ steps.build.outcome }}
           UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+          MOD_NAME: ${{ steps.project.outputs.mod_name }}
           MOD_VERSION: ${{ steps.project.outputs.mod_version }}
           MINECRAFT_VERSION: ${{ steps.project.outputs.minecraft_version }}
           JAVA_VERSION: ${{ steps.project.outputs.java_version }}
@@ -116,46 +68,4 @@ jobs:
           ARTIFACT_NAME: ${{ steps.project.outputs.artifact_name }}
           ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
           ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
-        run: |
-          case "$BUILD_OUTCOME" in
-            success) result="Passed" ;;
-            failure) result="Failed" ;;
-            cancelled) result="Cancelled" ;;
-            *) result="${BUILD_OUTCOME:-Not run}" ;;
-          esac
-
-          {
-            echo "## PolyHorn build"
-            echo
-            echo "| Detail | Value |"
-            echo "| --- | --- |"
-            printf '| Result | **%s** |\n' "$result"
-            printf '| Mod version | `%s` |\n' "${MOD_VERSION:-Unknown}"
-            printf '| Minecraft | `%s` |\n' "${MINECRAFT_VERSION:-Unknown}"
-            printf '| Toolchain | Java `%s`, Gradle `%s` |\n' \
-              "${JAVA_VERSION:-Unknown}" "${GRADLE_VERSION:-Unknown}"
-
-            if [[ -n "$SHORT_SHA" ]]; then
-              printf '| Commit | [`%s`](%s/%s/commit/%s) |\n' \
-                "$SHORT_SHA" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_SHA"
-            fi
-
-            if [[ "$UPLOAD_OUTCOME" == "success" && -n "$ARTIFACT_URL" ]]; then
-              printf '| Artifact | [`%s`](%s) (retained for 14 days) |\n' \
-                "$ARTIFACT_NAME" "$ARTIFACT_URL"
-              printf '| Artifact SHA-256 | `%s` |\n' "$ARTIFACT_DIGEST"
-            else
-              printf '| Artifact | Not available (`%s`) |\n' "${UPLOAD_OUTCOME:-not run}"
-            fi
-
-            shopt -s nullglob
-            jars=(build/libs/*.jar)
-            if (( ${#jars[@]} > 0 )); then
-              echo
-              echo "### Packaged files"
-              echo
-              for jar in "${jars[@]}"; do
-                printf -- '- `%s` — %s bytes\n' "$(basename "$jar")" "$(stat --format='%s' "$jar")"
-              done
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
+        run: bash .github/scripts/write-build-summary.sh
