@@ -5,7 +5,7 @@ read_property() {
   sed -n "s/^$1=//p" "${2:-gradle.properties}" | tr -d '\r' | head -n 1
 }
 
-for property in mod_id mod_version minecraft_version java_version; do
+for property in mod_id mod_name mod_version minecraft_version java_version; do
   value="$(read_property "$property")"
   [[ -n "$value" ]] || {
     echo "::error::Could not read project versions from gradle.properties"
@@ -27,6 +27,8 @@ short_sha="${GITHUB_SHA:0:7}"
 artifact_name="${mod_id}-${mod_version}-minecraft-${minecraft_version}-${short_sha}"
 
 {
+  echo "mod_id=$mod_id"
+  echo "mod_name=$mod_name"
   echo "mod_version=$mod_version"
   echo "minecraft_version=$minecraft_version"
   echo "java_version=$java_version"

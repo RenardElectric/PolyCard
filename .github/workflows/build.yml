@@ -59,6 +59,7 @@ jobs:
         env:
           BUILD_OUTCOME: ${{ steps.build.outcome }}
           UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+          MOD_ID: ${{ steps.project.outputs.mod_id }}
           MOD_NAME: ${{ steps.project.outputs.mod_name }}
           MOD_VERSION: ${{ steps.project.outputs.mod_version }}
           MINECRAFT_VERSION: ${{ steps.project.outputs.minecraft_version }}
