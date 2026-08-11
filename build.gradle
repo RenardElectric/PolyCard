@@ -54,7 +54,7 @@ processResources {
 	def resourceProperties = [
 			mod_id: mod_id,
 			mod_name: mod_name,
-			version: mod_version,
+			mod_version: mod_version,
 			minecraft_version: minecraft_version,
 			loader_version: loader_version,
 			java_version: java_version,
