@@ -24,4 +24,4 @@ Use these sections when relevant, omitting empty sections:
 
 For an initial release, summarize the current user-facing functionality by reading the README and relevant implementation when necessary.
 
-Return only the finished Markdown release notes. Do not wrap them in a code fence and do not write or modify any files.
+Write the finished Markdown release notes to `release-notes.md`. Do not wrap them in a code fence. Do not include analysis, reasoning, a preamble, or a completion message in that file. Do not write or modify any other files.

@@ -120,12 +120,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
+          if [[ -e release-notes.md ]]; then
+            echo "::error::release-notes.md unexpectedly exists before Copilot runs."
+            exit 1
+          fi
+
           copilot \
             --prompt "$(cat .github/copilot/prompts/release-notes.md)" \
-            --silent \
             --allow-tool=read \
-            --no-ask-user \
-            > release-notes.md
+            --allow-tool='write(release-notes.md)' \
+            --no-ask-user
 
           if [[ ! -s release-notes.md ]]; then
             echo "::error::Copilot did not generate release notes."
