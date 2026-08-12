@@ -188,7 +188,7 @@ jobs:
             exit 1
           fi
 
-          echo >> "$notes"
+          printf '\n\n' >> "$notes"
           if [[ -n "$PREVIOUS_TAG" ]]; then
             echo "**Full changelog:** [$PREVIOUS_TAG...$RELEASE_TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/$PREVIOUS_TAG...$RELEASE_TAG)" >> "$notes"
           else
