@@ -2,9 +2,11 @@
 set -euo pipefail
 
 : "${RELEASE_TAG:?RELEASE_TAG is required}"
+: "${RUNNER_TEMP:?RUNNER_TEMP is required}"
 
 release_sha="${RELEASE_SHA:-HEAD}"
-output_dir="${OUTPUT_DIR:-.release-context}"
+ai_dir="${AI_WORKSPACE:-.release-ai}"
+output_dir="${OUTPUT_DIR:-$ai_dir/.release-context}"
 previous_tag="$(git describe --tags --abbrev=0 --match 'v[0-9]*' "$release_sha" 2>/dev/null || true)"
 
 mkdir -p "$output_dir"
@@ -30,6 +32,8 @@ git log --format='%H%x09%s' "$commit_range" > "$output_dir/commits.txt"
 git diff --stat "$base_ref" "$release_sha" -- > "$output_dir/stat.txt"
 git diff --name-status --find-renames "$base_ref" "$release_sha" -- > "$output_dir/files.txt"
 git diff --no-ext-diff --find-renames --find-copies "$base_ref" "$release_sha" -- > "$output_dir/changes.diff"
+cp .github/copilot/prompts/release-notes.md "$ai_dir/prompt.md"
+find "$ai_dir" -type f -exec sha256sum {} + | sort > "$RUNNER_TEMP/copilot-inputs.before"
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   echo "previous_tag=$previous_tag" >> "$GITHUB_OUTPUT"

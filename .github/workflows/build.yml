@@ -42,7 +42,6 @@ jobs:
 
       - name: Read project metadata
         id: project
-        shell: bash
         run: bash .github/scripts/read-project-metadata.sh
 
       - name: Set up JDK ${{ steps.project.outputs.java_version }}
@@ -73,7 +72,6 @@ jobs:
 
       - name: Add build summary
         if: always()
-        shell: bash
         env:
           BUILD_OUTCOME: ${{ steps.build.outcome }}
           UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
