@@ -132,7 +132,7 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 1.0f, true, "+2 hearts but loose one rarity level on death");
         addRarity(RarityLevel.LEGENDARY, 1.0f, true, "+3 hearts but loose one rarity level on death");
     }},
-    TOTEM("totem", "TODO", CardGroup.MISC, TotemEffects::new) {{
+    TOTEM("totem", "looting a mansion", CardGroup.MISC, TotemEffects::new) {{
         addRarity(RarityLevel.COMMON, 1.0f, false, "Count as a totem of undying, consumed when used");
         addRarity(RarityLevel.UNCOMMON, 1.0f, false, "Count as a totem of undying, consumed when used");
         addRarity(RarityLevel.RARE, 1.0f, false, "Count as a totem of undying, consumed when used");

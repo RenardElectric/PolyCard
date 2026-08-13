@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.BlockEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import polycube.polycard.events.callBacks.*;
 
 import java.util.Set;
@@ -55,7 +56,9 @@ public class EventHandler {
             of(HasCardOrRarerOverrideCallback.class, HasCardOrRarerOverrideCallback.EVENT),
             of(GetBedRuleEventCallback.class, GetBedRuleEventCallback.EVENT),
 
-            of(ServerTickEvents.EndTick.class, ServerTickEvents.END_SERVER_TICK)
+            of(ServerTickEvents.EndTick.class, ServerTickEvents.END_SERVER_TICK),
+
+            of(LootTableEvents.Modify.class, LootTableEvents.MODIFY)
     );
 
     private boolean eventsRegistered;

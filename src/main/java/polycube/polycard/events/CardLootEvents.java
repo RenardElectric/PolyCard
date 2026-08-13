@@ -1,7 +1,11 @@
 package polycube.polycard.events;
 
 import net.fabricmc.fabric.api.event.player.BlockEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -31,6 +35,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.CardType;
@@ -40,20 +46,24 @@ import polycube.polycard.events.callBacks.PlayerKillEventCallback;
 import polycube.polycard.events.callBacks.TameEventCallback;
 import polycube.polycard.utils.CardHelpers;
 import polycube.polycard.utils.Helpers;
+import polycube.polycard.utils.LootHelpers;
 
 import java.util.Optional;
 
 import static net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL;
 
-public class CardLootEvents extends EventHandler implements BreedEventCallback, PlayerKillEventCallback, EntitySummonedEventCallback, TameEventCallback, BlockEvents.UseItemOnCallback {
+public class CardLootEvents
+        extends EventHandler
+        implements BreedEventCallback, PlayerKillEventCallback, EntitySummonedEventCallback,
+        TameEventCallback, BlockEvents.UseItemOnCallback, LootTableEvents.Modify
+{
     @Override
     public void onBreed(ServerPlayer player, Animal parent, Animal partner, Optional<AgeableMob> child) {
         switch (parent) {
             case Cow _ -> CardHelpers.receiveCard(player, CardType.COW);
             case Chicken _ -> CardHelpers.receiveCard(player, CardType.CHICKEN);
             case Turtle _ -> CardHelpers.receiveCard(player, CardType.TURTLE);
-            default -> {
-            }
+            default -> {}
         }
     }
 
@@ -63,18 +73,15 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
             case IronGolem _ -> CardHelpers.receiveCard(player, CardType.IRON_GOLEM);
             case WitherBoss _ -> CardHelpers.receiveCard(player, CardType.WITHER);
             case EnderDragon _ -> CardHelpers.receiveCard(player, CardType.ENDER_DRAGON);
-            case CopperGolem _, SnowGolem _ -> {
-            }
-            default -> {
-            }
+            case CopperGolem _, SnowGolem _ -> {}
+            default -> {}
         }
     }
 
     @Override
     public void onPlayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {
         switch (entity) {
-            case ZombieVillager _, Husk _, Drowned _ -> {
-            }
+            case ZombieVillager _, Husk _, Drowned _ -> {}
             case EnderMan _ -> CardHelpers.receiveCard(player, CardType.ENDERMAN);
             case Squid _ -> CardHelpers.receiveCard(player, CardType.SQUID);
             case Piglin _ -> CardHelpers.receiveCard(player, CardType.PIGLIN);
@@ -82,8 +89,7 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
             case Zombie _ -> CardHelpers.receiveCard(player, CardType.ZOMBIE);
             case Bat _ -> CardHelpers.receiveCard(player, CardType.BAT);
             case Creeper _ -> CardHelpers.receiveCard(player, CardType.CREEPER);
-            default -> {
-            }
+            default -> {}
         }
     }
 
@@ -92,8 +98,7 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
         switch (animal) {
             case Horse _ -> CardHelpers.receiveCard(player, CardType.HORSE);
             case Wolf _ -> CardHelpers.receiveCard(player, CardType.WOLF);
-            default -> {
-            }
+            default -> {}
         }
     }
 
@@ -115,5 +120,14 @@ public class CardLootEvents extends EventHandler implements BreedEventCallback, 
         }
 
         return null;
+    }
+
+    @Override
+    public void modifyLootTable(ResourceKey<LootTable> key, LootTable.Builder tableBuilder, LootTableSource source, HolderLookup.Provider holder) {
+        if (source.isBuiltin()) {
+            if (key.equals(BuiltInLootTables.WOODLAND_MANSION)) {
+                tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.TOTEM));
+            }
+        }
     }
 }
