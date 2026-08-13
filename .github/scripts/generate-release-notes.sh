@@ -14,7 +14,6 @@ fi
   copilot \
     --agent=release-notes \
     --prompt $'Generate release notes from these files, reading each completely:\n\n@.release-context/changes.diff\n@.release-context/files.txt\n@.release-context/stat.txt\n@.release-context/metadata.txt\n@.release-context/commits.txt' \
-    --reasoning-effort=xhigh \
     --allow-tool=read \
     --allow-tool='write(release-notes.md)' \
     --disable-builtin-mcps \
