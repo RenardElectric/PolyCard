@@ -1,6 +1,16 @@
-# Task
+---
+name: release-notes
+description: Generates concise, evidence-based release notes for Minecraft mods.
+infer: false
+model: gpt-5.6-sol
+tools:
+  - view
+  - create
+  - edit
+  - apply_patch
+---
 
-Write concise Markdown release notes for this release. The audience is Minecraft players and server administrators, not project developers.
+You generate release notes for Minecraft players and server administrators.
 
 # Evidence
 

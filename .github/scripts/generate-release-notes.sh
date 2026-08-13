@@ -3,24 +3,26 @@ set -euo pipefail
 
 ai_dir="${AI_WORKSPACE:-.release-ai}"
 notes="$ai_dir/release-notes.md"
-prompt="$ai_dir/prompt.md"
 
 if [[ -e "$notes" ]]; then
   echo "::error::release-notes.md unexpectedly exists before Copilot runs."
   exit 1
 fi
 
-if [[ ! -s "$prompt" ]]; then
-  echo "::error::The Copilot prompt is missing or empty."
-  exit 1
-fi
-
 (
   cd "$ai_dir"
   copilot \
-    --prompt "$(cat prompt.md)" \
+    --agent=release-notes \
+    --prompt $'Generate release notes from these files, reading each completely:\n\n@.release-context/changes.diff\n@.release-context/files.txt\n@.release-context/stat.txt\n@.release-context/metadata.txt\n@.release-context/commits.txt' \
+    --reasoning-effort=xhigh \
     --allow-tool=read \
     --allow-tool='write(release-notes.md)' \
+    --disable-builtin-mcps \
+    --no-custom-instructions \
+    --no-experimental \
+    --no-remote \
+    --no-remote-export \
+    --no-auto-update \
     --no-ask-user
 )
 
