@@ -16,10 +16,6 @@ import java.util.Map;
 import java.util.Objects;
 
 /// Registers placeholder card items used only while generating item-model JSON.
-///
-/// The real card stacks are knowledge books with a custom ITEM_MODEL component, so registering
-/// these placeholders during a normal client launch would create client-only registry entries
-/// that are absent from a dedicated server.
 public class PolyCardClient implements ClientModInitializer {
     private static final String DATAGEN_PROPERTY = "fabric-api.datagen";
     private static final Map<Card, Item> DATAGEN_CARD_ITEMS = new HashMap<>();

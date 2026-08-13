@@ -121,6 +121,7 @@ public enum CardType implements StringRepresentable {
     }},
 
     // Misc
+
     INVENTORY("inventory", "TODO", CardGroup.MISC, InventoryEffects::new) {{
         addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Keep inventory but on death loose one rarity level in a random equipped card");
     }},
@@ -132,11 +133,11 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.LEGENDARY, 1.0f, true, "+3 hearts but loose one rarity level on death");
     }},
     TOTEM("totem", "TODO", CardGroup.MISC, TotemEffects::new) {{
-        addRarity(RarityLevel.COMMON, 1.0f, false, "Count as a totem of undying consumed when used");
-        addRarity(RarityLevel.UNCOMMON, 1.0f, false, "Count as a totem of undying consumed when used");
-        addRarity(RarityLevel.RARE, 1.0f, false, "Count as a totem of undying consumed when used");
-        addRarity(RarityLevel.EPIC, 1.0f, true, "Count as a totem of undying consumed when used");
-        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Count as a totem of undying consumed when used");
+        addRarity(RarityLevel.COMMON, 1.0f, false, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.UNCOMMON, 1.0f, false, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.RARE, 1.0f, false, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.EPIC, 1.0f, true, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Count as a totem of undying, consumed when used");
     }},
     LUCKY("lucky", "TODO", CardGroup.MISC, LuckyEffects::new) {{
         addRarity(RarityLevel.COMMON, 1.0f, false, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max common rarity)");

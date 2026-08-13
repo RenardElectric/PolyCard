@@ -7,6 +7,7 @@ import net.minecraft.world.attribute.BedRule;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BedBlock;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
@@ -17,7 +18,7 @@ import polycube.polycard.utils.EffectHelpers;
 
 import java.util.Optional;
 
-public class NetherEffects extends CardEffects implements PlayerTickEventCallback, GetBedRuleEventCallback, CardEventCallback.CardEquipEvent {
+public class NetherEffects extends CardEffects implements PlayerTickEventCallback, GetBedRuleEventCallback, CardEventCallback.CardEquipEvent, CardEventCallback.CardUnequipEvent {
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
@@ -46,6 +47,22 @@ public class NetherEffects extends CardEffects implements PlayerTickEventCallbac
                 if (dimension.equals(Level.OVERWORLD)) {
                     player.setRespawnPosition(null, false);
                     player.sendSystemMessage(Component.literal("Your respawn point in the overworld has been removed because you equipped a Legendary Nether card."));
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onCardUnequip(ServerPlayer player, Card card) {
+        if (card.cardType() == cardType()) {
+            var config = player.getRespawnConfig();
+            if (config != null) {
+                var data = config.respawnData();
+                var dimension = data.dimension();
+                var isBed = player.level().getBlockState(data.pos()).getBlock() instanceof BedBlock;
+                if (dimension.equals(Level.NETHER) && isBed) {
+                    player.setRespawnPosition(null, false);
+                    player.sendSystemMessage(Component.literal("Your respawn point in the nether has been removed because you unequipped a Legendary Nether card."));
                 }
             }
         }

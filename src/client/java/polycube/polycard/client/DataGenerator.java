@@ -28,7 +28,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStackTemplate;
-import org.jspecify.annotations.NonNull;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
@@ -42,17 +41,17 @@ public class DataGenerator implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
-        pack.addProvider(AdvancementProvider::new);
-        pack.addProvider(ModelProvider::new);
+        pack.addProvider(MyAdvancementProvider::new);
+        pack.addProvider(MyModelProvider::new);
     }
 
-    public static class AdvancementProvider extends FabricAdvancementProvider {
-        protected AdvancementProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    public static class MyAdvancementProvider extends FabricAdvancementProvider {
+        protected MyAdvancementProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
             super(output, registryLookup);
         }
 
         @Override
-        public void generateAdvancement(HolderLookup.@NonNull Provider wrapperLookup, @NonNull Consumer<AdvancementHolder> consumer) {
+        public void generateAdvancement(HolderLookup.Provider wrapperLookup, Consumer<AdvancementHolder> consumer) {
             var iconItem = new ItemStackTemplate(
                     Card.CARD_ITEM,
                     DataComponentPatch.builder()
@@ -132,18 +131,18 @@ public class DataGenerator implements DataGeneratorEntrypoint {
         }
     }
 
-    public static class ModelProvider extends FabricModelProvider {
-        public ModelProvider(FabricPackOutput output) {
+    public static class MyModelProvider extends FabricModelProvider {
+        public MyModelProvider(FabricPackOutput output) {
             super(output);
         }
 
         @Override
-        public void generateBlockStateModels(@NonNull BlockModelGenerators blockModelGenerators) {
+        public void generateBlockStateModels(BlockModelGenerators blockModelGenerators) {
 
         }
 
         @Override
-        public void generateItemModels(@NonNull ItemModelGenerators itemModelGenerators) {
+        public void generateItemModels(ItemModelGenerators itemModelGenerators) {
             for (var rarityLevel : RarityLevel.values()) {
                 var rarityId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + rarityLevel.getSerializedName());
                 ModelTemplates.FLAT_ITEM.create(rarityId, TextureMapping.layer0(new Material(rarityId)), itemModelGenerators.modelOutput);
