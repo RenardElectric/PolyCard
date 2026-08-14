@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:polycard_root",
+  "parent": "polycard:misc/misc",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,7 +21,7 @@
           "color": "gold",
           "text": "Legendary Nether card"
         },
-        " by TODO"
+        " by looting nether structures"
       ],
       "text": "Unlock the "
     },

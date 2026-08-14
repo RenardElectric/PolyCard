@@ -1,0 +1,61 @@
+{
+  "parent": "polycard:polycard_root",
+  "criteria": {
+    "all_passive_cards": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:type_specific/player": {
+                "advancements": {
+                  "polycard:passive/bat/epic": true,
+                  "polycard:passive/bat/legendary": true,
+                  "polycard:passive/bat/rare": true,
+                  "polycard:passive/chicken/common": true,
+                  "polycard:passive/chicken/epic": true,
+                  "polycard:passive/chicken/legendary": true,
+                  "polycard:passive/chicken/rare": true,
+                  "polycard:passive/chicken/uncommon": true,
+                  "polycard:passive/cow/epic": true,
+                  "polycard:passive/cow/legendary": true,
+                  "polycard:passive/cow/rare": true,
+                  "polycard:passive/cow/uncommon": true,
+                  "polycard:passive/horse/epic": true,
+                  "polycard:passive/horse/legendary": true,
+                  "polycard:passive/horse/rare": true,
+                  "polycard:passive/horse/uncommon": true,
+                  "polycard:passive/squid/epic": true,
+                  "polycard:passive/squid/legendary": true,
+                  "polycard:passive/squid/rare": true,
+                  "polycard:passive/turtle/epic": true,
+                  "polycard:passive/turtle/legendary": true,
+                  "polycard:passive/turtle/rare": true
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Unlock all cards in the Passive card group.",
+    "frame": "challenge",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:passive/passive"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Passive cards"
+  },
+  "requirements": [
+    [
+      "all_passive_cards"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

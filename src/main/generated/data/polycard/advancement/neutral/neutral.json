@@ -1,0 +1,59 @@
+{
+  "parent": "polycard:polycard_root",
+  "criteria": {
+    "all_neutral_cards": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:type_specific/player": {
+                "advancements": {
+                  "polycard:neutral/bee/epic": true,
+                  "polycard:neutral/bee/legendary": true,
+                  "polycard:neutral/bee/rare": true,
+                  "polycard:neutral/enderman/epic": true,
+                  "polycard:neutral/enderman/legendary": true,
+                  "polycard:neutral/enderman/rare": true,
+                  "polycard:neutral/enderman/uncommon": true,
+                  "polycard:neutral/iron_golem/epic": true,
+                  "polycard:neutral/iron_golem/legendary": true,
+                  "polycard:neutral/iron_golem/rare": true,
+                  "polycard:neutral/piglin/epic": true,
+                  "polycard:neutral/piglin/legendary": true,
+                  "polycard:neutral/piglin/rare": true,
+                  "polycard:neutral/piglin/uncommon": true,
+                  "polycard:neutral/wolf/epic": true,
+                  "polycard:neutral/wolf/legendary": true,
+                  "polycard:neutral/wolf/rare": true,
+                  "polycard:neutral/wolf/uncommon": true,
+                  "polycard:neutral/zombified_piglin/epic": true,
+                  "polycard:neutral/zombified_piglin/legendary": true
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Unlock all cards in the Neutral card group.",
+    "frame": "challenge",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:neutral/neutral"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Neutral cards"
+  },
+  "requirements": [
+    [
+      "all_neutral_cards"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

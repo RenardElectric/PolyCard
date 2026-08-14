@@ -1,0 +1,56 @@
+{
+  "parent": "polycard:polycard_root",
+  "criteria": {
+    "all_hostile_cards": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:type_specific/player": {
+                "advancements": {
+                  "polycard:hostile/creeper/epic": true,
+                  "polycard:hostile/creeper/legendary": true,
+                  "polycard:hostile/creeper/rare": true,
+                  "polycard:hostile/creeper/uncommon": true,
+                  "polycard:hostile/ender_dragon/epic": true,
+                  "polycard:hostile/ender_dragon/legendary": true,
+                  "polycard:hostile/ender_dragon/rare": true,
+                  "polycard:hostile/wither/common": true,
+                  "polycard:hostile/wither/epic": true,
+                  "polycard:hostile/wither/legendary": true,
+                  "polycard:hostile/wither/rare": true,
+                  "polycard:hostile/wither/uncommon": true,
+                  "polycard:hostile/zombie/common": true,
+                  "polycard:hostile/zombie/epic": true,
+                  "polycard:hostile/zombie/legendary": true,
+                  "polycard:hostile/zombie/rare": true,
+                  "polycard:hostile/zombie/uncommon": true
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Unlock all cards in the Hostile card group.",
+    "frame": "challenge",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:hostile/hostile"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Hostile cards"
+  },
+  "requirements": [
+    [
+      "all_hostile_cards"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

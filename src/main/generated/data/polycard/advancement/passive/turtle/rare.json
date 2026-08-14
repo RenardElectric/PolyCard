@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:polycard_root",
+  "parent": "polycard:passive/passive",
   "criteria": {
     "got_card": {
       "conditions": {

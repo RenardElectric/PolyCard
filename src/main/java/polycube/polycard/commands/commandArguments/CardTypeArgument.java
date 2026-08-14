@@ -23,7 +23,7 @@ public final class CardTypeArgument {
     public static <S> CompletableFuture<Suggestions> suggestCards(final CommandContext<S> context, final SuggestionsBuilder builder) {
         var group = CardGroupArgument.getType(context);
         return SharedSuggestionProvider.suggest(
-                group.map(cardGroup -> Arrays.stream(VALUES).filter(cardType -> cardType.getCardGroup() == cardGroup))
+                group.map(cardGroup -> Arrays.stream(VALUES).filter(cardType -> cardType.getGroup() == cardGroup))
                         .orElseGet(() -> Arrays.stream(VALUES))
                         .map(CardType::getSerializedName),
                 builder

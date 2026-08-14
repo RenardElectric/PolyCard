@@ -221,7 +221,7 @@ public enum CardType implements StringRepresentable {
     }
 
     /// Returns the card group this card type belongs to.
-    public CardGroup getCardGroup() {
+    public CardGroup getGroup() {
         return cardGroup;
     }
 

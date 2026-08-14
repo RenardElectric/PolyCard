@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:polycard_root",
+  "parent": "polycard:hostile/hostile",
   "criteria": {
     "got_card": {
       "conditions": {

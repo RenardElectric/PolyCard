@@ -12,6 +12,9 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.predicates.DataComponentMatchers;
 import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.advancements.predicates.entity.EntityPredicate;
+import net.minecraft.advancements.predicates.entity.PlayerPredicate;
+import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.advancements.triggers.InventoryChangeTrigger;
 import net.minecraft.advancements.triggers.PlayerTrigger;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -30,9 +33,12 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStackTemplate;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
+import polycube.polycard.card.CardGroup;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -78,17 +84,61 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                     .addCriterion("tick", PlayerTrigger.TriggerInstance.tick())
                     .save(consumer, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "polycard_root"));
 
-            for (var cardType : CardType.values()) {
-                addType(cardType, rootAdvancement, consumer);
+            Map<CardGroup, AdvancementHolder> groupAdvancements = new EnumMap<>(CardGroup.class);
+            for (var cardGroup : CardGroup.values()) {
+                var identifier = cardGroup.getId();
+                var groupAdvancement = Advancement.Builder.advancement()
+                        .parent(rootAdvancement)
+                        .display(
+                                new ItemStackTemplate(
+                                        Card.CARD_ITEM,
+                                        DataComponentPatch.builder()
+                                                .set(DataComponents.ITEM_MODEL, identifier)
+                                                .build()
+                                ),
+                                Component.literal(cardGroup + " cards"),
+                                Component.literal("Unlock all cards in the " + cardGroup + " card group."),
+                                null,
+                                AdvancementType.CHALLENGE,
+                                true,
+                                true,
+                                false
+                        )
+                        .addCriterion("all_" + cardGroup.getSerializedName() + "_cards", allCardsUnlockedCriterion(cardGroup))
+                        .save(consumer, identifier);
+
+                groupAdvancements.put(cardGroup, groupAdvancement);
             }
+
+            for (var cardType : CardType.values())
+                addType(cardType, groupAdvancements, consumer);
         }
 
-        public void addType(CardType cardType, AdvancementHolder parent, Consumer<AdvancementHolder> consumer) {
+        /// Checks advancement state directly because Minecraft has no child-completed criterion.
+        private static Criterion<PlayerTrigger.TriggerInstance> allCardsUnlockedCriterion(CardGroup cardGroup) {
+            var playerPredicate = PlayerPredicate.Builder.player();
+            for (var cardType : CardType.values()) {
+                if (cardType.getGroup() != cardGroup) continue;
+
+                for (var rarity : cardType.getRarities()) {
+                    playerPredicate.checkAdvancementDone(
+                            new Card(cardType, rarity.rarityLevel()).getId(),
+                            true
+                    );
+                }
+            }
+
+            return PlayerTrigger.TriggerInstance.located(EntityPredicate.Builder.entity().player(playerPredicate.build()));
+        }
+
+        public void addType(CardType cardType, Map<CardGroup, AdvancementHolder> groupAdvancements, Consumer<AdvancementHolder> consumer) {
+            var parent = groupAdvancements.get(cardType.getGroup());
+
             for (var rarity : cardType.getRarities()) {
 
                 var rarityLevel = rarity.rarityLevel();
                 var card = new Card(cardType, rarity.rarityLevel());
-                var identifier = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId());
+                var identifier = card.getId();
                 var item = new ItemStackTemplate(
                         Card.CARD_ITEM,
                         DataComponentPatch.builder()
@@ -143,6 +193,10 @@ public class DataGenerator implements DataGeneratorEntrypoint {
 
         @Override
         public void generateItemModels(ItemModelGenerators itemModelGenerators) {
+            for (var cardGroup : CardGroup.values()) {
+                itemModelGenerators.generateFlatItem(PolyCardClient.getDatagenItem(cardGroup), ModelTemplates.FLAT_ITEM);
+            }
+
             for (var rarityLevel : RarityLevel.values()) {
                 var rarityId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + rarityLevel.getSerializedName());
                 ModelTemplates.FLAT_ITEM.create(rarityId, TextureMapping.layer0(new Material(rarityId)), itemModelGenerators.modelOutput);
@@ -168,7 +222,6 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                     );
                 }
             }
-
         }
     }
 }

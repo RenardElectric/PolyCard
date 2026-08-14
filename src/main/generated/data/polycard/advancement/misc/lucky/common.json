@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:polycard_root",
+  "parent": "polycard:misc/misc",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -22,7 +22,7 @@
           "color": "gray",
           "text": "Common Lucky card"
         },
-        " by TODO"
+        " by looting any structure"
       ],
       "text": "Unlock the "
     },

@@ -112,9 +112,9 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return descriptions;
     }
 
-    /// Returns the item model identifier path, such as "hostile/zombie/rare".
-    public String getId() {
-        return cardType.getFullId() + "/" + rarityLevel.getSerializedName();
+    /// Returns the item model identifier path, such as "polycard:cardGroup/card_type/rarity_level".
+    public Identifier getId() {
+        return Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, cardType.getFullId() + "/" + rarityLevel.getSerializedName());
     }
 
     @Override
@@ -142,7 +142,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
                 .set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, card.isEnchanted())
                 .set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag))
                 .set(DataComponents.MAX_STACK_SIZE, 64)
-                .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, card.getId()))
+                .set(DataComponents.ITEM_MODEL, card.getId())
                 .remove(DataComponents.CONSUMABLE)
                 .remove(DataComponents.FOOD);
 

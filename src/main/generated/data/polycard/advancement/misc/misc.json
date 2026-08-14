@@ -1,0 +1,56 @@
+{
+  "parent": "polycard:polycard_root",
+  "criteria": {
+    "all_misc_cards": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:type_specific/player": {
+                "advancements": {
+                  "polycard:misc/inventory/legendary": true,
+                  "polycard:misc/life/common": true,
+                  "polycard:misc/life/epic": true,
+                  "polycard:misc/life/legendary": true,
+                  "polycard:misc/life/rare": true,
+                  "polycard:misc/life/uncommon": true,
+                  "polycard:misc/lucky/common": true,
+                  "polycard:misc/lucky/epic": true,
+                  "polycard:misc/lucky/legendary": true,
+                  "polycard:misc/lucky/rare": true,
+                  "polycard:misc/lucky/uncommon": true,
+                  "polycard:misc/nether/legendary": true,
+                  "polycard:misc/totem/common": true,
+                  "polycard:misc/totem/epic": true,
+                  "polycard:misc/totem/legendary": true,
+                  "polycard:misc/totem/rare": true,
+                  "polycard:misc/totem/uncommon": true
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Unlock all cards in the Misc card group.",
+    "frame": "challenge",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:misc/misc"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Misc cards"
+  },
+  "requirements": [
+    [
+      "all_misc_cards"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
