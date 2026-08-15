@@ -137,11 +137,11 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.LEGENDARY, 1.0f, true, "+3 hearts but loose one rarity level on death");
     }},
     TOTEM("totem", "looting a mansion", CardGroup.MISC, TotemEffects::new) {{
-        addRarity(RarityLevel.COMMON, 0.5f, false, "Count as a totem of undying, consumed when used");
-        addRarity(RarityLevel.UNCOMMON, 0.33f, false, "Count as a totem of undying, consumed when used");
-        addRarity(RarityLevel.RARE, 0.25f, false, "Count as a totem of undying, consumed when used");
-        addRarity(RarityLevel.EPIC, 0.15f, true, "Count as a totem of undying, consumed when used");
-        addRarity(RarityLevel.LEGENDARY, 0.05f, true, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.COMMON, 0.25f, false, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.UNCOMMON, 0.15f, false, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.RARE, 0.10f, false, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.EPIC, 0.05f, true, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.LEGENDARY, 0.01f, true, "Count as a totem of undying, consumed when used");
     }},
     LUCKY("lucky", "looting any structure", CardGroup.MISC, LuckyEffects::new) {{
         addRarity(RarityLevel.COMMON, 0.1f, false, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max common rarity)");
@@ -151,7 +151,7 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max legendary rarity)");
     }},
     NETHER("nether", "looting nether structures", CardGroup.MISC, NetherEffects::new) {{
-        addRarity(RarityLevel.LEGENDARY, 0.33f, true, "Fire resistance but can only respawn in the nether");
+        addRarity(RarityLevel.LEGENDARY, 0.15f, true, "Fire resistance but can only respawn in the nether");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

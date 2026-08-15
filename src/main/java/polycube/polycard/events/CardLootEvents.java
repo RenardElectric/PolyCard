@@ -125,7 +125,7 @@ public class CardLootEvents
     @Override
     public void modifyLootTable(ResourceKey<LootTable> key, LootTable.Builder tableBuilder, LootTableSource source, HolderLookup.Provider holder) {
         if (source.isBuiltin()) {
-            var id = key.registry();
+            var id = key.identifier();
             if (key.equals(BuiltInLootTables.WOODLAND_MANSION)) {
                 tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.TOTEM));
             }
@@ -134,10 +134,10 @@ public class CardLootEvents
                     || key.equals(BuiltInLootTables.NETHER_BRIDGE)) {
                 tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.NETHER));
             }
-            if (BuiltInLootTables.all().contains(key) && id.getPath().startsWith("chests/")
-                    && id.getPath().startsWith("dispensers/") && id.getPath().startsWith("pots/")
-                    && id.getPath().startsWith("archaeology/") && key.equals(BuiltInLootTables.SPAWNER_TRIAL_CHAMBER_CONSUMABLES)
-                    && key.equals(BuiltInLootTables.SPAWNER_OMINOUS_TRIAL_CHAMBER_CONSUMABLES) && key.equals(BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS)) {
+            if (BuiltInLootTables.all().contains(key) && (id.getPath().startsWith("chests/")
+                    || id.getPath().startsWith("dispensers/") || id.getPath().startsWith("pots/")
+                    || id.getPath().startsWith("archaeology/") || key.equals(BuiltInLootTables.SPAWNER_TRIAL_CHAMBER_CONSUMABLES)
+                    || key.equals(BuiltInLootTables.SPAWNER_OMINOUS_TRIAL_CHAMBER_CONSUMABLES) || key.equals(BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS))) {
                 tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.LUCKY));
             }
         }
