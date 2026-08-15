@@ -1,0 +1,65 @@
+{
+  "parent": "polycard:passive",
+  "criteria": {
+    "horse_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/horse/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "horse_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/horse/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "horse_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/horse/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "horse_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/horse/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Horse Cards by taming a horse",
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:passive/horse"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Horse Cards"
+  },
+  "sends_telemetry_event": true
+}

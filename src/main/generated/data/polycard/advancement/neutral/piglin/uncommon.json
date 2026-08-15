@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:neutral/neutral",
+  "parent": "polycard:neutral/piglin",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "green",
           "text": "Uncommon Piglin Card"
-        },
-        " by killing a piglin"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

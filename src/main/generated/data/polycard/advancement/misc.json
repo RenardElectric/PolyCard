@@ -1,0 +1,77 @@
+{
+  "parent": "polycard:root",
+  "criteria": {
+    "inventory": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/inventory": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "life": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/life": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "lucky": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/lucky": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "nether": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/nether": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "totem": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/totem": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Misc Cards",
+    "frame": "challenge",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:misc"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Misc Cards"
+  },
+  "sends_telemetry_event": true
+}

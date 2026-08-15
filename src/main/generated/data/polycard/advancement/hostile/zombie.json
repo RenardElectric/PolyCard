@@ -1,0 +1,77 @@
+{
+  "parent": "polycard:hostile",
+  "criteria": {
+    "zombie_common": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/common": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Zombie Cards by killing a zombie",
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:hostile/zombie"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Zombie Cards"
+  },
+  "sends_telemetry_event": true
+}

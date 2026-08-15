@@ -1,0 +1,77 @@
+{
+  "parent": "polycard:misc",
+  "criteria": {
+    "lucky_common": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/lucky/common": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "lucky_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/lucky/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "lucky_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/lucky/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "lucky_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/lucky/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "lucky_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/lucky/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Lucky Cards by looting any structure",
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:misc/lucky"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Lucky Cards"
+  },
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,53 @@
+{
+  "parent": "polycard:hostile",
+  "criteria": {
+    "ender_dragon_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/ender_dragon/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "ender_dragon_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/ender_dragon/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "ender_dragon_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/ender_dragon/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Ender Dragon Cards by summoning an ender dragon",
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:hostile/ender_dragon"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Ender Dragon Cards"
+  },
+  "sends_telemetry_event": true
+}

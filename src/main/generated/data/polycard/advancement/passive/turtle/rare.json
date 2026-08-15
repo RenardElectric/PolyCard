@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:passive/passive",
+  "parent": "polycard:passive/turtle",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Turtle Card"
-        },
-        " by breeding two turtles"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

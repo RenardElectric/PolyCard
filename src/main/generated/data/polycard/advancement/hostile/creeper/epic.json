@@ -21,10 +21,9 @@
         {
           "color": "dark_purple",
           "text": "Epic Creeper Card"
-        },
-        " by killing a creeper"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

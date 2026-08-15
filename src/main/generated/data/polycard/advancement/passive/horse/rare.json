@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Horse Card"
-        },
-        " by taming a horse"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

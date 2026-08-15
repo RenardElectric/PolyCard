@@ -1,0 +1,53 @@
+{
+  "parent": "polycard:neutral",
+  "criteria": {
+    "iron_golem_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:neutral/iron_golem/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "iron_golem_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:neutral/iron_golem/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "iron_golem_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:neutral/iron_golem/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Iron Golem Cards by  summoning an iron golem",
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:neutral/iron_golem"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Iron Golem Cards"
+  },
+  "sends_telemetry_event": true
+}

@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:neutral/neutral",
+  "parent": "polycard:neutral/iron_golem",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Iron Golem Card"
-        },
-        " by  summoning an iron golem"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

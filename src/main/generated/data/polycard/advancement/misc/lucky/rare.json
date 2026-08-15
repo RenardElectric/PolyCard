@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Lucky Card"
-        },
-        " by looting any structure"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

@@ -1,16 +1,16 @@
 package polycube.polycard.utils;
 
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
+
+import java.util.List;
 
 public final class LootHelpers {
     private static final int PROBABILITY_WEIGHT_SCALE = 1_000_000;
@@ -44,24 +44,9 @@ public final class LootHelpers {
 
     /// Converts an ItemStackTemplate to a LootItem.Builder, applying count and component functions as needed.
     public static LootItem.Builder<?> lootItemFromTemplate(ItemStackTemplate template) {
-        LootItem.Builder<?> entry = LootItem.lootTableItem(template.item().value());
-
-        // Count
-        if (template.count() != 1)
-            entry.apply(SetItemCountFunction.setCount(ConstantValue.exactly(template.count())));
-
-        // All components
-        for (var componentEntry : template.components().entrySet()) {
-            DataComponentType<?> type = componentEntry.getKey();
-            componentEntry.getValue().ifPresent(value -> entry.apply(setComponentUnchecked(type, value)));
-        }
-
-        return entry;
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static LootItemConditionalFunction.Builder<?> setComponentUnchecked(DataComponentType<?> type, Object value) {
-        return SetComponentsFunction.setComponent((DataComponentType) type, value);
+        return LootItem.lootTableItem(template.item().value())
+                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(template.count())))
+                .apply(() -> new SetComponentsFunction(List.of(), template.components()));
     }
 
     private static int probabilityToWeight(float probability) {

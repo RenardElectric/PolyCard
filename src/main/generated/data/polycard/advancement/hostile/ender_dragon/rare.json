@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:hostile/hostile",
+  "parent": "polycard:hostile/ender_dragon",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Ender Dragon Card"
-        },
-        " by summoning an ender dragon"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

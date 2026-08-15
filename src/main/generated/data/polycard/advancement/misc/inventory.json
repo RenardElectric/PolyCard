@@ -1,0 +1,29 @@
+{
+  "parent": "polycard:misc",
+  "criteria": {
+    "inventory_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/inventory/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Inventory Cards by TODO",
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:misc/inventory"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Inventory Cards"
+  },
+  "sends_telemetry_event": true
+}

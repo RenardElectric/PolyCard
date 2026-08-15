@@ -21,10 +21,9 @@
         {
           "color": "green",
           "text": "Uncommon Totem Card"
-        },
-        " by looting a mansion"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

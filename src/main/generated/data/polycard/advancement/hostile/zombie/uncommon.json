@@ -21,10 +21,9 @@
         {
           "color": "green",
           "text": "Uncommon Zombie Card"
-        },
-        " by killing a zombie"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

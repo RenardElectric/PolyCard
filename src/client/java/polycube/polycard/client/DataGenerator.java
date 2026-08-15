@@ -5,8 +5,6 @@ import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementType;
@@ -65,24 +63,19 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                             .build()
             );
 
-            var modData = FabricLoader.getInstance()
-                    .getModContainer(PolyCard.MOD_ID)
-                    .map(ModContainer::getMetadata)
-                    .orElseThrow();
-
-            AdvancementHolder rootAdvancement = Advancement.Builder.advancement()
+            var rootAdvancementBuilder = Advancement.Builder.advancement()
                     .display(
                             iconItem,
-                            Component.literal(modData.getName()),
-                            Component.literal(modData.getDescription()),
+                            Component.literal("PolyCard"),
+                            Component.literal("Collect all cards in the PolyCard mod"),
                             Identifier.withDefaultNamespace("block/amethyst_block"),
-                            AdvancementType.TASK,
-                            false,
-                            false,
+                            AdvancementType.CHALLENGE,
+                            true,
+                            true,
                             false
-                    )
-                    .addCriterion("tick", PlayerTrigger.TriggerInstance.tick())
-                    .save(consumer, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "polycard_root"));
+                    );
+            addCompletionCriteria(rootAdvancementBuilder);
+            AdvancementHolder rootAdvancement = rootAdvancementBuilder.save(consumer, Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "root"));
 
             Map<CardGroup, AdvancementHolder> groupAdvancements = new EnumMap<>(CardGroup.class);
             for (var cardGroup : CardGroup.values()) {
@@ -96,16 +89,15 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                                                 .set(DataComponents.ITEM_MODEL, identifier)
                                                 .build()
                                 ),
-                                Component.literal(cardGroup + " cards"),
-                                Component.literal("Unlock all cards in the " + cardGroup + " card group."),
+                                Component.literal(cardGroup + " Cards"),
+                                Component.literal("Collect all " + cardGroup + " Cards"),
                                 null,
                                 AdvancementType.CHALLENGE,
                                 true,
                                 true,
                                 false
                         );
-
-                addCardCompletionCriteria(groupAdvancementBuilder, cardGroup);
+                addCompletionCriteria(groupAdvancementBuilder, cardGroup);
                 var groupAdvancement = groupAdvancementBuilder.save(consumer, identifier);
 
                 groupAdvancements.put(cardGroup, groupAdvancement);
@@ -115,18 +107,27 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                 addType(cardType, groupAdvancements, consumer);
         }
 
-        private static void addCardCompletionCriteria(Advancement.Builder advancement, CardGroup cardGroup) {
+        private static void addCompletionCriteria(Advancement.Builder advancement) {
+            for (var cardGroup : CardGroup.values()) {
+                advancement.addCriterion(cardGroup.getSerializedName(), cardUnlockedCriterion(cardGroup.getId()));
+            }
+        }
+
+        private static void addCompletionCriteria(Advancement.Builder advancement, CardGroup cardGroup) {
             for (var cardType : CardType.values()) {
                 if (cardType.getGroup() != cardGroup) continue;
+                advancement.addCriterion(cardType.getSerializedName(), cardUnlockedCriterion(cardType.getId()));
+            }
+        }
 
-                for (var rarity : cardType.getRarities()) {
-                    var rarityLevel = rarity.rarityLevel();
-                    var cardAdvancementId = new Card(cardType, rarityLevel).getId();
-                    advancement.addCriterion(
-                            cardType.getSerializedName() + "_" + rarityLevel.getSerializedName(),
-                            cardUnlockedCriterion(cardAdvancementId)
-                    );
-                }
+        private static void addCompletionCriteria(Advancement.Builder advancement, CardType cardType) {
+            for (var rarity : cardType.getRarities()) {
+                var rarityLevel = rarity.rarityLevel();
+                var cardAdvancementId = new Card(cardType, rarityLevel).getId();
+                advancement.addCriterion(
+                        cardType.getSerializedName() + "_" + rarityLevel.getSerializedName(),
+                        cardUnlockedCriterion(cardAdvancementId)
+                );
             }
         }
 
@@ -140,12 +141,32 @@ public class DataGenerator implements DataGeneratorEntrypoint {
 
         public void addType(CardType cardType, Map<CardGroup, AdvancementHolder> groupAdvancements, Consumer<AdvancementHolder> consumer) {
             var parent = groupAdvancements.get(cardType.getGroup());
+            var identifier = cardType.getId();
+            var cardTypeAdvancementBuilder = Advancement.Builder.advancement()
+                    .parent(parent)
+                    .display(
+                            new ItemStackTemplate(
+                                    Card.CARD_ITEM,
+                                    DataComponentPatch.builder()
+                                            .set(DataComponents.ITEM_MODEL, identifier)
+                                            .build()
+                            ),
+                            Component.literal(cardType + " Cards"),
+                            Component.literal("Collect all " + cardType + " Cards by " + cardType.getCondition()),
+                            null,
+                            AdvancementType.GOAL,
+                            true,
+                            true,
+                            false
+                    );
+            addCompletionCriteria(cardTypeAdvancementBuilder, cardType);
+            parent = cardTypeAdvancementBuilder.save(consumer, identifier);
 
             for (var rarity : cardType.getRarities()) {
 
                 var rarityLevel = rarity.rarityLevel();
                 var card = new Card(cardType, rarity.rarityLevel());
-                var identifier = card.getId();
+                identifier = card.getId();
                 var item = new ItemStackTemplate(
                         Card.CARD_ITEM,
                         DataComponentPatch.builder()
@@ -159,9 +180,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                         .display(
                                 item,
                                 Component.literal(card.toString()),
-                                Component.literal("Unlock the ")
-                                        .append(Component.literal(card.toString()).withStyle(rarityLevel.color()))
-                                        .append(" by " + cardType.getCondition()),
+                                Component.literal("Collect the ").append(Component.literal(card.toString()).withStyle(rarityLevel.color())),
                                 null,
                                 rarityLevel == RarityLevel.LEGENDARY ? AdvancementType.CHALLENGE : AdvancementType.TASK,
                                 true,
@@ -185,6 +204,11 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                         )
                         .save(consumer, identifier);
             }
+
+            Advancement.Builder.advancement()
+                    .parent(parent)
+                    .addCriterion("tick", PlayerTrigger.TriggerInstance.tick())
+                    .save(consumer, cardType.getId().withSuffix("/end"));
         }
     }
 
@@ -194,9 +218,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
         }
 
         @Override
-        public void generateBlockStateModels(BlockModelGenerators blockModelGenerators) {
-
-        }
+        public void generateBlockStateModels(BlockModelGenerators blockModelGenerators) {}
 
         @Override
         public void generateItemModels(ItemModelGenerators itemModelGenerators) {
@@ -205,23 +227,22 @@ public class DataGenerator implements DataGeneratorEntrypoint {
             }
 
             for (var rarityLevel : RarityLevel.values()) {
-                var rarityId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + rarityLevel.getSerializedName());
+                var rarityId = rarityLevel.getId().withPrefix("item/");
                 ModelTemplates.FLAT_ITEM.create(rarityId, TextureMapping.layer0(new Material(rarityId)), itemModelGenerators.modelOutput);
             }
 
             for (var cardType : CardType.values()) {
-                var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getFullId());
+                var cardTypeId = cardType.getId().withPrefix("item/");
                 ModelTemplates.FLAT_ITEM.create(cardTypeId, TextureMapping.layer0(new Material(cardTypeId)), itemModelGenerators.modelOutput);
+                itemModelGenerators.itemModelOutput.accept(PolyCardClient.getDatagenItem(cardType), ItemModelUtils.plainModel(cardTypeId));
             }
 
             for (var cardType : CardType.values()) {
                 for (var rarity : cardType.getRarities()) {
                     var rarityLevel = rarity.rarityLevel();
-                    var rarityId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + rarityLevel.getSerializedName());
-                    var cardTypeId = Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "item/" + cardType.getFullId());
 
-                    ItemModel.Unbaked rarityModel = ItemModelUtils.plainModel(rarityId);
-                    ItemModel.Unbaked cardTypeModel = ItemModelUtils.plainModel(cardTypeId);
+                    ItemModel.Unbaked rarityModel = ItemModelUtils.plainModel(rarityLevel.getId().withPrefix("item/"));
+                    ItemModel.Unbaked cardTypeModel = ItemModelUtils.plainModel(cardType.getId().withPrefix("item/"));
 
                     itemModelGenerators.itemModelOutput.accept(
                             PolyCardClient.getDatagenItem(new Card(cardType, rarityLevel)),

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "polycard:item/hostile/hostile"
+    "model": "polycard:item/hostile/creeper"
   }
 }

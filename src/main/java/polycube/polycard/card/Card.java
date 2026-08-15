@@ -112,9 +112,9 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return descriptions;
     }
 
-    /// Returns the item model identifier path, such as "polycard:cardGroup/card_type/rarity_level".
+    /// Returns the card identifier, formated as "polycard:cardGroup/card_type/rarity_level".
     public Identifier getId() {
-        return Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, cardType.getFullId() + "/" + rarityLevel.getSerializedName());
+        return cardType.getId().withSuffix("/" + rarityLevel.getSerializedName());
     }
 
     @Override

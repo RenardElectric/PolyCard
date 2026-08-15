@@ -31,9 +31,9 @@ public enum CardGroup implements StringRepresentable {
         return Optional.ofNullable(BY_ID.get(string.toLowerCase(Locale.ROOT)));
     }
 
-    /// Returns the item model identifier path, such as "polycard:cardGroup"
+    /// Returns the card group identifier, formated as "polycard:cardGroup".
     public Identifier getId() {
-        return Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, getSerializedName() + "/" + getSerializedName());
+        return Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, getSerializedName());
     }
 
     @Override

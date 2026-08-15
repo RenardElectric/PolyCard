@@ -21,10 +21,9 @@
         {
           "color": "green",
           "text": "Uncommon Chicken Card"
-        },
-        " by breeding two chickens"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

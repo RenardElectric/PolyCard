@@ -1,0 +1,65 @@
+{
+  "parent": "polycard:hostile",
+  "criteria": {
+    "creeper_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/creeper/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "creeper_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/creeper/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "creeper_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/creeper/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "creeper_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/creeper/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Creeper Cards by killing a creeper",
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:hostile/creeper"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Creeper Cards"
+  },
+  "sends_telemetry_event": true
+}

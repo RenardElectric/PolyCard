@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Zombie Card"
-        },
-        " by killing a zombie"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

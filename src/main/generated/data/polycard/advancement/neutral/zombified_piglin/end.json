@@ -1,0 +1,9 @@
+{
+  "parent": "polycard:neutral/zombified_piglin/legendary",
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "sends_telemetry_event": true
+}

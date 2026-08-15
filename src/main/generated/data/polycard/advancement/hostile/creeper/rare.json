@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Creeper Card"
-        },
-        " by killing a creeper"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

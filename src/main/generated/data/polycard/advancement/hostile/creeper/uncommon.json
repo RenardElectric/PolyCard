@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:hostile/hostile",
+  "parent": "polycard:hostile/creeper",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "green",
           "text": "Uncommon Creeper Card"
-        },
-        " by killing a creeper"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

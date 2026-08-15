@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "polycard:item/neutral/neutral"
+    "model": "polycard:item/passive/horse"
   }
 }

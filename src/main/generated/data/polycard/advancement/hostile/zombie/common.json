@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:hostile/hostile",
+  "parent": "polycard:hostile/zombie",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "gray",
           "text": "Common Zombie Card"
-        },
-        " by killing a zombie"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

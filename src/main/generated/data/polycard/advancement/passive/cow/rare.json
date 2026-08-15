@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Cow Card"
-        },
-        " by breeding two cows"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

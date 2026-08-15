@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "polycard:item/misc/misc"
+    "model": "polycard:item/hostile/zombie"
   }
 }

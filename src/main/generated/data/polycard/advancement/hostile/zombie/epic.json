@@ -21,10 +21,9 @@
         {
           "color": "dark_purple",
           "text": "Epic Zombie Card"
-        },
-        " by killing a zombie"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:passive/passive",
+  "parent": "polycard:passive/bat",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Bat Card"
-        },
-        " by killing a bat"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

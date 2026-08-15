@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:passive/passive",
+  "parent": "polycard:passive/horse",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "green",
           "text": "Uncommon Horse Card"
-        },
-        " by taming a horse"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

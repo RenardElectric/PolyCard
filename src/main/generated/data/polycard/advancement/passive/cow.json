@@ -1,0 +1,65 @@
+{
+  "parent": "polycard:passive",
+  "criteria": {
+    "cow_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/cow/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "cow_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/cow/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "cow_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/cow/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "cow_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/cow/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Cow Cards by breeding two cows",
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:passive/cow"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Cow Cards"
+  },
+  "sends_telemetry_event": true
+}

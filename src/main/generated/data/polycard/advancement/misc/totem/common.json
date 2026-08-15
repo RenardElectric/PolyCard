@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:misc/misc",
+  "parent": "polycard:misc/totem",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "gray",
           "text": "Common Totem Card"
-        },
-        " by looting a mansion"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:misc/misc",
+  "parent": "polycard:misc/inventory",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -20,10 +20,9 @@
         {
           "color": "gold",
           "text": "Legendary Inventory Card"
-        },
-        " by TODO"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "frame": "challenge",
     "icon": {

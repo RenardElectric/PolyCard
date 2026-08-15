@@ -20,10 +20,9 @@
         {
           "color": "gold",
           "text": "Legendary Bat Card"
-        },
-        " by killing a bat"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "frame": "challenge",
     "icon": {

@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:neutral/neutral",
+  "parent": "polycard:neutral/bee",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Bee Card"
-        },
-        " by collecting honey"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

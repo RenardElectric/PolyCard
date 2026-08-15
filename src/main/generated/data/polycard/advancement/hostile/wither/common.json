@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:hostile/hostile",
+  "parent": "polycard:hostile/wither",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "gray",
           "text": "Common Wither Card"
-        },
-        " by summoning a wither"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

@@ -1,0 +1,65 @@
+{
+  "parent": "polycard:root",
+  "criteria": {
+    "creeper": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/creeper": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "ender_dragon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/ender_dragon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "wither": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/wither": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": "Collect all Hostile Cards",
+    "frame": "challenge",
+    "icon": {
+      "components": {
+        "minecraft:item_model": "polycard:hostile"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Hostile Cards"
+  },
+  "sends_telemetry_event": true
+}

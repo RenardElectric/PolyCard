@@ -1,12 +1,16 @@
 package polycube.polycard.card;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.cardEffects.hostile.*;
+import polycube.polycard.cardEffects.hostile.CreeperEffects;
+import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
+import polycube.polycard.cardEffects.hostile.WitherEffects;
+import polycube.polycard.cardEffects.hostile.ZombieEffects;
+import polycube.polycard.cardEffects.misc.*;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
-import polycube.polycard.cardEffects.misc.*;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
@@ -137,7 +141,7 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.UNCOMMON, 0.33f, false, "Count as a totem of undying, consumed when used");
         addRarity(RarityLevel.RARE, 0.25f, false, "Count as a totem of undying, consumed when used");
         addRarity(RarityLevel.EPIC, 0.15f, true, "Count as a totem of undying, consumed when used");
-        addRarity(RarityLevel.LEGENDARY, 0.5f, true, "Count as a totem of undying, consumed when used");
+        addRarity(RarityLevel.LEGENDARY, 0.05f, true, "Count as a totem of undying, consumed when used");
     }},
     LUCKY("lucky", "looting any structure", CardGroup.MISC, LuckyEffects::new) {{
         addRarity(RarityLevel.COMMON, 0.1f, false, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max common rarity)");
@@ -225,9 +229,9 @@ public enum CardType implements StringRepresentable {
         return cardGroup;
     }
 
-    /// Returns the grouped resource path, formatted as cardGroup/identifier, such as "hostile/zombie".
-    public String getFullId() {
-        return cardGroup.getSerializedName() + "/" + id;
+    /// Returns the card type identifier, formated as "polycard:cardGroup/card_type".
+    public Identifier getId() {
+        return cardGroup.getId().withSuffix("/" + id);
     }
 
     /// Parses a serialized card type id.

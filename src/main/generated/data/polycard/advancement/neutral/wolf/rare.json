@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Wolf Card"
-        },
-        " by taming a wolf"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

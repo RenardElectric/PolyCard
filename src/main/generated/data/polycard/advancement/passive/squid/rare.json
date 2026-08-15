@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:passive/passive",
+  "parent": "polycard:passive/squid",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "blue",
           "text": "Rare Squid Card"
-        },
-        " by killing a squid"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

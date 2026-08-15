@@ -20,10 +20,9 @@
         {
           "color": "gold",
           "text": "Legendary Lucky Card"
-        },
-        " by looting any structure"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "frame": "challenge",
     "icon": {

@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:neutral/neutral",
+  "parent": "polycard:neutral/enderman",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "green",
           "text": "Uncommon Enderman Card"
-        },
-        " by killing an enderman"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {

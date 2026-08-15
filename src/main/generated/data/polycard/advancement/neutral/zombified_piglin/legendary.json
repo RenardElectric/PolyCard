@@ -20,10 +20,9 @@
         {
           "color": "gold",
           "text": "Legendary Zombified Piglin Card"
-        },
-        " by killing a zombified piglin"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "frame": "challenge",
     "icon": {

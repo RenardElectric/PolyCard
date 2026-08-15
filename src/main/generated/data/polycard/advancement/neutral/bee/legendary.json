@@ -20,10 +20,9 @@
         {
           "color": "gold",
           "text": "Legendary Bee Card"
-        },
-        " by collecting honey"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "frame": "challenge",
     "icon": {

@@ -1,5 +1,5 @@
 {
-  "parent": "polycard:neutral/neutral",
+  "parent": "polycard:neutral/zombified_piglin",
   "criteria": {
     "got_card": {
       "conditions": {
@@ -21,10 +21,9 @@
         {
           "color": "dark_purple",
           "text": "Epic Zombified Piglin Card"
-        },
-        " by killing a zombified piglin"
+        }
       ],
-      "text": "Unlock the "
+      "text": "Collect the "
     },
     "icon": {
       "components": {
