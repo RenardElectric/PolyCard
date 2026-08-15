@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "blue",
-          "text": "Rare Ender Dragon card"
+          "text": "Rare Ender Dragon Card"
         },
         " by summoning an ender dragon"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Rare Ender Dragon card"
+    "title": "Rare Ender Dragon Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

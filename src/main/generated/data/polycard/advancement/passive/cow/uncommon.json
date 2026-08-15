@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "green",
-          "text": "Uncommon Cow card"
+          "text": "Uncommon Cow Card"
         },
         " by breeding two cows"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Uncommon Cow card"
+    "title": "Uncommon Cow Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

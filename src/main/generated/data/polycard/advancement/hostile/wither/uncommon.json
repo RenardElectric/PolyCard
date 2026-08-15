@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "green",
-          "text": "Uncommon Wither card"
+          "text": "Uncommon Wither Card"
         },
         " by summoning a wither"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Uncommon Wither card"
+    "title": "Uncommon Wither Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

@@ -19,7 +19,7 @@
       "extra": [
         {
           "color": "gold",
-          "text": "Legendary Zombified Piglin card"
+          "text": "Legendary Zombified Piglin Card"
         },
         " by killing a zombified piglin"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Legendary Zombified Piglin card"
+    "title": "Legendary Zombified Piglin Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

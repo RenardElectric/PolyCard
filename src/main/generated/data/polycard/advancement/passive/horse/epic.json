@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "dark_purple",
-          "text": "Epic Horse card"
+          "text": "Epic Horse Card"
         },
         " by taming a horse"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Epic Horse card"
+    "title": "Epic Horse Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

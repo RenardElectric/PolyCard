@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "dark_purple",
-          "text": "Epic Bat card"
+          "text": "Epic Bat Card"
         },
         " by killing a bat"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Epic Bat card"
+    "title": "Epic Bat Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

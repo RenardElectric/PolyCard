@@ -1,42 +1,267 @@
 {
   "parent": "polycard:polycard_root",
   "criteria": {
-    "all_passive_cards": {
+    "bat_epic": {
       "conditions": {
-        "player": [
-          {
-            "condition": "minecraft:entity_properties",
-            "entity": "this",
-            "predicate": {
-              "minecraft:type_specific/player": {
-                "advancements": {
-                  "polycard:passive/bat/epic": true,
-                  "polycard:passive/bat/legendary": true,
-                  "polycard:passive/bat/rare": true,
-                  "polycard:passive/chicken/common": true,
-                  "polycard:passive/chicken/epic": true,
-                  "polycard:passive/chicken/legendary": true,
-                  "polycard:passive/chicken/rare": true,
-                  "polycard:passive/chicken/uncommon": true,
-                  "polycard:passive/cow/epic": true,
-                  "polycard:passive/cow/legendary": true,
-                  "polycard:passive/cow/rare": true,
-                  "polycard:passive/cow/uncommon": true,
-                  "polycard:passive/horse/epic": true,
-                  "polycard:passive/horse/legendary": true,
-                  "polycard:passive/horse/rare": true,
-                  "polycard:passive/horse/uncommon": true,
-                  "polycard:passive/squid/epic": true,
-                  "polycard:passive/squid/legendary": true,
-                  "polycard:passive/squid/rare": true,
-                  "polycard:passive/turtle/epic": true,
-                  "polycard:passive/turtle/legendary": true,
-                  "polycard:passive/turtle/rare": true
-                }
-              }
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/bat/epic": true
             }
           }
-        ]
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "bat_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/bat/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "bat_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/bat/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "chicken_common": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/chicken/common": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "chicken_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/chicken/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "chicken_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/chicken/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "chicken_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/chicken/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "chicken_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/chicken/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "cow_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/cow/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "cow_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/cow/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "cow_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/cow/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "cow_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/cow/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "horse_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/horse/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "horse_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/horse/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "horse_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/horse/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "horse_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/horse/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "squid_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/squid/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "squid_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/squid/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "squid_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/squid/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "turtle_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/turtle/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "turtle_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/turtle/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "turtle_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:passive/turtle/rare": true
+            }
+          }
+        }
       },
       "trigger": "minecraft:location"
     }
@@ -52,10 +277,5 @@
     },
     "title": "Passive cards"
   },
-  "requirements": [
-    [
-      "all_passive_cards"
-    ]
-  ],
   "sends_telemetry_event": true
 }

@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "dark_purple",
-          "text": "Epic Turtle card"
+          "text": "Epic Turtle Card"
         },
         " by breeding two turtles"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Epic Turtle card"
+    "title": "Epic Turtle Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

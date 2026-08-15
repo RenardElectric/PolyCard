@@ -1,4 +1,4 @@
-package polycube.polycard.mixin;
+package polycube.polycard.mixin.server;
 
 import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.advancements.triggers.KilledTrigger;

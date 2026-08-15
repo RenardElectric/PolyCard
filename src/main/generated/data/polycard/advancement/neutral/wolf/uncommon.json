@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "green",
-          "text": "Uncommon Wolf card"
+          "text": "Uncommon Wolf Card"
         },
         " by taming a wolf"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Uncommon Wolf card"
+    "title": "Uncommon Wolf Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

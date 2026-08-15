@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "dark_purple",
-          "text": "Epic Ender Dragon card"
+          "text": "Epic Ender Dragon Card"
         },
         " by summoning an ender dragon"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Epic Ender Dragon card"
+    "title": "Epic Ender Dragon Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

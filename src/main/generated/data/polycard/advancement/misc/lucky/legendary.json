@@ -19,7 +19,7 @@
       "extra": [
         {
           "color": "gold",
-          "text": "Legendary Lucky card"
+          "text": "Legendary Lucky Card"
         },
         " by looting any structure"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Legendary Lucky card"
+    "title": "Legendary Lucky Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

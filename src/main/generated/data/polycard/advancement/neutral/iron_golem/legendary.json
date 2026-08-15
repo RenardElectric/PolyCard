@@ -19,7 +19,7 @@
       "extra": [
         {
           "color": "gold",
-          "text": "Legendary Iron Golem card"
+          "text": "Legendary Iron Golem Card"
         },
         " by  summoning an iron golem"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Legendary Iron Golem card"
+    "title": "Legendary Iron Golem Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

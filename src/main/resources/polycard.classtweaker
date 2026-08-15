@@ -3,3 +3,4 @@ classTweaker  v1  official
 accessible field net/minecraft/world/entity/Entity DATA_SHARED_FLAGS_ID Lnet/minecraft/network/syncher/EntityDataAccessor;
 accessible field net/minecraft/world/effect/MobEffectInstance hiddenEffect Lnet/minecraft/world/effect/MobEffectInstance;
 accessible class net/minecraft/server/level/ServerPlayer$RespawnPosAngle
+accessible field net/minecraft/advancements/predicates/ContextAwarePredicate conditions Ljava/util/List;

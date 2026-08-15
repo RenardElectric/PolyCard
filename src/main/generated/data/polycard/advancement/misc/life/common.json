@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "gray",
-          "text": "Common Life card"
+          "text": "Common Life Card"
         },
         " by TODO"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Common Life card"
+    "title": "Common Life Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

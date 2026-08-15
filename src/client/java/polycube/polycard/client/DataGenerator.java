@@ -87,7 +87,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
             Map<CardGroup, AdvancementHolder> groupAdvancements = new EnumMap<>(CardGroup.class);
             for (var cardGroup : CardGroup.values()) {
                 var identifier = cardGroup.getId();
-                var groupAdvancement = Advancement.Builder.advancement()
+                var groupAdvancementBuilder = Advancement.Builder.advancement()
                         .parent(rootAdvancement)
                         .display(
                                 new ItemStackTemplate(
@@ -103,9 +103,10 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                                 true,
                                 true,
                                 false
-                        )
-                        .addCriterion("all_" + cardGroup.getSerializedName() + "_cards", allCardsUnlockedCriterion(cardGroup))
-                        .save(consumer, identifier);
+                        );
+
+                addCardCompletionCriteria(groupAdvancementBuilder, cardGroup);
+                var groupAdvancement = groupAdvancementBuilder.save(consumer, identifier);
 
                 groupAdvancements.put(cardGroup, groupAdvancement);
             }
@@ -114,21 +115,27 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                 addType(cardType, groupAdvancements, consumer);
         }
 
-        /// Checks advancement state directly because Minecraft has no child-completed criterion.
-        private static Criterion<PlayerTrigger.TriggerInstance> allCardsUnlockedCriterion(CardGroup cardGroup) {
-            var playerPredicate = PlayerPredicate.Builder.player();
+        private static void addCardCompletionCriteria(Advancement.Builder advancement, CardGroup cardGroup) {
             for (var cardType : CardType.values()) {
                 if (cardType.getGroup() != cardGroup) continue;
 
                 for (var rarity : cardType.getRarities()) {
-                    playerPredicate.checkAdvancementDone(
-                            new Card(cardType, rarity.rarityLevel()).getId(),
-                            true
+                    var rarityLevel = rarity.rarityLevel();
+                    var cardAdvancementId = new Card(cardType, rarityLevel).getId();
+                    advancement.addCriterion(
+                            cardType.getSerializedName() + "_" + rarityLevel.getSerializedName(),
+                            cardUnlockedCriterion(cardAdvancementId)
                     );
                 }
             }
+        }
 
-            return PlayerTrigger.TriggerInstance.located(EntityPredicate.Builder.entity().player(playerPredicate.build()));
+        private static Criterion<PlayerTrigger.TriggerInstance> cardUnlockedCriterion(Identifier cardAdvancementId) {
+            var playerPredicate = PlayerPredicate.Builder.player()
+                    .checkAdvancementDone(cardAdvancementId, true)
+                    .build();
+
+            return PlayerTrigger.TriggerInstance.located(EntityPredicate.Builder.entity().player(playerPredicate));
         }
 
         public void addType(CardType cardType, Map<CardGroup, AdvancementHolder> groupAdvancements, Consumer<AdvancementHolder> consumer) {

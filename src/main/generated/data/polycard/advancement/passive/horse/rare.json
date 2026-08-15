@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "blue",
-          "text": "Rare Horse card"
+          "text": "Rare Horse Card"
         },
         " by taming a horse"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Rare Horse card"
+    "title": "Rare Horse Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

@@ -17,13 +17,12 @@ import java.util.Objects;
 
 /// Registers placeholder card items used only while generating item-model JSON.
 public class PolyCardClient implements ClientModInitializer {
-    private static final String DATAGEN_PROPERTY = "fabric-api.datagen";
     private static final Map<Card, Item> DATAGEN_CARD_ITEMS = new HashMap<>();
     private static final Map<CardGroup, Item> DATAGEN_CARDGROUP_ITEMS = new HashMap<>();
 
     @Override
     public void onInitializeClient() {
-        if (System.getProperty(DATAGEN_PROPERTY) == null) {
+        if (System.getProperty("fabric-api.datagen") == null) {
             PolyCard.LOGGER.debug("Skipping datagen-only card item registration");
             return;
         }

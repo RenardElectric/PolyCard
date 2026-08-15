@@ -19,7 +19,7 @@
       "extra": [
         {
           "color": "gold",
-          "text": "Legendary Ender Dragon card"
+          "text": "Legendary Ender Dragon Card"
         },
         " by summoning an ender dragon"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Legendary Ender Dragon card"
+    "title": "Legendary Ender Dragon Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

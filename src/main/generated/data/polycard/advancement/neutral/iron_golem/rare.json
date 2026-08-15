@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "blue",
-          "text": "Rare Iron Golem card"
+          "text": "Rare Iron Golem Card"
         },
         " by  summoning an iron golem"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Rare Iron Golem card"
+    "title": "Rare Iron Golem Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "gray",
-          "text": "Common Chicken card"
+          "text": "Common Chicken Card"
         },
         " by breeding two chickens"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Common Chicken card"
+    "title": "Common Chicken Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

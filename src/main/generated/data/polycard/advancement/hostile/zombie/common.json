@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "gray",
-          "text": "Common Zombie card"
+          "text": "Common Zombie Card"
         },
         " by killing a zombie"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Common Zombie card"
+    "title": "Common Zombie Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

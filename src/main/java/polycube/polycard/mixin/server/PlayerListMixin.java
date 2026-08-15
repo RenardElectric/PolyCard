@@ -1,4 +1,4 @@
-package polycube.polycard.mixin;
+package polycube.polycard.mixin.server;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;

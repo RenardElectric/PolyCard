@@ -17,10 +17,5 @@
     "show_toast": false,
     "title": "PolyCard"
   },
-  "requirements": [
-    [
-      "tick"
-    ]
-  ],
   "sends_telemetry_event": true
 }

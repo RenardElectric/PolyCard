@@ -19,7 +19,7 @@
       "extra": [
         {
           "color": "gold",
-          "text": "Legendary Nether card"
+          "text": "Legendary Nether Card"
         },
         " by looting nether structures"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Legendary Nether card"
+    "title": "Legendary Nether Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

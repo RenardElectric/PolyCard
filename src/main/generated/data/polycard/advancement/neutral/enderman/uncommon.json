@@ -20,7 +20,7 @@
       "extra": [
         {
           "color": "green",
-          "text": "Uncommon Enderman card"
+          "text": "Uncommon Enderman Card"
         },
         " by killing an enderman"
       ],
@@ -33,12 +33,7 @@
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Uncommon Enderman card"
+    "title": "Uncommon Enderman Card"
   },
-  "requirements": [
-    [
-      "got_card"
-    ]
-  ],
   "sends_telemetry_event": true
 }

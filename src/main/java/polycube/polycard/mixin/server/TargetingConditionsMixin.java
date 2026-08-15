@@ -1,4 +1,4 @@
-package polycube.polycard.mixin;
+package polycube.polycard.mixin.server;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

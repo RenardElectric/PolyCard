@@ -1,37 +1,207 @@
 {
   "parent": "polycard:polycard_root",
   "criteria": {
-    "all_hostile_cards": {
+    "creeper_epic": {
       "conditions": {
-        "player": [
-          {
-            "condition": "minecraft:entity_properties",
-            "entity": "this",
-            "predicate": {
-              "minecraft:type_specific/player": {
-                "advancements": {
-                  "polycard:hostile/creeper/epic": true,
-                  "polycard:hostile/creeper/legendary": true,
-                  "polycard:hostile/creeper/rare": true,
-                  "polycard:hostile/creeper/uncommon": true,
-                  "polycard:hostile/ender_dragon/epic": true,
-                  "polycard:hostile/ender_dragon/legendary": true,
-                  "polycard:hostile/ender_dragon/rare": true,
-                  "polycard:hostile/wither/common": true,
-                  "polycard:hostile/wither/epic": true,
-                  "polycard:hostile/wither/legendary": true,
-                  "polycard:hostile/wither/rare": true,
-                  "polycard:hostile/wither/uncommon": true,
-                  "polycard:hostile/zombie/common": true,
-                  "polycard:hostile/zombie/epic": true,
-                  "polycard:hostile/zombie/legendary": true,
-                  "polycard:hostile/zombie/rare": true,
-                  "polycard:hostile/zombie/uncommon": true
-                }
-              }
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/creeper/epic": true
             }
           }
-        ]
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "creeper_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/creeper/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "creeper_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/creeper/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "creeper_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/creeper/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "ender_dragon_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/ender_dragon/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "ender_dragon_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/ender_dragon/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "ender_dragon_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/ender_dragon/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "wither_common": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/wither/common": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "wither_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/wither/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "wither_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/wither/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "wither_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/wither/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "wither_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/wither/uncommon": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie_common": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/common": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie_epic": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/epic": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie_legendary": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/legendary": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie_rare": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/rare": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
+    "zombie_uncommon": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:hostile/zombie/uncommon": true
+            }
+          }
+        }
       },
       "trigger": "minecraft:location"
     }
@@ -47,10 +217,5 @@
     },
     "title": "Hostile cards"
   },
-  "requirements": [
-    [
-      "all_hostile_cards"
-    ]
-  ],
   "sends_telemetry_event": true
 }

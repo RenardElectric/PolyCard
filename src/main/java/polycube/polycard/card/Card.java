@@ -119,7 +119,7 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     @Override
     public String toString() {
-        return rarityLevel + " " + cardType + " card";
+        return rarityLevel + " " + cardType + " Card";
     }
 
     /// Creates the base stack template for a card item.
