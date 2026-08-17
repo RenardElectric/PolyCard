@@ -1,6 +1,7 @@
 package polycube.polycard.data;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import net.minecraft.server.level.ServerPlayer;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
@@ -82,34 +83,45 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
         return equippedCards.containsKey(cardType);
     }
 
+    public DataResult<PlayerData> canEquipCardType(CardType cardType) {
+        if (equippedCardCount() >= MAX_EQUIPPED_CARDS) {
+            return DataResult.error(() -> "there are already " + MAX_EQUIPPED_CARDS + " cards equipped");
+        }
+        if (hasCardType(cardType)) {
+            return DataResult.error(() -> cardType + " is already equipped");
+        }
+
+        var mutexGroup = cardType.getMutexGroup();
+        if (!mutexGroup.isBlank())
+            for (var equippedType : equippedCards.keySet())
+                if (equippedType.getMutexGroup().equals(mutexGroup))
+                    return DataResult.error(() -> "cannot equip " + cardType + " because a " + mutexGroup + " card is already equipped");
+
+        return DataResult.success(this);
+    }
+
     /// Equips a card if there is room and no card of the same type is yet equipped.
-    public static boolean equipCard(ServerPlayer player, Card card) {
-        var playerData = PolyCard.storage().getPlayerData(player);
-
-        if (playerData.equippedCardCount() >= MAX_EQUIPPED_CARDS) {
-            return false;
-        }
-        if (playerData.hasCardType(card.cardType())) {
-            return false;
-        }
-
-        playerData.equippedCards.put(card.cardType(), card.rarityLevel());
-        CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
-        PolyCard.storage().setDirty();
-        return true;
+    public static DataResult<PlayerData> equipCard(ServerPlayer player, Card card) {
+        return PolyCard.storage().getPlayerData(player).canEquipCardType(card.cardType()).map(playerData -> {
+            playerData.equippedCards.put(card.cardType(), card.rarityLevel());
+            CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
+            PolyCard.storage().setDirty();
+            return playerData;
+        });
     }
 
     /// Unequips a card if it is currently equipped.
-    public static boolean unequipCard(ServerPlayer player, Card card) {
+    public static DataResult<PlayerData> unequipCard(ServerPlayer player, Card card) {
         var playerData = PolyCard.storage().getPlayerData(player);
-        var removedRarityLevel = playerData.equippedCards.remove(card.cardType());
+        var cardType = card.cardType();
+        var removedRarityLevel = playerData.equippedCards.remove(cardType);
         if (removedRarityLevel == card.rarityLevel()) {
             CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card);
             PolyCard.storage().setDirty();
-            return true;
+            return DataResult.success(playerData);
         } else if (removedRarityLevel != null) {
-            playerData.equippedCards.put(card.cardType(), removedRarityLevel);
+            playerData.equippedCards.put(cardType, removedRarityLevel);
         }
-        return false;
+        return DataResult.error(() -> cardType + " is not equipped");
     }
 }

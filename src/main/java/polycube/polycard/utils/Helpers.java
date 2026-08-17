@@ -38,7 +38,12 @@ public final class Helpers {
         player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0f, 1.0f, RANDOM.nextLong()));
     }
 
-    /// Plays the standard failure sound with spam protection.
+    /// Sends a success message
+    public static void SendSuccess(ServerPlayer player, MutableComponent message) {
+        player.sendSystemMessage(message.withStyle(ChatFormatting.GREEN));
+    }
+
+    /// Sends a failure with spam protection.
     public static void SendFailure(ServerPlayer player, MutableComponent reason) {
         var key = "sound:" + BuiltInRegistries.SOUND_EVENT.getKey(SoundEvents.VILLAGER_NO);
         if (PolyCard.cooldowns().tryStartCooldown(player, key, FAILURE_COOLDOWN)) {
@@ -68,9 +73,7 @@ public final class Helpers {
 
     /// Schedules a task on the server tick loop; period 0 makes it one-shot.
     public static void runTaskTimer(int delay, int period, Consumer<MinecraftServer> runnable) {
-        if (delay < 0) {
-            throw new IllegalArgumentException("Scheduled-task delay cannot be negative");
-        }
+        if (delay < 0) throw new IllegalArgumentException("Scheduled-task delay cannot be negative");
         TASKS.add(new ScheduledTask(Math.addExact(delay, 1), period, Objects.requireNonNull(runnable, "runnable")));
     }
 

@@ -125,36 +125,35 @@ public final class EquipmentGUI extends SimpleGui {
         var card = Card.getCard(itemStack).orElse(null);
         if (card == null) {
             if (!itemStack.isEmpty()) {
-                Helpers.SendFailure(
-                        viewer,
-                        Component.literal("You can only equip card items.")
-                );
-                Helpers.debug("{} attempted to place a non-card item in an equipment slot: {}",
-                        viewer.getName().getString(), itemStack.getHoverName().getString());
+                Helpers.SendFailure(viewer, Component.literal("You can only equip card items."));
+                Helpers.debug("{} attempted to place a non-card item in an equipment slot: {}", viewer.getName().getString(), itemStack.getHoverName().getString());
             }
             return false;
         }
 
+        var cardType = card.cardType();
+        var mutexGroup = cardType.getMutexGroup();
         var currentCard = Card.getCard(slot.getItem()).orElse(null);
-        if (currentCard != null && currentCard.cardType() == card.cardType()) {
-            Helpers.debug("{} is replacing card {} in slot {} with {}",
-                    viewer.getName().getString(), currentCard, slot.getContainerSlot(), card);
+        if (currentCard != null
+                && (currentCard.cardType() == cardType
+                || (!mutexGroup.isBlank() && currentCard.cardType().getMutexGroup().equals(mutexGroup)))) {
+            Helpers.debug("{} is replacing card {} in slot {} with {}", viewer.getName().getString(), currentCard, slot.getContainerSlot(), card);
             return true;
         }
 
-        if (playerData.hasCardType(card.cardType())) {
-            Helpers.SendFailure(
-                    viewer,
-                    Component.literal("You cannot equip the same card type twice.")
-            );
-            Helpers.debug("{} attempted to equip duplicate card type: {}",
-                    viewer.getName().getString(), card.cardType());
-            return false;
-        }
-
-        Helpers.debug("{} is equipping card {} in slot {}",
-                viewer.getName().getString(), card, slot.getContainerSlot());
-        return true;
+        return playerData.canEquipCardType(cardType).mapOrElse(
+                _ -> {
+                    Helpers.SendSuccess(player, Component.literal("Equipped card: ").append(card.getFormattedName()));
+                    Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
+                    return true;
+                },
+                error -> {
+                    var msg = error.message();
+                    Helpers.SendFailure(player, Component.literal("Failed to equip card: " + msg));
+                    Helpers.debug("Failed to equip card for {}: {}", player.getName().getString(), msg);
+                    return false;
+                }
+        );
     }
 
     private final class EquipmentContainer extends SimpleContainer {
@@ -182,14 +181,14 @@ public final class EquipmentGUI extends SimpleGui {
             }
 
             for (var card : equippedCards) {
-                if (!displayedCards.contains(card) && PlayerData.unequipCard(targetPlayer, card)) {
+                if (!displayedCards.contains(card) && PlayerData.unequipCard(targetPlayer, card).isSuccess()) {
                     Helpers.debug("{} unequipped card {} for {}", getPlayer(), card, targetPlayer);
                     Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_REMOVE_ONE);
                 }
             }
 
             for (var card : displayedCards) {
-                if (!equippedCards.contains(card) && PlayerData.equipCard(targetPlayer, card)) {
+                if (!equippedCards.contains(card) && PlayerData.equipCard(targetPlayer, card).isSuccess()) {
                     Helpers.debug("{} equipped card {} for {}", getPlayer(), card, targetPlayer);
                     Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_INSERT);
                 }

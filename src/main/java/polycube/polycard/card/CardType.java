@@ -4,10 +4,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import polycube.polycard.cardEffects.CardEffects;
-import polycube.polycard.cardEffects.hostile.CreeperEffects;
-import polycube.polycard.cardEffects.hostile.EnderDragonEffects;
-import polycube.polycard.cardEffects.hostile.WitherEffects;
-import polycube.polycard.cardEffects.hostile.ZombieEffects;
+import polycube.polycard.cardEffects.hostile.*;
 import polycube.polycard.cardEffects.misc.*;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
@@ -123,6 +120,20 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 0.006f, true, "When hit, " + probToStr(CreeperEffects.EXPLOSION_PROBABILITY) + "% chance to create a blast (no blocks damage)");
         addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Creepers do not attack you");
     }},
+    ELDER_WEREWOLF("elder_werewolf", "TODO", CardGroup.HOSTILE, "werewolf", () -> new WerewolfEffects(WerewolfEffects.WerewolfType.ELDER)) {{
+        addRarity(RarityLevel.COMMON, 1.0f, false, "TODO");
+        addRarity(RarityLevel.UNCOMMON, 1.0f, false, "TODO");
+        addRarity(RarityLevel.RARE, 1.0f, false, "TODO");
+        addRarity(RarityLevel.EPIC, 1.0f, true, "TODO");
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "TODO");
+    }},
+    ALPHA_WEREWOLF("alpha_werewolf", "TODO", CardGroup.HOSTILE, "werewolf", () -> new WerewolfEffects(WerewolfEffects.WerewolfType.ALPHA)) {{
+        addRarity(RarityLevel.COMMON, 1.0f, false, "TODO");
+        addRarity(RarityLevel.UNCOMMON, 1.0f, false, "TODO");
+        addRarity(RarityLevel.RARE, 1.0f, false, "TODO");
+        addRarity(RarityLevel.EPIC, 1.0f, true, "TODO");
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "TODO");
+    }},
 
     // Misc
 
@@ -152,6 +163,9 @@ public enum CardType implements StringRepresentable {
     }},
     NETHER("nether", "looting nether structures", CardGroup.MISC, NetherEffects::new) {{
         addRarity(RarityLevel.LEGENDARY, 0.15f, true, "Fire resistance but can only respawn in the nether");
+    }},
+    SPECTATOR("spectator", "TODO", CardGroup.MISC, SpectatorEffects::new) {{
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "TODO");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
@@ -172,12 +186,18 @@ public enum CardType implements StringRepresentable {
     private final String condition;
     private final CardGroup cardGroup;
     private final Supplier<CardEffects> effectRegistration;
+    private final String mutexGroup;
 
     CardType(String id, String condition, CardGroup cardGroup, Supplier<CardEffects> effectRegistration) {
+        this(id, condition, cardGroup, "", effectRegistration);
+    }
+
+    CardType(String id, String condition, CardGroup cardGroup, String mutexGroup, Supplier<CardEffects> effectRegistration) {
         this.id = id;
         this.condition = condition;
         this.cardGroup = cardGroup;
         this.effectRegistration = effectRegistration;
+        this.mutexGroup = mutexGroup;
     }
 
     /// Adds one supported rarity tier to this card type.
@@ -227,6 +247,11 @@ public enum CardType implements StringRepresentable {
     /// Returns the card group this card type belongs to.
     public CardGroup getGroup() {
         return cardGroup;
+    }
+
+    /// Returns the mutex group this card type belongs to.
+    public String getMutexGroup() {
+        return mutexGroup;
     }
 
     /// Returns the card type identifier, formated as "polycard:cardGroup/card_type".

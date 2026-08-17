@@ -14,11 +14,11 @@ import polycube.polycard.data.PlayerData;
 public final class LifeEffects extends CardEffects implements ServerLivingEntityEvents.AfterDeath {
 
     public LifeEffects() {
-        addAttribute(RarityLevel.COMMON, Attributes.MAX_HEALTH, "life_common", 2, AttributeModifier.Operation.ADD_VALUE);
-        addAttribute(RarityLevel.UNCOMMON, Attributes.MAX_HEALTH, "life_uncommon", 4, AttributeModifier.Operation.ADD_VALUE);
-        addAttribute(RarityLevel.RARE, Attributes.MAX_HEALTH, "life_rare", 4, AttributeModifier.Operation.ADD_VALUE);
-        addAttribute(RarityLevel.EPIC, Attributes.MAX_HEALTH, "life_epic", 4, AttributeModifier.Operation.ADD_VALUE);
-        addAttribute(RarityLevel.LEGENDARY, Attributes.MAX_HEALTH, "life_legendary", 6, AttributeModifier.Operation.ADD_VALUE);
+        addAttribute(RarityLevel.COMMON, Attributes.MAX_HEALTH, "life_common", AttributeModifier.Operation.ADD_VALUE, 2);
+        addAttribute(RarityLevel.UNCOMMON, Attributes.MAX_HEALTH, "life_uncommon", AttributeModifier.Operation.ADD_VALUE, 4);
+        addAttribute(RarityLevel.RARE, Attributes.MAX_HEALTH, "life_rare", AttributeModifier.Operation.ADD_VALUE, 6);
+        addAttribute(RarityLevel.EPIC, Attributes.MAX_HEALTH, "life_epic", AttributeModifier.Operation.ADD_VALUE, 8);
+        addAttribute(RarityLevel.LEGENDARY, Attributes.MAX_HEALTH, "life_legendary", AttributeModifier.Operation.ADD_VALUE, 10);
     }
 
     @Override
@@ -27,7 +27,7 @@ public final class LifeEffects extends CardEffects implements ServerLivingEntity
             var rarityLevel = equippedRarityLevel(player);
             if (rarityLevel != null) {
                 var card = new Card(cardType(), rarityLevel);
-                if (PlayerData.unequipCard(player, card))
+                if (PlayerData.unequipCard(player, card).isSuccess())
                     card.previous().ifPresent(previousCard -> PlayerData.equipCard(player, previousCard));
             }
         }

@@ -15,6 +15,7 @@ import polycube.polycard.data.Storage;
 import polycube.polycard.events.CardItemUseEvent;
 import polycube.polycard.events.CardLootEvents;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
+import polycube.polycard.events.callBacks.PlayerSecondEventCallback;
 import polycube.polycard.utils.Cooldowns;
 import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
@@ -59,6 +60,10 @@ public class PolyCard implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             cooldowns().tick();
             Helpers.onServerTick(server);
+        });
+        Helpers.runTaskTimer(0, 20, server -> {
+            for (ServerPlayer player : server.getPlayerList().getPlayers())
+                PlayerSecondEventCallback.EVENT.invoker().onPlayerSecond(server, player);
         });
 
         UseItemCallback.EVENT.register((player, level, hand) -> {

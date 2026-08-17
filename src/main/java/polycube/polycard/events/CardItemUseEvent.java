@@ -1,6 +1,5 @@
 package polycube.polycard.events;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -33,55 +32,53 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
         if (optionalCard.isEmpty()) {
             return InteractionResult.PASS;
         }
-        var card = optionalCard.get();
 
         var playerData = PolyCard.storage().getPlayerData(player);
-        var equippedRarityLevel = playerData.equippedRarityLevel(card.cardType());
+        var card = optionalCard.get();
+        var cardType = card.cardType();
+        var mutexGroup = cardType.getMutexGroup();
 
-        if (equippedRarityLevel != null) {
-            if (equippedRarityLevel == card.rarityLevel()) {
-                Helpers.SendFailure(
-                        player,
-                        Component.literal("You already equipped this card!")
-                );
-                Helpers.debug("{} tried to equip a card they already have equipped: {}", player.getName().getString(), card);
-                return InteractionResult.FAIL;
+        Card replacingCard = null;
+        for (var equippedCard : playerData.getEquippedCards()) {
+            var equippedCardType = equippedCard.cardType();
+            if ((equippedCardType == cardType && equippedCard.rarityLevel() != card.rarityLevel())
+                    || (!mutexGroup.isBlank() && equippedCardType.getMutexGroup().equals(mutexGroup))) {
+                replacingCard = equippedCard;
+                break;
             }
+        }
 
-            var equippedCard = new Card(card.cardType(), equippedRarityLevel);
-            if (PlayerData.unequipCard(player, equippedCard)) {
+        if (replacingCard != null) {
+            if (PlayerData.unequipCard(player, replacingCard).isSuccess()) {
                 var result = equipCard(item, player, card);
                 if (result.equals(InteractionResult.SUCCESS)) {
-                    player.getInventory().placeItemBackInInventory(equippedCard.asItem());
+                    player.getInventory().placeItemBackInInventory(replacingCard.asItem());
                 } else {
-                    PlayerData.equipCard(player, equippedCard);
+                    PlayerData.equipCard(player, replacingCard);
                     Helpers.debug("Rolled back a failed card swap for {}", player.getName().getString());
                 }
                 return result;
             }
-            return InteractionResult.FAIL;
-        }
-
-        if (playerData.equippedCardCount() >= PlayerData.MAX_EQUIPPED_CARDS) {
-            Helpers.SendFailure(
-                    player,
-                    Component.literal("You already have " + PlayerData.MAX_EQUIPPED_CARDS + " cards equipped!")
-            );
-            Helpers.debug("{} tried to equip a card but already has {} cards equipped: {}", player.getName().getString(), PlayerData.MAX_EQUIPPED_CARDS, card);
-            return InteractionResult.FAIL;
         }
 
         return equipCard(item, player, card);
     }
 
     private InteractionResult equipCard(ItemStack item, ServerPlayer player, Card card) {
-        if (PlayerData.equipCard(player, card)) {
-            item.shrink(1);
-            player.sendSystemMessage(Component.literal(ChatFormatting.GREEN + "Equipped: ").append(card.getFormattedName()));
-            Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
-            Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
-            return InteractionResult.SUCCESS;
-        }
-        return InteractionResult.FAIL;
+        return PlayerData.equipCard(player, card).mapOrElse(
+                _ -> {
+                    item.shrink(1);
+                    Helpers.SendSuccess(player, Component.literal("Equipped card: ").append(card.getFormattedName()));
+                    Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
+                    Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
+                    return InteractionResult.SUCCESS;
+                },
+                error -> {
+                    var msg = error.message();
+                    Helpers.SendFailure(player, Component.literal("Failed to equip card: " + msg));
+                    Helpers.debug("Failed to equip card for {}: {}", player.getName().getString(), msg);
+                    return InteractionResult.FAIL;
+                }
+        );
     }
 }

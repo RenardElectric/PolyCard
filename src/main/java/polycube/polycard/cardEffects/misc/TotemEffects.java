@@ -30,7 +30,7 @@ public class TotemEffects extends CardEffects implements ServerLivingEntityEvent
             var rarityLevel = equippedRarityLevel(player);
             if (rarityLevel != null) {
                 var card = new Card(cardType(), rarityLevel);
-                if (PlayerData.unequipCard(player, card))
+                if (PlayerData.unequipCard(player, card).isSuccess())
                     card.previous().ifPresent(previousCard -> PlayerData.equipCard(player, previousCard));
 
                 mainHand = player.getItemInHand(InteractionHand.OFF_HAND);
