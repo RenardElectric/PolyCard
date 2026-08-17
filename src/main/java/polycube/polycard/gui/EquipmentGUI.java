@@ -61,8 +61,7 @@ public final class EquipmentGUI extends SimpleGui {
         var gui = new EquipmentGUI(viewer, targetPlayer);
         if (gui.open()) {
             gui.register();
-            Helpers.debug("{} opened the equipment manager for {}",
-                    viewer.getName().getString(), targetPlayer.getName().getString());
+            Helpers.debug("{} opened the equipment manager for {}", viewer.getName().getString(), targetPlayer.getName().getString());
         }
     }
 
@@ -125,8 +124,8 @@ public final class EquipmentGUI extends SimpleGui {
         var card = Card.getCard(itemStack).orElse(null);
         if (card == null) {
             if (!itemStack.isEmpty()) {
-                Helpers.SendFailure(viewer, Component.literal("You can only equip card items."));
-                Helpers.debug("{} attempted to place a non-card item in an equipment slot: {}", viewer.getName().getString(), itemStack.getHoverName().getString());
+                Helpers.SendFailure(viewer, Component.literal("Failed to equip card: " + itemStack.getHoverName().getString() + " is not a card."));
+                Helpers.debug("Failed to equip card for {}: {} is not a card.", viewer.getName().getString(), itemStack.getHoverName().getString());
             }
             return false;
         }
