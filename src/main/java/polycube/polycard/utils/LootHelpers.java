@@ -13,7 +13,6 @@ import polycube.polycard.card.CardType;
 import java.util.List;
 
 public final class LootHelpers {
-    private static final int PROBABILITY_WEIGHT_SCALE = 1_000_000;
 
     private LootHelpers() {}
 
@@ -22,19 +21,23 @@ public final class LootHelpers {
         var pool = LootPool.lootPool();
         var rarities = cardType.getRarities();
 
+        int scale = 0;
+        for (var rarity : rarities) {
+            var scaleCandidate = (int) Math.pow(10, Float.toString(rarity.probability()).length() - 2); // subtract "0."
+            scale = Math.max(scale, scaleCandidate);
+        }
+
         for (int i = 0; i < rarities.size(); i++) {
             var rarity = rarities.get(i);
-            int cumulativeWeight = probabilityToWeight(rarity.probability());
-            int nextCumulativeWeight = i + 1 < rarities.size()
-                    ? probabilityToWeight(rarities.get(i + 1).probability())
-                    : 0;
+            int cumulativeWeight = (int) (rarity.probability() * scale);
+            int nextCumulativeWeight = i + 1 < rarities.size() ? (int) (rarities.get(i + 1).probability() * scale) : 0;
             int rarityWeight = cumulativeWeight - nextCumulativeWeight;
 
             var cardTemplate = new Card(cardType, rarity.rarityLevel()).getItemTemplate();
             pool.add(lootItemFromTemplate(cardTemplate).setWeight(rarityWeight));
         }
 
-        int emptyWeight = PROBABILITY_WEIGHT_SCALE - probabilityToWeight(rarities.getFirst().probability());
+        int emptyWeight = scale - (int) (rarities.getFirst().probability() * scale);
         if (emptyWeight > 0) {
             pool.add(EmptyLootItem.emptyItem().setWeight(emptyWeight));
         }
@@ -47,9 +50,5 @@ public final class LootHelpers {
         return LootItem.lootTableItem(template.item().value())
                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(template.count())))
                 .apply(() -> new SetComponentsFunction(List.of(), template.components()));
-    }
-
-    private static int probabilityToWeight(float probability) {
-        return Math.round(probability * PROBABILITY_WEIGHT_SCALE);
     }
 }
