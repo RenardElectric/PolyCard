@@ -1,9 +1,0 @@
-{
-  "parent": "polycard:neutral/enderman/legendary",
-  "criteria": {
-    "tick": {
-      "trigger": "minecraft:tick"
-    }
-  },
-  "sends_telemetry_event": true
-}
