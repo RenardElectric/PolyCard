@@ -19,27 +19,14 @@ public final class LootHelpers {
     /// Builds a one-roll loot pool whose outcomes match CardHelpers.selectRarity.
     public static LootPool.Builder lootPoolFromCardType(CardType cardType) {
         var pool = LootPool.lootPool();
-        var rarities = cardType.getRarities();
-
-        int scale = 0;
-        for (var rarity : rarities) {
-            var scaleCandidate = (int) Math.pow(10, Float.toString(rarity.probability()).length() - 2); // subtract "0."
-            scale = Math.max(scale, scaleCandidate);
-        }
-
-        for (int i = 0; i < rarities.size(); i++) {
-            var rarity = rarities.get(i);
-            int cumulativeWeight = (int) (rarity.probability() * scale);
-            int nextCumulativeWeight = i + 1 < rarities.size() ? (int) (rarities.get(i + 1).probability() * scale) : 0;
-            int rarityWeight = cumulativeWeight - nextCumulativeWeight;
-
-            var cardTemplate = new Card(cardType, rarity.rarityLevel()).getItemTemplate();
-            pool.add(lootItemFromTemplate(cardTemplate).setWeight(rarityWeight));
-        }
-
-        int emptyWeight = scale - (int) (rarities.getFirst().probability() * scale);
-        if (emptyWeight > 0) {
-            pool.add(EmptyLootItem.emptyItem().setWeight(emptyWeight));
+        for (var outcome : cardType.getRarityDistribution().weightedOutcomes()) {
+            outcome.rarityLevel().ifPresentOrElse(
+                    rarityLevel -> {
+                        var cardTemplate = new Card(cardType, rarityLevel).getItemTemplate();
+                        pool.add(lootItemFromTemplate(cardTemplate).setWeight(outcome.weight()));
+                    },
+                    () -> pool.add(EmptyLootItem.emptyItem().setWeight(outcome.weight()))
+            );
         }
 
         return pool;

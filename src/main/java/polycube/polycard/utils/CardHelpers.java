@@ -54,19 +54,6 @@ public final class CardHelpers {
     /// Maps a supplied [0,1) roll to the highest cumulative rarity it satisfies.
     /// Keeping this deterministic core separate makes probability boundaries straightforward to test.
     public static Optional<RarityLevel> selectRarity(CardType cardType, float roll) {
-        if (!Float.isFinite(roll) || roll < 0.0F || roll >= 1.0F) {
-            throw new IllegalArgumentException("Card roll must be finite and in [0, 1): " + roll);
-        }
-
-        RarityLevel selected = null;
-        for (var rarity : cardType.getRarities()) {
-            if (roll < rarity.probability()) {
-                selected = rarity.rarityLevel();
-            } else {
-                // Thresholds are validated as non-increasing, so no later tier can match.
-                break;
-            }
-        }
-        return Optional.ofNullable(selected);
+        return cardType.getRarityDistribution().select(roll);
     }
 }
