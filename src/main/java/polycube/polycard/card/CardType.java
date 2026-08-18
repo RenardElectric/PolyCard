@@ -3,6 +3,8 @@ package polycube.polycard.card;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.Nullable;
+import polycube.polycard.card.CardDefinition.CardDefinitionBuilder;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.cardEffects.hostile.*;
 import polycube.polycard.cardEffects.misc.*;
@@ -168,95 +170,101 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Invulnerable but cannot hurt anything, die when removing this card");
     }};
 
+    static {
+        for (var cardType : values()) {
+            cardType.finalizeDefinition();
+        }
+    }
+
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
     public static final Map<String, CardType> BY_ID = Arrays.stream(values())
             .collect(Collectors.toMap(CardType::getSerializedName, Function.identity()));
 
-    static {
-        // All enum constants and their rarity tables must exist before effect classes can refer
-        // back to CardType or register listeners. This prevents circular-initialization nulls.
-        for (var cardType : values()) {
-            cardType.validateConfiguration();
-            cardType.effectRegistration.get().initialize(cardType);
-        }
-    }
-
-    private final EnumMap<RarityLevel, Rarity> rarities = new EnumMap<>(RarityLevel.class);
-    private final String id;
-    private final String condition;
-    private final CardGroup cardGroup;
-    private final Supplier<CardEffects> effectRegistration;
-    private final String mutexGroup;
+    private @Nullable CardDefinitionBuilder definitionBuilder;
+    private @Nullable CardDefinition definition;
+    private static boolean effectsRegistered;
 
     CardType(String id, String condition, CardGroup cardGroup, Supplier<CardEffects> effectRegistration) {
         this(id, condition, cardGroup, "", effectRegistration);
     }
 
     CardType(String id, String condition, CardGroup cardGroup, String mutexGroup, Supplier<CardEffects> effectRegistration) {
-        this.id = id;
-        this.condition = condition;
-        this.cardGroup = cardGroup;
-        this.effectRegistration = effectRegistration;
-        this.mutexGroup = mutexGroup;
+        definitionBuilder = CardDefinition.builder(id, condition, cardGroup, effectRegistration)
+                .mutexGroup(mutexGroup);
     }
 
     /// Adds one supported rarity tier to this card type.
     protected void addRarity(RarityLevel rarityLevel, float probability, boolean isEnchanted, String description) {
-        rarities.put(rarityLevel, new Rarity(rarityLevel, probability, isEnchanted, description));
+        Objects.requireNonNull(definitionBuilder, "Cannot add rarities after a card definition is finalized")
+                .addRarity(rarityLevel, probability, isEnchanted, description);
     }
 
-    /// Validates invariants that can only be checked after an enum constant's rarity initializer runs.
-    private void validateConfiguration() {
-        if (rarities.isEmpty()) {
-            throw new IllegalStateException(this + " must define at least one rarity");
-        }
+    /// Builds the immutable definition after an enum constant's rarity initializer has run.
+    private void finalizeDefinition() {
+        var builder = Objects.requireNonNull(definitionBuilder, "Card definition is already finalized");
+        definition = builder.build();
+        definitionBuilder = null;
+    }
 
-        int expectedRank = minRarityLevel().rank();
-        for (var rarityLevel : rarities.keySet()) {
-            if (rarityLevel.rank() != expectedRank++) {
-                throw new IllegalStateException(this + " rarity tiers must be contiguous from its minimum rarity");
-            }
+    /// Explicitly registers runtime effects after every definition is fully initialized.
+    public static void registerEffects() {
+        if (effectsRegistered) {
+            return;
         }
+        effectsRegistered = true;
+        for (var cardType : values()) {
+            cardType.definition().createEffects().initialize(cardType);
+        }
+    }
+
+    /// Returns the immutable authoritative definition for this card type.
+    public CardDefinition definition() {
+        return Objects.requireNonNull(definition, "Card definition is unavailable during enum construction");
     }
 
     /// Returns the lowest rarity this card type supports.
     public RarityLevel minRarityLevel() {
-        return rarities.keySet().iterator().next();
+        return definition().minRarityLevel();
     }
 
     /// Returns configuration for a supported rarity level.
     public Optional<Rarity> getRarity(RarityLevel rarityLevel) {
-        return Optional.ofNullable(rarities.get(rarityLevel));
+        return definition().rarity(rarityLevel);
     }
 
     /// Returns whether this card type can exist at the given rarity.
     public boolean hasRarity(RarityLevel rarityLevel) {
-        return rarities.containsKey(rarityLevel);
+        return definition().supports(rarityLevel);
     }
 
     /// Returns all rarity tiers supported by this card type, in enum-rank order.
     public List<Rarity> getRarities() {
-        return List.copyOf(rarities.values());
+        return definition().rarities();
+    }
+
+    /// Returns the validated cumulative probability distribution for this card type.
+    public RarityDistribution getRarityDistribution() {
+        return definition().rarityDistribution();
     }
 
     /// Returns the player-facing acquisition condition.
     public String getCondition() {
-        return condition;
+        return definition().acquisitionCondition();
     }
 
     /// Returns the card group this card type belongs to.
     public CardGroup getGroup() {
-        return cardGroup;
+        return definition().group();
     }
 
     /// Returns the mutex group this card type belongs to.
     public String getMutexGroup() {
-        return mutexGroup;
+        return definition().mutexGroup();
     }
 
     /// Returns the card type identifier, formated as "polycard:cardGroup/card_type".
     public Identifier getId() {
-        return cardGroup.getId().withSuffix("/" + id);
+        return definition().id();
     }
 
     /// Parses a serialized card type id.
@@ -266,11 +274,11 @@ public enum CardType implements StringRepresentable {
 
     @Override
     public String getSerializedName() {
-        return this.id;
+        return definition().serializedName();
     }
 
     @Override
     public String toString() {
-        return Helpers.identifierToTitleCase(this.id);
+        return Helpers.identifierToTitleCase(getSerializedName());
     }
 }

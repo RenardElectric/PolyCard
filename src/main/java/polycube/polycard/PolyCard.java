@@ -51,6 +51,7 @@ public class PolyCard implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("Initializing PolyCard");
+        CardType.registerEffects();
         Helpers.debug("Initialized and validated {} card type(s)", CardType.values().length);
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
