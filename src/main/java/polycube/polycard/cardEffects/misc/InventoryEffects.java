@@ -12,15 +12,16 @@ import polycube.polycard.data.PlayerData;
 
 public class InventoryEffects extends CardEffects implements ServerLivingEntityEvents.AllowDeath, ServerLivingEntityEvents.AfterDeath, ServerLivingEntityEvents.AfterDamage  {
 
-    boolean resetKeepInventory = false;
+    private final PlayerState<Boolean> pendingProtectedDeaths = new PlayerState<>();
+    private boolean managesKeepInventory;
 
     @Override
     public boolean allowDeath(LivingEntity entity, DamageSource damageSource, float damageAmount) {
         if (entity instanceof ServerPlayer player && hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
             var gameRules = player.level().getGameRules();
-            boolean isKeepInventory = gameRules.get(GameRules.KEEP_INVENTORY);
-            if (!isKeepInventory) {
-                resetKeepInventory = true;
+            pendingProtectedDeaths.put(player, true);
+            if (!gameRules.get(GameRules.KEEP_INVENTORY)) {
+                managesKeepInventory = true;
                 gameRules.set(GameRules.KEEP_INVENTORY, true, player.level().getServer());
             }
         }
@@ -29,7 +30,7 @@ public class InventoryEffects extends CardEffects implements ServerLivingEntityE
 
     @Override
     public void afterDeath(LivingEntity entity, DamageSource damageSource) {
-        if (entity instanceof ServerPlayer player && resetKeepInventory) {
+        if (entity instanceof ServerPlayer player && pendingProtectedDeaths.contains(player)) {
             var playerData = PolyCard.storage().getPlayerData(player);
             var cardIndex = player.getRandom().nextInt(playerData.equippedCardCount());
             var card = playerData.getEquippedCards().get(cardIndex);
@@ -39,9 +40,28 @@ public class InventoryEffects extends CardEffects implements ServerLivingEntityE
 
     @Override
     public void afterDamage(LivingEntity entity, DamageSource source, float baseDamageTaken, float damageTaken, boolean blocked) {
-        if (entity instanceof ServerPlayer player && resetKeepInventory) {
+        if (entity instanceof ServerPlayer player) {
+            releaseKeepInventory(player);
+        }
+    }
+
+    @Override
+    protected void onPlayerStateClearing(ServerPlayer player) {
+        releaseKeepInventory(player);
+    }
+
+    @Override
+    protected void onRuntimeClearing() {
+        managesKeepInventory = false;
+    }
+
+    private void releaseKeepInventory(ServerPlayer player) {
+        if (pendingProtectedDeaths.remove(player) == null) {
+            return;
+        }
+        if (managesKeepInventory && pendingProtectedDeaths.isEmpty()) {
             player.level().getGameRules().set(GameRules.KEEP_INVENTORY, false, player.level().getServer());
-            resetKeepInventory = false;
+            managesKeepInventory = false;
         }
     }
 }

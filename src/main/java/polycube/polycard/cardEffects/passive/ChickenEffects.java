@@ -1,6 +1,5 @@
 package polycube.polycard.cardEffects.passive;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,12 +28,8 @@ import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class ChickenEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback,
-        EntityAfterHurtEventCallback, ServerPlayerEvents.Leave {
+        EntityAfterHurtEventCallback {
     public static final float EGG_DAMAGE = 1.0F;
 
     public static final int SPEED_EFFECT_AMPLIFIER = 0;
@@ -44,18 +39,20 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
 
     public static final float THROW_EGG_PROBABILITY = 0.5f;
 
-    private static final Map<UUID, Integer> EGG_TIMES = new HashMap<>();
+    private final PlayerState<Integer> eggTimes = new PlayerState<>();
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
-        var uuid = player.getUUID();
         var equippedRarity = equippedRarityLevel(player);
         if (equippedRarity == null) {
-            EGG_TIMES.remove(uuid);
+            eggTimes.remove(player);
             return;
         }
 
-        var eggTime = EGG_TIMES.computeIfAbsent(uuid, _ -> nextEggDelay(player));
+        var eggTime = eggTimes.get(player);
+        if (eggTime == null) {
+            eggTime = nextEggDelay(player);
+        }
         if (--eggTime <= 0) {
             eggTime = nextEggDelay(player);
             var level = player.level();
@@ -72,7 +69,7 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
                 }
             }
         }
-        EGG_TIMES.put(uuid, eggTime);
+        eggTimes.put(player, eggTime);
 
         if (equippedRarity.isAtLeast(RarityLevel.RARE) && nearPlayerWithCard(player, RarityLevel.RARE, SPEED_DISTANCE_SQUARED)) {
             EffectHelpers.refreshPersistentEffect(player, MobEffects.SPEED, SPEED_EFFECT_AMPLIFIER);
@@ -85,11 +82,6 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
 
     private static int nextEggDelay(ServerPlayer player) {
         return player.getRandom().nextInt(6000) + 6000;
-    }
-
-    @Override
-    public void onLeave(ServerPlayer player) {
-        EGG_TIMES.remove(player.getUUID());
     }
 
     @Override

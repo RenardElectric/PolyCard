@@ -1,6 +1,5 @@
 package polycube.polycard.cardEffects.passive;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,11 +16,7 @@ import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-public class HorseEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback, ServerPlayerEvents.Leave {
+public class HorseEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback {
     public static final float DAMAGE_IGNORED_PERCENTAGE = 0.5f;
 
     public static final int SPEED_EFFECT_AMPLIFIER = 2;
@@ -30,51 +25,45 @@ public class HorseEffects extends CardEffects implements PlayerTickEventCallback
     public static final int MAX_SPEED_BOOST = 7;
 
     private static final int MAX_SPEED_BOOST_TICKS = (MAX_SPEED_BOOST - SPEED_EFFECT_AMPLIFIER) * SPEED_INCREMENT_TIME;
-    private static final Map<UUID, Integer> SPEED_BOOST_TICKS = new HashMap<>();
+    private final PlayerState<Integer> speedBoostTicks = new PlayerState<>();
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
-        UUID playerId = player.getUUID();
         if (!(player.getControlledVehicle() instanceof Horse horse)) {
-            SPEED_BOOST_TICKS.remove(playerId);
+            speedBoostTicks.remove(player);
             return;
         }
 
         RarityLevel rarity = equippedRarityLevel(player);
         if (rarity == null || !rarity.isAtLeast(RarityLevel.RARE)) {
-            SPEED_BOOST_TICKS.remove(playerId);
+            speedBoostTicks.remove(player);
             return;
         }
 
         EffectHelpers.refreshPersistentEffect(horse, MobEffects.JUMP_BOOST, JUMP_BOOST_EFFECT_AMPLIFIER);
 
         if (!rarity.isAtLeast(RarityLevel.EPIC)) {
-            SPEED_BOOST_TICKS.remove(playerId);
+            speedBoostTicks.remove(player);
             return;
         }
 
         int speedAmplifier = SPEED_EFFECT_AMPLIFIER;
         if (rarity.isAtLeast(RarityLevel.LEGENDARY) && player.getKnownMovement().lengthSqr() > 0) {
-            speedAmplifier = incrementSpeedBoost(playerId);
+            speedAmplifier = incrementSpeedBoost(player);
         } else {
-            SPEED_BOOST_TICKS.remove(playerId);
+            speedBoostTicks.remove(player);
         }
 
         EffectHelpers.refreshPersistentEffect(horse, MobEffects.SPEED, speedAmplifier);
 
     }
 
-    private static int incrementSpeedBoost(UUID playerId) {
-        int movingTicks = SPEED_BOOST_TICKS.getOrDefault(playerId, 0);
+    private int incrementSpeedBoost(ServerPlayer player) {
+        int movingTicks = speedBoostTicks.getOrDefault(player, 0);
         if (movingTicks < MAX_SPEED_BOOST_TICKS) {
-            SPEED_BOOST_TICKS.put(playerId, ++movingTicks);
+            speedBoostTicks.put(player, ++movingTicks);
         }
         return SPEED_EFFECT_AMPLIFIER + movingTicks / SPEED_INCREMENT_TIME;
-    }
-
-    @Override
-    public void onLeave(ServerPlayer player) {
-        SPEED_BOOST_TICKS.remove(player.getUUID());
     }
 
     @Override

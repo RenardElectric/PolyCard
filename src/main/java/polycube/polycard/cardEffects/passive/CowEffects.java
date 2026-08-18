@@ -1,6 +1,5 @@
 package polycube.polycard.cardEffects.passive;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,9 +19,10 @@ import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class CowEffects extends CardEffects implements PlayerTickEventCallback, ItemConsumedEventCallback, ServerPlayerEvents.Leave {
+public class CowEffects extends CardEffects implements PlayerTickEventCallback, ItemConsumedEventCallback {
     public static final int REGEN_HEALTH_GAIN_HEARTS = 8;
 
     public static final int STILL_DELAY = 20 * 20;
@@ -41,30 +41,29 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
             MobEffects.RESISTANCE, MobEffects.WATER_BREATHING, MobEffects.NIGHT_VISION
     );
 
-    private static final Map<UUID, Vec3> lastLocations = new HashMap<>();
-    private static final Map<UUID, Integer> lastMoveTimes = new HashMap<>();
+    private final PlayerState<Vec3> lastLocations = new PlayerState<>();
+    private final PlayerState<Integer> lastMoveTimes = new PlayerState<>();
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
-        UUID playerId = player.getUUID();
         var rarity = equippedRarityLevel(player);
         if (rarity == null || !rarity.isAtLeast(RarityLevel.UNCOMMON)) {
-            clearMovementState(playerId);
+            clearMovementState(player);
             return;
         }
 
         var pos = player.blockPosition();
         var level = player.level();
         if (!level.getBiome(pos).is(Biomes.PLAINS)) {
-            clearMovementState(playerId);
+            clearMovementState(player);
         } else {
             Vec3 currentLocation = player.position();
-            Vec3 previousLocation = lastLocations.put(playerId, currentLocation);
+            Vec3 previousLocation = lastLocations.put(player, currentLocation);
             if (previousLocation == null || previousLocation.distanceToSqr(currentLocation) > 0.0001D) {
-                lastMoveTimes.remove(playerId);
+                lastMoveTimes.remove(player);
             } else {
-                int stillTicks = lastMoveTimes.getOrDefault(playerId, 0) + 1;
-                lastMoveTimes.put(playerId, stillTicks);
+                int stillTicks = lastMoveTimes.getOrDefault(player, 0) + 1;
+                lastMoveTimes.put(player, stillTicks);
                 if (stillTicks >= STILL_DELAY) {
                     EffectHelpers.refreshPersistentEffect(player, MobEffects.REGENERATION, REGEN_EFFECT_AMPLIFIER);
                 }
@@ -76,14 +75,9 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
         }
     }
 
-    private static void clearMovementState(UUID playerId) {
-        lastLocations.remove(playerId);
-        lastMoveTimes.remove(playerId);
-    }
-
-    @Override
-    public void onLeave(ServerPlayer player) {
-        clearMovementState(player.getUUID());
+    private void clearMovementState(ServerPlayer player) {
+        lastLocations.remove(player);
+        lastMoveTimes.remove(player);
     }
 
     @Override

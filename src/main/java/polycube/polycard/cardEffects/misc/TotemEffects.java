@@ -8,13 +8,12 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.Card;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
 
 public class TotemEffects extends CardEffects implements ServerLivingEntityEvents.AllowDeath, ServerLivingEntityEvents.AfterDamage {
-    private @Nullable ItemStack mainHand = null;
+    private final PlayerState<ItemStack> offHandBackups = new PlayerState<>();
 
     @Override
     public boolean allowDeath(LivingEntity entity, DamageSource damageSource, float damageAmount) {
@@ -32,7 +31,7 @@ public class TotemEffects extends CardEffects implements ServerLivingEntityEvent
                 var card = new Card(cardType(), rarityLevel);
                 PlayerData.downgradeCard(player, card);
 
-                mainHand = player.getItemInHand(InteractionHand.OFF_HAND);
+                offHandBackups.put(player, player.getItemInHand(InteractionHand.OFF_HAND));
                 player.setItemInHand(InteractionHand.OFF_HAND, Items.TOTEM_OF_UNDYING.getDefaultInstance());
             }
 
@@ -43,10 +42,19 @@ public class TotemEffects extends CardEffects implements ServerLivingEntityEvent
     @Override
     public void afterDamage(LivingEntity entity, DamageSource source, float baseDamageTaken, float damageTaken, boolean blocked) {
         if (entity instanceof ServerPlayer player) {
-            if (mainHand != null) {
-                player.setItemInHand(InteractionHand.OFF_HAND, mainHand);
-                mainHand = null;
-            }
+            restoreOffHand(player);
+        }
+    }
+
+    @Override
+    protected void onPlayerStateClearing(ServerPlayer player) {
+        restoreOffHand(player);
+    }
+
+    private void restoreOffHand(ServerPlayer player) {
+        var offHandBackup = offHandBackups.remove(player);
+        if (offHandBackup != null) {
+            player.setItemInHand(InteractionHand.OFF_HAND, offHandBackup);
         }
     }
 }

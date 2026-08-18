@@ -1,7 +1,6 @@
 package polycube.polycard.cardEffects.passive;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -36,7 +35,7 @@ public class BatEffects
         extends CardEffects
         implements PlayerTickEventCallback, EntityHurtEventCallback,
         IsTargetedEventCallback, ServerLivingEntityEvents.AfterDeath,
-        CardEventCallback.CardUnequipEvent, ServerPlayerEvents.Leave {
+        CardEventCallback.CardUnequipEvent {
     public static final int INVISIBILITY_DURATION = 20 * 20;
     public static final int INVISIBILITY_COOLDOWN = 20 * 10;
     public static final int SPEED_AMPLIFIER = 30;
@@ -51,9 +50,9 @@ public class BatEffects
             AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
     );
 
-    private static final Map<UUID, Set<Integer>> GLOWING_ENTITY_IDS = new HashMap<>();
-    private static final Map<UUID, BatInvisibility> INVISIBLE_PLAYERS = new HashMap<>();
-    private static long nextInvisibilityId;
+    private final PlayerState<Set<Integer>> glowingEntityIds = new PlayerState<>();
+    private final PlayerState<Long> invisiblePlayers = new PlayerState<>();
+    private long nextInvisibilityId;
 
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
@@ -74,13 +73,13 @@ public class BatEffects
             clearGlowingEntities(player);
         }
 
-        var invisibility = INVISIBLE_PLAYERS.get(player.getUUID());
-        if (invisibility != null && (!hasLegendary || !player.isCrouching())) {
+        var invisibilityId = invisiblePlayers.get(player);
+        if (invisibilityId != null && (!hasLegendary || !player.isCrouching())) {
             endInvisibility(player);
         }
     }
 
-    private static void updateGlowingEntities(ServerPlayer player) {
+    private void updateGlowingEntities(ServerPlayer player) {
         var level = player.level();
         var nearbyEntities = level.getEntities(
                 player,
@@ -94,7 +93,11 @@ public class BatEffects
             }
         }
 
-        var currentIds = GLOWING_ENTITY_IDS.computeIfAbsent(player.getUUID(), _ -> new HashSet<>());
+        var currentIds = glowingEntityIds.get(player);
+        if (currentIds == null) {
+            currentIds = new HashSet<>();
+            glowingEntityIds.put(player, currentIds);
+        }
         for (var entityId : new HashSet<>(currentIds)) {
             if (!desiredEntities.containsKey(entityId)) {
                 var entity = level.getEntity(entityId);
@@ -110,12 +113,12 @@ public class BatEffects
         }
 
         if (currentIds.isEmpty()) {
-            GLOWING_ENTITY_IDS.remove(player.getUUID());
+            glowingEntityIds.remove(player);
         }
     }
 
-    private static void clearGlowingEntities(ServerPlayer player) {
-        var entityIds = GLOWING_ENTITY_IDS.remove(player.getUUID());
+    private void clearGlowingEntities(ServerPlayer player) {
+        var entityIds = glowingEntityIds.remove(player);
         if (entityIds == null) {
             return;
         }
@@ -142,7 +145,7 @@ public class BatEffects
     @Override
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
         if (entity instanceof ServerPlayer player
-                && !INVISIBLE_PLAYERS.containsKey(player.getUUID())
+                && !invisiblePlayers.contains(player)
                 && hasCardOrRarer(player, RarityLevel.LEGENDARY)
                 && source.getEntity() instanceof LivingEntity attacker
                 && player.isCrouching()
@@ -152,12 +155,12 @@ public class BatEffects
         }
 
         // The triggering hit and all later incoming damage are canceled while the state is active.
-        if (entity instanceof ServerPlayer player && INVISIBLE_PLAYERS.containsKey(player.getUUID())) {
+        if (entity instanceof ServerPlayer player && invisiblePlayers.contains(player)) {
             return InteractionResult.FAIL;
         }
 
         // Block melee and player-owned projectile damage dealt by an active Bat player.
-        if (source.getEntity() instanceof ServerPlayer player && INVISIBLE_PLAYERS.containsKey(player.getUUID())) {
+        if (source.getEntity() instanceof ServerPlayer player && invisiblePlayers.contains(player)) {
             return InteractionResult.FAIL;
         }
 
@@ -166,7 +169,7 @@ public class BatEffects
 
     @Override
     public InteractionResult onTargeted(ServerLevel level, @Nullable LivingEntity targeter, LivingEntity target, IsTargetedEventCallback.TargetingConditionsData data) {
-        if (target instanceof ServerPlayer player && INVISIBLE_PLAYERS.containsKey(player.getUUID())) {
+        if (target instanceof ServerPlayer player && invisiblePlayers.contains(player)) {
             return InteractionResult.FAIL;
         }
         return InteractionResult.PASS;
@@ -181,9 +184,14 @@ public class BatEffects
     }
 
     @Override
-    public void onLeave(ServerPlayer player) {
-        GLOWING_ENTITY_IDS.remove(player.getUUID());
+    protected void onPlayerStateClearing(ServerPlayer player) {
+        glowingEntityIds.remove(player);
         endInvisibility(player);
+    }
+
+    @Override
+    protected void onRuntimeClearing() {
+        nextInvisibilityId = 0;
     }
 
     @Override
@@ -194,10 +202,8 @@ public class BatEffects
         }
     }
 
-    private static void startInvisibility(ServerPlayer player, LivingEntity attacker, ServerLevel level) {
+    private void startInvisibility(ServerPlayer player, LivingEntity attacker, ServerLevel level) {
         long invisibilityId = ++nextInvisibilityId;
-        long expiresAtPlayerTick = (long) player.tickCount + INVISIBILITY_DURATION;
-        var invisibility = new BatInvisibility(invisibilityId, expiresAtPlayerTick);
 
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, INVISIBILITY_DURATION, 0, false, false));
 
@@ -207,7 +213,7 @@ public class BatEffects
             movementSpeed.addTransientModifier(SPEED_MODIFIER);
         }
 
-        INVISIBLE_PLAYERS.put(player.getUUID(), invisibility);
+        invisiblePlayers.put(player, invisibilityId);
         PolyCard.scheduler().runLater(INVISIBILITY_DURATION, _ -> endInvisibility(player, invisibilityId));
 
         level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);
@@ -217,15 +223,15 @@ public class BatEffects
         Helpers.debug("Activated legendary Bat state for {}", player.getName().getString());
     }
 
-    private static void endInvisibility(ServerPlayer player, long expectedInvisibilityId) {
-        var invisibility = INVISIBLE_PLAYERS.get(player.getUUID());
-        if (invisibility != null && invisibility.id == expectedInvisibilityId) {
+    private void endInvisibility(ServerPlayer player, long expectedInvisibilityId) {
+        var invisibilityId = invisiblePlayers.get(player);
+        if (invisibilityId != null && invisibilityId == expectedInvisibilityId) {
             endInvisibility(player);
         }
     }
 
-    private static void endInvisibility(ServerPlayer player) {
-        var invisibility = INVISIBLE_PLAYERS.remove(player.getUUID());
+    private void endInvisibility(ServerPlayer player) {
+        var invisibility = invisiblePlayers.remove(player);
         if (invisibility == null) {
             return;
         }
@@ -238,6 +244,4 @@ public class BatEffects
         player.removeEffect(MobEffects.INVISIBILITY);
         Helpers.debug("Ended legendary Bat state for {}", player.getName().getString());
     }
-
-    private record BatInvisibility(long id, long expiresAtPlayerTick) {}
 }

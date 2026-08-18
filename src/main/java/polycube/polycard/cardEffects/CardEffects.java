@@ -18,14 +18,14 @@ import polycube.polycard.events.callBacks.EquippedRarityLevelOverrideCallback;
 import polycube.polycard.events.callBacks.HasCardOrRarerOverrideCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class CardEffects extends EventHandler {
+    private static final Set<CardEffects> INSTANCES = Collections.newSetFromMap(new IdentityHashMap<>());
+    private static final Set<PlayerState<?>> PLAYER_STATES = Collections.newSetFromMap(new IdentityHashMap<>());
+
     private @Nullable CardType cardType = null;
     private @Nullable Map<RarityLevel, Multimap<Holder<Attribute>, Function<ServerPlayer, AttributeModifier>>> attributeMap = null;
 
@@ -37,8 +37,31 @@ public abstract class CardEffects extends EventHandler {
             throw new IllegalStateException(getClass().getName() + " is already initialized");
         }
         this.cardType = Objects.requireNonNull(cardType, "cardType");
+        INSTANCES.add(this);
         registerCallbacks();
     }
+
+    /// Clears every effect's transient state for a player who is leaving.
+    public static void clearPlayerState(ServerPlayer player) {
+        for (var effect : INSTANCES) {
+            effect.onPlayerStateClearing(player);
+        }
+        PLAYER_STATES.forEach(state -> state.remove(player));
+    }
+
+    /// Clears all transient effect states when a server shuts down.
+    public static void clearRuntimeState() {
+        for (var effect : INSTANCES) {
+            effect.onRuntimeClearing();
+        }
+        PLAYER_STATES.forEach(PlayerState::clear);
+    }
+
+    /// Hook for state that needs player-aware cleanup before its slots are discarded.
+    protected void onPlayerStateClearing(ServerPlayer player) {}
+
+    /// Hook for non-player transient state that must reset between server instances.
+    protected void onRuntimeClearing() {}
 
     public CardType cardType() {
         return Objects.requireNonNull(cardType, "Cannot access CardType before initialize() is called");
@@ -193,6 +216,43 @@ public abstract class CardEffects extends EventHandler {
 
         private boolean hasAtLeast(RarityLevel rarity) {
             return equippedRarity != null && equippedRarity.isAtLeast(rarity);
+        }
+    }
+
+    /// A typed player-keyed slot whose lifecycle is managed by CardEffects.
+    protected static final class PlayerState<T> {
+        private final Map<UUID, T> values = new HashMap<>();
+
+        public PlayerState() {
+            PLAYER_STATES.add(this);
+        }
+
+        public @Nullable T get(ServerPlayer player) {
+            return values.get(player.getUUID());
+        }
+
+        public T getOrDefault(ServerPlayer player, T defaultValue) {
+            return values.getOrDefault(player.getUUID(), defaultValue);
+        }
+
+        public @Nullable T put(ServerPlayer player, T value) {
+            return values.put(player.getUUID(), value);
+        }
+
+        public @Nullable T remove(ServerPlayer player) {
+            return values.remove(player.getUUID());
+        }
+
+        public boolean contains(ServerPlayer player) {
+            return values.containsKey(player.getUUID());
+        }
+
+        public boolean isEmpty() {
+            return values.isEmpty();
+        }
+
+        private void clear() {
+            values.clear();
         }
     }
 }

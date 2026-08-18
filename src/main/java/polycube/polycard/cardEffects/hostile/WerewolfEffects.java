@@ -12,6 +12,7 @@ import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.PlayerSecondEventCallback;
+import polycube.polycard.utils.Helpers;
 
 import java.util.Objects;
 
@@ -51,18 +52,31 @@ public final class WerewolfEffects extends CardEffects implements PlayerSecondEv
         if (phaseIndex > 4) phaseIndex = 8 - phaseIndex;
         phaseIndex /= 4.0;
         double amount = MAX_AMOUNT - AMOUNT_RANGE * phaseIndex;
-        return amount * (rarity.rank() + 1) / 5.0;
+        return amount * rarityScale(rarity);
+    }
+
+    private static double rarityScale(RarityLevel rarity) {
+        return (rarity.rank() + 1) / 5.0;
     }
 
     public enum WerewolfType {
-        ALPHA("alpha_werewolf", Attributes.ATTACK_DAMAGE),
-        ELDER("elder_werewolf", Attributes.MAX_HEALTH);
+        ALPHA("alpha_werewolf", "damage", Attributes.ATTACK_DAMAGE),
+        ELDER("elder_werewolf", "health", Attributes.MAX_HEALTH);
 
         public final String id;
         public final Holder<Attribute> attribute;
-        WerewolfType(String id, Holder<Attribute> attribute) {
+        private final String describedAttribute;
+
+        WerewolfType(String id, String describedAttribute, Holder<Attribute> attribute) {
             this.id = id;
+            this.describedAttribute = describedAttribute;
             this.attribute = attribute;
+        }
+
+        /// Describes the maximum moon-phase modifier using the same rarity scaling as runtime behavior.
+        public String description(RarityLevel rarity) {
+            return "±" + Helpers.decimalFormat(MAX_AMOUNT * rarityScale(rarity))
+                    + " " + describedAttribute + " depending on the moon phase";
         }
     }
 }

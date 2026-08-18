@@ -123,18 +123,18 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Creepers do not attack you");
     }},
     ELDER_WEREWOLF("elder_werewolf", "being bitten by a wild wolf during a full moon at night", CardGroup.HOSTILE, "werewolf", () -> new WerewolfEffects(WerewolfEffects.WerewolfType.ELDER)) {{
-        addRarity(RarityLevel.COMMON, 0.05f, false, "±0.15 health depending on the moon phase");
-        addRarity(RarityLevel.UNCOMMON, 0.025f, false, "±0.15 health depending on the moon phase");
-        addRarity(RarityLevel.RARE, 0.01f, false, "±0.15 health depending on the moon phase");
-        addRarity(RarityLevel.EPIC, 0.005f, true, "±0.15 health depending on the moon phase");
-        addRarity(RarityLevel.LEGENDARY, 0.001f, true, "±0.15 health depending on the moon phase");
+        addRarity(RarityLevel.COMMON, 0.05f, false, WerewolfEffects.WerewolfType.ELDER.description(RarityLevel.COMMON));
+        addRarity(RarityLevel.UNCOMMON, 0.025f, false, WerewolfEffects.WerewolfType.ELDER.description(RarityLevel.UNCOMMON));
+        addRarity(RarityLevel.RARE, 0.01f, false, WerewolfEffects.WerewolfType.ELDER.description(RarityLevel.RARE));
+        addRarity(RarityLevel.EPIC, 0.005f, true, WerewolfEffects.WerewolfType.ELDER.description(RarityLevel.EPIC));
+        addRarity(RarityLevel.LEGENDARY, 0.001f, true, WerewolfEffects.WerewolfType.ELDER.description(RarityLevel.LEGENDARY));
     }},
     ALPHA_WEREWOLF("alpha_werewolf", "being bitten by a wild wolf during a full moon at night", CardGroup.HOSTILE, "werewolf", () -> new WerewolfEffects(WerewolfEffects.WerewolfType.ALPHA)) {{
-        addRarity(RarityLevel.COMMON, 0.05f, false, "±0.15 damage depending on the moon phase");
-        addRarity(RarityLevel.UNCOMMON, 0.025f, false, "±0.15 damage depending on the moon phase");
-        addRarity(RarityLevel.RARE, 0.01f, false, "±0.15damage depending on the moon phase");
-        addRarity(RarityLevel.EPIC, 0.005f, true, "±0.15 damage depending on the moon phase");
-        addRarity(RarityLevel.LEGENDARY, 0.001f, true, "±0.15 damage depending on the moon phase");
+        addRarity(RarityLevel.COMMON, 0.05f, false, WerewolfEffects.WerewolfType.ALPHA.description(RarityLevel.COMMON));
+        addRarity(RarityLevel.UNCOMMON, 0.025f, false, WerewolfEffects.WerewolfType.ALPHA.description(RarityLevel.UNCOMMON));
+        addRarity(RarityLevel.RARE, 0.01f, false, WerewolfEffects.WerewolfType.ALPHA.description(RarityLevel.RARE));
+        addRarity(RarityLevel.EPIC, 0.005f, true, WerewolfEffects.WerewolfType.ALPHA.description(RarityLevel.EPIC));
+        addRarity(RarityLevel.LEGENDARY, 0.001f, true, WerewolfEffects.WerewolfType.ALPHA.description(RarityLevel.LEGENDARY));
     }},
 
     // Misc

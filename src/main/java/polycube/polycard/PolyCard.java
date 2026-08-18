@@ -4,12 +4,14 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import polycube.polycard.card.CardType;
+import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.commands.*;
 import polycube.polycard.data.Storage;
 import polycube.polycard.events.CardItemUseEvent;
@@ -67,7 +69,8 @@ public class PolyCard implements ModInitializer {
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(_ -> {
             EffectHelpers.clearPersistentEffectState();
-            int discardedTasks = Helpers.clearScheduledTasks();
+            CardEffects.clearRuntimeState();
+            int discardedTasks = scheduler().clear();
             cooldowns = null;
             scheduler = null;
             storage = null;
@@ -81,6 +84,7 @@ public class PolyCard implements ModInitializer {
             scheduler().tick(server);
             EffectHelpers.onEndServerTick();
         });
+        ServerPlayerEvents.LEAVE.register(CardEffects::clearPlayerState);
 
         UseItemCallback.EVENT.register((player, level, hand) -> {
             if (!(player instanceof ServerPlayer serverPlayer)) {

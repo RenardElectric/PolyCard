@@ -1,6 +1,5 @@
 package polycube.polycard.cardEffects.misc;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -17,22 +16,18 @@ import polycube.polycard.events.callBacks.EquippedRarityLevelOverrideCallback;
 import polycube.polycard.events.callBacks.HasCardOrRarerOverrideCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import static polycube.polycard.utils.Helpers.decimalFormat;
 
 public class LuckyEffects
         extends CardEffects
-        implements ServerTickEvents.EndTick, ServerPlayerEvents.Leave,
+        implements ServerTickEvents.EndTick,
         PlayerTickEventCallback, EquippedRarityLevelOverrideCallback, HasCardOrRarerOverrideCallback
 {
 
     public static final int TICK_INTERVAL = 20 * 60 * 5;
 
     private long tickCounter = 0;
-    private final Map<UUID, Card> randomCard = new HashMap<>();
+    private final PlayerState<Card> randomCard = new PlayerState<>();
 
     @Override
     public void onEndTick(MinecraftServer server) {
@@ -40,10 +35,15 @@ public class LuckyEffects
     }
 
     @Override
-    public void onLeave(ServerPlayer player) {
-        var card = randomCard.remove(player.getUUID());
+    protected void onPlayerStateClearing(ServerPlayer player) {
+        var card = randomCard.remove(player);
         if (card != null)
             CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card);
+    }
+
+    @Override
+    protected void onRuntimeClearing() {
+        tickCounter = 0;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class LuckyEffects
         var cardRarityLevel = equippedRarityLevel(player);
         if (cardRarityLevel != null) {
             if (tickCounter % TICK_INTERVAL == 0) {
-                var previousCard = randomCard.get(player.getUUID());
+                var previousCard = randomCard.get(player);
                 if (previousCard != null) {
                     CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, previousCard);
                 }
@@ -66,7 +66,7 @@ public class LuckyEffects
                 } while (rarityLevel.rank() > cardRarityLevel.rank());
 
                 var card = new Card(cardType, rarityLevel);
-                randomCard.put(player.getUUID(), card);
+                randomCard.put(player, card);
                 player.sendSystemMessage(
                         Component.literal("You have been granted a random card for " + decimalFormat(TICK_INTERVAL/1200.0) + " minutes: ")
                                 .withStyle(ChatFormatting.GREEN)
@@ -75,7 +75,7 @@ public class LuckyEffects
                 CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
             }
         } else {
-            var card = randomCard.remove(player.getUUID());
+            var card = randomCard.remove(player);
             if (card != null)
                 CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card);
         }
@@ -83,7 +83,7 @@ public class LuckyEffects
 
     @Override
     public @Nullable RarityLevel equippedRarityLevelOverride(ServerPlayer player, CardType cardType, @Nullable RarityLevel original) {
-        var card = randomCard.get(player.getUUID());
+        var card = randomCard.get(player);
         if (card != null && card.cardType() == cardType) {
             if (original == null || card.rarityLevel().rank() > original.rank()) {
                 return card.rarityLevel();
@@ -95,7 +95,7 @@ public class LuckyEffects
     @Override
     public boolean hasCardOrRarerOverride(ServerPlayer player, CardType cardType, RarityLevel rarityLevel, boolean original) {
         if (!original) {
-            var card = randomCard.get(player.getUUID());
+            var card = randomCard.get(player);
             return card != null && card.cardType() == cardType && card.rarityLevel().rank() >= rarityLevel.rank();
         }
         return true;

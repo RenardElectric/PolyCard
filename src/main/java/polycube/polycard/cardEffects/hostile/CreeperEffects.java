@@ -28,7 +28,7 @@ public final class CreeperEffects
     public static final float EXPLOSION_PROBABILITY = 0.25f;
     public static final float EXPLOSION_RADIUS = 1.5f;
 
-    private boolean ignoreExplosion = false;
+    private final PlayerState<Boolean> activeExplosions = new PlayerState<>();
 
     @Override
     public InteractionResult onEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, MutableFloat damage) {
@@ -45,15 +45,15 @@ public final class CreeperEffects
     @Override
     public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
         if (entity instanceof ServerPlayer player
-                && !ignoreExplosion
+                && !activeExplosions.contains(player)
                 && hasCardOrRarer(player, RarityLevel.EPIC)
                 && player.getRandom().nextFloat() < EXPLOSION_PROBABILITY) {
             Helpers.debug("{} triggered an Epic Creeper-card blast after taking an accepted hit", player.getName().getString());
-            ignoreExplosion = true;
+            activeExplosions.put(player, true);
             try {
                 level.explode(player, player.getX(), player.getY(), player.getZ(), EXPLOSION_RADIUS, false, Level.ExplosionInteraction.NONE);
             } finally {
-                ignoreExplosion = false;
+                activeExplosions.remove(player);
             }
         }
     }
