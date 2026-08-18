@@ -4,7 +4,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -13,17 +12,15 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import polycube.polycard.PolyCard;
-import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
-import java.util.function.Consumer;
 
 import static polycube.polycard.PolyCard.LOGGER;
 import static polycube.polycard.PolyCard.MOD_ID;
 
-/// Shared server-side helpers for sounds, lightweight tick scheduling, and debug logging.
+/// Shared server-side helpers for sounds, formatting, random selection, and debug logging.
 public final class Helpers {
     private static final RandomSource RANDOM = RandomSource.create();
     private static final int FAILURE_COOLDOWN = 20;
@@ -61,72 +58,6 @@ public final class Helpers {
     public static void debug(final String format, final Object... args) {
         //noinspection StringConcatenationArgumentToLogCall
         LOGGER.debug("[" + MOD_ID + "] " + format, args);
-    }
-
-    private static final Deque<ScheduledTask> TASKS = new ArrayDeque<>();
-
-    /// Schedules a one-shot task on the server tick loop. Zero runs in the current end-of-tick pass
-    /// and a positive delay waits that many complete ticks.
-    public static void runLater(int ticks, Consumer<MinecraftServer> runnable) {
-        runTaskTimer(ticks, 0, runnable);
-    }
-
-    /// Schedules a task on the server tick loop; period 0 makes it one-shot.
-    public static void runTaskTimer(int delay, int period, Consumer<MinecraftServer> runnable) {
-        if (delay < 0) throw new IllegalArgumentException("Scheduled-task delay cannot be negative");
-        TASKS.add(new ScheduledTask(Math.addExact(delay, 1), period, Objects.requireNonNull(runnable, "runnable")));
-    }
-
-    /// Discards tasks that captured state from a server which is shutting down.
-    public static int clearScheduledTasks() {
-        int count = TASKS.size();
-        TASKS.clear();
-        return count;
-    }
-
-    private static final class ScheduledTask {
-        private int ticksLeft;
-        private final int period;
-        private final Consumer<MinecraftServer> runnable;
-
-        private ScheduledTask(int ticksLeft, int period, Consumer<MinecraftServer> runnable) {
-            this.ticksLeft = ticksLeft;
-            this.period = period;
-            this.runnable = runnable;
-        }
-
-        private boolean tick(MinecraftServer server) {
-            if (--ticksLeft > 0) {
-                return false;
-            }
-            runnable.accept(server);
-            return true;
-        }
-    }
-
-
-    /// Runs scheduled tasks and per-player tasks for the current server tick.
-    public static void onServerTick(MinecraftServer server) {
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            PlayerTickEventCallback.EVENT.invoker().onPlayerTick(server, player);
-        }
-
-        int tasksToProcess = TASKS.size();
-        for (int i = 0; i < tasksToProcess; i++) {
-            var task = TASKS.removeFirst();
-            try {
-                if (!task.tick(server)) {
-                    TASKS.addLast(task);
-                } else if (task.period > 0) {
-                    task.ticksLeft += task.period;
-                    TASKS.addLast(task);
-                }
-            } catch (RuntimeException exception) {
-                LOGGER.error("Scheduled PolyCard task failed", exception);
-            }
-        }
-
-        EffectHelpers.onEndServerTick();
     }
 
     public static String decimalFormat(double input) {

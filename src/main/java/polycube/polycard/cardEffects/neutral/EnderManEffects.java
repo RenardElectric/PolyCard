@@ -18,6 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
@@ -44,7 +45,7 @@ public final class EnderManEffects extends CardEffects implements PlayerTickEven
         var itemStack = player.getItemInHand(hand);
         if (itemStack.getItem().equals(Items.ENDER_PEARL)) {
             if (hasCardOrRarer(player, RarityLevel.EPIC)) {
-                Helpers.runLater(0, _ -> {
+                PolyCard.scheduler().runLater(0, _ -> {
                     Helpers.debug("Removing ender pearl cooldown for {}", player.getName().getString());
                     var cooldowns = player.getCooldowns();
                     cooldowns.removeCooldown(cooldowns.getCooldownGroup(Items.ENDER_PEARL.getDefaultInstance()));

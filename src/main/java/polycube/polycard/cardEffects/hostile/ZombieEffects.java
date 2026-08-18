@@ -14,6 +14,7 @@ import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
@@ -36,7 +37,7 @@ public final class ZombieEffects extends CardEffects implements ItemConsumedEven
                     .hasCommon(() -> {
                         var existingHunger = player.getEffect(MobEffects.HUNGER);
                         Helpers.debug("{} consumed rotten flesh with a Common Zombie card; suppressing only its Hunger penalty", player.getName().getString());
-                        Helpers.runLater(0, _ -> {
+                        PolyCard.scheduler().runLater(0, _ -> {
                             if (existingHunger == null) {
                                 player.removeEffect(MobEffects.HUNGER);
                             }

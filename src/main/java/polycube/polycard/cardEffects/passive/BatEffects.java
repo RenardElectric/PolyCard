@@ -208,7 +208,7 @@ public class BatEffects
         }
 
         INVISIBLE_PLAYERS.put(player.getUUID(), invisibility);
-        Helpers.runLater(INVISIBILITY_DURATION, _ -> endInvisibility(player, invisibilityId));
+        PolyCard.scheduler().runLater(INVISIBILITY_DURATION, _ -> endInvisibility(player, invisibilityId));
 
         level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);
         level.sendParticles(ParticleTypes.LARGE_SMOKE, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);

@@ -15,10 +15,12 @@ import polycube.polycard.data.Storage;
 import polycube.polycard.events.CardItemUseEvent;
 import polycube.polycard.events.CardLootEvents;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
+import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.events.callBacks.PlayerSecondEventCallback;
 import polycube.polycard.utils.Cooldowns;
 import polycube.polycard.utils.EffectHelpers;
 import polycube.polycard.utils.Helpers;
+import polycube.polycard.utils.TaskScheduler;
 
 import java.util.Objects;
 
@@ -28,6 +30,7 @@ public class PolyCard implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     private static @Nullable Cooldowns cooldowns;
+    private static @Nullable TaskScheduler scheduler;
     private static @Nullable Storage storage;
 
     /// Returns the cooldown service for the currently running server.
@@ -40,6 +43,11 @@ public class PolyCard implements ModInitializer {
         return Objects.requireNonNull(storage, "PolyCard storage is unavailable before the server has started");
     }
 
+    /// Returns the task scheduler for the currently running server.
+    public static TaskScheduler scheduler() {
+        return Objects.requireNonNull(scheduler, "PolyCard scheduler is unavailable before the server has started");
+    }
+
     @Override
     public void onInitialize() {
         LOGGER.info("Initializing PolyCard");
@@ -47,23 +55,30 @@ public class PolyCard implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             cooldowns = new Cooldowns();
+            scheduler = new TaskScheduler();
             storage = Storage.load(server);
+            scheduler.runTaskTimer(0, 20, runningServer -> {
+                for (ServerPlayer player : runningServer.getPlayerList().getPlayers()) {
+                    PlayerSecondEventCallback.EVENT.invoker().onPlayerSecond(runningServer, player);
+                }
+            });
             Helpers.debug("Initialized PolyCard state for server {}", server.getServerModName());
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(_ -> {
             EffectHelpers.clearPersistentEffectState();
             int discardedTasks = Helpers.clearScheduledTasks();
             cooldowns = null;
+            scheduler = null;
             storage = null;
             Helpers.debug("Cleared PolyCard server state and {} pending task(s)", discardedTasks);
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             cooldowns().tick();
-            Helpers.onServerTick(server);
-        });
-        Helpers.runTaskTimer(0, 20, server -> {
-            for (ServerPlayer player : server.getPlayerList().getPlayers())
-                PlayerSecondEventCallback.EVENT.invoker().onPlayerSecond(server, player);
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                PlayerTickEventCallback.EVENT.invoker().onPlayerTick(server, player);
+            }
+            scheduler().tick(server);
+            EffectHelpers.onEndServerTick();
         });
 
         UseItemCallback.EVENT.register((player, level, hand) -> {
