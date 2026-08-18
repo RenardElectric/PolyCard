@@ -17,7 +17,6 @@ import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /// Server-side GUI for viewing and editing a player's equipped cards.
 public final class EquipmentGUI extends SimpleGui {
@@ -114,45 +113,9 @@ public final class EquipmentGUI extends SimpleGui {
         return new Slot(container, slot, 0, 0) {
             @Override
             public boolean mayPlace(ItemStack itemStack) {
-                return canPlaceCard(this, itemStack);
+                return EquipmentGUI.this.container.canPlaceCard(getContainerSlot(), itemStack);
             }
         };
-    }
-
-    private boolean canPlaceCard(Slot slot, ItemStack itemStack) {
-        var viewer = getPlayer();
-        var card = Card.getCard(itemStack).orElse(null);
-        if (card == null) {
-            if (!itemStack.isEmpty()) {
-                Helpers.SendFailure(viewer, Component.literal("Failed to equip card: " + itemStack.getHoverName().getString() + " is not a card."));
-                Helpers.debug("Failed to equip card for {}: {} is not a card.", viewer.getName().getString(), itemStack.getHoverName().getString());
-            }
-            return false;
-        }
-
-        var cardType = card.cardType();
-        var mutexGroup = cardType.getMutexGroup();
-        var currentCard = Card.getCard(slot.getItem()).orElse(null);
-        if (currentCard != null
-                && (currentCard.cardType() == cardType
-                || (!mutexGroup.isBlank() && currentCard.cardType().getMutexGroup().equals(mutexGroup)))) {
-            Helpers.debug("{} is replacing card {} in slot {} with {}", viewer.getName().getString(), currentCard, slot.getContainerSlot(), card);
-            return true;
-        }
-
-        return playerData.canEquipCardType(cardType).mapOrElse(
-                _ -> {
-                    Helpers.SendSuccess(player, Component.literal("Equipped card: ").append(card.getFormattedName()));
-                    Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
-                    return true;
-                },
-                error -> {
-                    var msg = error.message();
-                    Helpers.SendFailure(player, Component.literal("Failed to equip card: " + msg));
-                    Helpers.debug("Failed to equip card for {}: {}", player.getName().getString(), msg);
-                    return false;
-                }
-        );
     }
 
     private final class EquipmentContainer extends SimpleContainer {
@@ -172,28 +135,27 @@ public final class EquipmentGUI extends SimpleGui {
             var displayedCards = items.stream()
                     .map(Card::getCard)
                     .flatMap(Optional::stream)
-                    .collect(Collectors.toSet());
-            var equippedCards = new HashSet<>(playerData.getEquippedCards());
+                    .toList();
 
-            if (equippedCards.equals(displayedCards)) {
-                return;
-            }
-
-            for (var card : equippedCards) {
-                if (!displayedCards.contains(card) && PlayerData.unequipCard(targetPlayer, card).isSuccess()) {
-                    Helpers.debug("{} unequipped card {} for {}", getPlayer(), card, targetPlayer);
-                    Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_REMOVE_ONE);
-                }
-            }
-
-            for (var card : displayedCards) {
-                if (!equippedCards.contains(card) && PlayerData.equipCard(targetPlayer, card).isSuccess()) {
-                    Helpers.debug("{} equipped card {} for {}", getPlayer(), card, targetPlayer);
-                    Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_INSERT);
-                }
-            }
-
-            markDirty();
+            PlayerData.setEquippedCards(targetPlayer, displayedCards).mapOrElse(
+                    change -> {
+                        change.unequipped().forEach(card -> {
+                            Helpers.debug("{} unequipped card {} for {}", getPlayer(), card, targetPlayer);
+                            Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_REMOVE_ONE);
+                        });
+                        change.equipped().forEach(card -> {
+                            Helpers.debug("{} equipped card {} for {}", getPlayer(), card, targetPlayer);
+                            Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_INSERT);
+                        });
+                        markDirty();
+                        return true;
+                    },
+                    error -> {
+                        Helpers.SendFailure(getPlayer(), Component.literal("Failed to update equipment: " + error.message()));
+                        markDirty();
+                        return false;
+                    }
+            );
         }
 
         @Override
@@ -232,6 +194,37 @@ public final class EquipmentGUI extends SimpleGui {
                 }
                 items.set(emptySlot, card.asItem());
             }
+        }
+
+        private boolean canPlaceCard(int slot, ItemStack itemStack) {
+            var viewer = getPlayer();
+            var card = Card.getCard(itemStack).orElse(null);
+            if (card == null) {
+                if (!itemStack.isEmpty()) {
+                    Helpers.SendFailure(viewer, Component.literal("Failed to equip card: " + itemStack.getHoverName().getString() + " is not a card."));
+                    Helpers.debug("Failed to equip card for {}: {} is not a card.", viewer.getName().getString(), itemStack.getHoverName().getString());
+                }
+                return false;
+            }
+
+            var proposedCards = new ArrayList<Card>();
+            for (int index = 0; index < items.size(); index++) {
+                if (index == slot) {
+                    proposedCards.add(card);
+                } else {
+                    Card.getCard(items.get(index)).ifPresent(proposedCards::add);
+                }
+            }
+
+            return playerData.canSetEquippedCards(proposedCards).mapOrElse(
+                    _ -> true,
+                    error -> {
+                        var message = error.message();
+                        Helpers.SendFailure(viewer, Component.literal("Failed to equip card: " + message));
+                        Helpers.debug("Failed to equip card for {}: {}", viewer.getName().getString(), message);
+                        return false;
+                    }
+            );
         }
 
         private int firstEmptySlot() {

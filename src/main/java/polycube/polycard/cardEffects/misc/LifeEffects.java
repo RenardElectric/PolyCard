@@ -27,8 +27,7 @@ public final class LifeEffects extends CardEffects implements ServerLivingEntity
             var rarityLevel = equippedRarityLevel(player);
             if (rarityLevel != null) {
                 var card = new Card(cardType(), rarityLevel);
-                if (PlayerData.unequipCard(player, card).isSuccess())
-                    card.previous().ifPresent(previousCard -> PlayerData.equipCard(player, previousCard));
+                PlayerData.downgradeCard(player, card);
             }
         }
     }

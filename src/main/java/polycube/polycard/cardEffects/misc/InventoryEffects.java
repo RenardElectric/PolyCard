@@ -33,8 +33,7 @@ public class InventoryEffects extends CardEffects implements ServerLivingEntityE
             var playerData = PolyCard.storage().getPlayerData(player);
             var cardIndex = player.getRandom().nextInt(playerData.equippedCardCount());
             var card = playerData.getEquippedCards().get(cardIndex);
-            if (PlayerData.unequipCard(player, card).isSuccess())
-                card.previous().ifPresent(previousCard -> PlayerData.equipCard(player, previousCard));
+            PlayerData.downgradeCard(player, card);
         }
     }
 

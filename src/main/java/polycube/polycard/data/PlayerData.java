@@ -25,13 +25,19 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
 
     public PlayerData(Map<CardType, RarityLevel> equippedCards) {
         this.equippedCards = new EnumMap<>(CardType.class);
+        var mutexGroups = new HashSet<String>();
         for (var cardType : CardType.values()) {
             var rarityLevel = equippedCards.get(cardType);
-            if (rarityLevel != null && Card.tryCreate(cardType, rarityLevel).isPresent()) {
+            var mutexGroup = cardType.getMutexGroup();
+            boolean mutexAvailable = mutexGroup.isBlank() || !mutexGroups.contains(mutexGroup);
+            if (rarityLevel != null && mutexAvailable && Card.tryCreate(cardType, rarityLevel).isPresent()) {
                 if (this.equippedCards.size() == MAX_EQUIPPED_CARDS) {
                     break;
                 }
                 this.equippedCards.put(cardType, rarityLevel);
+                if (!mutexGroup.isBlank()) {
+                    mutexGroups.add(mutexGroup);
+                }
             }
         }
         int ignoredEntries = equippedCards.size() - this.equippedCards.size();
@@ -59,11 +65,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
 
     /// Returns equipped cards as concrete, validated Card instances.
     public List<Card> getEquippedCards() {
-        var cards = new ArrayList<Card>(equippedCards.size());
-        for (var entry : equippedCards.entrySet()) {
-            cards.add(new Card(entry.getKey(), entry.getValue()));
-        }
-        return cards;
+        return cardsFrom(equippedCards);
     }
 
     /// Returns whether this exact type/rarity pair is equipped.
@@ -83,45 +85,111 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
         return equippedCards.containsKey(cardType);
     }
 
-    public DataResult<PlayerData> canEquipCardType(CardType cardType) {
-        if (equippedCardCount() >= MAX_EQUIPPED_CARDS) {
-            return DataResult.error(() -> "there are already " + MAX_EQUIPPED_CARDS + " cards equipped");
-        }
-        if (hasCardType(cardType)) {
-            return DataResult.error(() -> cardType + " is already equipped");
-        }
-
-        var mutexGroup = cardType.getMutexGroup();
-        if (!mutexGroup.isBlank())
-            for (var equippedType : equippedCards.keySet())
-                if (equippedType.getMutexGroup().equals(mutexGroup))
-                    return DataResult.error(() -> "cannot equip " + cardType + " because a " + mutexGroup + " card is already equipped");
-
-        return DataResult.success(this);
+    /// Validates a complete proposed equipment set without changing the persistent state.
+    public DataResult<List<Card>> canSetEquippedCards(Collection<Card> cards) {
+        return validateEquipment(cards).map(PlayerData::cardsFrom);
     }
 
-    /// Equips a card if there is room and no card of the same type is yet equipped.
-    public static DataResult<PlayerData> equipCard(ServerPlayer player, Card card) {
-        return PolyCard.storage().getPlayerData(player).canEquipCardType(card.cardType()).map(playerData -> {
-            playerData.equippedCards.put(card.cardType(), card.rarityLevel());
-            CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
+    /// Equips a card, atomically replacing a different rarity of the same or mutex-group card.
+    public static DataResult<EquipmentChange> equipOrReplaceCard(ServerPlayer player, Card card) {
+        var playerData = PolyCard.storage().getPlayerData(player);
+        var target = playerData.getEquippedCards();
+        var mutexGroup = card.cardType().getMutexGroup();
+        var replacedCard = target.stream()
+                .filter(equippedCard -> equippedCard.cardType() == card.cardType()
+                        || (!mutexGroup.isBlank() && equippedCard.cardType().getMutexGroup().equals(mutexGroup)))
+                .findFirst();
+
+        if (replacedCard.filter(card::equals).isPresent()) {
+            return DataResult.error(() -> card.cardType() + " is already equipped");
+        }
+        replacedCard.ifPresent(target::remove);
+        target.add(card);
+        return applyEquipment(player, target);
+    }
+
+    /// Atomically replaces the complete equipment set after validating all invariants.
+    public static DataResult<EquipmentChange> setEquippedCards(ServerPlayer player, Collection<Card> cards) {
+        return applyEquipment(player, cards);
+    }
+
+    /// Atomically lowers an equipped card by one supported rarity, or removes its minimum tier.
+    public static DataResult<EquipmentChange> downgradeCard(ServerPlayer player, Card card) {
+        var playerData = PolyCard.storage().getPlayerData(player);
+        if (playerData.equippedCards.get(card.cardType()) != card.rarityLevel()) {
+            return DataResult.error(() -> card.cardType() + " is not equipped at " + card.rarityLevel());
+        }
+
+        var target = playerData.getEquippedCards();
+        target.remove(card);
+        card.previous().ifPresent(target::add);
+        return applyEquipment(player, target);
+    }
+
+    private static DataResult<EquipmentChange> applyEquipment(ServerPlayer player, Collection<Card> cards) {
+        var playerData = PolyCard.storage().getPlayerData(player);
+        return playerData.validateEquipment(cards).map(target -> {
+            var before = new EnumMap<>(playerData.equippedCards);
+            if (before.equals(target)) {
+                return EquipmentChange.NONE;
+            }
+
+            var unequipped = changedCards(before, target);
+            var equipped = changedCards(target, before);
+            playerData.equippedCards.clear();
+            playerData.equippedCards.putAll(target);
+
+            unequipped.forEach(card -> CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card));
+            equipped.forEach(card -> CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card));
             PolyCard.storage().setDirty();
-            return playerData;
+            return new EquipmentChange(unequipped, equipped);
         });
     }
 
-    /// Unequips a card if it is currently equipped.
-    public static DataResult<PlayerData> unequipCard(ServerPlayer player, Card card) {
-        var playerData = PolyCard.storage().getPlayerData(player);
-        var cardType = card.cardType();
-        var removedRarityLevel = playerData.equippedCards.remove(cardType);
-        if (removedRarityLevel == card.rarityLevel()) {
-            CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card);
-            PolyCard.storage().setDirty();
-            return DataResult.success(playerData);
-        } else if (removedRarityLevel != null) {
-            playerData.equippedCards.put(cardType, removedRarityLevel);
+    private DataResult<EnumMap<CardType, RarityLevel>> validateEquipment(Collection<Card> cards) {
+        if (cards.size() > MAX_EQUIPPED_CARDS) {
+            return DataResult.error(() -> "there can only be " + MAX_EQUIPPED_CARDS + " equipped cards");
         }
-        return DataResult.error(() -> cardType + " is not equipped");
+
+        var target = new EnumMap<CardType, RarityLevel>(CardType.class);
+        var mutexGroups = new HashMap<String, CardType>();
+        for (var card : cards) {
+            if (target.put(card.cardType(), card.rarityLevel()) != null) {
+                return DataResult.error(() -> card.cardType() + " is equipped more than once");
+            }
+
+            var mutexGroup = card.cardType().getMutexGroup();
+            if (!mutexGroup.isBlank()) {
+                var conflictingType = mutexGroups.put(mutexGroup, card.cardType());
+                if (conflictingType != null) {
+                    return DataResult.error(() -> "cannot equip " + card.cardType() + " because " + conflictingType + " is in the same " + mutexGroup + " group");
+                }
+            }
+        }
+        return DataResult.success(target);
+    }
+
+    private static List<Card> changedCards(
+            Map<CardType, RarityLevel> source,
+            Map<CardType, RarityLevel> comparison
+    ) {
+        var changed = new ArrayList<Card>();
+        source.forEach((cardType, rarityLevel) -> {
+            if (comparison.get(cardType) != rarityLevel) {
+                changed.add(new Card(cardType, rarityLevel));
+            }
+        });
+        return List.copyOf(changed);
+    }
+
+    private static List<Card> cardsFrom(Map<CardType, RarityLevel> cards) {
+        var result = new ArrayList<Card>(cards.size());
+        cards.forEach((cardType, rarityLevel) -> result.add(new Card(cardType, rarityLevel)));
+        return result;
+    }
+
+    /// The cards removed and added by one committed equipment transaction.
+    public record EquipmentChange(List<Card> unequipped, List<Card> equipped) {
+        private static final EquipmentChange NONE = new EquipmentChange(List.of(), List.of());
     }
 }

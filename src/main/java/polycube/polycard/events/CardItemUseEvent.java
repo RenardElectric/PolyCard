@@ -7,7 +7,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
@@ -28,46 +27,16 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
             return InteractionResult.PASS;
         }
 
-        var optionalCard = Card.getCard(item);
-        if (optionalCard.isEmpty()) {
-            return InteractionResult.PASS;
-        }
-
-        var playerData = PolyCard.storage().getPlayerData(player);
-        var card = optionalCard.get();
-        var cardType = card.cardType();
-        var mutexGroup = cardType.getMutexGroup();
-
-        Card replacingCard = null;
-        for (var equippedCard : playerData.getEquippedCards()) {
-            var equippedCardType = equippedCard.cardType();
-            if ((equippedCardType == cardType || (!mutexGroup.isBlank() && equippedCardType.getMutexGroup().equals(mutexGroup)))
-                    && equippedCard.rarityLevel() != card.rarityLevel()) {
-                replacingCard = equippedCard;
-                break;
-            }
-        }
-
-        if (replacingCard != null) {
-            if (PlayerData.unequipCard(player, replacingCard).isSuccess()) {
-                var result = equipCard(item, player, card);
-                if (result.equals(InteractionResult.SUCCESS)) {
-                    player.getInventory().placeItemBackInInventory(replacingCard.asItem());
-                } else {
-                    PlayerData.equipCard(player, replacingCard);
-                    Helpers.debug("Rolled back a failed card swap for {}", player.getName().getString());
-                }
-                return result;
-            }
-        }
-
-        return equipCard(item, player, card);
+        var card = Card.getCard(item);
+        if (card.isEmpty()) return InteractionResult.PASS;
+        return equipCard(item, player, card.orElseThrow());
     }
 
     private InteractionResult equipCard(ItemStack item, ServerPlayer player, Card card) {
-        return PlayerData.equipCard(player, card).mapOrElse(
-                _ -> {
+        return PlayerData.equipOrReplaceCard(player, card).mapOrElse(
+                change -> {
                     item.shrink(1);
+                    change.unequipped().forEach(replacedCard -> player.getInventory().placeItemBackInInventory(replacedCard.asItem()));
                     Helpers.SendSuccess(player, Component.literal("Equipped card: ").append(card.getFormattedName()));
                     Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
                     Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
