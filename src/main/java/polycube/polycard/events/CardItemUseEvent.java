@@ -41,8 +41,8 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
         Card replacingCard = null;
         for (var equippedCard : playerData.getEquippedCards()) {
             var equippedCardType = equippedCard.cardType();
-            if ((equippedCardType == cardType && equippedCard.rarityLevel() != card.rarityLevel())
-                    || (!mutexGroup.isBlank() && equippedCardType.getMutexGroup().equals(mutexGroup))) {
+            if ((equippedCardType == cardType || (!mutexGroup.isBlank() && equippedCardType.getMutexGroup().equals(mutexGroup)))
+                    && equippedCard.rarityLevel() != card.rarityLevel()) {
                 replacingCard = equippedCard;
                 break;
             }
