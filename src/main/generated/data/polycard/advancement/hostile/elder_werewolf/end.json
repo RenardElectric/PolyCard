@@ -1,0 +1,9 @@
+{
+  "parent": "polycard:hostile/elder_werewolf/legendary",
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "sends_telemetry_event": true
+}

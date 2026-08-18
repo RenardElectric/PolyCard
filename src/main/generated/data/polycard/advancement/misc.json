@@ -49,6 +49,18 @@
       },
       "trigger": "minecraft:location"
     },
+    "spectator": {
+      "conditions": {
+        "player": {
+          "minecraft:type_specific/player": {
+            "advancements": {
+              "polycard:misc/spectator": true
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:location"
+    },
     "totem": {
       "conditions": {
         "player": {

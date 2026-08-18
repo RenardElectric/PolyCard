@@ -108,7 +108,7 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.LEGENDARY, 0.035f, true, "Heal based on the damage dealt on enemies with wither effect (" + probToStr(WitherEffects.LIFE_STEAL_PROBABILITY) + "% chance per damage point)");
     }},
     ZOMBIE("zombie", "killing a zombie", CardGroup.HOSTILE, ZombieEffects::new) {{
-        addRarity(RarityLevel.COMMON, 0.20f, false, "No hunger when eating rotten flesh");
+        addRarity(RarityLevel.COMMON, 0.2f, false, "No hunger when eating rotten flesh");
         addRarity(RarityLevel.UNCOMMON, 0.07f, false, "Rotten flesh gives +" + ZombieEffects.ROTTEN_FLESH_FOOD_INCREASE + " food");
         addRarity(RarityLevel.RARE, 0.025f, false, "Rotten flesh gives strength " + (ZombieEffects.STRENGTH_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.STRENGTH_EFFECT_DURATION / 20 + "s");
         addRarity(RarityLevel.EPIC, 0.004f, true, "Rotten flesh gives regeneration " + (ZombieEffects.REGENERATION_EFFECT_AMPLIFIER + 1) + " for " + ZombieEffects.REGENERATION_EFFECT_DURATION / 20 + "s");
@@ -120,19 +120,19 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.EPIC, 0.006f, true, "When hit, " + probToStr(CreeperEffects.EXPLOSION_PROBABILITY) + "% chance to create a blast (no blocks damage)");
         addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Creepers do not attack you");
     }},
-    ELDER_WEREWOLF("elder_werewolf", "TODO", CardGroup.HOSTILE, "werewolf", () -> new WerewolfEffects(WerewolfEffects.WerewolfType.ELDER)) {{
-        addRarity(RarityLevel.COMMON, 1.0f, false, "TODO");
-        addRarity(RarityLevel.UNCOMMON, 1.0f, false, "TODO");
-        addRarity(RarityLevel.RARE, 1.0f, false, "TODO");
-        addRarity(RarityLevel.EPIC, 1.0f, true, "TODO");
-        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "TODO");
+    ELDER_WEREWOLF("elder_werewolf", "being bitten by a wild wolf during a full moon at night", CardGroup.HOSTILE, "werewolf", () -> new WerewolfEffects(WerewolfEffects.WerewolfType.ELDER)) {{
+        addRarity(RarityLevel.COMMON, 0.05f, false, "+-0.15 health depending on the moon phase");
+        addRarity(RarityLevel.UNCOMMON, 0.025f, false, "+-0.3 health depending on the moon phase");
+        addRarity(RarityLevel.RARE, 0.01f, false, "+-0.45 health depending on the moon phase");
+        addRarity(RarityLevel.EPIC, 0.005f, true, "+-0.6 health depending on the moon phase");
+        addRarity(RarityLevel.LEGENDARY, 0.001f, true, "+-0.75 health depending on the moon phase");
     }},
-    ALPHA_WEREWOLF("alpha_werewolf", "TODO", CardGroup.HOSTILE, "werewolf", () -> new WerewolfEffects(WerewolfEffects.WerewolfType.ALPHA)) {{
-        addRarity(RarityLevel.COMMON, 1.0f, false, "TODO");
-        addRarity(RarityLevel.UNCOMMON, 1.0f, false, "TODO");
-        addRarity(RarityLevel.RARE, 1.0f, false, "TODO");
-        addRarity(RarityLevel.EPIC, 1.0f, true, "TODO");
-        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "TODO");
+    ALPHA_WEREWOLF("alpha_werewolf", "being bitten by a wild wolf during a full moon at night", CardGroup.HOSTILE, "werewolf", () -> new WerewolfEffects(WerewolfEffects.WerewolfType.ALPHA)) {{
+        addRarity(RarityLevel.COMMON, 0.05f, false, "+-0.15 damage depending on the moon phase");
+        addRarity(RarityLevel.UNCOMMON, 0.025f, false, "+-0.3 damage depending on the moon phase");
+        addRarity(RarityLevel.RARE, 0.01f, false, "+-0.45 damage depending on the moon phase");
+        addRarity(RarityLevel.EPIC, 0.005f, true, "+-0.6 damage depending on the moon phase");
+        addRarity(RarityLevel.LEGENDARY, 0.001f, true, "+-0.75 damage depending on the moon phase");
     }},
 
     // Misc
@@ -165,7 +165,7 @@ public enum CardType implements StringRepresentable {
         addRarity(RarityLevel.LEGENDARY, 0.15f, true, "Fire resistance but can only respawn in the nether");
     }},
     SPECTATOR("spectator", "TODO", CardGroup.MISC, SpectatorEffects::new) {{
-        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "TODO");
+        addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Invulnerable but cannot hurt anything, die when removing this card");
     }};
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

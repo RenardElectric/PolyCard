@@ -6,12 +6,15 @@ import net.fabricmc.fabric.api.loot.v3.LootTableSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.chicken.Chicken;
@@ -33,6 +36,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.MoonPhase;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -40,10 +44,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.card.CardType;
-import polycube.polycard.events.callBacks.BreedEventCallback;
-import polycube.polycard.events.callBacks.EntitySummonedEventCallback;
-import polycube.polycard.events.callBacks.PlayerKillEventCallback;
-import polycube.polycard.events.callBacks.TameEventCallback;
+import polycube.polycard.events.callBacks.*;
 import polycube.polycard.utils.CardHelpers;
 import polycube.polycard.utils.Helpers;
 import polycube.polycard.utils.LootHelpers;
@@ -55,7 +56,8 @@ import static net.minecraft.world.level.block.BeehiveBlock.HONEY_LEVEL;
 public class CardLootEvents
         extends EventHandler
         implements BreedEventCallback, PlayerKillEventCallback, EntitySummonedEventCallback,
-        TameEventCallback, BlockEvents.UseItemOnCallback, LootTableEvents.Modify
+        TameEventCallback, BlockEvents.UseItemOnCallback, LootTableEvents.Modify,
+        EntityAfterHurtEventCallback
 {
     @Override
     public void onBreed(ServerPlayer player, Animal parent, Animal partner, Optional<AgeableMob> child) {
@@ -139,6 +141,23 @@ public class CardLootEvents
                     || path.startsWith("archaeology/") || key.equals(BuiltInLootTables.SPAWNER_TRIAL_CHAMBER_CONSUMABLES)
                     || key.equals(BuiltInLootTables.SPAWNER_OMINOUS_TRIAL_CHAMBER_CONSUMABLES) || key.equals(BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS))) {
                 tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.LUCKY));
+            }
+        }
+    }
+
+    @Override
+    public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
+        if (entity instanceof ServerPlayer player) {
+            if (source.getEntity() instanceof LivingEntity attacker) {
+                var time = level.getDefaultClockTime() % 24000L;
+                if (attacker instanceof Wolf wolf && !wolf.isTame()
+                        &&  time >= 13000L && time < 23000L
+                        && level.environmentAttributes().getDimensionValue(EnvironmentAttributes.MOON_PHASE) == MoonPhase.FULL_MOON) {
+                    if (player.getRandom().nextDouble() < 0.5)
+                        CardHelpers.receiveCard(player, CardType.ALPHA_WEREWOLF);
+                    else
+                        CardHelpers.receiveCard(player, CardType.ELDER_WEREWOLF);
+                }
             }
         }
     }

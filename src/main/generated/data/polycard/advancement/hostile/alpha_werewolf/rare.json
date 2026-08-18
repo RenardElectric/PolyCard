@@ -1,0 +1,38 @@
+{
+  "parent": "polycard:hostile/alpha_werewolf/uncommon",
+  "criteria": {
+    "got_card": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:item_model": "polycard:hostile/alpha_werewolf/rare"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "extra": [
+        {
+          "color": "blue",
+          "text": "Rare Alpha Werewolf Card"
+        }
+      ],
+      "text": "Collect the "
+    },
+    "icon": {
+      "components": {
+        "minecraft:enchantment_glint_override": false,
+        "minecraft:item_model": "polycard:hostile/alpha_werewolf/rare"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Rare Alpha Werewolf Card"
+  },
+  "sends_telemetry_event": true
+}

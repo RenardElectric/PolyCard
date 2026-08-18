@@ -1,72 +1,60 @@
 {
-  "parent": "polycard:root",
+  "parent": "polycard:hostile",
   "criteria": {
-    "alpha_werewolf": {
+    "alpha_werewolf_common": {
       "conditions": {
         "player": {
           "minecraft:type_specific/player": {
             "advancements": {
-              "polycard:hostile/alpha_werewolf": true
+              "polycard:hostile/alpha_werewolf/common": true
             }
           }
         }
       },
       "trigger": "minecraft:location"
     },
-    "creeper": {
+    "alpha_werewolf_epic": {
       "conditions": {
         "player": {
           "minecraft:type_specific/player": {
             "advancements": {
-              "polycard:hostile/creeper": true
+              "polycard:hostile/alpha_werewolf/epic": true
             }
           }
         }
       },
       "trigger": "minecraft:location"
     },
-    "elder_werewolf": {
+    "alpha_werewolf_legendary": {
       "conditions": {
         "player": {
           "minecraft:type_specific/player": {
             "advancements": {
-              "polycard:hostile/elder_werewolf": true
+              "polycard:hostile/alpha_werewolf/legendary": true
             }
           }
         }
       },
       "trigger": "minecraft:location"
     },
-    "ender_dragon": {
+    "alpha_werewolf_rare": {
       "conditions": {
         "player": {
           "minecraft:type_specific/player": {
             "advancements": {
-              "polycard:hostile/ender_dragon": true
+              "polycard:hostile/alpha_werewolf/rare": true
             }
           }
         }
       },
       "trigger": "minecraft:location"
     },
-    "wither": {
+    "alpha_werewolf_uncommon": {
       "conditions": {
         "player": {
           "minecraft:type_specific/player": {
             "advancements": {
-              "polycard:hostile/wither": true
-            }
-          }
-        }
-      },
-      "trigger": "minecraft:location"
-    },
-    "zombie": {
-      "conditions": {
-        "player": {
-          "minecraft:type_specific/player": {
-            "advancements": {
-              "polycard:hostile/zombie": true
+              "polycard:hostile/alpha_werewolf/uncommon": true
             }
           }
         }
@@ -75,15 +63,15 @@
     }
   },
   "display": {
-    "description": "Collect all Hostile Cards",
-    "frame": "challenge",
+    "description": "Collect all Alpha Werewolf Cards by being bitten by a wild wolf",
+    "frame": "goal",
     "icon": {
       "components": {
-        "minecraft:item_model": "polycard:hostile"
+        "minecraft:item_model": "polycard:hostile/alpha_werewolf"
       },
       "id": "minecraft:poisonous_potato"
     },
-    "title": "Hostile Cards"
+    "title": "Alpha Werewolf Cards"
   },
   "sends_telemetry_event": true
 }

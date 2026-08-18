@@ -1,0 +1,38 @@
+{
+  "parent": "polycard:hostile/elder_werewolf/rare",
+  "criteria": {
+    "got_card": {
+      "conditions": {
+        "items": [
+          {
+            "components": {
+              "minecraft:item_model": "polycard:hostile/elder_werewolf/epic"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "extra": [
+        {
+          "color": "dark_purple",
+          "text": "Epic Elder Werewolf Card"
+        }
+      ],
+      "text": "Collect the "
+    },
+    "icon": {
+      "components": {
+        "minecraft:enchantment_glint_override": true,
+        "minecraft:item_model": "polycard:hostile/elder_werewolf/epic"
+      },
+      "id": "minecraft:poisonous_potato"
+    },
+    "title": "Epic Elder Werewolf Card"
+  },
+  "sends_telemetry_event": true
+}
