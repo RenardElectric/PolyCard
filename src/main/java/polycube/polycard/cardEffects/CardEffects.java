@@ -27,18 +27,19 @@ public abstract class CardEffects extends EventHandler {
     private static final Set<PlayerState<?>> PLAYER_STATES = Collections.newSetFromMap(new IdentityHashMap<>());
 
     private @Nullable CardType cardType = null;
-    private @Nullable Map<RarityLevel, Multimap<Holder<Attribute>, Function<ServerPlayer, AttributeModifier>>> attributeMap = null;
+    private final Map<RarityLevel, Multimap<Holder<Attribute>, Function<ServerPlayer, AttributeModifier>>> attributeMap;
 
-    protected CardEffects() {}
+    protected CardEffects() {
+        attributeMap = new HashMap<>();
+    }
 
     /// Assigns the owning card before making this effect visible to any event invoker.
     public final void initialize(CardType cardType) {
-        if (this.cardType != null) {
-            throw new IllegalStateException(getClass().getName() + " is already initialized");
-        }
-        this.cardType = Objects.requireNonNull(cardType, "cardType");
-        INSTANCES.add(this);
+        if (this.cardType != null) throw new IllegalStateException(getClass().getName() + " is already initialized");
+        this.cardType = cardType;
         registerCallbacks();
+        if (!attributeMap.isEmpty()) registerAttributesCallbacks();
+        INSTANCES.add(this);
     }
 
     /// Clears every effect's transient state for a player who is leaving.
@@ -63,7 +64,7 @@ public abstract class CardEffects extends EventHandler {
     /// Hook for non-player transient state that must reset between server instances.
     protected void onRuntimeClearing() {}
 
-    public CardType cardType() {
+    public final CardType cardType() {
         return Objects.requireNonNull(cardType, "Cannot access CardType before initialize() is called");
     }
 
@@ -78,7 +79,7 @@ public abstract class CardEffects extends EventHandler {
     }
 
     /// Returns whether another nearby player has this card type at the requested rarity or higher.
-    public boolean nearPlayerWithCard(ServerPlayer player, RarityLevel minRarityLevel, double distanceSquared) {
+    public final boolean nearPlayerWithCard(ServerPlayer player, RarityLevel minRarityLevel, double distanceSquared) {
         var level = player.level();
         var playerPos = player.position();
         return !level.getPlayers(p ->
@@ -87,7 +88,7 @@ public abstract class CardEffects extends EventHandler {
                         && hasCardOrRarer(p, minRarityLevel), 1).isEmpty();
     }
 
-    protected void registerAttributesCallbacks() {
+    protected final void registerAttributesCallbacks() {
         PlayerLoadEventCallback.EVENT.register(this::loadAttributes);
         CardEventCallback.EQUIPPED.register((player, card) -> {
             if (card.cardType() == cardType) this.loadAttributes(player);
@@ -98,36 +99,27 @@ public abstract class CardEffects extends EventHandler {
     }
 
     @SuppressWarnings("NullableProblems")
-    protected void addAttribute(RarityLevel rarityLevel, Holder<Attribute> attribute, String id, AttributeModifier.Operation operation, double amount) {
-        if (attributeMap == null) {
-            attributeMap = new HashMap<>();
-            registerAttributesCallbacks();
-        }
+    protected final void addAttribute(RarityLevel rarityLevel, Holder<Attribute> attribute, String id, AttributeModifier.Operation operation, double amount) {
         attributeMap.computeIfAbsent(rarityLevel, _ -> HashMultimap.create())
                 .put(attribute, _ -> new AttributeModifier(Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, id), amount, operation));
     }
 
     @SuppressWarnings("NullableProblems")
-    protected void addAttribute(RarityLevel rarityLevel, Holder<Attribute> attribute, String id, AttributeModifier.Operation operation, Function<ServerPlayer, Double> amountFunction) {
-        if (attributeMap == null) {
-            attributeMap = new HashMap<>();
-            registerAttributesCallbacks();
-        }
+    protected final void addAttribute(RarityLevel rarityLevel, Holder<Attribute> attribute, String id, AttributeModifier.Operation operation, Function<ServerPlayer, Double> amountFunction) {
         attributeMap.computeIfAbsent(rarityLevel, _ -> HashMultimap.create())
                 .put(attribute, player -> new AttributeModifier(Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, id), amountFunction.apply(player), operation));
     }
 
-    protected void loadAttributes(ServerPlayer player) {
+    protected final void loadAttributes(ServerPlayer player) {
         var rarityLevel = equippedRarityLevel(player);
         if (rarityLevel != null) setCardAttributes(player, rarityLevel, player.getAttributes()::addTransientAttributeModifiers);
     }
 
-    protected void removeAttributes(ServerPlayer player, RarityLevel rarityLevel) {
+    protected final void removeAttributes(ServerPlayer player, RarityLevel rarityLevel) {
         setCardAttributes(player, rarityLevel, player.getAttributes()::removeAttributeModifiers);
     }
 
     private void setCardAttributes(ServerPlayer player, RarityLevel rarityLevel, Consumer<Multimap<Holder<Attribute>, AttributeModifier>> consumer) {
-        if (attributeMap == null) return;
         int maxRank = rarityLevel.rank();
         for (int i = 0; i <= maxRank; i++) {
             Optional.ofNullable(attributeMap.get(RarityLevel.BY_RANK.get(i)))
@@ -137,7 +129,7 @@ public abstract class CardEffects extends EventHandler {
     }
 
     /// Captures the player's current rarity thresholds for this card type.
-    public CardRarityConditions conditionsFor(ServerPlayer player) {
+    public final CardRarityConditions conditionsFor(ServerPlayer player) {
         return new CardRarityConditions(player);
     }
 

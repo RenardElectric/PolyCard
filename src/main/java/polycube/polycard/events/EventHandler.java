@@ -67,16 +67,14 @@ public class EventHandler {
 
     /// Registers every callback interface implemented by this fully constructed handler.
     public final void registerCallbacks() {
-        if (eventsRegistered) {
-            throw new IllegalStateException(getClass().getName() + " registered its events more than once");
-        }
-        validateCallbackInterfaces();
-        eventsRegistered = true;
+        if (eventsRegistered) throw new IllegalStateException(getClass().getName() + " registered its events more than once");
+        validateCallbacks();
         REGISTRATIONS.forEach(this::handle);
+        eventsRegistered = true;
     }
 
     /// Fails before registering anything if a handler implements a callback that was omitted from REGISTRATIONS.
-    private void validateCallbackInterfaces() {
+    protected final void validateCallbacks() {
         for (Class<?> handlerType = getClass(); handlerType != EventHandler.class; handlerType = handlerType.getSuperclass()) {
             for (var callbackType : handlerType.getInterfaces()) {
                 boolean isRegistered = REGISTRATIONS.stream()
