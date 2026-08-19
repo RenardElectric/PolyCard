@@ -39,9 +39,7 @@ public final class CardHelpers {
 
     /// Creates a concrete card if any supported rarity roll succeeds.
     public static Optional<Card> createCard(CardType card) {
-        return getRandomRarityLevel(card).map(
-                rarityLevel -> new Card(card, rarityLevel)
-        );
+        return getRandomRarityLevel(card).map(rarityLevel -> new Card(card, rarityLevel));
     }
 
     /// Uses one roll against cumulative rarity thresholds and returns the highest matching tier.
