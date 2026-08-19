@@ -32,8 +32,6 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     private static final Map<Card, ItemStackTemplate> itemStackCache = new HashMap<>();
 
     public Card {
-        Objects.requireNonNull(cardType, "cardType");
-        Objects.requireNonNull(rarityLevel, "rarityLevel");
         if (!cardType.hasRarity(rarityLevel)) {
             throw new IllegalArgumentException(cardType + " does not support " + rarityLevel + " rarity.");
         }

@@ -7,14 +7,14 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
-import polycube.polycard.data.PlayerData;
+import polycube.polycard.data.Equipment;
 import polycube.polycard.gui.EquipmentGUI;
 
 public class EquipCommand extends PolyCardCommand {
     public EquipCommand() {
         super(
                 "equip",
-                "Open the equipment manager to equip up to " + PlayerData.MAX_EQUIPPED_CARDS + " cards",
+                "Open the equipment manager to equip up to " + Equipment.MAX_CARDS + " cards",
                 "[player]",
                 PermissionLevel.ALL
         );

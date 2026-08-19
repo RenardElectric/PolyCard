@@ -93,19 +93,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
     /// Equips a card, atomically replacing a different rarity of the same or mutex-group card.
     public static DataResult<EquipmentChange> equipOrReplaceCard(ServerPlayer player, Card card) {
         var playerData = PolyCard.storage().getPlayerData(player);
-        var target = playerData.getEquippedCards();
-        var mutexGroup = card.cardType().getMutexGroup();
-        var replacedCard = target.stream()
-                .filter(equippedCard -> equippedCard.cardType() == card.cardType()
-                        || (!mutexGroup.isBlank() && equippedCard.cardType().getMutexGroup().equals(mutexGroup)))
-                .findFirst();
-
-        if (replacedCard.filter(card::equals).isPresent()) {
-            return DataResult.error(() -> card.cardType() + " is already equipped");
-        }
-        replacedCard.ifPresent(target::remove);
-        target.add(card);
-        return applyEquipment(player, target);
+        return applyEquipment(player, playerData.equipment.equipOrReplace(card));
     }
 
     /// Atomically replaces the complete equipment set after validating all invariants.
@@ -116,21 +104,15 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
     /// Atomically lowers an equipped card by one supported rarity, or removes its minimum tier.
     public static DataResult<EquipmentChange> downgradeCard(ServerPlayer player, Card card) {
         var playerData = PolyCard.storage().getPlayerData(player);
-        if (playerData.equippedCards.get(card.cardType()) != card.rarityLevel()) {
-            return DataResult.error(() -> card.cardType() + " is not equipped at " + card.rarityLevel());
-        }
-
-        var target = playerData.getEquippedCards();
-        target.remove(card);
-        card.previous().ifPresent(target::add);
-        return applyEquipment(player, target);
+        return applyEquipment(player, playerData.equipment.downgrade(card));
     }
 
-    private static DataResult<EquipmentChange> applyEquipment(ServerPlayer player, Collection<Card> cards) {
         var playerData = PolyCard.storage().getPlayerData(player);
-        return playerData.validateEquipment(cards).map(target -> {
-            var before = new EnumMap<>(playerData.equippedCards);
-            if (before.equals(target)) {
+    private static DataResult<EquipmentChange> applyEquipment(ServerPlayer player, DataResult<Equipment> proposedEquipment) {
+        return proposedEquipment.map(target -> {
+            var before = playerData.equipment.cardsByType();
+            var after = target.cardsByType();
+            if (before.equals(after)) {
                 return EquipmentChange.NONE;
             }
 

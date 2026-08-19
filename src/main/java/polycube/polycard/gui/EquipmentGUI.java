@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
+import polycube.polycard.data.Equipment;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.utils.Helpers;
@@ -45,7 +46,7 @@ public final class EquipmentGUI extends SimpleGui {
         this.container = new EquipmentContainer();
 
         setTitle(TITLE);
-        for (int slot = 0; slot < PlayerData.MAX_EQUIPPED_CARDS; slot++) {
+        for (int slot = 0; slot < Equipment.MAX_CARDS; slot++) {
             setSlot(slot, createEquipmentSlot(slot));
         }
     }
@@ -120,7 +121,7 @@ public final class EquipmentGUI extends SimpleGui {
 
     private final class EquipmentContainer extends SimpleContainer {
         private EquipmentContainer() {
-            super(PlayerData.MAX_EQUIPPED_CARDS);
+            super(Equipment.MAX_CARDS);
             syncFromPlayerData();
         }
 
