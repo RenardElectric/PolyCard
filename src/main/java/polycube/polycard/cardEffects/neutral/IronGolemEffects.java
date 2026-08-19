@@ -11,7 +11,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.item.Items;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
@@ -48,7 +47,7 @@ public final class IronGolemEffects extends CardEffects implements EntityAfterHu
                     .hasLegendary(() -> {
                         if (source.is(DamageTypeTags.IS_FALL) &&
                                 player.fallDistance >= SHOCKWAVE_MIN_FALL_DISTANCE &&
-                                PolyCard.cooldowns().tryStartCooldown(player, SHOCKWAVE_COOLDOWN_KEY, SHOCKWAVE_COOLDOWN)
+                                cooldowns().tryStartCooldown(player, SHOCKWAVE_COOLDOWN_KEY, SHOCKWAVE_COOLDOWN)
                         ) {
                             Helpers.debug("{} has a legendary or higher Iron Golem card and fell from a height of {}. Triggering shockwave.", player.getName().getString(), player.fallDistance);
                             triggerShockwave(player, player.fallDistance);
@@ -59,7 +58,7 @@ public final class IronGolemEffects extends CardEffects implements EntityAfterHu
         if (source.getEntity() instanceof ServerPlayer player) {
             if (source.isDirect() && source.getWeaponItem() != null && source.getWeaponItem().is(Items.AIR)) {
                 if (hasCardOrRarer(player, RarityLevel.EPIC)) {
-                    if (PolyCard.cooldowns().tryStartCooldown(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
+                    if (cooldowns().tryStartCooldown(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
                         Helpers.debug("{} has an epic or higher Iron Golem card, applying knockback on hit", player.getName().getString());
                         double xd = 0.0;
                         double zd = 0.0;

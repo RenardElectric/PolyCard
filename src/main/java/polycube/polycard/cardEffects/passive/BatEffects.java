@@ -149,7 +149,7 @@ public class BatEffects
                 && hasCardOrRarer(player, RarityLevel.LEGENDARY)
                 && source.getEntity() instanceof LivingEntity attacker
                 && player.isCrouching()
-                && PolyCard.cooldowns().tryStartCooldown(player, "bat_invisibility", INVISIBILITY_COOLDOWN)
+                && cooldowns().tryStartCooldown(player, "bat_invisibility", INVISIBILITY_COOLDOWN)
         ) {
             startInvisibility(player, attacker, level);
         }
@@ -214,7 +214,7 @@ public class BatEffects
         }
 
         invisiblePlayers.put(player, invisibilityId);
-        PolyCard.scheduler().runLater(INVISIBILITY_DURATION, _ -> endInvisibility(player, invisibilityId));
+        scheduler().runLater(INVISIBILITY_DURATION, _ -> endInvisibility(player, invisibilityId));
 
         level.sendParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);
         level.sendParticles(ParticleTypes.LARGE_SMOKE, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);

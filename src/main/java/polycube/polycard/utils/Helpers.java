@@ -43,7 +43,7 @@ public final class Helpers {
     /// Sends a failure with spam protection.
     public static void SendFailure(ServerPlayer player, MutableComponent reason) {
         var key = "sound:" + BuiltInRegistries.SOUND_EVENT.getKey(SoundEvents.VILLAGER_NO);
-        if (PolyCard.cooldowns().tryStartCooldown(player, key, FAILURE_COOLDOWN)) {
+        if (PolyCard.runtime().cooldowns().tryStartCooldown(player, key, FAILURE_COOLDOWN)) {
             playSound(player, SoundEvents.VILLAGER_NO);
             player.sendSystemMessage(reason.withStyle(ChatFormatting.RED));
         }

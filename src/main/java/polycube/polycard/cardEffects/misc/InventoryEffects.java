@@ -5,7 +5,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.gamerules.GameRules;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
@@ -31,7 +30,7 @@ public class InventoryEffects extends CardEffects implements ServerLivingEntityE
     @Override
     public void afterDeath(LivingEntity entity, DamageSource damageSource) {
         if (entity instanceof ServerPlayer player && pendingProtectedDeaths.contains(player)) {
-            var playerData = PolyCard.storage().getPlayerData(player);
+            var playerData = playerData(player);
             var cardIndex = player.getRandom().nextInt(playerData.equippedCardCount());
             var card = playerData.getEquippedCards().get(cardIndex);
             PlayerData.downgradeCard(player, card);

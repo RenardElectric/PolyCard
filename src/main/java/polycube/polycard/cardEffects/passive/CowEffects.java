@@ -11,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.Vec3;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
@@ -103,7 +102,7 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
                         }
 
                         Helpers.debug("{} converted {} non-beneficial effect(s) with an Epic Cow card", player.getName().getString(), effectsGained.size());
-                        PolyCard.scheduler().runLater(0, _ -> {
+                        scheduler().runLater(0, _ -> {
                             for (MobEffectInstance effect : effectsGained) {
                                 player.addEffect(effect);
                             }

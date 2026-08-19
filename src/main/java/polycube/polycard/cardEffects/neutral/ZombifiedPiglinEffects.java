@@ -14,7 +14,6 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
 import org.jspecify.annotations.Nullable;
-import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
@@ -50,7 +49,7 @@ public final class ZombifiedPiglinEffects extends CardEffects implements IsTarge
                     var random = player.getRandom();
                     if (random.nextFloat() < SPAWN_REINFORCEMENTS_CHANCE
                             && level.isSpawningMonsters()
-                            && PolyCard.cooldowns().tryStartCooldown(player, REINFORCEMENT_COOLDOWN_KEY, REINFORCEMENT_COOLDOWN)) {
+                            && cooldowns().tryStartCooldown(player, REINFORCEMENT_COOLDOWN_KEY, REINFORCEMENT_COOLDOWN)) {
                         int x = Mth.floor(player.getX());
                         int y = Mth.floor(player.getY());
                         int z = Mth.floor(player.getZ());

@@ -12,11 +12,15 @@ import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.data.PlayerData;
+import polycube.polycard.data.Storage;
 import polycube.polycard.events.EventHandler;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.EquippedRarityLevelOverrideCallback;
 import polycube.polycard.events.callBacks.HasCardOrRarerOverrideCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
+import polycube.polycard.utils.Cooldowns;
+import polycube.polycard.utils.TaskScheduler;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -68,13 +72,33 @@ public abstract class CardEffects extends EventHandler {
         return Objects.requireNonNull(cardType, "Cannot access CardType before initialize() is called");
     }
 
-    public boolean hasCardOrRarer(ServerPlayer player, RarityLevel rarityLevel) {
-        var original = PolyCard.storage().getPlayerData(player).hasCardOrRarer(cardType(), rarityLevel);
+    /// Returns the storage for the server currently invoking this effect.
+    protected final Storage storage() {
+        return PolyCard.runtime().storage();
+    }
+
+    /// Returns the player data for the server currently invoking this effect.
+    protected final PlayerData playerData(ServerPlayer player) {
+        return PolyCard.runtime().storage().getPlayerData(player);
+    }
+
+    /// Returns the scheduler for the server currently invoking this effect.
+    protected final TaskScheduler scheduler() {
+        return PolyCard.runtime().scheduler();
+    }
+
+    /// Returns the cooldowns for the server currently invoking this effect.
+    protected final Cooldowns cooldowns() {
+        return PolyCard.runtime().cooldowns();
+    }
+
+    public final boolean hasCardOrRarer(ServerPlayer player, RarityLevel rarityLevel) {
+        var original = playerData(player).hasCardOrRarer(cardType(), rarityLevel);
         return HasCardOrRarerOverrideCallback.EVENT.invoker().hasCardOrRarerOverride(player, cardType(), rarityLevel, original);
     }
 
-    public @Nullable RarityLevel equippedRarityLevel(ServerPlayer player) {
-        var original = PolyCard.storage().getPlayerData(player).equippedRarityLevel(cardType());
+    public final @Nullable RarityLevel equippedRarityLevel(ServerPlayer player) {
+        var original = playerData(player).equippedRarityLevel(cardType());
         return EquippedRarityLevelOverrideCallback.EVENT.invoker().equippedRarityLevelOverride(player, cardType(), original);
     }
 

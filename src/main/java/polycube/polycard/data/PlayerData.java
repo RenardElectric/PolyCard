@@ -9,106 +9,86 @@ import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.CardEventCallback;
-import polycube.polycard.utils.Helpers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /// Persistent card equipment for one player.
-/// Internally, cards are stored as a compact type-to-rarity map; public card operations use validated Card values.
-public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
-    public static final int MAX_EQUIPPED_CARDS = 5;
-    public static final Codec<PlayerData> CODEC = Codec.dispatchedMap(CardType.CODEC, _ -> RarityLevel.CODEC).xmap(PlayerData::new, PlayerData::equippedCards);
+///
+/// All equipment invariants are owned by [Equipment]; this class adds persistence
+/// and gameplay event delivery around committed changes.
+public final class PlayerData {
+    public static final Codec<PlayerData> CODEC = Codec.dispatchedMap(CardType.CODEC, _ -> RarityLevel.CODEC)
+            .xmap(PlayerData::new, PlayerData::equippedCards);
+
+    private Equipment equipment;
 
     public PlayerData() {
-        this(new EnumMap<>(CardType.class));
+        this(Map.of());
     }
 
     public PlayerData(Map<CardType, RarityLevel> equippedCards) {
-        this.equippedCards = new EnumMap<>(CardType.class);
-        var mutexGroups = new HashSet<String>();
-        for (var cardType : CardType.values()) {
-            var rarityLevel = equippedCards.get(cardType);
-            var mutexGroup = cardType.getMutexGroup();
-            boolean mutexAvailable = mutexGroup.isBlank() || !mutexGroups.contains(mutexGroup);
-            if (rarityLevel != null && mutexAvailable && Card.tryCreate(cardType, rarityLevel).isPresent()) {
-                if (this.equippedCards.size() == MAX_EQUIPPED_CARDS) {
-                    break;
-                }
-                this.equippedCards.put(cardType, rarityLevel);
-                if (!mutexGroup.isBlank()) {
-                    mutexGroups.add(mutexGroup);
-                }
-            }
-        }
-        int ignoredEntries = equippedCards.size() - this.equippedCards.size();
-        if (ignoredEntries > 0) {
-            Helpers.debug("Ignored {} invalid or excess equipped-card {} while loading player data",
-                    ignoredEntries, ignoredEntries == 1 ? "entry" : "entries");
-        }
+        equipment = Equipment.repair(equippedCards);
     }
 
-    /// Exposes equipped cards as a read-only map.
-    @Override
+    /// Exposes equipped cards as a read-only map for persistence and callers.
     public Map<CardType, RarityLevel> equippedCards() {
-        return Collections.unmodifiableMap(equippedCards);
+        return equipment.cardsByType();
     }
 
-    /// Returns the equipped rarity without allocating a read-only map wrapper on hot event paths.
+    /// Returns the equipped rarity without allocating a card list on hot event paths.
     public @Nullable RarityLevel equippedRarityLevel(CardType cardType) {
-        return equippedCards.get(cardType);
+        return equipment.rarityLevel(cardType);
     }
 
-    /// Returns the number of equipped cards.
     public int equippedCardCount() {
-        return equippedCards.size();
+        return equipment.size();
     }
 
-    /// Returns equipped cards as concrete, validated Card instances.
     public List<Card> getEquippedCards() {
-        return cardsFrom(equippedCards);
+        return equipment.cards();
     }
 
-    /// Returns whether this exact type/rarity pair is equipped.
     @SuppressWarnings("unused")
     public boolean hasCard(CardType cardType, RarityLevel rarityLevel) {
-        return equippedCards.get(cardType) == rarityLevel;
+        return equipment.contains(cardType, rarityLevel);
     }
 
-    /// Returns whether the equipped card for this type is at least the requested rarity.
     public boolean hasCardOrRarer(CardType cardType, RarityLevel rarityLevel) {
-        var storedRarityLevel = equippedCards.get(cardType);
-        return storedRarityLevel != null && storedRarityLevel.isAtLeast(rarityLevel);
+        return equipment.containsAtLeast(cardType, rarityLevel);
     }
 
-    /// Returns whether any rarity of this card type is equipped.
+    @SuppressWarnings("unused")
     public boolean hasCardType(CardType cardType) {
-        return equippedCards.containsKey(cardType);
+        return equipment.containsType(cardType);
     }
 
-    /// Validates a complete proposed equipment set without changing the persistent state.
+    /// Validates a complete proposed equipment set without changing persistent state.
     public DataResult<List<Card>> canSetEquippedCards(Collection<Card> cards) {
-        return validateEquipment(cards).map(PlayerData::cardsFrom);
+        return Equipment.create(cards).map(Equipment::cards);
     }
 
-    /// Equips a card, atomically replacing a different rarity of the same or mutex-group card.
+    /// Equips a card, atomically replacing a different rarity or mutex-group peer.
     public static DataResult<EquipmentChange> equipOrReplaceCard(ServerPlayer player, Card card) {
-        var playerData = PolyCard.storage().getPlayerData(player);
+        var playerData = PolyCard.runtime().storage().getPlayerData(player);
         return applyEquipment(player, playerData.equipment.equipOrReplace(card));
     }
 
-    /// Atomically replaces the complete equipment set after validating all invariants.
+    /// Atomically replaces the complete equipment set after validating every invariant.
     public static DataResult<EquipmentChange> setEquippedCards(ServerPlayer player, Collection<Card> cards) {
-        return applyEquipment(player, cards);
+        return applyEquipment(player, Equipment.create(cards));
     }
 
     /// Atomically lowers an equipped card by one supported rarity, or removes its minimum tier.
     public static DataResult<EquipmentChange> downgradeCard(ServerPlayer player, Card card) {
-        var playerData = PolyCard.storage().getPlayerData(player);
+        var playerData = PolyCard.runtime().storage().getPlayerData(player);
         return applyEquipment(player, playerData.equipment.downgrade(card));
     }
 
-        var playerData = PolyCard.storage().getPlayerData(player);
     private static DataResult<EquipmentChange> applyEquipment(ServerPlayer player, DataResult<Equipment> proposedEquipment) {
+        var playerData = PolyCard.runtime().storage().getPlayerData(player);
         return proposedEquipment.map(target -> {
             var before = playerData.equipment.cardsByType();
             var after = target.cardsByType();
@@ -116,39 +96,15 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
                 return EquipmentChange.NONE;
             }
 
-            var unequipped = changedCards(before, target);
-            var equipped = changedCards(target, before);
-            playerData.equippedCards.clear();
-            playerData.equippedCards.putAll(target);
+            var unequipped = changedCards(before, after);
+            var equipped = changedCards(after, before);
+            playerData.equipment = target;
 
             unequipped.forEach(card -> CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card));
             equipped.forEach(card -> CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card));
-            PolyCard.storage().setDirty();
+            PolyCard.runtime().storage().setDirty();
             return new EquipmentChange(unequipped, equipped);
         });
-    }
-
-    private DataResult<EnumMap<CardType, RarityLevel>> validateEquipment(Collection<Card> cards) {
-        if (cards.size() > MAX_EQUIPPED_CARDS) {
-            return DataResult.error(() -> "there can only be " + MAX_EQUIPPED_CARDS + " equipped cards");
-        }
-
-        var target = new EnumMap<CardType, RarityLevel>(CardType.class);
-        var mutexGroups = new HashMap<String, CardType>();
-        for (var card : cards) {
-            if (target.put(card.cardType(), card.rarityLevel()) != null) {
-                return DataResult.error(() -> card.cardType() + " is equipped more than once");
-            }
-
-            var mutexGroup = card.cardType().getMutexGroup();
-            if (!mutexGroup.isBlank()) {
-                var conflictingType = mutexGroups.put(mutexGroup, card.cardType());
-                if (conflictingType != null) {
-                    return DataResult.error(() -> "cannot equip " + card.cardType() + " because " + conflictingType + " is in the same " + mutexGroup + " group");
-                }
-            }
-        }
-        return DataResult.success(target);
     }
 
     private static List<Card> changedCards(
@@ -164,13 +120,7 @@ public record PlayerData(Map<CardType, RarityLevel> equippedCards) {
         return List.copyOf(changed);
     }
 
-    private static List<Card> cardsFrom(Map<CardType, RarityLevel> cards) {
-        var result = new ArrayList<Card>(cards.size());
-        cards.forEach((cardType, rarityLevel) -> result.add(new Card(cardType, rarityLevel)));
-        return result;
-    }
-
-    /// The cards removed and added by one committed equipment transaction.
+    /// Cards removed and added by one committed equipment transaction.
     public record EquipmentChange(List<Card> unequipped, List<Card> equipped) {
         private static final EquipmentChange NONE = new EquipmentChange(List.of(), List.of());
     }

@@ -26,7 +26,7 @@ public class CooldownCommand extends PolyCardCommand {
             return 0;
         }
 
-        var cooldowns = PolyCard.cooldowns().getCooldownsForPlayer(player);
+        var cooldowns = PolyCard.runtime().cooldowns().getCooldownsForPlayer(player);
         var sb = new StringBuilder();
         if (cooldowns.isEmpty()) {
             sb.append("\nNo active cooldowns.");

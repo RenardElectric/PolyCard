@@ -42,7 +42,7 @@ public final class EquipmentGUI extends SimpleGui {
     private EquipmentGUI(ServerPlayer viewer, ServerPlayer targetPlayer) {
         super(MenuType.HOPPER, viewer, false);
         this.targetPlayer = targetPlayer;
-        this.playerData = PolyCard.storage().getPlayerData(targetPlayer);
+        this.playerData = PolyCard.runtime().storage().getPlayerData(targetPlayer);
         this.container = new EquipmentContainer();
 
         setTitle(TITLE);
