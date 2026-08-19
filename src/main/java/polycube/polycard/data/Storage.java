@@ -33,6 +33,13 @@ public class Storage extends SavedData {
 
     public Storage(Map<UUID, PlayerData> playerDataMap) {
         this.playerDataMap = new HashMap<>(playerDataMap);
+        for (var entry : playerDataMap.entrySet()) {
+            var discardedCards = entry.getValue().discardedCards;
+            if (!discardedCards.isEmpty()) {
+                Helpers.debug("Discarded {} invalid card(s) for player {} :", discardedCards.size(), entry.getKey());
+                discardedCards.forEach((type, level) -> Helpers.debug("  {} {}", type, level == null ? "???" : level));
+            }
+        }
     }
 
     /// Returns the raw UUID-to-player-data map used by the storage codec.

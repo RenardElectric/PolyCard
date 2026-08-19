@@ -43,27 +43,28 @@ public final class Equipment {
     }
 
     /// Repairs untrusted persisted data deterministically and reports every discarded entry.
-    public static Equipment repair(Map<CardType, RarityLevel> persistedCards) {
+    public static EquipmentRepair repair(Map<CardType, RarityLevel> persistedCards) {
         var repaired = new EnumMap<CardType, RarityLevel>(CardType.class);
         var mutexGroups = new HashSet<String>();
+        var discarded = new EnumMap<CardType, @Nullable RarityLevel>(CardType.class);
 
         for (var cardType : CardType.values()) {
-            if (repaired.size() == MAX_CARDS) break;
-
             var rarityLevel = persistedCards.get(cardType);
-            if (rarityLevel == null || Card.tryCreate(cardType, rarityLevel).isEmpty()) {
+            if (repaired.size() == MAX_CARDS || rarityLevel == null || Card.tryCreate(cardType, rarityLevel).isEmpty()) {
+                discarded.put(cardType, rarityLevel);
                 continue;
             }
 
             var mutexGroup = cardType.getMutexGroup();
             if (!mutexGroup.isBlank() && !mutexGroups.add(mutexGroup)) {
+                discarded.put(cardType, rarityLevel);
                 continue;
             }
 
             repaired.put(cardType, rarityLevel);
         }
 
-        return new Equipment(repaired);
+        return new EquipmentRepair(new Equipment(repaired), discarded);
     }
 
     /// Equips a card, atomically replacing another rarity of its type or mutex-group peer.
@@ -140,4 +141,6 @@ public final class Equipment {
     public int hashCode() {
         return cardsByType.hashCode();
     }
+
+    public record EquipmentRepair(Equipment repaired, Map<CardType, @Nullable RarityLevel> discarded) {}
 }

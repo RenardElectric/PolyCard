@@ -24,13 +24,17 @@ public final class PlayerData {
             .xmap(PlayerData::new, PlayerData::equippedCards);
 
     private Equipment equipment;
+    public final Map<CardType, @Nullable RarityLevel> discardedCards;
 
     public PlayerData() {
         this(Map.of());
     }
 
     public PlayerData(Map<CardType, RarityLevel> equippedCards) {
-        equipment = Equipment.repair(equippedCards);
+        var equipmentRepair = Equipment.repair(equippedCards);
+        this.equipment = equipmentRepair.repaired();
+        var discarded = equipmentRepair.discarded();
+        this.discardedCards = Map.copyOf(discarded);
     }
 
     /// Exposes equipped cards as a read-only map for persistence and callers.
