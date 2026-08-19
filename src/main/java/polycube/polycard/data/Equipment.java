@@ -46,11 +46,12 @@ public final class Equipment {
     public static EquipmentRepair repair(Map<CardType, RarityLevel> persistedCards) {
         var repaired = new EnumMap<CardType, RarityLevel>(CardType.class);
         var mutexGroups = new HashSet<String>();
-        var discarded = new EnumMap<CardType, @Nullable RarityLevel>(CardType.class);
+        var discarded = new EnumMap<CardType, RarityLevel>(CardType.class);
 
         for (var cardType : CardType.values()) {
             var rarityLevel = persistedCards.get(cardType);
-            if (repaired.size() == MAX_CARDS || rarityLevel == null || Card.tryCreate(cardType, rarityLevel).isEmpty()) {
+            if (rarityLevel == null) continue;
+            if (repaired.size() == MAX_CARDS || Card.tryCreate(cardType, rarityLevel).isEmpty()) {
                 discarded.put(cardType, rarityLevel);
                 continue;
             }
@@ -142,5 +143,5 @@ public final class Equipment {
         return cardsByType.hashCode();
     }
 
-    public record EquipmentRepair(Equipment repaired, Map<CardType, @Nullable RarityLevel> discarded) {}
+    public record EquipmentRepair(Equipment repaired, Map<CardType, RarityLevel> discarded) {}
 }
