@@ -9,12 +9,12 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.equine.Horse;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.EffectHelpers;
-import polycube.polycard.utils.Helpers;
 
 public class HorseEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback {
     public static final float DAMAGE_IGNORED_PERCENTAGE = 0.5f;
@@ -71,7 +71,7 @@ public class HorseEffects extends CardEffects implements PlayerTickEventCallback
         if (entity instanceof Horse horse && horse.getControllingPassenger() instanceof ServerPlayer player) {
             if (hasCardOrRarer(player, RarityLevel.UNCOMMON)) {
                 var newDamage = damage.floatValue() * (1 - DAMAGE_IGNORED_PERCENTAGE);
-                Helpers.debug("{} reduced ridden-horse damage from {} to {} with an Uncommon Horse card", player.getName().getString(), damage.floatValue(), newDamage);
+                PolyCard.LOGGER.debug("{} reduced ridden-horse damage from {} to {} with an Uncommon Horse card", player.getName().getString(), damage.floatValue(), newDamage);
                 damage.setValue(newDamage);
             }
         }

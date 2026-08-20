@@ -40,9 +40,13 @@ public class PolyCardClient implements ClientModInitializer {
                 DATAGEN_CARD_ITEMS.put(card, registerDatagenItem(card));
             }
         }
-        PolyCard.LOGGER.debug("Registered {} placeholder card items for data generation", DATAGEN_CARD_ITEMS.size());
-        PolyCard.LOGGER.debug("Registered {} placeholder card group items for data generation", DATAGEN_CARDGROUP_ITEMS.size());
-        PolyCard.LOGGER.debug("Registered {} placeholder card type items for data generation", DATAGEN_CARDTYPE_ITEMS.size());
+        PolyCard.LOGGER.debug(
+                "Registered {} datagen placeholder item(s) (cards={}, groups={}, types={})",
+                DATAGEN_CARD_ITEMS.size() + DATAGEN_CARDGROUP_ITEMS.size() + DATAGEN_CARDTYPE_ITEMS.size(),
+                DATAGEN_CARD_ITEMS.size(),
+                DATAGEN_CARDGROUP_ITEMS.size(),
+                DATAGEN_CARDTYPE_ITEMS.size()
+        );
     }
 
     static Item getDatagenItem(Card card) {

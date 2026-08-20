@@ -43,10 +43,10 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
 import polycube.polycard.events.callBacks.*;
 import polycube.polycard.utils.CardHelpers;
-import polycube.polycard.utils.Helpers;
 import polycube.polycard.utils.LootHelpers;
 
 import java.util.Optional;
@@ -117,7 +117,7 @@ public class CardLootEvents
         if ((blockState.is(Blocks.BEEHIVE) || blockState.is(Blocks.BEE_NEST))
                 && blockState.getValue(HONEY_LEVEL) >= 5
                 && itemStack.is(Items.GLASS_BOTTLE)) {
-            Helpers.debug("{} successfully collected honey; rolling for a Bee card.", serverPlayer.getName().getString());
+            PolyCard.LOGGER.debug("{} successfully collected honey; rolling for a Bee card.", serverPlayer.getName().getString());
             CardHelpers.receiveCard(serverPlayer, CardType.BEE);
         }
 

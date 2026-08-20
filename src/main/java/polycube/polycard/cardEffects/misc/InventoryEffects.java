@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.gamerules.GameRules;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
@@ -22,6 +23,10 @@ public class InventoryEffects extends CardEffects implements ServerLivingEntityE
             if (!gameRules.get(GameRules.KEEP_INVENTORY)) {
                 managesKeepInventory = true;
                 gameRules.set(GameRules.KEEP_INVENTORY, true, player.level().getServer());
+                PolyCard.LOGGER.debug(
+                        "Temporarily enabled keepInventory for {}'s Legendary Inventory-card death protection",
+                        player.getName().getString()
+                );
             }
         }
         return true;
@@ -33,7 +38,22 @@ public class InventoryEffects extends CardEffects implements ServerLivingEntityE
             var playerData = playerData(player);
             var cardIndex = player.getRandom().nextInt(playerData.equippedCardCount());
             var card = playerData.getEquippedCards().get(cardIndex);
-            PlayerData.downgradeCard(player, card);
+            PlayerData.downgradeCard(player, card).mapOrElse(
+                    _ -> {
+                        PolyCard.LOGGER.debug(
+                                "{} consumed Legendary Inventory-card death protection and downgraded {}",
+                                player.getName().getString(), card
+                        );
+                        return true;
+                    },
+                    error -> {
+                        PolyCard.LOGGER.warn(
+                                "Failed to downgrade {} for {} after Inventory-card death protection: {}",
+                                card, player.getName().getString(), error.message()
+                        );
+                        return false;
+                    }
+            );
         }
     }
 
@@ -61,6 +81,10 @@ public class InventoryEffects extends CardEffects implements ServerLivingEntityE
         if (managesKeepInventory && pendingProtectedDeaths.isEmpty()) {
             player.level().getGameRules().set(GameRules.KEEP_INVENTORY, false, player.level().getServer());
             managesKeepInventory = false;
+            PolyCard.LOGGER.debug(
+                    "Restored keepInventory after completing {}'s Inventory-card death protection",
+                    player.getName().getString()
+            );
         }
     }
 }

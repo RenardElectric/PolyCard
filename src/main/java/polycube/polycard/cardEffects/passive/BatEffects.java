@@ -27,7 +27,6 @@ import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.EffectHelpers;
-import polycube.polycard.utils.Helpers;
 
 import java.util.*;
 
@@ -220,7 +219,7 @@ public class BatEffects
         level.sendParticles(ParticleTypes.LARGE_SMOKE, player.getX(), player.getY() + 1, player.getZ(), 100, 1, 1, 1, 0.01);
         level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, player.getX(), player.getY() + 1, player.getZ(), 50, 1, 1, 1, 0.25);
         attacker.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, INVISIBILITY_DURATION, 0, false, true));
-        Helpers.debug("Activated legendary Bat state for {}", player.getName().getString());
+        PolyCard.LOGGER.debug("Activated legendary Bat state for {}", player.getName().getString());
     }
 
     private void endInvisibility(ServerPlayer player, long expectedInvisibilityId) {
@@ -242,6 +241,6 @@ public class BatEffects
         }
 
         player.removeEffect(MobEffects.INVISIBILITY);
-        Helpers.debug("Ended legendary Bat state for {}", player.getName().getString());
+        PolyCard.LOGGER.debug("Ended legendary Bat state for {}", player.getName().getString());
     }
 }

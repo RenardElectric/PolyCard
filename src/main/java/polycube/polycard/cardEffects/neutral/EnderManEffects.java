@@ -18,6 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
@@ -25,7 +26,6 @@ import polycube.polycard.events.callBacks.ItemUseEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.events.callBacks.ProjectileOnHitEventCallback;
 import polycube.polycard.utils.EffectHelpers;
-import polycube.polycard.utils.Helpers;
 
 public final class EnderManEffects extends CardEffects implements PlayerTickEventCallback, ItemUseEventCallback, ProjectileOnHitEventCallback, EntityHurtEventCallback {
     public static final int RESISTANCE_EFFECT_AMPLIFIER = 0;
@@ -45,7 +45,7 @@ public final class EnderManEffects extends CardEffects implements PlayerTickEven
         if (itemStack.getItem().equals(Items.ENDER_PEARL)) {
             if (hasCardOrRarer(player, RarityLevel.EPIC)) {
                 scheduler().runLater(0, _ -> {
-                    Helpers.debug("Removing ender pearl cooldown for {}", player.getName().getString());
+                    PolyCard.LOGGER.debug("Removing ender pearl cooldown for {}", player.getName().getString());
                     var cooldowns = player.getCooldowns();
                     cooldowns.removeCooldown(cooldowns.getCooldownGroup(Items.ENDER_PEARL.getDefaultInstance()));
                 });
@@ -60,7 +60,7 @@ public final class EnderManEffects extends CardEffects implements PlayerTickEven
         if (entity instanceof ServerPlayer player) {
             if (source.is(DamageTypes.ENDER_PEARL)) {
                 if (hasCardOrRarer(player, RarityLevel.RARE)) {
-                    Helpers.debug("{} ignored ender-pearl damage with a Rare Enderman card", player.getName().getString());
+                    PolyCard.LOGGER.debug("{} ignored ender-pearl damage with a Rare Enderman card", player.getName().getString());
                     return InteractionResult.FAIL;
                 }
             }
@@ -76,7 +76,7 @@ public final class EnderManEffects extends CardEffects implements PlayerTickEven
                 if (hasCardOrRarer(player, RarityLevel.LEGENDARY)) {
                     var randomInt = player.getRandom().nextInt(100);
                     if (randomInt < PROJECTILE_DODGE_PROBABILITY) {
-                        Helpers.debug("{} dodged a projectile with a Legendary Enderman card (roll {})", player.getName().getString(), randomInt);
+                        PolyCard.LOGGER.debug("{} dodged a projectile with a Legendary Enderman card (roll {})", player.getName().getString(), randomInt);
 
                         var level = player.level();
                         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_TELEPORT, SoundSource.PLAYERS);

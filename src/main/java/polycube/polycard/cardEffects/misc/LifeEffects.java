@@ -6,6 +6,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
@@ -27,7 +28,22 @@ public final class LifeEffects extends CardEffects implements ServerLivingEntity
             var rarityLevel = equippedRarityLevel(player);
             if (rarityLevel != null) {
                 var card = new Card(cardType(), rarityLevel);
-                PlayerData.downgradeCard(player, card);
+                PlayerData.downgradeCard(player, card).mapOrElse(
+                        _ -> {
+                            PolyCard.LOGGER.debug(
+                                    "{} lost one Life-card tier after death ({})",
+                                    player.getName().getString(), card
+                            );
+                            return true;
+                        },
+                        error -> {
+                            PolyCard.LOGGER.warn(
+                                    "Failed to downgrade {} for {} after death: {}",
+                                    card, player.getName().getString(), error.message()
+                            );
+                            return false;
+                        }
+                );
             }
         }
     }

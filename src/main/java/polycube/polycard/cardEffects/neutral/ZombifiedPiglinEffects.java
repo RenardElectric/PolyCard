@@ -14,11 +14,11 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
-import polycube.polycard.utils.Helpers;
 
 public final class ZombifiedPiglinEffects extends CardEffects implements IsTargetedEventCallback, EntityAfterHurtEventCallback {
     public static final float SPAWN_REINFORCEMENTS_CHANCE = 0.25f;
@@ -82,7 +82,7 @@ public final class ZombifiedPiglinEffects extends CardEffects implements IsTarge
                             }
                         }
 
-                        Helpers.debug(
+                        PolyCard.LOGGER.debug(
                                 "{} has the legendary Zombified Piglin card and spawned {} of {} reinforcements against {} after {} attempts.",
                                 player.getName().getString(), reinforcementsSpawned, MAX_REINFORCEMENTS,
                                 attackingPlayer.getName().getString(), spawnAttempts

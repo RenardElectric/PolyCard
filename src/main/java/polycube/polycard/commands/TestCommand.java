@@ -8,11 +8,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardGroupArgument;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.utils.CardHelpers;
-import polycube.polycard.utils.Helpers;
 
 import java.util.EnumMap;
 
@@ -74,7 +74,7 @@ public class TestCommand extends PolyCardCommand {
             message.append(", " + rarityLevel.getSerializedName() + "=" + counts.getOrDefault(rarityLevel, 0));
         }
         context.getSource().sendSuccess(() -> message, false);
-        Helpers.debug("{} tested {} rolls for {}", context.getSource().getDisplayName(), cardsNumber, cardType);
+        PolyCard.LOGGER.debug("{} tested {} rolls for {}", context.getSource().getDisplayName(), cardsNumber, cardType);
 
         return 1;
     }

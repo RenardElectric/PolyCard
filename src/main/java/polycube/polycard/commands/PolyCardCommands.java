@@ -9,15 +9,13 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
-import polycube.polycard.utils.Helpers;
 
 import java.util.Objects;
 
 public final class PolyCardCommands {
     private static PolyCardCommand @Nullable [] commands;
 
-    private PolyCardCommands() {
-    }
+    private PolyCardCommands() {}
 
     public static void registerCommands(PolyCardCommand... commands) {
         PolyCardCommands.commands = commands;
@@ -28,7 +26,7 @@ public final class PolyCardCommands {
                 baseCommand.then(command.getCommand());
             }
             dispatcher.register(baseCommand);
-            Helpers.debug("Registered {} PolyCard subcommand(s)", commands.length);
+            PolyCard.LOGGER.debug("Registered {} PolyCard subcommand(s)", commands.length);
         });
     }
 
@@ -38,6 +36,7 @@ public final class PolyCardCommands {
                 .map(ModContainer::getMetadata);
 
         if (optionalModData.isEmpty()) {
+            PolyCard.LOGGER.warn("Could not find PolyCard metadata while handling the base command");
             cst.sendFailure(Component.literal("Could not fetch mod information."));
             return 0;
         }

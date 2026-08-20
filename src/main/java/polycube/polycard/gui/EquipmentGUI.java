@@ -61,7 +61,7 @@ public final class EquipmentGUI extends SimpleGui {
         var gui = new EquipmentGUI(viewer, targetPlayer);
         if (gui.open()) {
             gui.register();
-            Helpers.debug("{} opened the equipment manager for {}", viewer.getName().getString(), targetPlayer.getName().getString());
+            PolyCard.LOGGER.debug("{} opened the equipment manager for {}", viewer.getName().getString(), targetPlayer.getName().getString());
         }
     }
 
@@ -141,11 +141,11 @@ public final class EquipmentGUI extends SimpleGui {
             PlayerData.setEquippedCards(targetPlayer, displayedCards).mapOrElse(
                     change -> {
                         change.unequipped().forEach(card -> {
-                            Helpers.debug("{} unequipped card {} for {}", getPlayer(), card, targetPlayer);
+                            PolyCard.LOGGER.debug("{} unequipped card {} for {}", getPlayer(), card, targetPlayer);
                             Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_REMOVE_ONE);
                         });
                         change.equipped().forEach(card -> {
-                            Helpers.debug("{} equipped card {} for {}", getPlayer(), card, targetPlayer);
+                            PolyCard.LOGGER.debug("{} equipped card {} for {}", getPlayer(), card, targetPlayer);
                             Helpers.playSound(getPlayer(), SoundEvents.BUNDLE_INSERT);
                         });
                         markDirty();
@@ -203,7 +203,7 @@ public final class EquipmentGUI extends SimpleGui {
             if (card == null) {
                 if (!itemStack.isEmpty()) {
                     Helpers.SendFailure(viewer, Component.literal("Failed to equip card: " + itemStack.getHoverName().getString() + " is not a card."));
-                    Helpers.debug("Failed to equip card for {}: {} is not a card.", viewer.getName().getString(), itemStack.getHoverName().getString());
+                    PolyCard.LOGGER.debug("Failed to equip card for {}: {} is not a card.", viewer.getName().getString(), itemStack.getHoverName().getString());
                 }
                 return false;
             }
@@ -222,7 +222,7 @@ public final class EquipmentGUI extends SimpleGui {
                     error -> {
                         var message = error.message();
                         Helpers.SendFailure(viewer, Component.literal("Failed to equip card: " + message));
-                        Helpers.debug("Failed to equip card for {}: {}", viewer.getName().getString(), message);
+                        PolyCard.LOGGER.debug("Failed to equip card for {}: {}", viewer.getName().getString(), message);
                         return false;
                     }
             );

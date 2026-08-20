@@ -14,13 +14,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.FallFlyingGliderWearEventCallback;
-import polycube.polycard.utils.Helpers;
 
 public final class EnderDragonEffects
         extends CardEffects
@@ -81,7 +81,7 @@ public final class EnderDragonEffects
         if (!stack.has(DataComponents.GLIDER)) {
             stack.set(DataComponents.GLIDER, Unit.INSTANCE);
             CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putBoolean(OWNED_GLIDER_MARKER, true));
-            Helpers.debug("Applied temporary Dragon-card glider component to {}", stack.getHoverName().getString());
+            PolyCard.LOGGER.debug("Applied temporary Dragon-card glider component to {}", stack.getHoverName().getString());
         }
     }
 
@@ -99,7 +99,7 @@ public final class EnderDragonEffects
         if (!hasOwnedGlider(stack)) return false;
         stack.remove(DataComponents.GLIDER);
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.remove(OWNED_GLIDER_MARKER));
-        Helpers.debug("Removed temporary Dragon-card glider component from {}", stack.getHoverName().getString());
+        PolyCard.LOGGER.debug("Removed temporary Dragon-card glider component from {}", stack.getHoverName().getString());
         return true;
     }
 

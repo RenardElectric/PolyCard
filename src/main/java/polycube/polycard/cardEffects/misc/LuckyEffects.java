@@ -7,6 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
@@ -36,9 +37,13 @@ public class LuckyEffects
 
     @Override
     protected void onPlayerStateClearing(ServerPlayer player) {
-        var card = randomCard.remove(player);
-        if (card != null)
-            CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card);
+        var card = revokeRandomCard(player);
+        if (card != null) {
+            PolyCard.LOGGER.debug(
+                    "Revoked temporary Lucky-card grant {} from {} while clearing player state",
+                    card, player.getName().getString()
+            );
+        }
     }
 
     @Override
@@ -51,10 +56,7 @@ public class LuckyEffects
         var cardRarityLevel = equippedRarityLevel(player);
         if (cardRarityLevel != null) {
             if (tickCounter % TICK_INTERVAL == 0) {
-                var previousCard = randomCard.get(player);
-                if (previousCard != null) {
-                    CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, previousCard);
-                }
+                var previousCard = revokeRandomCard(player);
 
                 CardType cardType;
                 RarityLevel rarityLevel;
@@ -73,12 +75,27 @@ public class LuckyEffects
                                 .append(card.getFormattedName())
                 );
                 CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
+                if (previousCard == null) {
+                    PolyCard.LOGGER.debug("Granted {} temporary Lucky-card effect {}", player.getName().getString(), card);
+                } else {
+                    PolyCard.LOGGER.debug("Replaced {}'s temporary Lucky-card effect {} with {}", player.getName().getString(), previousCard, card);
+                }
             }
         } else {
-            var card = randomCard.remove(player);
-            if (card != null)
-                CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card);
+            var card = revokeRandomCard(player);
+            if (card != null) {
+                PolyCard.LOGGER.debug(
+                        "Revoked temporary Lucky-card grant {} from {} after the Lucky card was removed",
+                        card, player.getName().getString()
+                );
+            }
         }
+    }
+
+    private @Nullable Card revokeRandomCard(ServerPlayer player) {
+        var card = randomCard.remove(player);
+        if (card != null) CardEventCallback.UNEQUIPPED.invoker().onCardUnequip(player, card);
+        return card;
     }
 
     @Override

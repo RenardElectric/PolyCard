@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
@@ -33,7 +34,7 @@ public final class WitherEffects extends CardEffects implements PlayerKillEventC
     public void onPlayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {
         if (hasCardOrRarer(player, RarityLevel.COMMON)) {
             if (player.getRandom().nextFloat() < WITHER_ROSE_DROP_PROBABILITY) {
-                Helpers.debug("{} dropped a Wither Rose from {} with a Common Wither card ({}% chance)",
+                PolyCard.LOGGER.debug("{} dropped a Wither Rose from {} with a Common Wither card ({}% chance)",
                         player.getName().getString(), entity.getName().getString(), Helpers.probToStr(WITHER_ROSE_DROP_PROBABILITY));
                 entity.spawnAtLocation(player.level(), Items.WITHER_ROSE);
             }
@@ -56,7 +57,7 @@ public final class WitherEffects extends CardEffects implements PlayerKillEventC
                             int damageIncrease = Helpers.binomialSelection(DAMAGE_INCREASE_PROBABILITY, damage.intValue());
                             if (damageIncrease > 0) {
                                 damage.setValue(damage.floatValue() + damageIncrease);
-                                Helpers.debug("{} gained {} Wither-card bonus damage against {}", player.getName().getString(), damageIncrease, entity.getName().getString());
+                                PolyCard.LOGGER.debug("{} gained {} Wither-card bonus damage against {}", player.getName().getString(), damageIncrease, entity.getName().getString());
                             }
                         }
                     });
@@ -77,13 +78,13 @@ public final class WitherEffects extends CardEffects implements PlayerKillEventC
             int life = Helpers.binomialSelection(LIFE_STEAL_PROBABILITY, (int) damageDealt);
             if (life > 0) {
                 player.heal(life);
-                Helpers.debug("{} healed {} health from {} actual Wither-card damage", player.getName().getString(), life, damageDealt);
+                PolyCard.LOGGER.debug("{} healed {} health from {} actual Wither-card damage", player.getName().getString(), life, damageDealt);
             }
         }
 
         if (hasCardOrRarer(player, RarityLevel.RARE) && player.getRandom().nextFloat() < WITHER_EFFECT_PROBABILITY) {
             entity.addEffect(new MobEffectInstance(MobEffects.WITHER, WITHER_EFFECT_DURATION, WITHER_EFFECT_AMPLIFIER, false, true), player);
-            Helpers.debug("{} inflicted Wither on {} after an accepted hit", player.getName().getString(), entity.getName().getString());
+            PolyCard.LOGGER.debug("{} inflicted Wither on {} after an accepted hit", player.getName().getString(), entity.getName().getString());
         }
     }
 }

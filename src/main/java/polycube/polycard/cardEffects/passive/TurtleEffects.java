@@ -9,6 +9,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
@@ -41,7 +42,7 @@ public class TurtleEffects extends CardEffects implements PlayerTickEventCallbac
             int damageDecrease = Helpers.binomialSelection(DAMAGE_DECREASE_PROBABILITY, damage.intValue());
             if (damageDecrease > 0) {
                 damage.setValue(damage.floatValue() - damageDecrease);
-                Helpers.debug("{} reduced damage by {} with an Epic Turtle card ({}% chance)", player.getName().getString(), damageDecrease, Helpers.probToStr(DAMAGE_DECREASE_PROBABILITY));
+                PolyCard.LOGGER.debug("{} reduced damage by {} with an Epic Turtle card ({}% chance)", player.getName().getString(), damageDecrease, Helpers.probToStr(DAMAGE_DECREASE_PROBABILITY));
             }
         }
         return InteractionResult.PASS;

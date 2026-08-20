@@ -11,12 +11,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.Vec3;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.EffectHelpers;
-import polycube.polycard.utils.Helpers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +101,7 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
                             }
                         }
 
-                        Helpers.debug("{} converted {} non-beneficial effect(s) with an Epic Cow card", player.getName().getString(), effectsGained.size());
+                        PolyCard.LOGGER.debug("{} converted {} non-beneficial effect(s) with an Epic Cow card", player.getName().getString(), effectsGained.size());
                         scheduler().runLater(0, _ -> {
                             for (MobEffectInstance effect : effectsGained) {
                                 player.addEffect(effect);
@@ -109,7 +109,7 @@ public class CowEffects extends CardEffects implements PlayerTickEventCallback, 
                         });
                     })
                     .hasLegendary(() -> {
-                        Helpers.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
+                        PolyCard.LOGGER.debug("{} has the legendary cow card, giving them extra health on milk consumption!", player.getName());
                         player.heal(REGEN_HEALTH_GAIN_HEARTS * 2);
                     });
         }

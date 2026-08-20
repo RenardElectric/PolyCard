@@ -17,12 +17,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.item.enchantment.effects.RemoveBinomial;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.IsTargetedEventCallback;
 import polycube.polycard.events.callBacks.ItemConsumedEventCallback;
 import polycube.polycard.events.callBacks.ItemDurabilityChangeEventCallback;
-import polycube.polycard.utils.Helpers;
 
 import java.util.List;
 
@@ -85,7 +85,7 @@ public final class PiglinEffects extends CardEffects implements IsTargetedEventC
         if (GOLD_FOOD.contains(item.getItem())) {
             if (hasCardOrRarer(player, RarityLevel.RARE)) {
                 var effect = BUFFS.get(player.level().getRandom().nextInt(BUFFS.size()));
-                Helpers.debug("{} has the rare piglin card and consumed a gold food item. Applying random buff {}.", player.getName().getString(), effect.value().getDescriptionId());
+                PolyCard.LOGGER.debug("{} has the rare piglin card and consumed a gold food item. Applying random buff {}.", player.getName().getString(), effect.value().getDescriptionId());
                 player.addEffect(new MobEffectInstance(effect, BUFF_DURATION, BUFF_AMPLIFIER));
             }
         }

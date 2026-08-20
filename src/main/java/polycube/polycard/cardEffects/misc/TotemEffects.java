@@ -8,6 +8,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.data.PlayerData;
@@ -29,10 +30,23 @@ public class TotemEffects extends CardEffects implements ServerLivingEntityEvent
             var rarityLevel = equippedRarityLevel(player);
             if (rarityLevel != null) {
                 var card = new Card(cardType(), rarityLevel);
-                PlayerData.downgradeCard(player, card);
+                PlayerData.downgradeCard(player, card).mapOrElse(
+                        _ -> true,
+                        error -> {
+                            PolyCard.LOGGER.warn(
+                                    "Failed to downgrade {} while protecting {} from death: {}",
+                                    card, player.getName().getString(), error.message()
+                            );
+                            return false;
+                        }
+                );
 
                 offHandBackups.put(player, player.getItemInHand(InteractionHand.OFF_HAND));
                 player.setItemInHand(InteractionHand.OFF_HAND, Items.TOTEM_OF_UNDYING.getDefaultInstance());
+                PolyCard.LOGGER.debug(
+                        "{} activated {} Totem-card protection; temporarily replaced the off-hand item",
+                        player.getName().getString(), rarityLevel
+                );
             }
 
         }
@@ -55,6 +69,10 @@ public class TotemEffects extends CardEffects implements ServerLivingEntityEvent
         var offHandBackup = offHandBackups.remove(player);
         if (offHandBackup != null) {
             player.setItemInHand(InteractionHand.OFF_HAND, offHandBackup);
+            PolyCard.LOGGER.debug(
+                    "Restored {}'s off-hand item after Totem-card protection",
+                    player.getName().getString()
+            );
         }
     }
 }

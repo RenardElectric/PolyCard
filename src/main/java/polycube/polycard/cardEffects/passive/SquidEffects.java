@@ -7,12 +7,12 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.EffectHelpers;
-import polycube.polycard.utils.Helpers;
 
 public class SquidEffects extends CardEffects implements PlayerTickEventCallback, EntityAfterHurtEventCallback {
     public static final float BLINDNESS_WHEN_HIT_PROBABILITY = 0.1f;
@@ -39,7 +39,7 @@ public class SquidEffects extends CardEffects implements PlayerTickEventCallback
                 && !attacker.equals(entity)
                 && hasCardOrRarer(player, RarityLevel.RARE)
                 && level.getRandom().nextFloat() < BLINDNESS_WHEN_HIT_PROBABILITY) {
-            Helpers.debug("{} triggered Rare Squid blindness against {}", player.getName().getString(), livingAttacker.getName().getString());
+            PolyCard.LOGGER.debug("{} triggered Rare Squid blindness against {}", player.getName().getString(), livingAttacker.getName().getString());
             livingAttacker.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), player);
         }
 
@@ -47,7 +47,7 @@ public class SquidEffects extends CardEffects implements PlayerTickEventCallback
                 && !entity.equals(sourcePlayer)
                 && hasCardOrRarer(sourcePlayer, RarityLevel.EPIC)
                 && level.getRandom().nextFloat() < BLINDNESS_ON_HIT_PROBABILITY) {
-            Helpers.debug("{} triggered Epic Squid blindness against {}", sourcePlayer.getName().getString(), entity.getName().getString());
+            PolyCard.LOGGER.debug("{} triggered Epic Squid blindness against {}", sourcePlayer.getName().getString(), entity.getName().getString());
             entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION, BLINDNESS_AMPLIFIER), sourcePlayer);
         }
     }

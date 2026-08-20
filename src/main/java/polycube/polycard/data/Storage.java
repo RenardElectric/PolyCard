@@ -8,7 +8,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import polycube.polycard.PolyCard;
-import polycube.polycard.utils.Helpers;
+import polycube.polycard.card.CardType;
+import polycube.polycard.card.RarityLevel;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /// World-persistent storage for all players' equipped cards.
-public class Storage extends SavedData {
+public final class Storage extends SavedData {
 
     public static final Codec<Storage> CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC, PlayerData.CODEC)
             .xmap(Storage::new, Storage::getPlayerDataMap);
@@ -33,12 +34,20 @@ public class Storage extends SavedData {
 
     public Storage(Map<UUID, PlayerData> playerDataMap) {
         this.playerDataMap = new HashMap<>(playerDataMap);
+        var repairedPlayers = new HashMap<UUID, Map<CardType, RarityLevel>>();
+        int discardedCardCount = 0;
+
         for (var entry : playerDataMap.entrySet()) {
             var discardedCards = entry.getValue().discardedCards;
-            if (!discardedCards.isEmpty()) {
-                Helpers.debug("Discarded {} invalid card(s) for player {} :", discardedCards.size(), entry.getKey());
-                discardedCards.forEach((type, level) -> Helpers.debug("  {} {}", type, level == null ? "???" : level));
-            }
+            if (discardedCards.isEmpty()) continue;
+            repairedPlayers.put(entry.getKey(), discardedCards);
+            discardedCardCount += discardedCards.size();
+        }
+
+        if (!repairedPlayers.isEmpty()) {
+            setDirty();
+            PolyCard.LOGGER.warn("Repaired invalid stored equipment for {} player(s); discarded {} card(s)", repairedPlayers.size(), discardedCardCount);
+            PolyCard.LOGGER.debug("Discarded stored equipment entries: {}", repairedPlayers);
         }
     }
 
@@ -52,17 +61,10 @@ public class Storage extends SavedData {
         return playerDataMap.computeIfAbsent(player.getUUID(), _ -> new PlayerData());
     }
 
-    /// Marks this SavedData dirty so Minecraft writes it on the next save.
-    @Override
-    public void setDirty() {
-        Helpers.debug("Marked card equipment storage dirty");
-        super.setDirty();
-    }
-
     /// Loads or creates the world-level PolyCard storage.
     public static Storage load(MinecraftServer server) {
         var storage = server.getDataStorage().computeIfAbsent(TYPE);
-        Helpers.debug("Loaded card equipment data for {} player(s)", storage.playerDataMap.size());
+        PolyCard.LOGGER.debug("Loaded card equipment storage (players={})", storage.playerDataMap.size());
         return storage;
     }
 }

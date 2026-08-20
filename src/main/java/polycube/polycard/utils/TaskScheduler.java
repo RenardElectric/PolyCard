@@ -1,13 +1,12 @@
 package polycube.polycard.utils;
 
 import net.minecraft.server.MinecraftServer;
+import polycube.polycard.PolyCard;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import static polycube.polycard.PolyCard.LOGGER;
 
 /// Server-scoped tick scheduler for small one-shot and repeating tasks.
 public final class TaskScheduler {
@@ -43,7 +42,7 @@ public final class TaskScheduler {
                     tasks.addLast(task);
                 }
             } catch (RuntimeException exception) {
-                LOGGER.error("Scheduled PolyCard task failed", exception);
+                PolyCard.LOGGER.error("Scheduled task failed and was cancelled", exception);
             }
         }
     }

@@ -20,13 +20,13 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.EffectHelpers;
-import polycube.polycard.utils.Helpers;
 
 public class ChickenEffects extends CardEffects implements PlayerTickEventCallback, EntityHurtEventCallback,
         EntityAfterHurtEventCallback {
@@ -61,7 +61,7 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
                 chicken.setPos(player.position());
                 try {
                     if (chicken.dropFromGiftLootTable(level, BuiltInLootTables.CHICKEN_LAY, player::spawnAtLocation)) {
-                        Helpers.debug("{} laid an egg from a Common Chicken card", player.getName().getString());
+                        PolyCard.LOGGER.debug("{} laid an egg from a Common Chicken card", player.getName().getString());
                         level.playSound(null, player.getX(), player.getY() - 1, player.getZ(), SoundEvents.CHICKEN_EGG, SoundSource.PLAYERS, 0.2f, (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F);
                     }
                 } finally {
@@ -89,7 +89,7 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
         if (source.getDirectEntity() instanceof ThrownEgg egg) {
             if (egg.getOwner() instanceof ServerPlayer player) {
                 if (hasCardOrRarer(player, RarityLevel.UNCOMMON)) {
-                    Helpers.debug("{} dealt {} damage to {} with an Uncommon Chicken egg", player.getName().getString(), EGG_DAMAGE, entity.getName().getString());
+                    PolyCard.LOGGER.debug("{} dealt {} damage to {} with an Uncommon Chicken egg", player.getName().getString(), EGG_DAMAGE, entity.getName().getString());
                     damage.setValue(EGG_DAMAGE);
                 }
             }
@@ -122,8 +122,10 @@ public class ChickenEffects extends CardEffects implements PlayerTickEventCallba
             return;
         }
 
-        Helpers.debug("{} is retaliating with an Epic Chicken egg against {}",
-                player.getName().getString(), attacker != null ? attacker.getName().getString() : "position " + pos);
+        PolyCard.LOGGER.debug(
+                "{} is retaliating with an Epic Chicken egg against {}",
+                player.getName().getString(), attacker != null ? attacker.getName().getString() : "position " + pos
+        );
         Projectile.spawnProjectileUsingShoot(
                 egg, level, eggStack, eggAim.x, eggAim.y, eggAim.z,
                 (float) eggAim.length(), 0.0F

@@ -8,6 +8,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
@@ -47,6 +48,10 @@ public class NetherEffects extends CardEffects implements PlayerTickEventCallbac
                 if (dimension.equals(Level.OVERWORLD)) {
                     player.setRespawnPosition(null, false);
                     player.sendSystemMessage(Component.literal("Your respawn point in the overworld has been removed because you equipped a Legendary Nether card."));
+                    PolyCard.LOGGER.debug(
+                            "Removed {}'s Overworld respawn point after equipping {}",
+                            player.getName().getString(), card
+                    );
                 }
             }
         }
@@ -63,6 +68,10 @@ public class NetherEffects extends CardEffects implements PlayerTickEventCallbac
                 if (dimension.equals(Level.NETHER) && isBed) {
                     player.setRespawnPosition(null, false);
                     player.sendSystemMessage(Component.literal("Your respawn point in the nether has been removed because you unequipped a Legendary Nether card."));
+                    PolyCard.LOGGER.debug(
+                            "Removed {}'s Nether respawn point after unequipping {}",
+                            player.getName().getString(), card
+                    );
                 }
             }
         }

@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
@@ -20,7 +21,7 @@ public final class CardHelpers {
         createCard(cardType).ifPresent(
                 card -> {
                     giveCard(player, card);
-                    Helpers.debug("{} received a card: {}", player.getName(), card);
+                    PolyCard.LOGGER.debug("{} received a card: {}", player.getName(), card);
                     player.sendSystemMessage(
                             Component.literal("✨ You found a ")
                                     .append(card.getFormattedName())

@@ -17,10 +17,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-import static polycube.polycard.PolyCard.LOGGER;
-import static polycube.polycard.PolyCard.MOD_ID;
-
-/// Shared server-side helpers for sounds, formatting, random selection, and debug logging.
+/// Shared server-side helpers for sounds, formatting, and random selection.
 public final class Helpers {
     private static final RandomSource RANDOM = RandomSource.create();
     private static final int FAILURE_COOLDOWN = 20;
@@ -52,12 +49,6 @@ public final class Helpers {
     /// Plays a world sound at the given position.
     public static void playSound(ServerLevel level, SoundEvent sound, Vec3 position) {
         level.playSound(null, position.x, position.y, position.z, sound, SoundSource.PLAYERS, 1.0f, 1.0f);
-    }
-
-    /// Logs a debug message with the mod id prefix.
-    public static void debug(final String format, final Object... args) {
-        //noinspection StringConcatenationArgumentToLogCall
-        LOGGER.debug("[" + MOD_ID + "] " + format, args);
     }
 
     public static String decimalFormat(double input) {

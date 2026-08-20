@@ -16,14 +16,13 @@ import polycube.polycard.commands.*;
 import polycube.polycard.events.CardItemUseEvent;
 import polycube.polycard.events.CardLootEvents;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
-import polycube.polycard.utils.Helpers;
 
 import java.util.Objects;
 
 /// Fabric entrypoint that wires storage, commands, callbacks, loot events, and card effects.
 public class PolyCard implements ModInitializer {
     public static final String MOD_ID = "polycard";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final Logger LOGGER = LoggerFactory.getLogger("PolyCard");
 
     private static @Nullable PolyCardRuntime runtime;
 
@@ -36,17 +35,25 @@ public class PolyCard implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Initializing PolyCard");
         CardType.registerEffects();
-        Helpers.debug("Initialized and validated {} card type(s)", CardType.values().length);
+        LOGGER.info("Initialized and validated {} card type(s)", CardType.values().length);
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            if (runtime != null) throw new IllegalStateException("PolyCard runtime started more than once");
+            var levelName = server.getWorldData().getLevelName();
+            if (runtime != null) throw new IllegalStateException("PolyCard runtime for '" + levelName + "' started more than once");
             runtime = PolyCardRuntime.start(server);
-            Helpers.debug("Initialized PolyCard state for server {}", server.getServerModName());
+            LOGGER.info("Started PolyCard server runtime for '{}'", levelName);
         });
-        ServerLifecycleEvents.SERVER_STOPPED.register(_ -> {
-            int discardedTasks = runtime == null ? 0 : runtime.close();
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+            var levelName = server.getWorldData().getLevelName();
+            var stoppedRuntime = runtime;
             runtime = null;
-            Helpers.debug("Cleared PolyCard server state and {} pending task(s)", discardedTasks);
+            if (stoppedRuntime == null) {
+                LOGGER.warn("Server '{}' stopped without an active PolyCard runtime", levelName);
+                return;
+            }
+
+            int discardedTasks = stoppedRuntime.close();
+            LOGGER.info("Stopped PolyCard server runtime for '{}' (discardedTasks={})", levelName, discardedTasks);
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (runtime != null) runtime.tick(server);
@@ -60,7 +67,7 @@ public class PolyCard implements ModInitializer {
             return ItemUseEventCallback.EVENT.invoker().onItemUse(serverPlayer, level, hand);
         });
 
-        PolyCardCommands.registerCommands(
+        PolyCardCommand[] commands = {
                 new HelpCommand(),
                 new InfoCommand(),
                 new EquipCommand(),
@@ -68,9 +75,16 @@ public class PolyCard implements ModInitializer {
                 new GiveCommand(),
                 new TestCommand(),
                 new CooldownCommand()
-        );
+        };
+        PolyCardCommands.registerCommands(commands);
 
         new CardItemUseEvent().registerCallbacks();
         new CardLootEvents().registerCallbacks();
+
+        LOGGER.info(
+                "Initialized PolyCard (cardTypes={}, subcommands={})",
+                CardType.values().length,
+                commands.length
+        );
     }
 }

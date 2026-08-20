@@ -11,6 +11,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.item.Items;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
@@ -40,7 +41,7 @@ public final class IronGolemEffects extends CardEffects implements EntityAfterHu
                                 && !attacker.equals(player)
                                 && player.getRandom().nextFloat() < RESISTANCE_ON_ATTACKED_PROBABILITY) {
                             player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, RESISTANCE_DURATION, RESISTANCE_AMPLIFIER));
-                            Helpers.debug("{} gained Resistance from a Rare Iron Golem card after an attack by {} ({}% chance)",
+                            PolyCard.LOGGER.debug("{} gained Resistance from a Rare Iron Golem card after an attack by {} ({}% chance)",
                                     player.getName().getString(), attacker.getName().getString(), Helpers.probToStr(RESISTANCE_ON_ATTACKED_PROBABILITY));
                         }
                     })
@@ -49,7 +50,7 @@ public final class IronGolemEffects extends CardEffects implements EntityAfterHu
                                 player.fallDistance >= SHOCKWAVE_MIN_FALL_DISTANCE &&
                                 cooldowns().tryStartCooldown(player, SHOCKWAVE_COOLDOWN_KEY, SHOCKWAVE_COOLDOWN)
                         ) {
-                            Helpers.debug("{} has a legendary or higher Iron Golem card and fell from a height of {}. Triggering shockwave.", player.getName().getString(), player.fallDistance);
+                            PolyCard.LOGGER.debug("{} has a legendary or higher Iron Golem card and fell from a height of {}. Triggering shockwave.", player.getName().getString(), player.fallDistance);
                             triggerShockwave(player, player.fallDistance);
                         }
                     });
@@ -59,7 +60,7 @@ public final class IronGolemEffects extends CardEffects implements EntityAfterHu
             if (source.isDirect() && source.getWeaponItem() != null && source.getWeaponItem().is(Items.AIR)) {
                 if (hasCardOrRarer(player, RarityLevel.EPIC)) {
                     if (cooldowns().tryStartCooldown(player, KNOCKBACK_HIT_COOLDOWN_KEY, KNOCKBACK_HIT_COOLDOWN)) {
-                        Helpers.debug("{} has an epic or higher Iron Golem card, applying knockback on hit", player.getName().getString());
+                        PolyCard.LOGGER.debug("{} has an epic or higher Iron Golem card, applying knockback on hit", player.getName().getString());
                         double xd = 0.0;
                         double zd = 0.0;
                         if (source.getSourcePosition() != null) {

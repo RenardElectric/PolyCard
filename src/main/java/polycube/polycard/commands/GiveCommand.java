@@ -10,13 +10,13 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardGroupArgument;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.commands.commandArguments.RarityLevelArgument;
 import polycube.polycard.utils.CardHelpers;
-import polycube.polycard.utils.Helpers;
 
 public class GiveCommand extends PolyCardCommand {
 
@@ -90,7 +90,7 @@ public class GiveCommand extends PolyCardCommand {
             CardHelpers.giveCard(player, card);
             source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormattedName()), true);
             player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormattedName()));
-            Helpers.debug("Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
+            PolyCard.LOGGER.debug("Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
         }
 
         return 1;

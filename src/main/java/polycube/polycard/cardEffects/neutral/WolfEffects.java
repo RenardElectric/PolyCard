@@ -9,10 +9,10 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.PlayerKillEventCallback;
-import polycube.polycard.utils.Helpers;
 
 import java.util.Objects;
 
@@ -68,7 +68,7 @@ public final class WolfEffects extends CardEffects implements PlayerKillEventCal
                 }
             }
             if (healedWolves > 0) {
-                Helpers.debug("{} healed {} owned wolf/wolves after a kill", player.getName().getString(), healedWolves);
+                PolyCard.LOGGER.debug("{} healed {} owned wolf/wolves after a kill", player.getName().getString(), healedWolves);
             }
         }
     }

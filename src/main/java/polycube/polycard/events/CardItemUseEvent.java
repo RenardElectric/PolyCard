@@ -7,6 +7,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
@@ -39,13 +40,13 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
                     change.unequipped().forEach(replacedCard -> player.getInventory().placeItemBackInInventory(replacedCard.asItem()));
                     Helpers.SendSuccess(player, Component.literal("Equipped card: ").append(card.getFormattedName()));
                     Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
-                    Helpers.debug("{} equipped card: {}", player.getName().getString(), card);
+                    PolyCard.LOGGER.debug("{} equipped card: {}", player.getName().getString(), card);
                     return InteractionResult.SUCCESS;
                 },
                 error -> {
                     var msg = error.message();
                     Helpers.SendFailure(player, Component.literal("Failed to equip card: " + msg));
-                    Helpers.debug("Failed to equip card for {}: {}", player.getName().getString(), msg);
+                    PolyCard.LOGGER.debug("Failed to equip card for {}: {}", player.getName().getString(), msg);
                     return InteractionResult.FAIL;
                 }
         );

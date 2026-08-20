@@ -41,7 +41,17 @@ public final class WerewolfEffects extends CardEffects implements PlayerSecondEv
             var modifier = attribute.getModifier(Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, werewolfType.id));
             if (modifier == null) return;
             var current = modifier.amount();
-            if (getEffectAmount(player, Objects.requireNonNull(equippedRarityLevel(player))) != current) {
+            var rarity = Objects.requireNonNull(equippedRarityLevel(player));
+            var updated = getEffectAmount(player, rarity);
+            if (updated != current) {
+                PolyCard.LOGGER.debug(
+                        "Updated {} modifier for {} after a moon-phase change: {} -> {} ({})",
+                        cardType().getSerializedName(),
+                        player.getName().getString(),
+                        Helpers.decimalFormat(current),
+                        Helpers.decimalFormat(updated),
+                        rarity
+                );
                 loadAttributes(player);
             }
         }

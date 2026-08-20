@@ -8,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
@@ -30,6 +31,9 @@ public final class SpectatorEffects extends CardEffects implements EntityHurtEve
 
     @Override
     public void onCardUnequip(ServerPlayer player, Card card) {
-        if (card.cardType() == cardType()) player.kill(player.level());
+        if (card.cardType() == cardType()) {
+            PolyCard.LOGGER.debug("Killed {} after unequipping the Spectator card", player.getName().getString());
+            player.kill(player.level());
+        }
     }
 }

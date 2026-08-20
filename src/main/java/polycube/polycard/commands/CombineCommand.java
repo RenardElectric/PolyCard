@@ -3,9 +3,9 @@ package polycube.polycard.commands;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
+import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.utils.CardHelpers;
-import polycube.polycard.utils.Helpers;
 
 public class CombineCommand extends PolyCardCommand {
 
@@ -44,7 +44,7 @@ public class CombineCommand extends PolyCardCommand {
         CardHelpers.giveCard(player, nextCard.get());
         source.sendSuccess(() -> Component.literal("Combined " + Card.CARDS_FOR_NEXT_LEVEL + " cards into ")
                 .append(nextCard.get().getFormattedName()), false);
-        Helpers.debug("{} combined {} into {}", player.getName().getString(), card.get(), nextCard.get());
+        PolyCard.LOGGER.debug("{} combined {} into {}", player.getName().getString(), card.get(), nextCard.get());
         return 1;
     }
 }
