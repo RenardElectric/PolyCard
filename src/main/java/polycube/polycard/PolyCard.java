@@ -45,14 +45,12 @@ public class PolyCard implements ModInitializer {
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             var levelName = server.getWorldData().getLevelName();
-            var stoppedRuntime = runtime;
-            runtime = null;
-            if (stoppedRuntime == null) {
+            if (runtime == null) {
                 LOGGER.warn("Server '{}' stopped without an active PolyCard runtime", levelName);
                 return;
             }
-
-            int discardedTasks = stoppedRuntime.close();
+            int discardedTasks = runtime.close();
+            runtime = null;
             LOGGER.info("Stopped PolyCard server runtime for '{}' (discardedTasks={})", levelName, discardedTasks);
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {

@@ -98,13 +98,12 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     /// Builds lore for the acquisition condition and all effects unlocked up to this rarity.
     public List<Component> getDescriptions() {
-        var definition = cardType.definition();
         var descriptions = new ArrayList<Component>();
         descriptions.add(
-                Component.literal("(Acquired by " + definition.acquisitionCondition() + ")")
+                Component.literal("(Acquired by " + cardType.getCondition() + ")")
                         .withStyle(s -> s.withColor(ChatFormatting.DARK_GRAY).withItalic(false))
         );
-        for (var rarity : definition.rarities()) {
+        for (var rarity : cardType.getRarities()) {
             descriptions.add(rarity.getFormattedDescription());
             if (rarity.rarityLevel() == rarityLevel) break;
         }

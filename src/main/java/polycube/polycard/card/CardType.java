@@ -162,7 +162,7 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max legendary rarity)")
             .build()),
     NETHER(CardDefinition.builder("nether", "looting nether structures", CardGroup.MISC, NetherEffects::new)
-            .addRarity(RarityLevel.LEGENDARY, 0.15f, true, "Fire resistance but can only respawn in the nether")
+            .addRarity(RarityLevel.LEGENDARY, 0.15f, true, "Fire resistance but can only set a spawn point in the nether using beds or respawn anchors")
             .build()),
     SPECTATOR(CardDefinition.builder("spectator", "TODO", CardGroup.MISC, SpectatorEffects::new)
             .addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Invulnerable but cannot hurt anything, die when removing this card")
