@@ -17,41 +17,71 @@
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> ·
-  <a href="#card-collection">Cards</a> ·
-  <a href="#rarity-system">Rarities</a> ·
-  <a href="#commands">Commands</a> ·
-  <a href="#installation">Installation</a> ·
-  <a href="#building-from-source">Building</a>
+  <a href="#what-you-can-do">What you can do</a> ·
+  <a href="#start-playing">Start playing</a> ·
+  <a href="#cards-and-rarities">Cards &amp; rarities</a> ·
+  <a href="#server-administrators">Server admins</a> ·
+  <a href="#developers">Developers</a>
 </p>
 
-PolyCard is a Fabric mod that turns exploration, combat, animal interactions and structure loot into
-a collectible-card progression system. Each card grants themed effects, stronger rarities inherit the
-effects below them and players can equip up to five cards at once.
+PolyCard is a server-side Fabric mod that turns exploration, combat, animal interactions and structure
+loot into a collectible-card progression system.
 
-## Features
+> [!NOTE]
+> **Just joining an existing PolyCard server?** You can ignore the
+> [server administrator](#server-administrators) and [developer](#developers) sections.
 
-- **24 card families** split across Passive, Neutral, Hostile and Misc groups.
-- **Themed acquisition events** including breeding, taming, mob kills, summons and structure loot.
-- **Five-rarity progression** from Common to Legendary, with each card supporting its own subset.
-- **Stacking card powers:** a card includes the effects of its rarity and every lower supported rarity.
-- **Five-card loadouts** managed through an in-game equipment GUI or by using a card directly.
-- **Card upgrading:** combine ten matching cards into one card of the next supported rarity.
-- **Collection advancements** for individual rarities, complete card families, groups and the full set.
-- **Mod fully server-side**
+## What you can do
 
-## How it plays
+| Functionality                 | What it means in-game                                                                                                               |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| **Collect 24 card families**  | Earn themed cards by breeding, taming, fighting, summoning and exploring structures.                                                |
+| **Climb five rarity tiers**   | Cards range from Common to Legendary; every supported tier gets an independent roll and the highest success wins.                   |
+| **Unlock stronger powers**    | A higher-rarity card includes its own effect and the effects of its lower supported rarities.                                       |
+| **Build a five-card loadout** | Right-click a card to equip it or manage all five slots through an inventory-style GUI.                                             |
+| **Upgrade duplicates**        | Turn collected duplicates into a card of the next supported rarity.                                                                 |
+| **Track the collection**      | Advancements cover individual rarities, complete card families, groups and the full set.                                            |
+| **Play without a client mod** | Acquisition, equipment, cooldowns and effects are handled by the server. Clients only need the matching resource pack for textures. |
 
-1. **Trigger a card event.** Breed, tame, fight, summon, explore or loot, according to a card's theme.
-2. **Roll its supported rarities.** Every rarity gets an independent chance; the highest success wins.
-3. **Equip the card.** Use the card directly or open `/polycard equip` to manage up to five slots.
-4. **Build and improve a loadout.** Collect duplicates, combine stacks of ten and pursue advancements.
+## Start playing
 
-> [!TIP]
-> Run `/polycard info <cardGroup> <cardType>` in-game for a card's acquisition condition, supported
-> rarities, configured roll chances and effect descriptions.
+### Joining a multiplayer server
 
-## Card collection
+1. Add the server in Minecraft and connect as usual.
+2. Accept its resource pack when Minecraft asks. This small download supplies the card textures.
+3. Open chat and run `/polycard help` to see the commands available to you.
+
+If cards have missing textures, ask the server administrator whether the PolyCard resource pack is
+correctly set up.
+
+### Playing in singleplayer
+
+Singleplayer runs its own local server, so PolyCard must be installed in your Fabric game instance.
+Follow [Installing PolyCard](#installing-polycard).
+
+### Getting and using your first card
+
+1. Run `/polycard info passive cow` for a concrete example of an acquisition condition, roll chances
+   and card effects. Tab completion can help you discover other groups and card types.
+2. Perform the listed activity. When a rarity roll succeeds, the card is placed in your inventory.
+3. Right-click while holding the card to equip it, or run `/polycard equip` to manage your loadout.
+4. Collect ten identical cards, hold the stack in your main hand and run `/polycard combine` to upgrade
+   it. A card already at its highest supported rarity cannot be upgraded further.
+
+### Player commands
+
+| Command                                 | What it does                                                            |
+|-----------------------------------------|-------------------------------------------------------------------------|
+| `/polycard`                             | Show the installed PolyCard version, authors and description.           |
+| `/polycard help`                        | List the commands available to you.                                     |
+| `/polycard info <cardGroup> <cardType>` | Show how to acquire a card and list its rarity chances and effects.     |
+| `/polycard equip`                       | Open your five-slot equipment manager.                                  |
+| `/polycard combine`                     | Combine the matching cards held in your main hand into the next rarity. |
+| `/polycard cooldown`                    | Show your active card-effect cooldowns in ticks.                        |
+
+## Cards and rarities
+
+### Card collection
 
 | Group       | Card type IDs                                                                     |
 |-------------|-----------------------------------------------------------------------------------|
@@ -63,7 +93,7 @@ effects below them and players can equip up to five cards at once.
 Card types do not all begin at Common or support every rarity. The in-game info command is the
 authoritative guide for each card's available tiers and effects.
 
-## Rarity system
+### Rarity system
 
 The global rarity order is:
 
@@ -92,43 +122,19 @@ P(no card)          = product(1 - pⱼ) for every supported rarity j
 
 For independent **20% Common** and **7% Uncommon** rolls:
 
-| Outcome  | Annouced chance |            Calculation | Final chance |
-|----------|----------------:|-----------------------:|-------------:|
-| Common   |         **20%** |       `20% × (1 - 7%)` |    **18.6%** |
-| Uncommon |          **7%** |                   `7%` |       **7%** |
-| No card  |           **-** | `(1 - 20%) × (1 - 7%)` |    **74.4%** |
+| Outcome  | Configured chance |            Calculation | Final chance |
+|----------|------------------:|-----------------------:|-------------:|
+| Common   |           **20%** |       `20% × (1 - 7%)` |    **18.6%** |
+| Uncommon |            **7%** |                   `7%` |       **7%** |
+| No card  |             **-** | `(1 - 20%) × (1 - 7%)` |    **74.4%** |
 
 The total chance to receive any card is therefore **25.6%**.
 
 </details>
 
-## Equipment and progression
+---
 
-- Equip up to **five cards** through `/polycard equip`.
-- Use a card item directly to equip it without opening the command first.
-- Hold at least **ten identical cards in the main hand** and run `/polycard combine` to create the next
-  rarity. Cards already at their highest supported rarity cannot be combined further.
-- Equipped cards are stored with the world per player UUID and survive server restarts.
-- Active cooldowns and scheduled runtime effect state are session-only and reset when the server stops.
-
-## Commands
-
-| Command                                                         | Access      | Description                                                                                   |
-|-----------------------------------------------------------------|-------------|-----------------------------------------------------------------------------------------------|
-| `/polycard`                                                     | Everyone    | Show the installed PolyCard version, authors, and description.                                |
-| `/polycard help`                                                | Everyone    | List only the commands available to the caller.                                               |
-| `/polycard info <cardGroup> <cardType>`                         | Everyone    | Show acquisition, rarity chances, and effects for one card type.                              |
-| `/polycard equip`                                               | Players     | Open your five-slot equipment manager.                                                        |
-| `/polycard equip <player>`                                      | Gamemasters | Open another online player's equipment manager.                                               |
-| `/polycard combine`                                             | Players     | Consume ten matching cards held in the main hand and award the next rarity.                   |
-| `/polycard cooldown`                                            | Players     | Show active card-effect cooldowns in ticks.                                                   |
-| `/polycard give <players> <cardGroup> <cardType> [rarityLevel]` | Gamemasters | Give a supported card to one or more players. Without a rarity, uses the card's minimum tier. |
-| `/polycard test <cardGroup> <cardType> [cardsNumber]`           | Gamemasters | Simulate rarity rolls. Defaults to 1,000; accepts 1–10,000.                                   |
-
-> [!NOTE]
-> Command arguments provide tab completion for valid groups, card types and rarities where applicable.
-
-## Installation
+## Server administrators
 
 ### Requirements
 
@@ -141,20 +147,43 @@ The total chance to receive any card is therefore **25.6%**.
 | Fabric API    | `0.158.0+26.2` or newer compatible build                       |
 | SGUI          | Bundled inside the PolyCard JAR; no separate download required |
 
-### Install a release
+### Installing PolyCard
 
-1. Install the matching [Fabric Loader](https://fabricmc.net/use/) profile or dedicated server.
-2. Install [Fabric API](https://modrinth.com/mod/fabric-api) in the `mods` directory.
-3. Download the matching PolyCard JAR from [GitHub Releases](https://github.com/RenardElectric/polycard/releases).
-4. Place the PolyCard JAR in the `mods` directory.
-5. For multiplayer, use the matching PolyCard version on the server.
+1. Install Java 25.
+2. Install the Minecraft 26.2 version of [Fabric Loader](https://fabricmc.net/use/) for your game or
+   dedicated server.
+3. Open that game instance or server directory and create a folder named `mods` if it is not present.
+4. Download [Fabric API](https://modrinth.com/mod/fabric-api) and place its JAR in the `mods` folder.
+5. Download PolyCard from [GitHub Releases](https://github.com/RenardElectric/polycard/releases) and
+   place its main JAR in the same `mods` folder.
+6. Start the game or server.
+
+For singleplayer, follow these steps in the Fabric Minecraft instance you intend to play. For a
+multiplayer server, install PolyCard and Fabric API on the server; connecting players do not need the
+PolyCard JAR.
+
+### Client textures
 
 > [!IMPORTANT]
-> Gameplay state and effects are all server-side, but the JAR also contains PolyCard's textures
-> and other assets. To avoid missing textures, the server must provide a matching texture pack to
-> clients. [Polymer](https://modrinth.com/mod/polymer)'s server side texture pack generator can be used for this.
+> Gameplay is server-side, but players still need PolyCard's textures. Configure the server to offer a
+> matching resource pack and ask players to accept it when joining. Without the pack, cards can show
+> missing textures.
 
-## Data and configuration
+[Polymer](https://modrinth.com/mod/polymer)'s server-side resource-pack generator can be used to build
+and deliver the pack. Follow Polymer's setup instructions because it is an optional server tool, not a
+dependency bundled with PolyCard.
+
+### Administrative commands
+
+| Command                                                         | What it does                                                                                    |
+|-----------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| `/polycard equip <player>`                                      | Open another online player's equipment manager.                                                 |
+| `/polycard give <players> <cardGroup> <cardType> [rarityLevel]` | Give a supported card to one or more players. Omitting the rarity uses the card's minimum tier. |
+| `/polycard test <cardGroup> <cardType> [cardsNumber]`           | Simulate rarity rolls. The default is 1,000 rolls; the accepted range is 1–10,000.              |
+
+These commands use Minecraft's **Gamemasters** permission level. All arguments provide tab completion.
+
+### Data and configuration
 
 - PolyCard currently has **no user-editable configuration file**.
 - Equipped-card data is saved inside the world as Minecraft `SavedData`, keyed by player UUID.
@@ -163,9 +192,13 @@ The total chance to receive any card is therefore **25.6%**.
 
 Back up the world as usual before removing the mod or moving a save between incompatible versions.
 
-## Building from source
+---
 
-### Prerequisites
+## Developers
+
+### Building from source
+
+#### Prerequisites
 
 - Git
 - JDK 25
