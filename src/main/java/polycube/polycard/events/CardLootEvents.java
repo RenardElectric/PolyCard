@@ -142,6 +142,15 @@ public class CardLootEvents
                     || key.equals(BuiltInLootTables.SPAWNER_OMINOUS_TRIAL_CHAMBER_CONSUMABLES) || key.equals(BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS))) {
                 tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.LUCKY));
             }
+            if (key.equals(BuiltInLootTables.BURIED_TREASURE)) {
+                tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.INVENTORY));
+            }
+            if (key.equals(BuiltInLootTables.STRONGHOLD_CORRIDOR) || key.equals(BuiltInLootTables.STRONGHOLD_CROSSING) || key.equals(BuiltInLootTables.STRONGHOLD_LIBRARY)) {
+                tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.SPECTATOR));
+            }
+            if (BuiltInLootTables.all().contains(key) && path.startsWith("chests/village")) {
+                tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.LIFE));
+            }
         }
     }
 

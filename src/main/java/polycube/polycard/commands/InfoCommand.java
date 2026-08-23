@@ -50,7 +50,7 @@ public class InfoCommand extends PolyCardCommand {
                             .withStyle(ChatFormatting.DARK_GRAY)
             );
             for (var rarity : cardType.getRarities()) {
-                var rarityInfo = Component.literal(" - " + rarity.rarityLevel() + " (" + Helpers.probToStr(rarity.probability()) + "% chance or better)")
+                var rarityInfo = Component.literal(" - " + rarity.rarityLevel() + " (" + Helpers.probToStr(rarity.probability()) + "% independent roll chance)")
                         .append(Component.literal(" : " + rarity.description()))
                         .withStyle(rarity.rarityLevel().color());
                 message.append("\n").append(rarityInfo);

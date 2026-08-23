@@ -43,16 +43,8 @@ public final class CardHelpers {
         return getRandomRarityLevel(card).map(rarityLevel -> new Card(card, rarityLevel));
     }
 
-    /// Uses one roll against cumulative rarity thresholds and returns the highest matching tier.
-    /// For example, thresholds of 20% Common and 7% Uncommon produce 13% Common and 7%+
-    /// Uncommon; this keeps the displayed "this rarity or better" odds truthful.
+    /// Independently rolls each rarity and returns the last tier whose roll meets its threshold.
     public static Optional<RarityLevel> getRandomRarityLevel(CardType cardType) {
-        return selectRarity(cardType, ThreadLocalRandom.current().nextFloat());
-    }
-
-    /// Maps a supplied [0,1) roll to the highest cumulative rarity it satisfies.
-    /// Keeping this deterministic core separate makes probability boundaries straightforward to test.
-    public static Optional<RarityLevel> selectRarity(CardType cardType, float roll) {
-        return cardType.getRarityDistribution().select(roll);
+        return cardType.getRarityDistribution().select(ThreadLocalRandom.current());
     }
 }

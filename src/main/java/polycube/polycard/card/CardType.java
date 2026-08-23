@@ -137,15 +137,15 @@ public enum CardType implements StringRepresentable {
 
     // Misc
 
-    INVENTORY(CardDefinition.builder("inventory", "TODO", CardGroup.MISC, InventoryEffects::new)
-            .addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Keep inventory but on death loose one rarity level in a random equipped card")
+    INVENTORY(CardDefinition.builder("inventory", "looting a buried treasure", CardGroup.MISC, InventoryEffects::new)
+            .addRarity(RarityLevel.LEGENDARY, 0.1f, true, "Keep inventory but on death loose one rarity level in a random equipped card")
             .build()),
-    LIFE(CardDefinition.builder("life", "TODO", CardGroup.MISC, LifeEffects::new)
-            .addRarity(RarityLevel.COMMON, 1.0f, false, "+1 heart but loose one rarity level on death")
-            .addRarity(RarityLevel.UNCOMMON, 1.0f, false, "+2 hearts but loose one rarity level on death")
-            .addRarity(RarityLevel.RARE, 1.0f, false, "+2 hearts but loose one rarity level on death")
-            .addRarity(RarityLevel.EPIC, 1.0f, true, "+2 hearts but loose one rarity level on death")
-            .addRarity(RarityLevel.LEGENDARY, 1.0f, true, "+3 hearts but loose one rarity level on death")
+    LIFE(CardDefinition.builder("life", "looting a village", CardGroup.MISC, LifeEffects::new)
+            .addRarity(RarityLevel.COMMON, 0.25f, false, "+1 heart but loose one rarity level on death")
+            .addRarity(RarityLevel.UNCOMMON, 0.1f, false, "+2 hearts but loose one rarity level on death")
+            .addRarity(RarityLevel.RARE, 0.05f, false, "+2 hearts but loose one rarity level on death")
+            .addRarity(RarityLevel.EPIC, 0.01f, true, "+2 hearts but loose one rarity level on death")
+            .addRarity(RarityLevel.LEGENDARY, 0.005f, true, "+3 hearts but loose one rarity level on death")
             .build()),
     TOTEM(CardDefinition.builder("totem", "looting a mansion", CardGroup.MISC, TotemEffects::new)
             .addRarity(RarityLevel.COMMON, 0.25f, false, "Count as a totem of undying, consumed when used")
@@ -164,8 +164,8 @@ public enum CardType implements StringRepresentable {
     NETHER(CardDefinition.builder("nether", "looting nether structures", CardGroup.MISC, NetherEffects::new)
             .addRarity(RarityLevel.LEGENDARY, 0.15f, true, "Fire resistance but can only set a spawn point in the nether using beds or respawn anchors")
             .build()),
-    SPECTATOR(CardDefinition.builder("spectator", "TODO", CardGroup.MISC, SpectatorEffects::new)
-            .addRarity(RarityLevel.LEGENDARY, 1.0f, true, "Invulnerable but cannot hurt anything, die when removing this card")
+    SPECTATOR(CardDefinition.builder("spectator", "looting a stronghold", CardGroup.MISC, SpectatorEffects::new)
+            .addRarity(RarityLevel.LEGENDARY, 0.025f, true, "Invulnerable but cannot hurt anything, die when removing this card")
             .build());
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
@@ -213,7 +213,7 @@ public enum CardType implements StringRepresentable {
         return definition().rarities();
     }
 
-    /// Returns the validated cumulative probability distribution for this card type.
+    /// Returns the validated rarity-roll distribution for this card type.
     public RarityDistribution getRarityDistribution() {
         return definition().rarityDistribution();
     }

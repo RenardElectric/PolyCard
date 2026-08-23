@@ -1,16 +1,19 @@
 package polycube.polycard.card;
 
+import org.jspecify.annotations.Nullable;
+
 import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 /// Immutable, validated probability distribution for one card type.
 ///
-/// Card probabilities are cumulative: each value is the chance of receiving that
-/// rarity or a better one. This module is the single place that interprets those
-/// thresholds for both direct rolls and generated loot-table weights.
+/// Each rarity uses an independent roll. A rarity replaces any earlier selection
+/// when its roll is less than its configured probability. This module derives
+/// the equivalent mutually exclusive loot-table weights.
 public final class RarityDistribution {
     private final List<Rarity> rarities;
     private final List<WeightedOutcome> weightedOutcomes;
@@ -20,17 +23,40 @@ public final class RarityDistribution {
         this.weightedOutcomes = weightedOutcomes;
     }
 
-    /// Validates cumulative thresholds and derives their exact integer weights.
-    public static RarityDistribution of(List<Rarity> configuredRarities) {
-        if (configuredRarities.isEmpty()) {
+    /// Validates the configured thresholds and derives equivalent integer weights.
+    public static RarityDistribution of(List<Rarity> rarities) {
+        checkRarities(rarities);
+
+        var chances = new ArrayList<BigDecimal>();
+        var noLaterRarity = BigDecimal.ONE;
+        for (int i = rarities.size() - 1; i >= 0; i--) {
+            var probability = decimal(rarities.get(i).probability());
+            chances.addFirst(probability.multiply(noLaterRarity));
+            noLaterRarity = noLaterRarity.multiply(BigDecimal.ONE.subtract(probability));
+        }
+        chances.add(noLaterRarity);
+
+        int scale = Math.min(9, chances.stream().mapToInt(BigDecimal::scale).max().orElseThrow());
+        var weights = chances.stream()
+                .mapToInt(chance -> chance.movePointRight(scale).setScale(0, RoundingMode.HALF_UP).intValueExact())
+                .toArray();
+
+        var outcomes = new ArrayList<WeightedOutcome>();
+        for (int i = 0; i < rarities.size(); i++) {
+            addPositiveOutcome(outcomes, rarities.get(i).rarityLevel(), weights[i]);
+        }
+        addPositiveOutcome(outcomes, null, weights[weights.length - 1]);
+
+        return new RarityDistribution(rarities, List.copyOf(outcomes));
+    }
+
+    /// Validates that the rarity list is non-empty, contiguous, and has valid probabilities.
+    private static void checkRarities(List<Rarity> rarities) {
+        if (rarities.isEmpty()) {
             throw new IllegalArgumentException("A rarity distribution must contain at least one rarity");
         }
-
-        var rarities = List.copyOf(configuredRarities);
         int expectedRank = rarities.getFirst().rarityLevel().rank();
         float previousProbability = 1.0F;
-        int scale = 0;
-
         for (var rarity : rarities) {
             if (rarity.rarityLevel().rank() != expectedRank++) {
                 throw new IllegalArgumentException("Rarity tiers must be contiguous from the minimum rarity");
@@ -41,43 +67,19 @@ public final class RarityDistribution {
                 throw new IllegalArgumentException("Rarity probability must be finite and in (0, 1]: " + rarity);
             }
             if (rarity.probability() > previousProbability) {
-                throw new IllegalArgumentException("Cumulative rarity probabilities must be non-increasing");
+                throw new IllegalArgumentException("Rarity probabilities must be non-increasing");
             }
-
             previousProbability = rarity.probability();
-            scale = Math.max(scale, decimal(rarity.probability()).scale());
         }
-
-        var totalWeight = BigInteger.TEN.pow(scale);
-        var outcomes = new ArrayList<WeightedOutcome>();
-        for (int i = 0; i < rarities.size(); i++) {
-            var rarity = rarities.get(i);
-            var cumulativeWeight = weight(rarity.probability(), scale);
-            var nextCumulativeWeight = i + 1 < rarities.size()
-                    ? weight(rarities.get(i + 1).probability(), scale)
-                    : BigInteger.ZERO;
-            addPositiveOutcome(outcomes, Optional.of(rarity.rarityLevel()), cumulativeWeight.subtract(nextCumulativeWeight));
-        }
-
-        addPositiveOutcome(
-                outcomes, Optional.empty(),
-                totalWeight.subtract(weight(rarities.getFirst().probability(), scale))
-        );
-        return new RarityDistribution(rarities, List.copyOf(outcomes));
     }
 
-    /// Maps one [0,1) roll to the highest matching cumulative rarity threshold.
-    public Optional<RarityLevel> select(float roll) {
-        if (!Float.isFinite(roll) || roll < 0.0F || roll >= 1.0F) {
-            throw new IllegalArgumentException("Card roll must be finite and in [0, 1): " + roll);
-        }
-
+    /// Independently rolls every rarity and returns the last one whose roll meets its threshold.
+    public Optional<RarityLevel> select(Random random) {
         RarityLevel selected = null;
         for (var rarity : rarities) {
-            if (roll >= rarity.probability()) {
-                break;
+            if (random.nextFloat() < rarity.probability()) {
+                selected = rarity.rarityLevel();
             }
-            selected = rarity.rarityLevel();
         }
         return Optional.ofNullable(selected);
     }
@@ -94,13 +96,9 @@ public final class RarityDistribution {
         return new BigDecimal(Float.toString(probability)).stripTrailingZeros();
     }
 
-    private static BigInteger weight(float probability, int scale) {
-        return decimal(probability).movePointRight(scale).toBigIntegerExact();
-    }
-
-    private static void addPositiveOutcome(List<WeightedOutcome> outcomes, Optional<RarityLevel> rarityLevel, BigInteger weight) {
-        if (weight.signum() > 0) {
-            outcomes.add(new WeightedOutcome(rarityLevel, weight.intValueExact()));
+    private static void addPositiveOutcome(List<WeightedOutcome> outcomes, @Nullable RarityLevel rarityLevel, int weight) {
+        if (weight > 0) {
+            outcomes.add(new WeightedOutcome(Optional.ofNullable(rarityLevel), weight));
         }
     }
 
