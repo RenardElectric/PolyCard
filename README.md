@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/main/resources/assets/polycard/icon.png" alt="PolyCard icon" width="256"  style="image-rendering: pixelated;">
+  <img src="src/main/resources/assets/polycard/logo.png" alt="PolyCard logo">
 </p>
 
 <h1 align="center">PolyCard</h1>
