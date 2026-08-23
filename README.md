@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/RenardElectric/polycard/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/RenardElectric/polycard/build.yml?branch=master&amp;label=build"></a>
+  <a href="https://github.com/RenardElectric/polycard/releases/latest"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/RenardElectric/polycard"></a>
   <img alt="Minecraft 26.2" src="https://img.shields.io/badge/Minecraft-26.2-3C8527">
   <img alt="Fabric Loader 0.19.3 or newer" src="https://img.shields.io/badge/Fabric%20Loader-0.19.3%2B-DBD0B4">
   <img alt="Java 25" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&amp;logoColor=white">
