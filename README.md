@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/main/resources/assets/polycard/logo.png" alt="PolyCard logo">
+  <img src=".github/images/logo.png" alt="PolyCard logo">
 </p>
 
 <h1 align="center">PolyCard</h1>
@@ -169,9 +169,10 @@ PolyCard JAR.
 > matching resource pack and ask players to accept it when joining. Without the pack, cards can show
 > missing textures.
 
-[Polymer](https://modrinth.com/mod/polymer)'s server-side resource-pack generator can be used to build
-and deliver the pack. Follow Polymer's setup instructions because it is an optional server tool, not a
-dependency bundled with PolyCard.
+[Polymer can include another mod's assets](https://polymer.pb4.eu/latest/user/resource-pack-custom-assets/)
+in its generated resource pack and can host that pack through
+[AutoHost](https://polymer.pb4.eu/latest/user/resource-pack-hosting/). Polymer is an optional server
+tool and is not bundled with PolyHorn.
 
 ### Administrative commands
 
