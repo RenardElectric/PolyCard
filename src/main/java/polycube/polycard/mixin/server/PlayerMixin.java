@@ -15,6 +15,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import polycube.polycard.events.callBacks.EntityAfterHurtEventCallback;
 import polycube.polycard.events.callBacks.EntityHurtEventCallback;
 import polycube.polycard.events.callBacks.GetBedRuleEventCallback;
+import polycube.polycard.events.callBacks.KeepInventoryEventCallback;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -76,5 +79,19 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/attribute/EnvironmentAttributeSystem;getValue(Lnet/minecraft/world/attribute/EnvironmentAttribute;Lnet/minecraft/world/phys/Vec3;)Ljava/lang/Object;"))
     private Object getBedRule(EnvironmentAttributeSystem instance, EnvironmentAttribute<BedRule> environmentAttribute, Vec3 vec3, Operation<Object> original) {
         return GetBedRuleEventCallback.EVENT.invoker().getBedRule((Player) (Object) this, (BedRule) original.call(instance, environmentAttribute, vec3));
+    }
+
+    @WrapOperation(method = "getBaseExperienceReward", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/gamerules/GameRules;get(Lnet/minecraft/world/level/gamerules/GameRule;)Ljava/lang/Object;"))
+    private Object getKeepInventoryXp(GameRules instance, GameRule<Boolean> gameRule, Operation<Boolean> original) {
+        boolean orig = original.call(instance, gameRule);
+        var result = KeepInventoryEventCallback.EVENT.invoker().onKeepInventory((Player) (Object) this, this.level(), orig);
+        return result == InteractionResult.SUCCESS || (result != InteractionResult.FAIL && orig);
+    }
+
+    @WrapOperation(method = "dropEquipment", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/gamerules/GameRules;get(Lnet/minecraft/world/level/gamerules/GameRule;)Ljava/lang/Object;"))
+    private Object getKeepInventoryEquipment(GameRules instance, GameRule<Boolean> gameRule, Operation<Boolean> original) {
+        boolean orig = original.call(instance, gameRule);
+        var result = KeepInventoryEventCallback.EVENT.invoker().onKeepInventory((Player) (Object) this, this.level(), orig);
+        return result == InteractionResult.SUCCESS || (result != InteractionResult.FAIL && orig);
     }
 }
