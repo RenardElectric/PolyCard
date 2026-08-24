@@ -138,7 +138,7 @@ public enum CardType implements StringRepresentable {
     // Misc
 
     INVENTORY(CardDefinition.builder("inventory", "looting a buried treasure", CardGroup.MISC, InventoryEffects::new)
-            .addRarity(RarityLevel.LEGENDARY, 0.1f, true, "Keep inventory but on death loose one rarity level in a random equipped card if there area other cards equipped")
+            .addRarity(RarityLevel.LEGENDARY, 0.1f, true, "Keep inventory but on death if no other cards are equipped")
             .build()),
     LIFE(CardDefinition.builder("life", "looting a village", CardGroup.MISC, LifeEffects::new)
             .addRarity(RarityLevel.COMMON, 0.25f, false, "+1 heart but loose one rarity level on death")
