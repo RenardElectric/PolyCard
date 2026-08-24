@@ -35,22 +35,20 @@ public final class WolfEffects extends CardEffects implements PlayerKillEventCal
 
         for (var wolf : level.getEntities(EntityTypes.WOLF, LivingEntity::isAlive)) {
             if (wolf.getRootOwner() instanceof ServerPlayer player) {
-                var rarity = equippedRarityLevel(player);
-                if (rarity == null) {
-                    continue;
-                }
-                if (rarity.isAtLeast(RarityLevel.UNCOMMON)) {
-                    wolf.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, BUFF_DURATION, RESISTANCE_AMPLIFIER, true, false));
-                }
-                if (rarity.isAtLeast(RarityLevel.RARE)) {
-                    int strengthAmplifier = rarity.isAtLeast(RarityLevel.LEGENDARY) && player.getHealth() < LOW_HEALTH_THRESHOLD
-                            ? IMPROVED_STRENGTH_AMPLIFIER
-                            : STRENGTH_AMPLIFIER;
-                    wolf.addEffect(new MobEffectInstance(MobEffects.STRENGTH, BUFF_DURATION, strengthAmplifier, true, false));
-                }
-                if (rarity.isAtLeast(RarityLevel.LEGENDARY) && player.getHealth() < LOW_HEALTH_THRESHOLD) {
-                    wolf.addEffect(new MobEffectInstance(MobEffects.SPEED, BUFF_DURATION, IMPROVED_SPEED_AMPLIFIER, true, false));
-                }
+                equippedRarityLevel(player).ifPresent(rarity -> {
+                    if (rarity.isAtLeast(RarityLevel.UNCOMMON)) {
+                        wolf.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, BUFF_DURATION, RESISTANCE_AMPLIFIER, true, false));
+                    }
+                    if (rarity.isAtLeast(RarityLevel.RARE)) {
+                        int strengthAmplifier = rarity.isAtLeast(RarityLevel.LEGENDARY) && player.getHealth() < LOW_HEALTH_THRESHOLD
+                                ? IMPROVED_STRENGTH_AMPLIFIER
+                                : STRENGTH_AMPLIFIER;
+                        wolf.addEffect(new MobEffectInstance(MobEffects.STRENGTH, BUFF_DURATION, strengthAmplifier, true, false));
+                    }
+                    if (rarity.isAtLeast(RarityLevel.LEGENDARY) && player.getHealth() < LOW_HEALTH_THRESHOLD) {
+                        wolf.addEffect(new MobEffectInstance(MobEffects.SPEED, BUFF_DURATION, IMPROVED_SPEED_AMPLIFIER, true, false));
+                    }
+                });
             }
         }
     }

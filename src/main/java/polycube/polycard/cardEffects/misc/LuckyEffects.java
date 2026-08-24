@@ -14,15 +14,16 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.EquippedRarityLevelOverrideCallback;
-import polycube.polycard.events.callBacks.HasCardOrRarerOverrideCallback;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
+
+import java.util.Optional;
 
 import static polycube.polycard.utils.Helpers.decimalFormat;
 
 public class LuckyEffects
         extends CardEffects
         implements ServerTickEvents.EndTick,
-        PlayerTickEventCallback, EquippedRarityLevelOverrideCallback, HasCardOrRarerOverrideCallback
+        PlayerTickEventCallback, EquippedRarityLevelOverrideCallback
 {
 
     public static final int TICK_INTERVAL = 20 * 60 * 5;
@@ -54,7 +55,7 @@ public class LuckyEffects
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         var cardRarityLevel = equippedRarityLevel(player);
-        if (cardRarityLevel != null) {
+        if (cardRarityLevel.isPresent()) {
             if (tickCounter % TICK_INTERVAL == 0) {
                 var previousCard = revokeRandomCard(player);
 
@@ -65,21 +66,22 @@ public class LuckyEffects
                     cardType = cardTypeValues[player.getRandom().nextInt(cardTypeValues.length)];
                     var rarityValues = cardType.getRarities();
                     rarityLevel = rarityValues.get(player.getRandom().nextInt(rarityValues.size())).rarityLevel();
-                } while (rarityLevel.rank() > cardRarityLevel.rank());
+                } while (rarityLevel.rank() > cardRarityLevel.get().rank());
 
-                var card = new Card(cardType, rarityLevel);
-                randomCard.put(player, card);
-                player.sendSystemMessage(
-                        Component.literal("You have been granted a random card for " + decimalFormat(TICK_INTERVAL/1200.0) + " minutes: ")
-                                .withStyle(ChatFormatting.GREEN)
-                                .append(card.getFormattedName())
-                );
-                CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
-                if (previousCard == null) {
-                    PolyCard.LOGGER.debug("Granted {} temporary Lucky-card effect {}", player.getName().getString(), card);
-                } else {
-                    PolyCard.LOGGER.debug("Replaced {}'s temporary Lucky-card effect {} with {}", player.getName().getString(), previousCard, card);
-                }
+                Card.tryCreate(cardType, rarityLevel).ifPresent(card -> {
+                    randomCard.put(player, card);
+                    player.sendSystemMessage(
+                            Component.literal("You have been granted a random card for " + decimalFormat(TICK_INTERVAL/1200.0) + " minutes: ")
+                                    .withStyle(ChatFormatting.GREEN)
+                                    .append(card.getFormattedName())
+                    );
+                    CardEventCallback.EQUIPPED.invoker().onCardEquip(player, card);
+                    if (previousCard == null) {
+                        PolyCard.LOGGER.debug("Granted {} temporary Lucky-card effect {}", player.getName().getString(), card);
+                    } else {
+                        PolyCard.LOGGER.debug("Replaced {}'s temporary Lucky-card effect {} with {}", player.getName().getString(), previousCard, card);
+                    }
+                });
             }
         } else {
             var card = revokeRandomCard(player);
@@ -99,22 +101,13 @@ public class LuckyEffects
     }
 
     @Override
-    public @Nullable RarityLevel equippedRarityLevelOverride(ServerPlayer player, CardType cardType, @Nullable RarityLevel original) {
+    public Optional<RarityLevel> equippedRarityLevelOverride(ServerPlayer player, CardType cardType, Optional<RarityLevel> original) {
         var card = randomCard.get(player);
         if (card != null && card.cardType() == cardType) {
-            if (original == null || card.rarityLevel().rank() > original.rank()) {
-                return card.rarityLevel();
+            if (original.isEmpty() || card.rarityLevel().rank() > original.get().rank()) {
+                return Optional.of(card.rarityLevel());
             }
         }
         return original;
-    }
-
-    @Override
-    public boolean hasCardOrRarerOverride(ServerPlayer player, CardType cardType, RarityLevel rarityLevel, boolean original) {
-        if (!original) {
-            var card = randomCard.get(player);
-            return card != null && card.cardType() == cardType && card.rarityLevel().rank() >= rarityLevel.rank();
-        }
-        return true;
     }
 }

@@ -14,8 +14,6 @@ import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.PlayerSecondEventCallback;
 import polycube.polycard.utils.Helpers;
 
-import java.util.Objects;
-
 public final class WerewolfEffects extends CardEffects implements PlayerSecondEventCallback {
 
     private static final float MIN_AMOUNT = -0.75f;
@@ -35,13 +33,12 @@ public final class WerewolfEffects extends CardEffects implements PlayerSecondEv
 
     @Override
     public void onPlayerSecond(MinecraftServer server, ServerPlayer player) {
-        if (hasCardOrRarer(player, RarityLevel.COMMON)) {
+        equippedRarityLevel(player).ifPresent(rarity -> {
             var attribute = player.getAttribute(werewolfType.attribute);
             if (attribute == null) return;
             var modifier = attribute.getModifier(Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, werewolfType.id));
             if (modifier == null) return;
             var current = modifier.amount();
-            var rarity = Objects.requireNonNull(equippedRarityLevel(player));
             var updated = getEffectAmount(player, rarity);
             if (updated != current) {
                 PolyCard.LOGGER.debug(
@@ -54,7 +51,7 @@ public final class WerewolfEffects extends CardEffects implements PlayerSecondEv
                 );
                 loadAttributes(player);
             }
-        }
+        });
     }
 
     public double getEffectAmount(ServerPlayer player, RarityLevel rarity) {

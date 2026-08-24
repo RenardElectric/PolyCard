@@ -34,7 +34,7 @@ public class HorseEffects extends CardEffects implements PlayerTickEventCallback
             return;
         }
 
-        RarityLevel rarity = equippedRarityLevel(player);
+        RarityLevel rarity = equippedRarityLevel(player).orElse(null);
         if (rarity == null || !rarity.isAtLeast(RarityLevel.RARE)) {
             speedBoostTicks.remove(player);
             return;

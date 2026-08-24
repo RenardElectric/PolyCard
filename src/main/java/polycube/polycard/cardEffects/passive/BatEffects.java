@@ -56,9 +56,9 @@ public class BatEffects
     @Override
     public void onPlayerTick(MinecraftServer server, ServerPlayer player) {
         var equippedRarity = equippedRarityLevel(player);
-        boolean hasRare = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.RARE);
-        boolean hasEpic = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.EPIC);
-        boolean hasLegendary = equippedRarity != null && equippedRarity.isAtLeast(RarityLevel.LEGENDARY);
+        boolean hasRare = equippedRarity.map(rarityLevel -> rarityLevel.isAtLeast(RarityLevel.RARE)).orElse(false);
+        boolean hasEpic = equippedRarity.map(rarityLevel -> rarityLevel.isAtLeast(RarityLevel.EPIC)).orElse(false);
+        boolean hasLegendary = equippedRarity.map(rarityLevel -> rarityLevel.isAtLeast(RarityLevel.LEGENDARY)).orElse(false);
 
         if (hasRare) {
             EffectHelpers.refreshPersistentEffect(player, MobEffects.NIGHT_VISION, 0);

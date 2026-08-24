@@ -3,17 +3,13 @@ package polycube.polycard.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.server.level.ServerPlayer;
-import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.events.callBacks.CardEventCallback;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /// Persistent card equipment for one player.
 ///
@@ -42,8 +38,8 @@ public final class PlayerData {
     }
 
     /// Returns the equipped rarity without allocating a card list on hot event paths.
-    public @Nullable RarityLevel equippedRarityLevel(CardType cardType) {
-        return equipment.rarityLevel(cardType);
+    public Optional<RarityLevel> equippedRarityLevel(CardType cardType) {
+        return Optional.ofNullable(equipment.rarityLevel(cardType));
     }
 
     public int equippedCardCount() {
@@ -117,7 +113,7 @@ public final class PlayerData {
         var changed = new ArrayList<Card>();
         source.forEach((cardType, rarityLevel) -> {
             if (comparison.get(cardType) != rarityLevel) {
-                changed.add(new Card(cardType, rarityLevel));
+                Card.tryCreate(cardType, rarityLevel).ifPresent(changed::add);
             }
         });
         return List.copyOf(changed);

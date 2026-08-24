@@ -55,7 +55,6 @@ public class EventHandler {
             of(PlayerSecondEventCallback.class, PlayerSecondEventCallback.EVENT),
 
             of(EquippedRarityLevelOverrideCallback.class, EquippedRarityLevelOverrideCallback.EVENT),
-            of(HasCardOrRarerOverrideCallback.class, HasCardOrRarerOverrideCallback.EVENT),
             of(GetBedRuleEventCallback.class, GetBedRuleEventCallback.EVENT),
 
             of(LootTableEvents.Modify.class, LootTableEvents.MODIFY)

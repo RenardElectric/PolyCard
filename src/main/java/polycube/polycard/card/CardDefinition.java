@@ -9,27 +9,24 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 /// Immutable authoritative definition of one card type.
-public final class CardDefinition {
-    private final String serializedName;
-    private final String acquisitionCondition;
-    private final CardGroup group;
-    private final String mutexGroup;
-    private final RarityDistribution rarityDistribution;
-    private final EnumMap<RarityLevel, Rarity> rarities;
-    private final Supplier<CardEffects> effectFactory;
+public record CardDefinition(
+        String serializedName, String acquisitionCondition, CardGroup group,
+        String mutexGroup, RarityDistribution rarityDistribution,
+        EnumMap<RarityLevel, Rarity> rarities, Supplier<CardEffects> effectFactory
+) {
+    private static CardDefinition from(CardDefinitionBuilder builder) {
+        var serializedName = requireText(builder.serializedName, "serializedName");
+        var acquisitionCondition = requireText(builder.acquisitionCondition, "acquisitionCondition");
+        var group = builder.group;
+        var mutexGroup = builder.mutexGroup.strip();
+        var rarityDistribution = RarityDistribution.of(List.copyOf(builder.rarities.values()));
+        var effectFactory = builder.effectFactory;
 
-    private CardDefinition(CardDefinitionBuilder builder) {
-        serializedName = requireText(builder.serializedName, "serializedName");
-        acquisitionCondition = requireText(builder.acquisitionCondition, "acquisitionCondition");
-        group = builder.group;
-        mutexGroup = builder.mutexGroup.strip();
-        rarityDistribution = RarityDistribution.of(List.copyOf(builder.rarities.values()));
-        effectFactory = builder.effectFactory;
-
-        rarities = new EnumMap<>(RarityLevel.class);
+        var rarities = new EnumMap<RarityLevel, Rarity>(RarityLevel.class);
         for (var rarity : rarityDistribution.rarities()) {
             rarities.put(rarity.rarityLevel(), rarity);
         }
+        return new CardDefinition(serializedName, acquisitionCondition, group, mutexGroup, rarityDistribution, rarities, effectFactory);
     }
 
     /// Starts a builder for one immutable card definition.
@@ -38,22 +35,6 @@ public final class CardDefinition {
             CardGroup group, Supplier<CardEffects> effectFactory
     ) {
         return new CardDefinitionBuilder(serializedName, acquisitionCondition, group, effectFactory);
-    }
-
-    public String serializedName() {
-        return serializedName;
-    }
-
-    public String acquisitionCondition() {
-        return acquisitionCondition;
-    }
-
-    public CardGroup group() {
-        return group;
-    }
-
-    public String mutexGroup() {
-        return mutexGroup;
     }
 
     public Identifier id() {
@@ -72,7 +53,7 @@ public final class CardDefinition {
         return rarities.containsKey(rarityLevel);
     }
 
-    public List<Rarity> rarities() {
+    public List<Rarity> raritiesList() {
         return rarityDistribution.rarities();
     }
 
@@ -119,7 +100,7 @@ public final class CardDefinition {
         }
 
         public CardDefinition build() {
-            return new CardDefinition(this);
+            return CardDefinition.from(this);
         }
     }
 

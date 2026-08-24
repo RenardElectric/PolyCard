@@ -101,7 +101,7 @@ public final class Equipment {
     /// Returns equipped cards in stable CardType order.
     public List<Card> cards() {
         var cards = new ArrayList<Card>(cardsByType.size());
-        cardsByType.forEach((cardType, rarityLevel) -> cards.add(new Card(cardType, rarityLevel)));
+        cardsByType.forEach((cardType, rarityLevel) -> Card.tryCreate(cardType, rarityLevel).ifPresent(cards::add));
         return List.copyOf(cards);
     }
 

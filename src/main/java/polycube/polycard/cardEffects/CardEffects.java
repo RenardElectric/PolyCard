@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
+import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 import polycube.polycard.card.RarityLevel;
 import polycube.polycard.data.PlayerData;
@@ -17,7 +18,6 @@ import polycube.polycard.data.Storage;
 import polycube.polycard.events.EventHandler;
 import polycube.polycard.events.callBacks.CardEventCallback;
 import polycube.polycard.events.callBacks.EquippedRarityLevelOverrideCallback;
-import polycube.polycard.events.callBacks.HasCardOrRarerOverrideCallback;
 import polycube.polycard.events.callBacks.PlayerLoadEventCallback;
 import polycube.polycard.utils.Cooldowns;
 import polycube.polycard.utils.TaskScheduler;
@@ -93,13 +93,19 @@ public abstract class CardEffects extends EventHandler {
     }
 
     public final boolean hasCardOrRarer(ServerPlayer player, RarityLevel rarityLevel) {
-        var original = playerData(player).hasCardOrRarer(cardType(), rarityLevel);
-        return HasCardOrRarerOverrideCallback.EVENT.invoker().hasCardOrRarerOverride(player, cardType(), rarityLevel, original);
+        return equippedRarityLevel(player)
+                .filter(equippedRarity -> equippedRarity.isAtLeast(rarityLevel))
+                .isPresent();
     }
 
-    public final @Nullable RarityLevel equippedRarityLevel(ServerPlayer player) {
+    public final Optional<RarityLevel> equippedRarityLevel(ServerPlayer player) {
         var original = playerData(player).equippedRarityLevel(cardType());
         return EquippedRarityLevelOverrideCallback.EVENT.invoker().equippedRarityLevelOverride(player, cardType(), original);
+    }
+
+    public final Optional<Card> equippedCard(ServerPlayer player) {
+        var rarityLevel = equippedRarityLevel(player);
+        return rarityLevel.flatMap(rarity -> Card.tryCreate(cardType(), rarity));
     }
 
     /// Returns whether another nearby player has this card type at the requested rarity or higher.
@@ -135,8 +141,9 @@ public abstract class CardEffects extends EventHandler {
     }
 
     protected final void loadAttributes(ServerPlayer player) {
-        var rarityLevel = equippedRarityLevel(player);
-        if (rarityLevel != null) setCardAttributes(player, rarityLevel, player.getAttributes()::addTransientAttributeModifiers);
+        equippedRarityLevel(player).ifPresent(
+                rarityLevel -> setCardAttributes(player, rarityLevel, player.getAttributes()::addTransientAttributeModifiers)
+        );
     }
 
     protected final void removeAttributes(ServerPlayer player, RarityLevel rarityLevel) {
@@ -159,7 +166,8 @@ public abstract class CardEffects extends EventHandler {
 
     @SuppressWarnings({"unused", "UnusedReturnValue"})
     public final class CardRarityConditions {
-        private final @Nullable RarityLevel equippedRarity;
+        @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+        private final Optional<RarityLevel> equippedRarity;
 
         private CardRarityConditions(ServerPlayer player) {
             equippedRarity = equippedRarityLevel(player);
@@ -231,7 +239,7 @@ public abstract class CardEffects extends EventHandler {
         }
 
         private boolean hasAtLeast(RarityLevel rarity) {
-            return equippedRarity != null && equippedRarity.isAtLeast(rarity);
+            return equippedRarity.map(rarityLevel -> rarityLevel.isAtLeast(rarity)).orElse(false);
         }
     }
 

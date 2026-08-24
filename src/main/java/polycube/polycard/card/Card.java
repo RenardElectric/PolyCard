@@ -29,7 +29,6 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     private static final String CARD_TYPE_KEY = "cardType";
     private static final String RARITY_LEVEL_KEY = "rarityLevel";
-    private static final Map<Card, ItemStackTemplate> itemStackCache = new HashMap<>();
 
     public Card {
         if (!cardType.hasRarity(rarityLevel)) {
@@ -45,23 +44,14 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return Optional.of(new Card(cardType, rarityLevel));
     }
 
-    /// Returns this card's configured rarity data.
-    public Rarity rarity() {
-        return cardType.getRarity(rarityLevel).orElseThrow();
-    }
-
     /// Returns the next higher card if this card type supports that rarity.
     public Optional<Card> next() {
-        return rarityLevel.next()
-                .filter(cardType::hasRarity)
-                .map(nextRarityLevel -> new Card(cardType, nextRarityLevel));
+        return rarityLevel.next().flatMap(nextRarityLevel -> tryCreate(cardType, nextRarityLevel));
     }
 
     /// Returns the previous lower card if this card type supports that rarity.
     public Optional<Card> previous() {
-        return rarityLevel.previous()
-                .filter(cardType::hasRarity)
-                .map(prevRarityLevel -> new Card(cardType, prevRarityLevel));
+        return rarityLevel.previous().flatMap(prevRarityLevel -> tryCreate(cardType, prevRarityLevel));
     }
 
     /// Creates an ItemStack carrying this card's identifying data and display components.
@@ -69,9 +59,9 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
         return getItemTemplate().create();
     }
 
-    /// Templates are immutable for a card, so cache them instead of rebuilding hover/item components.
+    /// Creates an ItemStackTemplate carrying this card's identifying data and display components.
     public ItemStackTemplate getItemTemplate() {
-        return itemStackCache.computeIfAbsent(this, Card::createCardItemTemplate);
+        return createCardItemTemplate(this);
     }
 
     /// Returns a colored, hoverable card name for chat messages.
@@ -88,12 +78,12 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
     /// Returns the configured roll probability for this exact card.
     @SuppressWarnings("unused")
     public float getProbability() {
-        return rarity().probability();
+        return cardType.getRarity(rarityLevel).map(Rarity::probability).orElse(0.0f);
     }
 
     /// Returns whether this card should render with the enchantment glint.
     public boolean isEnchanted() {
-        return rarity().isEnchanted();
+        return cardType.getRarity(rarityLevel).map(Rarity::isEnchanted).orElse(false);
     }
 
     /// Builds lore for the acquisition condition and all effects unlocked up to this rarity.

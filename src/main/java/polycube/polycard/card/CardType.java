@@ -210,7 +210,7 @@ public enum CardType implements StringRepresentable {
 
     /// Returns all rarity tiers supported by this card type, in enum-rank order.
     public List<Rarity> getRarities() {
-        return definition().rarities();
+        return definition().raritiesList();
     }
 
     /// Returns the validated rarity-roll distribution for this card type.

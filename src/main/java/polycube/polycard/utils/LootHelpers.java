@@ -22,8 +22,9 @@ public final class LootHelpers {
         for (var outcome : cardType.getRarityDistribution().weightedOutcomes()) {
             outcome.rarityLevel().ifPresentOrElse(
                     rarityLevel -> {
-                        var cardTemplate = new Card(cardType, rarityLevel).getItemTemplate();
-                        pool.add(lootItemFromTemplate(cardTemplate).setWeight(outcome.weight()));
+                        Card.tryCreate(cardType, rarityLevel).map(Card::getItemTemplate).ifPresent(
+                                cardTemplate -> pool.add(lootItemFromTemplate(cardTemplate).setWeight(outcome.weight()))
+                        );
                     },
                     () -> pool.add(EmptyLootItem.emptyItem().setWeight(outcome.weight()))
             );
