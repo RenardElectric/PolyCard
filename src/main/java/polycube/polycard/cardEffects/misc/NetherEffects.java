@@ -31,9 +31,9 @@ public class NetherEffects extends CardEffects implements PlayerTickEventCallbac
     public BedRule getBedRule(Player player, BedRule original) {
         if (player instanceof ServerPlayer serverPlayer && hasCardOrRarer(serverPlayer, RarityLevel.LEGENDARY)) {
             if (player.level().dimension().equals(Level.NETHER)) {
-                return new BedRule(BedRule.Rule.NEVER, BedRule.Rule.ALWAYS, false, Optional.of(Component.literal("Respawn point set")));
+                return new BedRule(BedRule.Rule.NEVER, BedRule.Rule.ALWAYS, false, Optional.empty());
             } else if (player.level().dimension().equals(Level.OVERWORLD)) {
-                return new BedRule(BedRule.Rule.WHEN_DARK, BedRule.Rule.NEVER, false, Optional.of(Component.literal("You cannot sleep in the Overworld while you have a Legendary Nether card.")));
+                return new BedRule(BedRule.Rule.NEVER, BedRule.Rule.NEVER, false, Optional.of(Component.literal("You cannot sleep and set your respawn point in the Overworld while you have a Legendary Nether Card.")));
             }
         }
         return original;
@@ -47,7 +47,7 @@ public class NetherEffects extends CardEffects implements PlayerTickEventCallbac
                 var dimension = config.respawnData().dimension();
                 if (dimension.equals(Level.OVERWORLD)) {
                     player.setRespawnPosition(null, false);
-                    player.sendSystemMessage(Component.literal("Your respawn point in the overworld has been removed because you equipped a Legendary Nether card."));
+                    player.sendSystemMessage(Component.literal("Your respawn point in the overworld has been removed because you equipped a Legendary Nether Card."));
                     PolyCard.LOGGER.debug(
                             "Removed {}'s Overworld respawn point after equipping {}",
                             player.getName().getString(), card
@@ -67,7 +67,7 @@ public class NetherEffects extends CardEffects implements PlayerTickEventCallbac
                 var isBed = player.level().getBlockState(data.pos()).getBlock() instanceof BedBlock;
                 if (dimension.equals(Level.NETHER) && isBed) {
                     player.setRespawnPosition(null, false);
-                    player.sendSystemMessage(Component.literal("Your respawn point in the nether has been removed because you unequipped a Legendary Nether card."));
+                    player.sendSystemMessage(Component.literal("Your respawn point in the nether has been removed because you unequipped a Legendary Nether Card."));
                     PolyCard.LOGGER.debug(
                             "Removed {}'s Nether respawn point after unequipping {}",
                             player.getName().getString(), card
