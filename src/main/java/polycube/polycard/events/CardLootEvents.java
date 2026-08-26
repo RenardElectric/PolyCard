@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.animal.equine.Horse;
 import net.minecraft.world.entity.animal.golem.CopperGolem;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.animal.golem.SnowGolem;
+import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.animal.squid.Squid;
 import net.minecraft.world.entity.animal.turtle.Turtle;
 import net.minecraft.world.entity.animal.wolf.Wolf;
@@ -157,6 +159,12 @@ public class CardLootEvents
     @Override
     public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
         if (entity instanceof ServerPlayer player) {
+            if (source.is(DamageTypes.MOB_ATTACK_NO_AGGRO)
+                    && source.getEntity() instanceof Goat goat
+                    && source.getDirectEntity() == goat) {
+                CardHelpers.receiveCard(player, CardType.GOAT);
+            }
+
             if (source.getEntity() instanceof LivingEntity attacker) {
                 var time = level.getDefaultClockTime() % 24000L;
                 if (attacker instanceof Wolf wolf && !wolf.isTame()

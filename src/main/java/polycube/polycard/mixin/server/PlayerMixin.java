@@ -3,6 +3,7 @@ package polycube.polycard.mixin.server;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.attribute.BedRule;
@@ -82,16 +83,16 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
     }
 
     @WrapOperation(method = "getBaseExperienceReward", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/gamerules/GameRules;get(Lnet/minecraft/world/level/gamerules/GameRule;)Ljava/lang/Object;"))
-    private Object getKeepInventoryXp(GameRules instance, GameRule<Boolean> gameRule, Operation<Boolean> original) {
+    private Object getKeepInventoryXp(GameRules instance, GameRule<Boolean> gameRule, Operation<Boolean> original, @Local(argsOnly = true, name = "level") ServerLevel level) {
         boolean orig = original.call(instance, gameRule);
-        var result = KeepInventoryEventCallback.EVENT.invoker().onKeepInventory((Player) (Object) this, this.level(), orig);
+        var result = KeepInventoryEventCallback.EVENT.invoker().onKeepInventory((Player) (Object) this, level, orig);
         return result == InteractionResult.SUCCESS || (result != InteractionResult.FAIL && orig);
     }
 
     @WrapOperation(method = "dropEquipment", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/gamerules/GameRules;get(Lnet/minecraft/world/level/gamerules/GameRule;)Ljava/lang/Object;"))
-    private Object getKeepInventoryEquipment(GameRules instance, GameRule<Boolean> gameRule, Operation<Boolean> original) {
+    private Object getKeepInventoryEquipment(GameRules instance, GameRule<Boolean> gameRule, Operation<Boolean> original, @Local(argsOnly = true, name = "level") ServerLevel level) {
         boolean orig = original.call(instance, gameRule);
-        var result = KeepInventoryEventCallback.EVENT.invoker().onKeepInventory((Player) (Object) this, this.level(), orig);
+        var result = KeepInventoryEventCallback.EVENT.invoker().onKeepInventory((Player) (Object) this, level, orig);
         return result == InteractionResult.SUCCESS || (result != InteractionResult.FAIL && orig);
     }
 }
