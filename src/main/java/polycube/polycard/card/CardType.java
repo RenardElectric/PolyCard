@@ -50,12 +50,6 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.EPIC, 0.008f, true, "Speed " + (HorseEffects.SPEED_EFFECT_AMPLIFIER + 1) + " when riding a horse")
             .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "The more your horse moves, the faster it goes, up to Speed " + (HorseEffects.MAX_SPEED_BOOST + 1))
             .build()),
-    GOAT(CardDefinition.builder("goat", "getting rammed by a goat", CardGroup.PASSIVE, GoatEffects::new)
-            .addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Take " + probToStr(GoatEffects.KNOCKBACK_REDUCTION) + "% reduced knockback")
-            .addRarity(RarityLevel.RARE, 0.03f, false, "Gain Jump Boost " + (GoatEffects.JUMP_BOOST_EFFECT_AMPLIFIER + 1) + " in mountain biomes")
-            .addRarity(RarityLevel.EPIC, 0.008f, true, "Sprint hits deal " + decimalFormat(GoatEffects.SPRINT_HIT_EXTRA_KNOCKBACK) + " extra knockback")
-            .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "After sprinting for " + GoatEffects.LEGENDARY_SPRINT_DURATION / 20 + "s, sprint hits launch enemies upward (" + decimalFormat(GoatEffects.LEGENDARY_UPWARD_LAUNCH_VELOCITY) + " vertical velocity)")
-            .build()),
     TURTLE(CardDefinition.builder("turtle", "breeding two turtles", CardGroup.PASSIVE, TurtleEffects::new)
             .addRarity(RarityLevel.RARE, 0.04f, false, "Gain Resistance " + (TurtleEffects.RESISTANCE_AMPLIFIER + 1) + " while underwater")
             .addRarity(RarityLevel.EPIC, 0.01f, true, "Take reduced damage when sneaking or blocking  (" + probToStr(TurtleEffects.DAMAGE_DECREASE_PROBABILITY) + "% chance per damage point)")
@@ -95,6 +89,12 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.RARE, 0.035f, false, "Your wolves gain strength " + (WolfEffects.STRENGTH_AMPLIFIER + 1))
             .addRarity(RarityLevel.EPIC, 0.01f, true, "Killing an enemy heals your wolves (" + probToStr(WolfEffects.HEAL_PERCENTAGE) + "% of max health)")
             .addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "When low health, your wolves gain Strength " + (WolfEffects.IMPROVED_STRENGTH_AMPLIFIER + 1) + " and Speed " + (WolfEffects.IMPROVED_SPEED_AMPLIFIER + 1))
+            .build()),
+    GOAT(CardDefinition.builder("goat", "getting rammed by a goat", CardGroup.NEUTRAL, GoatEffects::new)
+            .addRarity(RarityLevel.UNCOMMON, 0.08f, false, "Take " + probToStr(GoatEffects.KNOCKBACK_REDUCTION) + "% reduced knockback")
+            .addRarity(RarityLevel.RARE, 0.03f, false, "Gain Jump Boost " + (GoatEffects.JUMP_BOOST_EFFECT_AMPLIFIER + 1) + " in mountain biomes")
+            .addRarity(RarityLevel.EPIC, 0.008f, true, "Sprint hits deal " + decimalFormat(GoatEffects.SPRINT_HIT_EXTRA_KNOCKBACK) + " extra knockback")
+            .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "After sprinting for " + GoatEffects.LEGENDARY_SPRINT_DURATION / 20 + "s, sprint hits launch enemies upward (" + decimalFormat(GoatEffects.LEGENDARY_UPWARD_LAUNCH_VELOCITY) + " vertical velocity)")
             .build()),
 
     // Hostile

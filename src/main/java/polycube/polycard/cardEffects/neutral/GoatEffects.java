@@ -1,4 +1,4 @@
-package polycube.polycard.cardEffects.passive;
+package polycube.polycard.cardEffects.neutral;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.server.MinecraftServer;
