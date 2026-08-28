@@ -1,6 +1,6 @@
 package polycube.polycard.commands;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -16,7 +16,8 @@ public class EquipCommand extends PolyCardCommand {
                 "equip",
                 "Open the equipment manager to equip up to " + Equipment.MAX_CARDS + " cards",
                 "[player]",
-                PermissionLevel.ALL
+                PermissionLevel.ALL,
+                true
         );
     }
 
@@ -34,7 +35,7 @@ public class EquipCommand extends PolyCardCommand {
     }
 
     @Override
-    public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand() {
         return super.getCommand().then(
                 Commands.argument("player", EntityArgument.player())
                         .requires(src -> hasPermission(src, PermissionLevel.GAMEMASTERS))

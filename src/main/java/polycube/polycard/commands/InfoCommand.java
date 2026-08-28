@@ -1,7 +1,7 @@
 package polycube.polycard.commands;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -23,7 +23,7 @@ public class InfoCommand extends PolyCardCommand {
     }
 
     @Override
-    public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand() {
         return super.getCommand().then(
                 Commands.argument(CardGroupArgument.NAME, StringArgumentType.word())
                         .suggests(CardGroupArgument::suggestGroups)

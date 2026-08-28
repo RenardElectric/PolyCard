@@ -24,6 +24,7 @@ public final class PolyCardCommands {
             baseCommand.executes(context -> printModInfo(context.getSource()));
             for (PolyCardCommand command : commands) {
                 baseCommand.then(command.getCommand());
+                if (command.hasAlias()) dispatcher.register(command.getCommand());
             }
             dispatcher.register(baseCommand);
             PolyCard.LOGGER.debug("Registered {} PolyCard subcommand(s)", commands.length);

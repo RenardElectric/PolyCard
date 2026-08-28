@@ -13,7 +13,8 @@ public class CooldownCommand extends PolyCardCommand {
                 "cooldown",
                 "Gets the currently active cooldowns for a player",
                 "",
-                PermissionLevel.ALL
+                PermissionLevel.ALL,
+                true
         );
     }
 

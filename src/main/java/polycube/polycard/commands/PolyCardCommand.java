@@ -1,6 +1,6 @@
 package polycube.polycard.commands;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -13,12 +13,22 @@ public abstract class PolyCardCommand {
     private final String description;
     private final String usage;
     private final PermissionLevel permissionLevel;
+    private final boolean hasAlias;
 
     public PolyCardCommand(String name, String description, String usage, PermissionLevel permissionLevel) {
         this.name = name;
         this.description = description;
         this.usage = usage;
         this.permissionLevel = permissionLevel;
+        this.hasAlias = false;
+    }
+
+    public PolyCardCommand(String name, String description, String usage, PermissionLevel permissionLevel, boolean hasAlias) {
+        this.name = name;
+        this.description = description;
+        this.usage = usage;
+        this.permissionLevel = permissionLevel;
+        this.hasAlias = hasAlias;
     }
 
     protected String getName() {
@@ -30,17 +40,29 @@ public abstract class PolyCardCommand {
     }
 
     protected String getUsage() {
-        return "/" + PolyCard.MOD_ID + " " + name + (usage.isBlank() ? "" : " " + usage);
+        return "/" + PolyCard.MOD_ID + " " + name + (usage.isBlank() ? "" : " " + usage) + (hasAlias ? " (alias: /" + name + ")" : "");
+    }
+
+    protected String getFullDescription() {
+        return "\n" + getUsage() + "\n    - " + getDescription();
     }
 
     protected PermissionLevel getPermissionLevel() {
         return this.permissionLevel;
     }
 
-    public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
+    protected boolean hasAlias() {
+        return this.hasAlias;
+    }
+
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand() {
         return Commands.literal(name)
                 .requires(source -> hasPermission(source, permissionLevel))
-                .executes(e -> execute(e.getSource()));
+                .executes(e -> execute(e.getSource()))
+                .then(Commands.literal("help").executes(e -> {
+                    e.getSource().sendSuccess(() -> Component.literal(getFullDescription()), false);
+                    return 1;
+                }));
     }
 
     protected boolean hasPermission(CommandSourceStack source, PermissionLevel permissionLevel) {

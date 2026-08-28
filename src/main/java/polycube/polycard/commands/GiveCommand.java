@@ -1,7 +1,7 @@
 package polycube.polycard.commands;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.ChatFormatting;
@@ -30,7 +30,7 @@ public class GiveCommand extends PolyCardCommand {
     }
 
     @Override
-    public ArgumentBuilder<CommandSourceStack, ?> getCommand() {
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand() {
         return super.getCommand().then(
                 Commands.argument("player", EntityArgument.players())
                         .then(

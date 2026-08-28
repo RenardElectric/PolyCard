@@ -19,11 +19,7 @@ public class HelpCommand extends PolyCardCommand {
         StringBuilder helpMessage = new StringBuilder("\nAvailable commands:");
         for (PolyCardCommand command : PolyCardCommands.getCommands()) {
             if (hasPermission(source, command.getPermissionLevel())) {
-                helpMessage.append("\n\n")
-                        .append(command.getUsage())
-                        .append("\n")
-                        .append("    - ")
-                        .append(command.getDescription());
+                helpMessage.append("\n").append(command.getFullDescription());
             }
         }
         source.sendSuccess(() -> Component.literal(helpMessage.toString()), false);

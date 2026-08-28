@@ -14,7 +14,8 @@ public class CombineCommand extends PolyCardCommand {
                 "combine",
                 "Combine " + Card.CARDS_FOR_NEXT_LEVEL + " held cards into one card of the next rarity",
                 "",
-                PermissionLevel.ALL
+                PermissionLevel.ALL,
+                true
         );
     }
 
