@@ -11,6 +11,7 @@
     "server.KilledTriggerMixin",
     "server.LivingEntityMixin",
     "server.MobEffectInstanceMixin",
+    "server.PhantomSpawnerMixin",
     "server.PlayerListMixin",
     "server.PlayerMixin",
     "server.ProjectileMixin",

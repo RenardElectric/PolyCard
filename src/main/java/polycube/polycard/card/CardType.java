@@ -140,6 +140,13 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.EPIC, 0.005f, true, WerewolfEffects.WerewolfType.ALPHA.description(RarityLevel.EPIC))
             .addRarity(RarityLevel.LEGENDARY, 0.001f, true, WerewolfEffects.WerewolfType.ALPHA.description(RarityLevel.LEGENDARY))
             .build()),
+    PHANTOM(CardDefinition.builder("phantom", "killing a phantom", CardGroup.HOSTILE, PhantomEffects::new)
+            .addRarity(RarityLevel.COMMON, 0.1f, false, "Gain speed at night after not sleeping")
+            .addRarity(RarityLevel.UNCOMMON, 0.05f, false, "Gain haste at night after not sleeping")
+            .addRarity(RarityLevel.RARE, 0.025f, false, "Gain strength at night after not sleeping")
+            .addRarity(RarityLevel.EPIC, 0.01f, true, "Phantoms do not target you")
+            .addRarity(RarityLevel.LEGENDARY, 0.005f, true, "Phantoms do not spawn because of you")
+            .build()),
 
     // Misc
 

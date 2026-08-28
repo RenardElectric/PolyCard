@@ -57,6 +57,7 @@ public class EventHandler {
             of(EquippedRarityLevelOverrideCallback.class, EquippedRarityLevelOverrideCallback.EVENT),
             of(GetBedRuleEventCallback.class, GetBedRuleEventCallback.EVENT),
             of(KeepInventoryEventCallback.class, KeepInventoryEventCallback.EVENT),
+            of(AllowPhantomSpawnEventCallback.class, AllowPhantomSpawnEventCallback.EVENT),
 
             of(LootTableEvents.Modify.class, LootTableEvents.MODIFY)
     );

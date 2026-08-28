@@ -32,6 +32,7 @@ import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.zombie.*;
 import net.minecraft.world.entity.player.Player;
@@ -93,6 +94,7 @@ public class CardLootEvents
             case Zombie _ -> CardHelpers.receiveCard(player, CardType.ZOMBIE);
             case Bat _ -> CardHelpers.receiveCard(player, CardType.BAT);
             case Creeper _ -> CardHelpers.receiveCard(player, CardType.CREEPER);
+            case Phantom _ -> CardHelpers.receiveCard(player, CardType.PHANTOM);
             default -> {}
         }
     }
@@ -166,9 +168,9 @@ public class CardLootEvents
             }
 
             if (source.getEntity() instanceof LivingEntity attacker) {
-                var time = level.getDefaultClockTime() % 24000L;
+                var time = level.getDefaultClockTime() % 24000;
                 if (attacker instanceof Wolf wolf && !wolf.isTame()
-                        &&  time >= 13000L && time < 23000L
+                        &&  time >= 13000 && time < 23000
                         && level.environmentAttributes().getDimensionValue(EnvironmentAttributes.MOON_PHASE) == MoonPhase.FULL_MOON) {
                     if (player.getRandom().nextDouble() < 0.5)
                         CardHelpers.receiveCard(player, CardType.ALPHA_WEREWOLF);
