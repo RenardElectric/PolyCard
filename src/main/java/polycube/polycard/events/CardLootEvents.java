@@ -1,6 +1,7 @@
 package polycube.polycard.events;
 
 import net.fabricmc.fabric.api.event.player.BlockEvents;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableSource;
 import net.minecraft.core.BlockPos;
@@ -41,6 +42,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.MoonPhase;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -60,7 +63,7 @@ public class CardLootEvents
         extends EventHandler
         implements BreedEventCallback, PlayerKillEventCallback, EntitySummonedEventCallback,
         TameEventCallback, BlockEvents.UseItemOnCallback, LootTableEvents.Modify,
-        EntityAfterHurtEventCallback
+        EntityAfterHurtEventCallback, PlayerBlockBreakEvents.After
 {
     @Override
     public void onBreed(ServerPlayer player, Animal parent, Animal partner, Optional<AgeableMob> child) {
@@ -177,6 +180,15 @@ public class CardLootEvents
                     else
                         CardHelpers.receiveCard(player, CardType.ELDER_WEREWOLF);
                 }
+            }
+        }
+    }
+
+    @Override
+    public void afterBlockBreak(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            if (state.getBlock() instanceof CropBlock block && block.isMaxAge(state)) {
+                CardHelpers.receiveCard(serverPlayer, CardType.FARMER);
             }
         }
     }

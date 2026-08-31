@@ -179,6 +179,9 @@ public enum CardType implements StringRepresentable {
             .build()),
     SPECTATOR(CardDefinition.builder("spectator", "looting a stronghold", CardGroup.MISC, SpectatorEffects::new)
             .addRarity(RarityLevel.LEGENDARY, 0.025f, true, "Invulnerable but cannot hurt anything, die when removing this card")
+            .build()),
+    FARMER(CardDefinition.builder("farmer", "harvesting crops", CardGroup.MISC, FarmerEffects::new)
+            .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Click a crop with a hoe to harvest it and replant it")
             .build());
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

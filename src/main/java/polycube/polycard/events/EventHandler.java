@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.BlockEvents;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import polycube.polycard.events.callBacks.*;
 
@@ -40,6 +41,7 @@ public class EventHandler {
             of(FallFlyingGliderWearEventCallback.class, FallFlyingGliderWearEventCallback.EVENT),
             of(ItemUseEventCallback.class, ItemUseEventCallback.EVENT),
             of(BlockEvents.UseItemOnCallback.class, BlockEvents.USE_ITEM_ON),
+            of(PlayerBlockBreakEvents.After.class, PlayerBlockBreakEvents.AFTER),
 
             of(ServerPlayerEvents.Join.class, ServerPlayerEvents.JOIN),
             of(ServerPlayerEvents.AfterRespawn.class, ServerPlayerEvents.AFTER_RESPAWN),
