@@ -83,12 +83,12 @@ Follow [Installing PolyCard](#installing-polycard).
 
 ### Card collection
 
-| Group       | Card type IDs                                                                     |
-|-------------|-----------------------------------------------------------------------------------|
-| **Passive** | `cow`, `squid`, `chicken`, `bat`, `horse`, `turtle`                               |
-| **Neutral** | `iron_golem`, `enderman`, `piglin`, `zombified_piglin`, `bee`, `wolf`             |
-| **Hostile** | `ender_dragon`, `wither`, `zombie`, `creeper`, `elder_werewolf`, `alpha_werewolf` |
-| **Misc**    | `inventory`, `life`, `totem`, `lucky`, `nether`, `spectator`                      |
+| Group       | Card type IDs                                                                                |
+|-------------|----------------------------------------------------------------------------------------------|
+| **Passive** | `cow`, `squid`, `chicken`, `bat`, `horse`, `turtle`                                          |
+| **Neutral** | `iron_golem`, `enderman`, `piglin`, `zombified_piglin`, `bee`, `wolf`, `goat`                |
+| **Hostile** | `ender_dragon`, `wither`, `zombie`, `creeper`, `elder_werewolf`, `alpha_werewolf`, `phantom` |
+| **Misc**    | `inventory`, `life`, `totem`, `lucky`, `nether`, `spectator`, `farmer`, `miner`              |
 
 Card types do not all begin at Common or support every rarity. The in-game info command is the
 authoritative guide for each card's available tiers and effects.
@@ -140,11 +140,10 @@ The total chance to receive any card is therefore **25.6%**.
 
 | Component     | Current requirement                                            |
 |---------------|----------------------------------------------------------------|
-| PolyCard      | `1.0.0`                                                        |
 | Minecraft     | `26.2`                                                         |
 | Java          | `25` or newer                                                  |
 | Fabric Loader | `0.19.3` or newer                                              |
-| Fabric API    | `0.158.0+26.2` or newer compatible build                       |
+| Fabric API    | `0.159.0+26.2` or newer compatible build                       |
 | SGUI          | Bundled inside the PolyCard JAR; no separate download required |
 
 ### Installing PolyCard
