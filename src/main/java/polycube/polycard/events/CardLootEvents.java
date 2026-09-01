@@ -22,10 +22,10 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.equine.Horse;
+import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.animal.golem.CopperGolem;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.animal.golem.SnowGolem;
-import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.animal.squid.Squid;
 import net.minecraft.world.entity.animal.turtle.Turtle;
 import net.minecraft.world.entity.animal.wolf.Wolf;
@@ -51,6 +51,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.CardType;
+import polycube.polycard.cardEffects.misc.MinerEffects;
 import polycube.polycard.events.callBacks.*;
 import polycube.polycard.utils.CardHelpers;
 import polycube.polycard.utils.LootHelpers;
@@ -189,6 +190,8 @@ public class CardLootEvents
         if (player instanceof ServerPlayer serverPlayer) {
             if (state.getBlock() instanceof CropBlock block && block.isMaxAge(state)) {
                 CardHelpers.receiveCard(serverPlayer, CardType.FARMER);
+            } else if (state.is(MinerEffects.VEIN_MINABLE_BLOCKS) || state.is(MinerEffects.MINABLE_BLOCKS_3X3)) {
+                CardHelpers.receiveCard(serverPlayer, CardType.MINER);
             }
         }
     }

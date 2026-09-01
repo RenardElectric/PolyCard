@@ -1,0 +1,37 @@
+{
+  "values": [
+    "#c:stones",
+    "minecraft:calcite",
+    "minecraft:smooth_basalt",
+    "minecraft:dripstone_block",
+    "minecraft:cinnabar",
+    "minecraft:sulfur",
+
+    "#minecraft:base_stone_nether",
+    "#minecraft:nylium",
+    "minecraft:soul_sand",
+    "minecraft:soul_soil",
+    "minecraft:magma_block",
+
+    "#c:end_stones",
+    "#c:obsidians/normal",
+
+    "#minecraft:substrate_overworld",
+
+    "#c:sands",
+    "#c:gravels",
+    "minecraft:sandstone",
+    "minecraft:red_sandstone",
+
+    "#minecraft:badlands_terracotta",
+
+    "minecraft:snow_block",
+    "minecraft:ice",
+    "minecraft:packed_ice",
+    "minecraft:blue_ice",
+
+    "minecraft:amethyst_block",
+    "minecraft:sculk",
+    "minecraft:prismarine"
+  ]
+}

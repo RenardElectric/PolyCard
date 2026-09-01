@@ -181,7 +181,12 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.LEGENDARY, 0.025f, true, "Invulnerable but cannot hurt anything, die when removing this card")
             .build()),
     FARMER(CardDefinition.builder("farmer", "harvesting crops", CardGroup.MISC, FarmerEffects::new)
+            .addRarity(RarityLevel.EPIC, 0.01f, true, "Hoes tile in a 3x3 area")
             .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Click a crop with a hoe to harvest it and replant it")
+            .build()),
+    MINER(CardDefinition.builder("miner", "minning natural blocks", CardGroup.MISC, MinerEffects::new)
+            .addRarity(RarityLevel.EPIC, 0.001f, true, "Vein mine up to " + MinerEffects.VEIN_MINE_BLOCK_COUNT + " adjacent blocks of the same type with the correct tool (ores, logs, etc.)")
+            .addRarity(RarityLevel.LEGENDARY, 0.0005f, true, "Mine a 3x3 area of blocks of the same type with the correct tool (stones and other natural blocks)")
             .build());
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

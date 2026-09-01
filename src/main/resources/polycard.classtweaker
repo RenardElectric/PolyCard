@@ -5,3 +5,4 @@ accessible field net/minecraft/world/effect/MobEffectInstance hiddenEffect Lnet/
 accessible class net/minecraft/server/level/ServerPlayer$RespawnPosAngle
 accessible field net/minecraft/advancements/predicates/ContextAwarePredicate conditions Ljava/util/List;
 accessible method net/minecraft/world/level/storage/loot/functions/SetComponentsFunction <init> (Ljava/util/List;Lnet/minecraft/core/component/DataComponentPatch;)V
+accessible field net/minecraft/world/item/HoeItem TILLABLES Ljava/util/Map;
