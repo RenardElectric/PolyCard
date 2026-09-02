@@ -175,14 +175,14 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Get a new random card effect every " + decimalFormat(LuckyEffects.TICK_INTERVAL/1200.0) + " minutes (max legendary rarity)")
             .build()),
     NETHER(CardDefinition.builder("nether", "looting nether structures", CardGroup.MISC, NetherEffects::new)
-            .addRarity(RarityLevel.LEGENDARY, 0.15f, true, "Fire resistance but can only set a spawn point in the nether using beds or respawn anchors")
+            .addRarity(RarityLevel.LEGENDARY, 0.15f, true, "Fire resistance but can only set a spawn point in the nether, using beds or respawn anchors")
             .build()),
     SPECTATOR(CardDefinition.builder("spectator", "looting a stronghold", CardGroup.MISC, SpectatorEffects::new)
             .addRarity(RarityLevel.LEGENDARY, 0.025f, true, "Invulnerable but cannot hurt anything, die when removing this card")
             .build()),
     FARMER(CardDefinition.builder("farmer", "harvesting crops", CardGroup.MISC, FarmerEffects::new)
             .addRarity(RarityLevel.EPIC, 0.01f, true, "Hoes tile in a 3x3 area")
-            .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Click a crop with a hoe to harvest it and replant it")
+            .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Click a crop with a hoe to harvest it and replant it (combines with miner card 3x3)")
             .build()),
     MINER(CardDefinition.builder("miner", "minning natural blocks", CardGroup.MISC, MinerEffects::new)
             .addRarity(RarityLevel.EPIC, 0.001f, true, "Vein mine up to " + MinerEffects.VEIN_MINE_BLOCK_COUNT + " adjacent blocks of the same type with the correct tool (ores, logs, etc.)")

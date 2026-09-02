@@ -5,8 +5,7 @@
     "minecraft:raw_copper_block",
     "minecraft:raw_gold_block",
 
-    "#minecraft:overworld_natural_logs",
-    "#c:natural_logs/nether",
+    "#c:natural_logs",
     "minecraft:mangrove_roots",
 
     "#minecraft:leaves",

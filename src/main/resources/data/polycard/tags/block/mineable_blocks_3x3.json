@@ -14,7 +14,7 @@
     "minecraft:magma_block",
 
     "#c:end_stones",
-    "#c:obsidians/normal",
+    "minecraft:obsidian",
 
     "#minecraft:substrate_overworld",
 
