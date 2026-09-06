@@ -1,14 +1,14 @@
 package polycube.polycard.commands;
 
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
+import polycube.polycard.PolyCard;
 
 public class HelpCommand extends PolyCardCommand {
     public HelpCommand() {
         super(
                 "help",
-                "Displays a list of available commands and their descriptions",
+                "List the commands available to you",
                 "",
                 PermissionLevel.ALL
         );
@@ -16,13 +16,22 @@ public class HelpCommand extends PolyCardCommand {
 
     @Override
     protected int execute(CommandSourceStack source) {
-        StringBuilder helpMessage = new StringBuilder("\nAvailable commands:");
+        var helpMessage = CommandText.header("Commands")
+                .append("\nClick a command to put it in chat, or open its details for syntax and shortcuts.");
         for (PolyCardCommand command : PolyCardCommands.getCommands()) {
             if (hasPermission(source, command.getPermissionLevel())) {
-                helpMessage.append("\n").append(command.getFullDescription());
+                String root = "/" + PolyCard.MOD_ID + " " + command.getName();
+                helpMessage.append("\n\n  ").append(CommandText.action(root, root + " "));
+                if (command != this) {
+                    helpMessage.append(" ").append(CommandText.action("[Details]", root + " help"));
+                }
+                if (command.getPermissionLevel() != PermissionLevel.ALL) {
+                    helpMessage.append(CommandText.muted(" (Gamemasters only)"));
+                }
+                helpMessage.append("\n  " + command.getDescription());
             }
         }
-        source.sendSuccess(() -> Component.literal(helpMessage.toString()), false);
+        source.sendSuccess(() -> helpMessage, false);
         return 1;
     }
 }

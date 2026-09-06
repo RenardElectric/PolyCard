@@ -6,7 +6,6 @@ import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 
@@ -19,12 +18,14 @@ public final class PolyCardCommands {
 
     public static void registerCommands(PolyCardCommand... commands) {
         PolyCardCommands.commands = commands;
-        CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, _) -> {
             var baseCommand = Commands.literal(PolyCard.MOD_ID);
             baseCommand.executes(context -> printModInfo(context.getSource()));
             for (PolyCardCommand command : commands) {
-                baseCommand.then(command.getCommand());
-                if (command.hasAlias()) dispatcher.register(command.getCommand());
+                for (var commandAlias : command.getCommands(buildContext)) {
+                    baseCommand.then(commandAlias);
+                    if (command.hasQuickAlias()) dispatcher.register(commandAlias);
+                }
             }
             dispatcher.register(baseCommand);
             PolyCard.LOGGER.debug("Registered {} PolyCard subcommand(s)", commands.length);
@@ -38,7 +39,7 @@ public final class PolyCardCommands {
 
         if (optionalModData.isEmpty()) {
             PolyCard.LOGGER.warn("Could not find PolyCard metadata while handling the base command");
-            cst.sendFailure(Component.literal("Could not fetch mod information."));
+            cst.sendFailure(CommandText.error("Could not fetch mod information."));
             return 0;
         }
         var modData = optionalModData.get();
@@ -46,9 +47,11 @@ public final class PolyCardCommands {
                 .map(Person::getName)
                 .reduce((a, b) -> a + " and " + b)
                 .orElse("Unknown authors");
-        var modInfo = Component.literal("\n" + modData.getName() + " v" + modData.getVersion().getFriendlyString())
-                .append("\nMade by " + authors)
-                .append("\n" + modData.getDescription());
+        var modInfo = CommandText.header(modData.getName())
+                .append(CommandText.muted(" v" + modData.getVersion().getFriendlyString()))
+                .append(CommandText.field("Authors", CommandText.value(authors)))
+                .append("\n" + modData.getDescription())
+                .append("\n").append(CommandText.action("[View commands]", "/" + PolyCard.MOD_ID + " help"));
         cst.sendSuccess(() -> modInfo, false);
         return 1;
     }

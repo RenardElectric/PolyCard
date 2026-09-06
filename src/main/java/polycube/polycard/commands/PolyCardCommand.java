@@ -1,6 +1,8 @@
 package polycube.polycard.commands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -8,27 +10,32 @@ import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.PolyCard;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class PolyCardCommand {
     private final String name;
     private final String description;
     private final String usage;
     private final PermissionLevel permissionLevel;
-    private final boolean hasAlias;
+    private final boolean hasQuickAlias;
+    private final List<String> aliases;
 
     public PolyCardCommand(String name, String description, String usage, PermissionLevel permissionLevel) {
-        this.name = name;
-        this.description = description;
-        this.usage = usage;
-        this.permissionLevel = permissionLevel;
-        this.hasAlias = false;
+        this(name, description, usage, permissionLevel, false);
     }
 
-    public PolyCardCommand(String name, String description, String usage, PermissionLevel permissionLevel, boolean hasAlias) {
+    public PolyCardCommand(String name, String description, String usage, PermissionLevel permissionLevel, boolean hasQuickAlias) {
+        this(name, description, usage, permissionLevel, hasQuickAlias, List.of());
+    }
+
+    public PolyCardCommand(String name, String description, String usage, PermissionLevel permissionLevel, boolean hasQuickAlias, List<String> aliases) {
         this.name = name;
         this.description = description;
         this.usage = usage;
         this.permissionLevel = permissionLevel;
-        this.hasAlias = hasAlias;
+        this.hasQuickAlias = hasQuickAlias;
+        this.aliases = aliases;
     }
 
     protected String getName() {
@@ -36,41 +43,77 @@ public abstract class PolyCardCommand {
     }
 
     protected String getDescription() {
-        return description + (permissionLevel.id() == 0 ? "." : " (" + permissionLevel.getSerializedName() + " only).");
+        return description.endsWith(".") ? description : description + ".";
     }
 
-    protected String getUsage() {
-        return "/" + PolyCard.MOD_ID + " " + name + (usage.isBlank() ? "" : " " + usage) + (hasAlias ? " (alias: /" + name + ")" : "");
-    }
-
-    protected String getFullDescription() {
-        return "\n" + getUsage() + "\n    - " + getDescription();
+    protected Component getFullDescription() {
+        var message = CommandText.header("/" + PolyCard.MOD_ID + " " + name)
+                .append("\n" + getDescription());
+        if (permissionLevel != PermissionLevel.ALL) {
+            message.append(CommandText.muted(" (Gamemasters only)"));
+        }
+        message.append("\n\n").append(CommandText.muted("Usage"));
+        for (String variant : usage.split(" \\| ")) {
+            String fullCommand = "/" + PolyCard.MOD_ID + " " + name
+                    + (variant.isBlank() ? "" : " " + variant);
+            message.append("\n  ").append(CommandText.action(fullCommand, fullCommand));
+        }
+        if (hasQuickAlias) {
+            var shortcuts = new ArrayList<String>();
+            shortcuts.add("/" + name);
+            for (String alias : aliases) shortcuts.add("/" + alias);
+            message.append(CommandText.field("Shortcuts", CommandText.value(String.join(", ", shortcuts))));
+        }
+        if (usage.contains("<") || usage.contains("[")) {
+            message.append("\n").append(CommandText.muted("<...> required  •  [...] optional"));
+        }
+        return message;
     }
 
     protected PermissionLevel getPermissionLevel() {
         return this.permissionLevel;
     }
 
-    protected boolean hasAlias() {
-        return this.hasAlias;
+    protected boolean hasQuickAlias() {
+        return this.hasQuickAlias;
     }
 
-    public LiteralArgumentBuilder<CommandSourceStack> getCommand() {
+    protected List<String> getAliases() {
+        return this.aliases;
+    }
+
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand(String name) {
         return Commands.literal(name)
                 .requires(source -> hasPermission(source, permissionLevel))
                 .executes(e -> execute(e.getSource()))
                 .then(Commands.literal("help").executes(e -> {
-                    e.getSource().sendSuccess(() -> Component.literal(getFullDescription()), false);
+                    e.getSource().sendSuccess(this::getFullDescription, false);
                     return 1;
                 }));
+
+    }
+
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand(String name, CommandBuildContext buildContext) {
+        return getCommand(name);
+    }
+
+    public List<LiteralArgumentBuilder<CommandSourceStack>> getCommands(CommandBuildContext buildContext) {
+        var commands = new ArrayList<LiteralArgumentBuilder<CommandSourceStack>>();
+        var aliases = new ArrayList<>(getAliases());
+        aliases.add(name);
+        for (String alias : aliases) {
+            commands.add(getCommand(alias, buildContext));
+        }
+        return commands;
     }
 
     protected boolean hasPermission(CommandSourceStack source, PermissionLevel permissionLevel) {
         return source.permissions().hasPermission(new Permission.HasCommandLevel(permissionLevel));
     }
 
-    protected int execute(CommandSourceStack source) {
-        source.sendFailure(Component.literal("Incomplete command! Usage : " + getUsage()));
+    protected int execute(CommandSourceStack source) throws CommandSyntaxException {
+        source.sendFailure(CommandText.error("Incomplete command. Choose one of the forms below."));
+        source.sendSuccess(this::getFullDescription, false);
         return 0;
     }
 }

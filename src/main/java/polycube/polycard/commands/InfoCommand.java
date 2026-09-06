@@ -3,7 +3,6 @@ package polycube.polycard.commands;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -16,15 +15,15 @@ public class InfoCommand extends PolyCardCommand {
     public InfoCommand() {
         super(
                 "info",
-                "Get information about a specific card",
+                "Show how to acquire a card and list its rarity chances and effects",
                 "<cardGroup> <cardType>",
                 PermissionLevel.ALL
         );
     }
 
     @Override
-    public LiteralArgumentBuilder<CommandSourceStack> getCommand() {
-        return super.getCommand().then(
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand(String name) {
+        return super.getCommand(name).then(
                 Commands.argument(CardGroupArgument.NAME, StringArgumentType.word())
                         .suggests(CardGroupArgument::suggestGroups)
                         .then(
@@ -37,27 +36,25 @@ public class InfoCommand extends PolyCardCommand {
 
     protected int execute(CommandContext<CommandSourceStack> context) {
         if (CardGroupArgument.getType(context).isEmpty()) {
-            context.getSource().sendFailure(Component.literal("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
+            context.getSource().sendFailure(CommandText.error("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
             return 0;
         }
 
         var optionalCardType = CardTypeArgument.getType(context);
         if (optionalCardType.isPresent()) {
             var cardType = optionalCardType.get();
-            var message = Component.literal("\n" + cardType + " card");
-            message.append(
-                    Component.literal("\n(Acquired by " + cardType.getCondition() + ")")
-                            .withStyle(ChatFormatting.DARK_GRAY)
-            );
+            var message = CommandText.header("Card Details")
+                    .append(CommandText.field("Group", CommandText.value(cardType.getGroup())))
+                    .append(CommandText.field("Card", CommandText.value(cardType)))
+                    .append(CommandText.field("Acquired by", CommandText.value(cardType.getCondition())))
+                    .append(CommandText.field("Rarities", Component.empty()));
             for (var rarity : cardType.getRarities()) {
-                var rarityInfo = Component.literal(" - " + rarity.rarityLevel() + " (" + Helpers.probToStr(rarity.probability()) + "% independent roll chance)")
-                        .append(Component.literal(" : " + rarity.description()))
-                        .withStyle(rarity.rarityLevel().color());
-                message.append("\n").append(rarityInfo);
+                var details = rarity.getFormattedDescription().copy().append(CommandText.muted(" (" + Helpers.probToStr(rarity.probability()) + "% chance)"));
+                message.append(CommandText.indentedField(rarity.rarityLevel().toString(), details));
             }
             context.getSource().sendSuccess(() -> message, false);
         } else {
-            context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
+            context.getSource().sendFailure(CommandText.error("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
             return 0;
         }
 

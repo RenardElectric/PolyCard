@@ -13,6 +13,7 @@ import polycube.polycard.card.RarityLevel;
 import polycube.polycard.commands.commandArguments.CardGroupArgument;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.utils.CardHelpers;
+import polycube.polycard.utils.Helpers;
 
 import java.util.EnumMap;
 
@@ -23,15 +24,15 @@ public class TestCommand extends PolyCardCommand {
     public TestCommand() {
         super(
                 "test",
-                "Test the card rolling system",
+                "Simulate card rarity rolls",
                 "<cardGroup> <cardType> [cardsNumber]",
                 PermissionLevel.GAMEMASTERS
         );
     }
 
     @Override
-    public LiteralArgumentBuilder<CommandSourceStack> getCommand() {
-        return super.getCommand().then(
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand(String name) {
+        return super.getCommand(name).then(
                 Commands.argument(CardGroupArgument.NAME, StringArgumentType.word())
                         .suggests(CardGroupArgument::suggestGroups)
                         .then(
@@ -48,13 +49,13 @@ public class TestCommand extends PolyCardCommand {
 
     private int execute(CommandContext<CommandSourceStack> context, int cardsNumber) {
         if (CardGroupArgument.getType(context).isEmpty()) {
-            context.getSource().sendFailure(Component.literal("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
+            context.getSource().sendFailure(CommandText.error("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
             return 0;
         }
 
         var optionalCardType = CardTypeArgument.getType(context);
         if (optionalCardType.isEmpty()) {
-            context.getSource().sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
+            context.getSource().sendFailure(CommandText.error("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
             return 0;
         }
 
@@ -69,13 +70,26 @@ public class TestCommand extends PolyCardCommand {
                 none++;
             }
         }
-        var message = Component.literal("Rolls: none=" + none);
-        for (var rarityLevel : RarityLevel.values()) {
-            message.append(", " + rarityLevel.getSerializedName() + "=" + counts.getOrDefault(rarityLevel, 0));
+        var message = CommandText.header("Card Rolling Test")
+                .append(CommandText.field("Card", CommandText.value(cardType.toString())))
+                .append(CommandText.field("Rolls", CommandText.value(cardsNumber)))
+                .append(CommandText.field("Results", Component.empty()))
+                .append(CommandText.indentedField("None", formatResult(none, cardsNumber)));
+        for (var rarity : cardType.getRarities()) {
+            var rarityLevel = rarity.rarityLevel();
+            message.append(CommandText.indentedField(
+                    rarityLevel.toString(),
+                    formatResult(counts.getOrDefault(rarityLevel, 0), cardsNumber)
+            ));
         }
         context.getSource().sendSuccess(() -> message, false);
         PolyCard.LOGGER.debug("{} tested {} rolls for {}", context.getSource().getDisplayName(), cardsNumber, cardType);
 
         return 1;
+    }
+
+    private Component formatResult(int count, int total) {
+        return CommandText.value(count)
+                .append(CommandText.muted(" (" + Helpers.probToStr((double) count / total) + "%)"));
     }
 }

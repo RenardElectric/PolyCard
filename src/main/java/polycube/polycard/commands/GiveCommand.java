@@ -4,11 +4,9 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
@@ -23,15 +21,15 @@ public class GiveCommand extends PolyCardCommand {
     public GiveCommand() {
         super(
                 "give",
-                "Give a card to some players",
+                "Give a supported card to one or more players",
                 "<players> <cardGroup> <cardType> [rarityLevel]",
                 PermissionLevel.GAMEMASTERS
         );
     }
 
     @Override
-    public LiteralArgumentBuilder<CommandSourceStack> getCommand() {
-        return super.getCommand().then(
+    public LiteralArgumentBuilder<CommandSourceStack> getCommand(String name) {
+        return super.getCommand(name).then(
                 Commands.argument("player", EntityArgument.players())
                         .then(
                                 Commands.argument(CardGroupArgument.NAME, StringArgumentType.word())
@@ -55,14 +53,14 @@ public class GiveCommand extends PolyCardCommand {
         var players = EntityArgument.getPlayers(cts, "player");
 
         if (CardGroupArgument.getType(cts).isEmpty()) {
-            source.sendFailure(Component.literal("Invalid card group: " + StringArgumentType.getString(cts, CardGroupArgument.NAME)));
+            source.sendFailure(CommandText.error("Invalid card group: " + StringArgumentType.getString(cts, CardGroupArgument.NAME)));
             return 0;
         }
 
         var optionalCardType = CardTypeArgument.getType(cts);
 
         if (optionalCardType.isEmpty()) {
-            source.sendFailure(Component.literal("Invalid card type: " + StringArgumentType.getString(cts, CardTypeArgument.NAME)));
+            source.sendFailure(CommandText.error("Invalid card type: " + StringArgumentType.getString(cts, CardTypeArgument.NAME)));
             return 0;
         }
         var cardType = optionalCardType.get();
@@ -73,7 +71,7 @@ public class GiveCommand extends PolyCardCommand {
             var optionalRarityLevel = RarityLevelArgument.getRarity(cts);
 
             if (optionalRarityLevel.isEmpty()) {
-                source.sendFailure(Component.literal("Invalid rarity level: " + StringArgumentType.getString(cts, RarityLevelArgument.NAME)));
+                source.sendFailure(CommandText.error("Invalid rarity level: " + StringArgumentType.getString(cts, RarityLevelArgument.NAME)));
                 return 0;
             }
             rarityLevel = optionalRarityLevel.get();
@@ -81,15 +79,16 @@ public class GiveCommand extends PolyCardCommand {
 
         var optionalCard = Card.tryCreate(cardType, rarityLevel);
         if (optionalCard.isEmpty()) {
-            source.sendFailure(Component.literal(cardType + " does not support " + rarityLevel + " rarity."));
+            source.sendFailure(CommandText.error(cardType + " does not support " + rarityLevel + " rarity."));
             return 0;
         }
         var card = optionalCard.get();
 
         for (var player : players) {
             CardHelpers.giveCard(player, card);
-            source.sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Gave " + player.getName().getString() + " a ").append(card.getFormattedName()), true);
-            player.sendSystemMessage(Component.literal(ChatFormatting.GOLD + "You received a ").append(card.getFormattedName()));
+            source.sendSuccess(() -> CommandText.success("Gave " + player.getName().getString() + " a ")
+                    .append(card.getFormattedName()), true);
+            player.sendSystemMessage(CommandText.success("You received a ").append(card.getFormattedName()));
             PolyCard.LOGGER.debug("Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
         }
 
