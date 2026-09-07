@@ -40,6 +40,14 @@ public class CombineCommand extends PolyCardCommand {
             return 0;
         }
 
+        var inventory = player.getInventory();
+        if (mainItemStack.getCount() > Card.CARDS_FOR_NEXT_LEVEL
+                && inventory.getFreeSlot() == -1
+                && inventory.getSlotWithRemainingSpace(nextCard.get().asItem()) == -1) {
+            source.sendFailure(CommandText.error("Make room in your inventory before combining these cards."));
+            return 0;
+        }
+
         mainItemStack.shrink(Card.CARDS_FOR_NEXT_LEVEL);
         CardHelpers.giveCard(player, nextCard.get());
         source.sendSuccess(() -> CommandText.success("Combined " + Card.CARDS_FOR_NEXT_LEVEL + " cards into ")

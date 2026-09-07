@@ -64,13 +64,13 @@ public final class GoatEffects
 
     @Override
     public void afterEntityHurt(LivingEntity entity, ServerLevel level, DamageSource source, float damageDealt) {
-        if (source.getEntity() instanceof ServerPlayer player) {
+        if (source.getEntity() instanceof ServerPlayer player && source.getDirectEntity() == player && player.isSprinting()) {
             var rarity = equippedRarityLevel(player).orElse(null);
             if (rarity == null || !rarity.isAtLeast(RarityLevel.EPIC)) {
                 return;
             }
             var verticalVelocity = 0.0;
-            if (rarity.isAtLeast(RarityLevel.LEGENDARY) && sprintTicks.getOrDefault(player, 0) >= 0) {
+            if (rarity.isAtLeast(RarityLevel.LEGENDARY) && sprintTicks.getOrDefault(player, 0) >= LEGENDARY_SPRINT_DURATION) {
                 verticalVelocity = LEGENDARY_UPWARD_LAUNCH_VELOCITY;
             }
 

@@ -36,7 +36,7 @@ public class FarmerEffects extends CardEffects implements BlockEvents.UseItemOnC
                     BlockBreakHelpers.breakBlock(level, serverPlayer, blockPos, true, FarmerEffects::afterCropBreak);
                     MinerEffects.mine3x3(level, serverPlayer, blockPos, newState -> newState.is(block) && block.isMaxAge(newState), FarmerEffects::afterCropBreak, false);
                 } else if (HoeItem.TILLABLES.containsKey(blockState.getBlock()) && hasCardOrRarer(serverPlayer, RarityLevel.EPIC)) {
-                    hoe3x3(level, serverPlayer, blockPos, blockState);
+                    hoe3x3(level, serverPlayer, blockPos, blockState, interactionHand);
                 }
             }
         }
@@ -89,28 +89,31 @@ public class FarmerEffects extends CardEffects implements BlockEvents.UseItemOnC
         }
     }
 
-    public static void hoe3x3(Level level, ServerPlayer player, BlockPos pos, BlockState state) {
+    public static void hoe3x3(Level level, ServerPlayer player, BlockPos pos, BlockState state, InteractionHand hand) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 var newPos = pos.offset(i - 1, 0, j - 1);
                 if (!newPos.equals(pos)) {
                     var currentState = level.getBlockState(newPos);
                     if (currentState.is(state.getBlock())) {
-                        hoeBlock(level, player, newPos);
+                        hoeBlock(level, player, newPos, hand);
                     }
                 }
             }
         }
     }
 
-    public static void hoeBlock(Level level, ServerPlayer player, BlockPos pos) {
+    public static void hoeBlock(Level level, ServerPlayer player, BlockPos pos, InteractionHand hand) {
+        if (player.blockActionRestricted(level, pos, player.gameMode.getGameModeForPlayer())) {
+            return;
+        }
+
         Pair<Predicate<UseOnContext>, Consumer<UseOnContext>> logicPair = HoeItem.TILLABLES.get(level.getBlockState(pos).getBlock());
         if (logicPair == null) {
             return;
         }
 
-        var item = player.getActiveItem();
-        var hand = player.getMainHandItem().equals(item) ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        var item = player.getItemInHand(hand);
         UseOnContext context = new UseOnContext(level, player, hand, item, new BlockHitResult(Vec3.ZERO, Direction.UP, pos, false));
 
         Predicate<UseOnContext> predicate = logicPair.getFirst();

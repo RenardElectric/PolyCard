@@ -75,6 +75,11 @@ public final class PlayerData {
         return applyEquipment(player, playerData.equipment.equipOrReplace(card));
     }
 
+    /// Returns the equipped card that would be replaced without changing state.
+    public static Optional<Card> replacementFor(ServerPlayer player, Card card) {
+        return PolyCard.runtime().storage().getPlayerData(player).equipment.replacementFor(card);
+    }
+
     /// Atomically replaces the complete equipment set after validating every invariant.
     public static DataResult<EquipmentChange> setEquippedCards(ServerPlayer player, Collection<Card> cards) {
         return applyEquipment(player, Equipment.create(cards));

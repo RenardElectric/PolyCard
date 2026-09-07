@@ -71,12 +71,7 @@ public final class Equipment {
     /// Equips a card, atomically replacing another rarity of its type or mutex-group peer.
     public DataResult<Equipment> equipOrReplace(Card card) {
         var target = new ArrayList<>(cards());
-        var mutexGroup = card.cardType().getMutexGroup();
-        var replacedCard = target.stream()
-                .filter(equippedCard -> equippedCard.cardType() == card.cardType()
-                        || (!mutexGroup.isBlank()
-                        && equippedCard.cardType().getMutexGroup().equals(mutexGroup)))
-                .findFirst();
+        var replacedCard = replacementFor(card);
 
         if (replacedCard.filter(card::equals).isPresent()) {
             return DataResult.error(() -> card.cardType() + " is already equipped");
@@ -84,6 +79,16 @@ public final class Equipment {
         replacedCard.ifPresent(target::remove);
         target.add(card);
         return create(target);
+    }
+
+    /// Returns the card this card would replace by type or mutual-exclusion group.
+    public Optional<Card> replacementFor(Card card) {
+        var mutexGroup = card.cardType().getMutexGroup();
+        return cards().stream()
+                .filter(equippedCard -> equippedCard.cardType() == card.cardType()
+                        || (!mutexGroup.isBlank()
+                        && equippedCard.cardType().getMutexGroup().equals(mutexGroup)))
+                .findFirst();
     }
 
     /// Lowers an equipped card by one supported rarity, removing its minimum tier.

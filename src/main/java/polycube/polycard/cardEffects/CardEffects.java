@@ -108,6 +108,12 @@ public abstract class CardEffects extends EventHandler {
         return rarityLevel.flatMap(rarity -> Card.tryCreate(cardType(), rarity));
     }
 
+    /// Returns only the card owned by persistent equipment, excluding temporary overrides.
+    protected final Optional<Card> persistentCard(ServerPlayer player) {
+        return playerData(player).equippedRarityLevel(cardType())
+                .flatMap(rarity -> Card.tryCreate(cardType(), rarity));
+    }
+
     /// Returns whether another nearby player has this card type at the requested rarity or higher.
     public final boolean nearPlayerWithCard(ServerPlayer player, RarityLevel minRarityLevel, double distanceSquared) {
         var level = player.level();

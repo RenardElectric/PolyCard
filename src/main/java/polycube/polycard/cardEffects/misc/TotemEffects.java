@@ -26,9 +26,17 @@ public class TotemEffects extends CardEffects implements ServerLivingEntityEvent
                 }
             }
 
-            equippedCard(player).ifPresent(card -> {
+            persistentCard(player).ifPresent(card -> {
                 PlayerData.downgradeCard(player, card).mapOrElse(
-                        _ -> true,
+                        _ -> {
+                            offHandBackups.put(player, player.getItemInHand(InteractionHand.OFF_HAND));
+                            player.setItemInHand(InteractionHand.OFF_HAND, Items.TOTEM_OF_UNDYING.getDefaultInstance());
+                            PolyCard.LOGGER.debug(
+                                    "{} activated {} Totem-card protection; temporarily replaced the off-hand item",
+                                    player.getName().getString(), card.rarityLevel()
+                            );
+                            return true;
+                        },
                         error -> {
                             PolyCard.LOGGER.warn(
                                     "Failed to downgrade {} while protecting {} from death: {}",
@@ -36,13 +44,6 @@ public class TotemEffects extends CardEffects implements ServerLivingEntityEvent
                             );
                             return false;
                         }
-                );
-
-                offHandBackups.put(player, player.getItemInHand(InteractionHand.OFF_HAND));
-                player.setItemInHand(InteractionHand.OFF_HAND, Items.TOTEM_OF_UNDYING.getDefaultInstance());
-                PolyCard.LOGGER.debug(
-                        "{} activated {} Totem-card protection; temporarily replaced the off-hand item",
-                        player.getName().getString(), card.rarityLevel()
                 );
             });
 

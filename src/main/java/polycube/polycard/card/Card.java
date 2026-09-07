@@ -145,6 +145,8 @@ public record Card(CardType cardType, RarityLevel rarityLevel) {
 
     /// Reads a concrete Card from an ItemStack's custom data.
     public static Optional<Card> getCard(ItemStack item) {
+        if (!item.is(CARD_ITEM)) return Optional.empty();
+
         var cardType = getCardType(item);
         var rarity = getCardRarity(item);
         return cardType.flatMap(type -> rarity.flatMap(rarityLevel -> tryCreate(type, rarityLevel)));

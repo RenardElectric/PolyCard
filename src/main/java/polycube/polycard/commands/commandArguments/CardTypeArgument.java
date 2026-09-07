@@ -17,7 +17,8 @@ public final class CardTypeArgument {
 
     public static <S> Optional<CardType> getType(final CommandContext<S> context) {
         String id = context.getArgument(NAME, String.class);
-        return CardType.deserialize(id);
+        var group = CardGroupArgument.getType(context);
+        return group.flatMap(cardGroup -> CardType.deserialize(id).filter(cardType -> cardType.getGroup() == cardGroup));
     }
 
     public static <S> CompletableFuture<Suggestions> suggestCards(final CommandContext<S> context, final SuggestionsBuilder builder) {

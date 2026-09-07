@@ -24,7 +24,7 @@ public final class LifeEffects extends CardEffects implements ServerLivingEntity
     @Override
     public void afterDeath(LivingEntity entity, DamageSource damageSource) {
         if (entity instanceof ServerPlayer player) {
-            equippedCard(player).ifPresent(card ->
+            persistentCard(player).ifPresent(card ->
                     PlayerData.downgradeCard(player, card).mapOrElse(
                     _ -> {
                         PolyCard.LOGGER.debug("{} lost one Life-card tier after death ({})", player.getName().getString(), card);

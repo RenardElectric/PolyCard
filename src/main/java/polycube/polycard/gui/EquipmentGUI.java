@@ -1,6 +1,7 @@
 package polycube.polycard.gui;
 
 import eu.pb4.sgui.api.gui.SimpleGui;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,6 +33,8 @@ public final class EquipmentGUI extends SimpleGui {
     static {
         CardEventCallback.EQUIPPED.register((player, _) -> markOpenGuisDirty(player));
         CardEventCallback.UNEQUIPPED.register((player, _) -> markOpenGuisDirty(player));
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, _, _) -> closeOpenGuisInvolving(oldPlayer));
+        ServerPlayerEvents.LEAVE.register(EquipmentGUI::closeOpenGuisInvolving);
     }
 
     private final ServerPlayer targetPlayer;
@@ -79,6 +82,18 @@ public final class EquipmentGUI extends SimpleGui {
         var openGuis = OPEN_GUIS.get(player.getUUID());
         if (openGuis != null) {
             openGuis.forEach(EquipmentGUI::markDirty);
+        }
+    }
+
+    private static void closeOpenGuisInvolving(ServerPlayer player) {
+        var playerId = player.getUUID();
+        var openGuis = OPEN_GUIS.values().stream()
+                .flatMap(Set::stream)
+                .filter(gui -> gui.targetPlayer.getUUID().equals(playerId) || gui.getPlayer().getUUID().equals(playerId))
+                .toList();
+        for (var gui : openGuis) {
+            gui.close();
+            gui.unregister();
         }
     }
 

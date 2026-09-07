@@ -29,15 +29,28 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
         }
 
         var card = Card.getCard(item);
-        if (card.isEmpty()) return InteractionResult.PASS;
-        return equipCard(item, player, card.orElseThrow());
+        return card.map(value -> equipCard(item, player, hand, value)).orElse(InteractionResult.PASS);
     }
 
-    private InteractionResult equipCard(ItemStack item, ServerPlayer player, Card card) {
+    private InteractionResult equipCard(ItemStack item, ServerPlayer player, InteractionHand hand, Card card) {
+        var replacedCard = PlayerData.replacementFor(player, card).filter(equippedCard -> !equippedCard.equals(card));
+        if (item.getCount() > 1 && replacedCard.isPresent()) {
+            var returnedStack = replacedCard.get().asItem();
+            var inventory = player.getInventory();
+            if (inventory.getFreeSlot() == -1 && inventory.getSlotWithRemainingSpace(returnedStack) == -1) {
+                Helpers.SendFailure(player, Component.literal("Failed to equip card: make room for the replaced card."));
+                return InteractionResult.FAIL;
+            }
+        }
+
         return PlayerData.equipOrReplaceCard(player, card).mapOrElse(
                 change -> {
                     item.shrink(1);
-                    change.unequipped().forEach(replacedCard -> player.getInventory().placeItemBackInInventory(replacedCard.asItem()));
+                    if (item.isEmpty() && change.unequipped().size() == 1) {
+                        player.setItemInHand(hand, change.unequipped().getFirst().asItem());
+                    } else {
+                        change.unequipped().forEach(unequippedCard -> player.getInventory().placeItemBackInInventory(unequippedCard.asItem()));
+                    }
                     Helpers.SendSuccess(player, Component.literal("Equipped card: ").append(card.getFormattedName()));
                     Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
                     PolyCard.LOGGER.debug("{} equipped card: {}", player.getName().getString(), card);

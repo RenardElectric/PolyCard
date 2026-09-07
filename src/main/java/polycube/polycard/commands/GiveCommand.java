@@ -92,6 +92,6 @@ public class GiveCommand extends PolyCardCommand {
             PolyCard.LOGGER.debug("Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
         }
 
-        return 1;
+        return players.size();
     }
 }

@@ -64,7 +64,8 @@ public class NetherEffects extends CardEffects implements PlayerTickEventCallbac
             if (config != null) {
                 var data = config.respawnData();
                 var dimension = data.dimension();
-                var isBed = player.level().getBlockState(data.pos()).getBlock() instanceof BedBlock;
+                var respawnLevel = player.level().getServer().getLevel(dimension);
+                var isBed = respawnLevel != null && respawnLevel.getBlockState(data.pos()).getBlock() instanceof BedBlock;
                 if (dimension.equals(Level.NETHER) && isBed) {
                     player.setRespawnPosition(null, false);
                     player.sendSystemMessage(Component.literal("Your respawn point in the nether has been removed because you unequipped a Legendary Nether Card."));
