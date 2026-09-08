@@ -88,7 +88,7 @@ Follow [Installing PolyCard](#installing-polycard).
 | **Passive** | `cow`, `squid`, `chicken`, `bat`, `horse`, `turtle`                                          |
 | **Neutral** | `iron_golem`, `enderman`, `piglin`, `zombified_piglin`, `bee`, `wolf`, `goat`                |
 | **Hostile** | `ender_dragon`, `wither`, `zombie`, `creeper`, `elder_werewolf`, `alpha_werewolf`, `phantom` |
-| **Misc**    | `inventory`, `life`, `totem`, `lucky`, `nether`, `spectator`, `farmer`, `miner`              |
+| **Misc**    | `inventory`, `life`, `totem`, `lucky`, `nether`, `spectator`, `farmer`, `miner`, `radom`     |
 
 Card types do not all begin at Common or support every rarity. The in-game info command is the
 authoritative guide for each card's available tiers and effects.

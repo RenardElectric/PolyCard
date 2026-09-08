@@ -40,8 +40,12 @@ public final class CardHelpers {
     }
 
     /// Creates a concrete card if any supported rarity roll succeeds.
-    public static Optional<Card> createCard(CardType card, @Nullable ServerPlayer player) {
-        return getRandomRarityLevel(card, player).flatMap(rarityLevel -> Card.tryCreate(card, rarityLevel));
+    public static Optional<Card> createCard(CardType cardType, @Nullable ServerPlayer player) {
+        return getRandomRarityLevel(cardType, player).flatMap(rarityLevel -> {
+            var card = getRandomRarityLevel(CardType.RANDOM, player).flatMap(randomRarityLevel -> Card.tryCreate(CardType.RANDOM, randomRarityLevel));
+            if (card.isEmpty()) card = Card.tryCreate(cardType, rarityLevel);
+            return card;
+        });
     }
 
     /// Independently rolls each rarity and returns the last tier whose roll meets its threshold.

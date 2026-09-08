@@ -5,38 +5,34 @@ import com.google.common.collect.Multimap;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.events.callBacks.PlayerTickEventCallback;
 import polycube.polycard.utils.EffectHelpers;
+import polycube.polycard.utils.Helpers;
 
 import static polycube.polycard.utils.Helpers.decimalFormat;
 
 public class RandomEffects extends CardEffects implements ServerTickEvents.EndTick, PlayerTickEventCallback {
 
-    public static final int TICK_INTERVAL = 20 * 60 * 5;
+    public static final int TICK_INTERVAL = 20 * 5;
 
-    private static final RandomEffect[] RANDOM_EFFECTS = new RandomEffect[]{
-            new Effect("Strength Boost", MobEffects.STRENGTH, 1),
-            new Effect("Regeneration", MobEffects.REGENERATION, 1),
-            new Effect("Invisibility", MobEffects.INVISIBILITY, 0),
-            new Attribut("Size Increase", "scale_up", Attributes.SCALE, 1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),
-            new Attribut("Size Decrease", "scale_down", Attributes.SCALE, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),
+    private static final Effect[] RANDOM_EFFECTS = new Effect[]{
+            new RandomEffect(),
+            new RandomAttribute(),
     };
 
     private long tickCounter = 0;
-    private final PlayerState<RandomEffect> randomEffect = new PlayerState<>();
+    private final PlayerState<Effect> randomEffect = new PlayerState<>();
 
     @Override
     public void onEndTick(MinecraftServer server) {
@@ -67,12 +63,12 @@ public class RandomEffects extends CardEffects implements ServerTickEvents.EndTi
             if (playerEffect != null && playerEffect.eachTick()) playerEffect.apply(player);
 
             if (tickCounter % TICK_INTERVAL == 0) {
-                RandomEffect newEffect = RANDOM_EFFECTS[player.getRandom().nextInt(RANDOM_EFFECTS.length)];
+                Effect newEffect = RANDOM_EFFECTS[player.getRandom().nextInt(RANDOM_EFFECTS.length)];
                 var previousEffect = replaceRandomEffect(player, newEffect);
                 player.sendSystemMessage(
                         Component.literal("You have been granted a random effect for " + decimalFormat(TICK_INTERVAL/1200.0) + " minutes: ")
                                 .withStyle(ChatFormatting.GREEN)
-                                .append(newEffect.name())
+                                .append(Component.literal(newEffect.name()).withStyle(ChatFormatting.AQUA))
                 );
                 if (previousEffect == null) {
                     PolyCard.LOGGER.debug("Granted {} temporary random effect {}", player.getName().getString(), newEffect.name());
@@ -91,53 +87,102 @@ public class RandomEffects extends CardEffects implements ServerTickEvents.EndTi
         }
     }
 
-    private @Nullable RandomEffect revokeRandomEffect(ServerPlayer player) {
+    private @Nullable Effect revokeRandomEffect(ServerPlayer player) {
         return replaceRandomEffect(player, null);
     }
 
-    private @Nullable RandomEffect replaceRandomEffect(ServerPlayer player, @Nullable RandomEffect replacement) {
+    private @Nullable Effect replaceRandomEffect(ServerPlayer player, @Nullable Effect replacement) {
         var previous = randomEffect.get(player);
         if (previous == null && replacement == null) return null;
 
         if (replacement == null) randomEffect.remove(player);
         else randomEffect.put(player, replacement);
 
-        if (replacement != previous) {
-            if (previous != null) previous.remove(player);
-            if (replacement != null) replacement.apply(player);
-        }
+        if (previous != null) previous.remove(player);
+        if (replacement != null) replacement.apply(player);
         return previous;
     }
 
 
-    private interface RandomEffect {
+    private interface Effect {
         String name();
         boolean eachTick();
         void apply(ServerPlayer player);
         void remove(ServerPlayer player);
     }
 
-    private record Effect(String name, Holder<MobEffect> effect, int amplifier) implements RandomEffect {
+    private static class RandomEffect implements Effect {
+
+        private @Nullable Holder<MobEffect> effect;
+        private int amplifier;
+        private String operationName = "Unknown";
+
         @Override
-        public void apply(ServerPlayer player) {EffectHelpers.refreshPersistentEffect(player, effect, amplifier);}
+        public void apply(ServerPlayer player) {
+            if (effect == null) {
+                effect = BuiltInRegistries.MOB_EFFECT.getRandom(player.getRandom()).orElse(null);
+                if (effect == null) return;
+                amplifier = player.getRandom().nextInt(5);
+                operationName = " " + (amplifier + 1);
+            }
+            EffectHelpers.refreshPersistentEffect(player, effect, amplifier);
+        }
+
         @Override
-        public void remove(ServerPlayer player) {}
+        public void remove(ServerPlayer player) {
+            effect = null;
+            amplifier = 0;
+            operationName = "Unknown";
+        }
+
+        @Override
+        public String name() {
+            if (effect == null) return operationName;
+            var id = BuiltInRegistries.MOB_EFFECT.getKey(effect.value());
+            if (id == null) return operationName;
+            return Helpers.identifierToTitleCase(id.getPath()) + " " + operationName;
+        }
+
         @Override
         public boolean eachTick() {return true;}
     }
 
-    private record Attribut(String name, String id, Holder<Attribute> attribute, double modifier, AttributeModifier.Operation operation) implements RandomEffect {
+    private static class RandomAttribute implements Effect {
+
+        private String operationName = "Unknown";
+        @SuppressWarnings("NullableProblems")
+        private final Multimap<Holder<Attribute>, AttributeModifier> map = HashMultimap.create();
+
         @Override
-        public void apply(ServerPlayer player) {player.getAttributes().addTransientAttributeModifiers(getMap());}
+        public void apply(ServerPlayer player) {
+            if (map.isEmpty()) {
+                var attribute = BuiltInRegistries.ATTRIBUTE.getRandom(player.getRandom());
+                if (attribute.isEmpty()) return;
+                var modifier = Math.clamp(player.getRandom().nextGaussian() + 1, -1, 5);
+                operationName += " x" + Helpers.decimalFormat(1 + modifier);
+                map.put(attribute.get(), new AttributeModifier(Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "random_attribute"), modifier, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            }
+            player.getAttributes().addTransientAttributeModifiers(map);
+        }
         @Override
-        public void remove(ServerPlayer player) {player.getAttributes().removeAttributeModifiers(getMap());}
+        public void remove(ServerPlayer player) {
+            player.getAttributes().removeAttributeModifiers(map);
+            map.clear();
+            operationName = "Unknown";
+        }
+
+        @Override
+        public String name() {
+            if (map.isEmpty()) return operationName;
+            var attribute = map.keySet().stream().findFirst().map(Holder::value).orElse(null);
+            if (attribute == null) return operationName;
+            var id = BuiltInRegistries.ATTRIBUTE.getKey(attribute);
+            if (id == null) return operationName;
+            var path = id.getPath();
+            return Helpers.identifierToTitleCase(path) + " " + operationName;
+        }
+
         @Override
         public boolean eachTick() {return false;}
-
-        private Multimap<Holder<Attribute>, AttributeModifier> getMap() {
-            Multimap<Holder<Attribute>, AttributeModifier> map = HashMultimap.create(1, 1);
-            map.put(attribute, new AttributeModifier(Identifier.fromNamespaceAndPath(PolyCard.MOD_ID, "random_effect_" + id), modifier, operation));
-            return map;
-        }
     }
 }

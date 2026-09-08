@@ -59,7 +59,7 @@ public enum CardType implements StringRepresentable {
     // Neutral
 
     IRON_GOLEM(CardDefinition.builder("iron_golem", " summoning an iron golem", CardGroup.NEUTRAL, IronGolemEffects::new)
-            .addRarity(RarityLevel.RARE, 0.10f, false, probToStr(IronGolemEffects.RESISTANCE_ON_ATTACKED_PROBABILITY) + "% chance to gain resistance " + (IronGolemEffects.RESISTANCE_AMPLIFIER + 1) + " for " + IronGolemEffects.RESISTANCE_DURATION / 20 + "s when attacked")
+            .addRarity(RarityLevel.RARE, 0.1f, false, probToStr(IronGolemEffects.RESISTANCE_ON_ATTACKED_PROBABILITY) + "% chance to gain resistance " + (IronGolemEffects.RESISTANCE_AMPLIFIER + 1) + " for " + IronGolemEffects.RESISTANCE_DURATION / 20 + "s when attacked")
             .addRarity(RarityLevel.EPIC, 0.025f, true, "Hitting with fist knock back enemies (" + IronGolemEffects.KNOCKBACK_HIT_COOLDOWN / 20 + "s cooldown)")
             .addRarity(RarityLevel.LEGENDARY, 0.004f, true, "Falling creates shock wave (" + IronGolemEffects.SHOCKWAVE_COOLDOWN / 20 + "s cooldown)")
             .build()),
@@ -195,8 +195,8 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.EPIC, 0.1f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .addRarity(RarityLevel.LEGENDARY, 0.1f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .build()),
-    RANDOM(CardDefinition.builder("random", "TODO", CardGroup.MISC, RandomEffects::new)
-            .addRarity(RarityLevel.LEGENDARY, 0.01f, true, "Gives you a random effect or attribut each "+ decimalFormat(RandomEffects.TICK_INTERVAL/1200.0) + " minutes")
+    RANDOM(CardDefinition.builder("random", "acquiring a card (this card replaces the card that was rolled)", CardGroup.MISC, RandomEffects::new)
+            .addRarity(RarityLevel.LEGENDARY, 1f, true, "Gives you a random effect or attribut each "+ decimalFormat(RandomEffects.TICK_INTERVAL/1200.0) + " minutes")
             .build());
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
