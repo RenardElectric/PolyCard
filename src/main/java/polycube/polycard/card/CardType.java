@@ -194,6 +194,9 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.RARE, 0.1f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .addRarity(RarityLevel.EPIC, 0.1f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .addRarity(RarityLevel.LEGENDARY, 0.1f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
+            .build()),
+    RANDOM(CardDefinition.builder("random", "TODO", CardGroup.MISC, RandomEffects::new)
+            .addRarity(RarityLevel.LEGENDARY, 0.01f, true, "Gives you a random effect or attribut each "+ decimalFormat(RandomEffects.TICK_INTERVAL/1200.0) + " minutes")
             .build());
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
