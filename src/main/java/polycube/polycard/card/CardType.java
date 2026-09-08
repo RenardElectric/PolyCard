@@ -187,6 +187,13 @@ public enum CardType implements StringRepresentable {
     MINER(CardDefinition.builder("miner", "minning natural blocks", CardGroup.MISC, MinerEffects::new)
             .addRarity(RarityLevel.EPIC, 0.001f, true, "Vein mine up to " + MinerEffects.VEIN_MINE_BLOCK_COUNT + " adjacent blocks of the same type with the correct tool (ores, logs, etc.)")
             .addRarity(RarityLevel.LEGENDARY, 0.0005f, true, "Mine a 3x3 area of blocks of the same type with the correct tool (stones and other natural blocks)")
+            .build()),
+    LOOT(CardDefinition.builder("loot", "TODO", CardGroup.MISC, LootEffects::new)
+            .addRarity(RarityLevel.COMMON, 0.1f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
+            .addRarity(RarityLevel.UNCOMMON, 0.1f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
+            .addRarity(RarityLevel.RARE, 0.1f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
+            .addRarity(RarityLevel.EPIC, 0.1f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
+            .addRarity(RarityLevel.LEGENDARY, 0.1f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .build());
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);

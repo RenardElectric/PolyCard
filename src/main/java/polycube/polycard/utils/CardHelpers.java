@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
@@ -18,7 +19,7 @@ public final class CardHelpers {
 
     /// Rolls for a card of this type and gives it to the player if the roll succeeds.
     public static void receiveCard(ServerPlayer player, CardType cardType) {
-        createCard(cardType).ifPresent(
+        createCard(cardType, player).ifPresent(
                 card -> {
                     giveCard(player, card);
                     PolyCard.LOGGER.debug("{} received a card: {}", player.getName(), card);
@@ -39,12 +40,12 @@ public final class CardHelpers {
     }
 
     /// Creates a concrete card if any supported rarity roll succeeds.
-    public static Optional<Card> createCard(CardType card) {
-        return getRandomRarityLevel(card).flatMap(rarityLevel -> Card.tryCreate(card, rarityLevel));
+    public static Optional<Card> createCard(CardType card, @Nullable ServerPlayer player) {
+        return getRandomRarityLevel(card, player).flatMap(rarityLevel -> Card.tryCreate(card, rarityLevel));
     }
 
     /// Independently rolls each rarity and returns the last tier whose roll meets its threshold.
-    public static Optional<RarityLevel> getRandomRarityLevel(CardType cardType) {
-        return cardType.getRarityDistribution().select(ThreadLocalRandom.current());
+    public static Optional<RarityLevel> getRandomRarityLevel(CardType cardType, @Nullable ServerPlayer player) {
+        return cardType.getRarityDistribution().select(cardType, player, ThreadLocalRandom.current());
     }
 }

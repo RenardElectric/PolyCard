@@ -1,6 +1,9 @@
 package polycube.polycard.card;
 
+import net.minecraft.server.level.ServerPlayer;
 import org.jspecify.annotations.Nullable;
+import polycube.polycard.events.callBacks.CardProbabilityOverrideCallback;
+import polycube.polycard.events.callBacks.EquippedRarityLevelOverrideCallback;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -74,10 +77,13 @@ public final class RarityDistribution {
     }
 
     /// Independently rolls every rarity and returns the last one whose roll meets its threshold.
-    public Optional<RarityLevel> select(Random random) {
+    public Optional<RarityLevel> select(CardType cardType, @Nullable ServerPlayer player, Random random) {
         RarityLevel selected = null;
         for (var rarity : rarities) {
-            if (random.nextFloat() < rarity.probability()) {
+            var proba = rarity.probability();
+            if (player != null) proba = CardProbabilityOverrideCallback.EVENT.invoker().cardProbabilityOverride(player, cardType, rarity.rarityLevel(), proba);
+
+            if (random.nextFloat() < proba) {
                 selected = rarity.rarityLevel();
             }
         }

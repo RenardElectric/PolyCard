@@ -63,7 +63,7 @@ public class TestCommand extends PolyCardCommand {
         int none = 0;
         var counts = new EnumMap<RarityLevel, Integer>(RarityLevel.class);
         for (int i = 0; i < cardsNumber; i++) {
-            var rarity = CardHelpers.getRandomRarityLevel(cardType);
+            var rarity = CardHelpers.getRandomRarityLevel(cardType, null);
             if (rarity.isPresent()) {
                 counts.merge(rarity.get(), 1, Integer::sum);
             } else {

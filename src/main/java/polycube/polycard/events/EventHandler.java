@@ -57,6 +57,8 @@ public class EventHandler {
             of(PlayerSecondEventCallback.class, PlayerSecondEventCallback.EVENT),
 
             of(EquippedRarityLevelOverrideCallback.class, EquippedRarityLevelOverrideCallback.EVENT),
+            of(CardProbabilityOverrideCallback.class, CardProbabilityOverrideCallback.EVENT),
+
             of(GetBedRuleEventCallback.class, GetBedRuleEventCallback.EVENT),
             of(KeepInventoryEventCallback.class, KeepInventoryEventCallback.EVENT),
             of(AllowPhantomSpawnEventCallback.class, AllowPhantomSpawnEventCallback.EVENT),
