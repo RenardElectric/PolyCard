@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/RenardElectric/polycard/releases/latest"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/RenardElectric/polycard"></a>
-  <img alt="Minecraft 26.2" src="https://img.shields.io/badge/Minecraft-26.2-3C8527">
+  <img alt="Minecraft 26.3" src="https://img.shields.io/badge/Minecraft-26.3-3C8527">
   <img alt="Fabric Loader 0.19.3 or newer" src="https://img.shields.io/badge/Fabric%20Loader-0.19.3%2B-DBD0B4">
   <img alt="Java 25" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&amp;logoColor=white">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/github/license/RenardElectric/polycard"></a>
@@ -140,16 +140,16 @@ The total chance to receive any card is therefore **25.6%**.
 
 | Component     | Current requirement                                            |
 |---------------|----------------------------------------------------------------|
-| Minecraft     | `26.2`                                                         |
+| Minecraft     | `26.3`                                                         |
 | Java          | `25` or newer                                                  |
 | Fabric Loader | `0.19.3` or newer                                              |
-| Fabric API    | `0.159.0+26.2` or newer compatible build                       |
+| Fabric API    | `0.160.0+26.3` or newer compatible build                       |
 | SGUI          | Bundled inside the PolyCard JAR; no separate download required |
 
 ### Installing PolyCard
 
 1. Install Java 25.
-2. Install the Minecraft 26.2 version of [Fabric Loader](https://fabricmc.net/use/) for your game or
+2. Install the Minecraft 26.3 version of [Fabric Loader](https://fabricmc.net/use/) for your game or
    dedicated server.
 3. Open that game instance or server directory and create a folder named `mods` if it is not present.
 4. Download [Fabric API](https://modrinth.com/mod/fabric-api) and place its JAR in the `mods` folder.
