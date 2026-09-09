@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.world.attribute.BedRule;
 import net.minecraft.world.entity.player.Player;
+import org.jspecify.annotations.Nullable;
 
 /// Callback for overriding the bed rule for a player.
 public interface GetBedRuleEventCallback {
@@ -17,5 +18,5 @@ public interface GetBedRuleEventCallback {
             }
     );
 
-    BedRule getBedRule(Player player, BedRule original);
+    BedRule getBedRule(@Nullable Player player, BedRule original);
 }

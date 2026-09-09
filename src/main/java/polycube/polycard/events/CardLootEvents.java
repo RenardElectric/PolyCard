@@ -32,7 +32,7 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.zombie.*;
@@ -91,7 +91,7 @@ public class CardLootEvents
     public void onPlayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {
         switch (entity) {
             case ZombieVillager _, Husk _, Drowned _ -> {}
-            case EnderMan _ -> CardHelpers.receiveCard(player, CardType.ENDERMAN);
+            case Enderman _ -> CardHelpers.receiveCard(player, CardType.ENDERMAN);
             case Squid _ -> CardHelpers.receiveCard(player, CardType.SQUID);
             case Piglin _ -> CardHelpers.receiveCard(player, CardType.PIGLIN);
             case ZombifiedPiglin _ -> CardHelpers.receiveCard(player, CardType.ZOMBIFIED_PIGLIN);

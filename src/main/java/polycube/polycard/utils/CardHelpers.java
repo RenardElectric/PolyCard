@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Prediction;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
@@ -35,7 +36,7 @@ public final class CardHelpers {
 
     /// Gives a concrete card item and plays pickup feedback.
     public static void giveCard(ServerPlayer player, Card card) {
-        player.getInventory().placeItemBackInInventory(card.asItem());
+        player.getInventory().placeItemBackInInventory(card.asItem(), Prediction.SERVER_ONLY);
         Helpers.playSound(player, SoundEvents.ITEM_PICKUP);
     }
 

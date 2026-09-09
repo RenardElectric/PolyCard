@@ -6,11 +6,11 @@ import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.CardType;
 
-import java.util.List;
+import java.util.Optional;
 
 public final class LootHelpers {
 
@@ -36,7 +36,7 @@ public final class LootHelpers {
     /// Converts an ItemStackTemplate to a LootItem.Builder, applying count and component functions as needed.
     public static LootItem.Builder<?> lootItemFromTemplate(ItemStackTemplate template) {
         return LootItem.lootTableItem(template.item().value())
-                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(template.count())))
-                .apply(() -> new SetComponentsFunction(List.of(), template.components()));
+                .apply(SetItemCountFunction.setCount(ContextIntProviders.exactly(template.count())))
+                .apply(() -> new SetComponentsFunction(Optional.empty(), template.components()));
     }
 }

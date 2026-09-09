@@ -64,7 +64,7 @@ public class DataGenerator implements DataGeneratorEntrypoint {
             );
 
             var rootAdvancementBuilder = Advancement.Builder.advancement()
-                    .display(
+                    .rootDisplay(
                             iconItem,
                             Component.literal("PolyCard"),
                             Component.literal("Collect all cards in the PolyCard mod"),
@@ -91,7 +91,6 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                                 ),
                                 Component.literal(cardGroup + " Cards"),
                                 Component.literal("Collect all " + cardGroup + " Cards"),
-                                null,
                                 AdvancementType.CHALLENGE,
                                 true,
                                 true,
@@ -153,7 +152,6 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                             ),
                             Component.literal(cardType + " Cards"),
                             Component.literal("Collect all " + cardType + " Cards by " + cardType.getCondition()),
-                            null,
                             AdvancementType.GOAL,
                             true,
                             true,
@@ -181,7 +179,6 @@ public class DataGenerator implements DataGeneratorEntrypoint {
                                 item,
                                 Component.literal(card.toString()),
                                 Component.literal("Collect the ").append(Component.literal(card.toString()).withStyle(rarityLevel.color())),
-                                null,
                                 rarityLevel == RarityLevel.LEGENDARY ? AdvancementType.CHALLENGE : AdvancementType.TASK,
                                 true,
                                 rarityLevel == RarityLevel.LEGENDARY,

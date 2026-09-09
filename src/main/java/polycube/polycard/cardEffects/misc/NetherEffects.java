@@ -8,6 +8,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
+import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.card.RarityLevel;
@@ -28,12 +29,12 @@ public class NetherEffects extends CardEffects implements PlayerTickEventCallbac
     }
 
     @Override
-    public BedRule getBedRule(Player player, BedRule original) {
+    public BedRule getBedRule(@Nullable Player player, BedRule original) {
         if (player instanceof ServerPlayer serverPlayer && hasCardOrRarer(serverPlayer, RarityLevel.LEGENDARY)) {
             if (player.level().dimension().equals(Level.NETHER)) {
-                return new BedRule(BedRule.Rule.NEVER, BedRule.Rule.ALWAYS, false, Optional.empty());
+                return new BedRule(BedRule.Rule.NEVER, BedRule.Rule.ALWAYS, false, false, Optional.empty());
             } else if (player.level().dimension().equals(Level.OVERWORLD)) {
-                return new BedRule(BedRule.Rule.NEVER, BedRule.Rule.NEVER, false, Optional.of(Component.literal("You cannot sleep and set your respawn point in the Overworld while you have a Legendary Nether Card.")));
+                return new BedRule(BedRule.Rule.NEVER, BedRule.Rule.NEVER, false, false, Optional.of(Component.literal("You cannot sleep and set your respawn point in the Overworld while you have a Legendary Nether Card.")));
             }
         }
         return original;

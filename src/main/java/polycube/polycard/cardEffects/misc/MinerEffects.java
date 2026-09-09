@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
@@ -33,19 +34,19 @@ public class MinerEffects extends CardEffects implements PlayerBlockBreakEvents.
 
     @Override
     public void afterBlockBreak(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity) {
-        if (player instanceof ServerPlayer serverPlayer) {
+        if (player instanceof ServerPlayer serverPlayer && level instanceof ServerLevel serverLevel) {
             var tool = player.getActiveItem().get(DataComponents.TOOL);
             if (!player.isShiftKeyDown() && tool != null && tool.isCorrectForDrops(state)) {
                 if (state.is(VEIN_MINABLE_BLOCKS) && hasCardOrRarer(serverPlayer, RarityLevel.EPIC)) {
-                    veinMine(level, serverPlayer, pos, newState -> newState.is(state.getBlock()), QadriConsumer.empty());
+                    veinMine(serverLevel, serverPlayer, pos, newState -> newState.is(state.getBlock()), QadriConsumer.empty());
                 } else if (state.is(MINABLE_BLOCKS_3X3) && hasCardOrRarer(serverPlayer, RarityLevel.LEGENDARY)) {
-                    mine3x3(level, serverPlayer, pos, newState -> newState.is(state.getBlock()), QadriConsumer.empty(), true);
+                    mine3x3(serverLevel, serverPlayer, pos, newState -> newState.is(state.getBlock()), QadriConsumer.empty(), true);
                 }
             }
         }
     }
 
-    public static void mine3x3(Level level, ServerPlayer player, BlockPos pos, Predicate<BlockState> shouldMine, QadriConsumer<Level, ServerPlayer, BlockPos, BlockState> onBreak, boolean directional) {
+    public static void mine3x3(ServerLevel level, ServerPlayer player, BlockPos pos, Predicate<BlockState> shouldMine, QadriConsumer<Level, ServerPlayer, BlockPos, BlockState> onBreak, boolean directional) {
         Vec3 directionToPlayer = player.getEyePosition().subtract(Vec3.atCenterOf(pos));
         var direction = Direction.getApproximateNearest(directionToPlayer);
         if (!directional) direction = Direction.UP;
@@ -67,7 +68,7 @@ public class MinerEffects extends CardEffects implements PlayerBlockBreakEvents.
         }
     }
 
-    public static void veinMine(Level level, ServerPlayer player, BlockPos pos, Predicate<BlockState> shouldMine, QadriConsumer<Level, ServerPlayer, BlockPos, BlockState> onBreak) {
+    public static void veinMine(ServerLevel level, ServerPlayer player, BlockPos pos, Predicate<BlockState> shouldMine, QadriConsumer<Level, ServerPlayer, BlockPos, BlockState> onBreak) {
         var posToMine = new HashSet<BlockPos>();
         var posToExplore = new HashSet<BlockPos>();
         posToExplore.add(pos);

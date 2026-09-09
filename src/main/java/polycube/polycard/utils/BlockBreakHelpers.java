@@ -2,10 +2,12 @@ package polycube.polycard.utils;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -15,7 +17,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 public final class BlockBreakHelpers {
     private BlockBreakHelpers() {}
 
-    public static void breakBlock(Level level, ServerPlayer player, BlockPos pos, boolean swingHand, QadriConsumer<Level, ServerPlayer, BlockPos, BlockState> onBreak) {
+    public static void breakBlock(ServerLevel level, ServerPlayer player, BlockPos pos, boolean swingHand, QadriConsumer<Level, ServerPlayer, BlockPos, BlockState> onBreak) {
         //code from ServerPlayerGameMode::destroyBlock;
         var itemStack = player.getActiveItem();
         BlockState state = level.getBlockState(pos);
@@ -41,7 +43,7 @@ public final class BlockBreakHelpers {
         }
 
         if (swingHand) {
-            player.swing(player.getUsedItemHand(), true);
+            player.swing(player.getUsedItemHand(), SwingAnimation.DEFAULT, true);
         }
 
         if (player.preventsBlockDrops()) {

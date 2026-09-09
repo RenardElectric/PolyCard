@@ -8,9 +8,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.attribute.BedRule;
-import net.minecraft.world.attribute.EnvironmentAttribute;
-import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractBedBlock;
 import net.minecraft.world.level.gamerules.GameRule;
 import net.minecraft.world.level.gamerules.GameRules;
 import org.jspecify.annotations.Nullable;
@@ -55,17 +55,9 @@ public abstract class ServerPlayerMixin {
     }
 
 
-    @WrapOperation(method = "findRespawnAndUseSpawnBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/attribute/EnvironmentAttributeSystem;getValue(Lnet/minecraft/world/attribute/EnvironmentAttribute;Lnet/minecraft/core/BlockPos;)Ljava/lang/Object;"))
-    private static Object getBedRuleStatic(EnvironmentAttributeSystem instance, EnvironmentAttribute<BedRule> environmentAttribute, BlockPos blockPos, Operation<Object> original) {
-        if (player == null) {
-            return original.call(instance, environmentAttribute, blockPos);
-        }
-        return GetBedRuleEventCallback.EVENT.invoker().getBedRule(player, (BedRule) original.call(instance, environmentAttribute, blockPos));
-    }
-
-    @WrapOperation(method = "startSleepInBed", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/attribute/EnvironmentAttributeSystem;getValue(Lnet/minecraft/world/attribute/EnvironmentAttribute;Lnet/minecraft/core/BlockPos;)Ljava/lang/Object;"))
-    private Object getBedRule(EnvironmentAttributeSystem instance, EnvironmentAttribute<BedRule> environmentAttribute, BlockPos blockPos, Operation<Object> original) {
-        return GetBedRuleEventCallback.EVENT.invoker().getBedRule((ServerPlayer) (Object) this, (BedRule) original.call(instance, environmentAttribute, blockPos));
+    @WrapOperation(method = "findRespawnAndUseSpawnBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/AbstractBedBlock;getBedRule(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/attribute/BedRule;"))
+    private static BedRule getBedRuleStatic(AbstractBedBlock instance, Level level, BlockPos pos, Operation<BedRule> original) {
+        return GetBedRuleEventCallback.EVENT.invoker().getBedRule(player, original.call(instance, level, pos));
     }
 
     @WrapOperation(method = "restoreFrom", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/gamerules/GameRules;get(Lnet/minecraft/world/level/gamerules/GameRule;)Ljava/lang/Object;"))

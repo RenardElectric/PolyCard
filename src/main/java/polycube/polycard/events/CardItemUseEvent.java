@@ -3,6 +3,7 @@ package polycube.polycard.events;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
@@ -49,7 +50,7 @@ public class CardItemUseEvent extends EventHandler implements ItemUseEventCallba
                     if (item.isEmpty() && change.unequipped().size() == 1) {
                         player.setItemInHand(hand, change.unequipped().getFirst().asItem());
                     } else {
-                        change.unequipped().forEach(unequippedCard -> player.getInventory().placeItemBackInInventory(unequippedCard.asItem()));
+                        change.unequipped().forEach(unequippedCard -> player.getInventory().placeItemBackInInventory(unequippedCard.asItem(), Prediction.SERVER_ONLY));
                     }
                     Helpers.SendSuccess(player, Component.literal("Equipped card: ").append(card.getFormattedName()));
                     Helpers.playSound(player, SoundEvents.BUNDLE_INSERT);
