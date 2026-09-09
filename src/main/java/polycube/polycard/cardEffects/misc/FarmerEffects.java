@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.player.BlockEvents;
 import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -13,6 +14,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CropBlock;
@@ -30,11 +32,11 @@ import java.util.function.Predicate;
 public class FarmerEffects extends CardEffects implements BlockEvents.UseItemOnCallback {
     @Override
     public @Nullable InteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            if (itemStack.getItem() instanceof HoeItem) {
+        if (player instanceof ServerPlayer serverPlayer && level instanceof ServerLevel serverLevel) {
+            if (itemStack.is(Items.COPPER_HOE)) {
                 if (blockState.getBlock() instanceof CropBlock block && block.isMaxAge(blockState) && hasCardOrRarer(serverPlayer, RarityLevel.LEGENDARY)) {
-                    BlockBreakHelpers.breakBlock(level, serverPlayer, blockPos, true, FarmerEffects::afterCropBreak);
-                    MinerEffects.mine3x3(level, serverPlayer, blockPos, newState -> newState.is(block) && block.isMaxAge(newState), FarmerEffects::afterCropBreak, false);
+                    BlockBreakHelpers.breakBlock(serverLevel, serverPlayer, blockPos, true, FarmerEffects::afterCropBreak);
+                    MinerEffects.mine3x3(serverLevel, serverPlayer, blockPos, newState -> newState.is(block) && block.isMaxAge(newState), FarmerEffects::afterCropBreak, false);
                 } else if (HoeItem.TILLABLES.containsKey(blockState.getBlock()) && hasCardOrRarer(serverPlayer, RarityLevel.EPIC)) {
                     hoe3x3(level, serverPlayer, blockPos, blockState, interactionHand);
                 }
@@ -109,17 +111,29 @@ public class FarmerEffects extends CardEffects implements BlockEvents.UseItemOnC
         }
 
         Pair<Predicate<UseOnContext>, Consumer<UseOnContext>> logicPair = HoeItem.TILLABLES.get(level.getBlockState(pos).getBlock());
-        if (logicPair == null) {
-            return;
-        }
-
         var item = player.getItemInHand(hand);
         UseOnContext context = new UseOnContext(level, player, hand, item, new BlockHitResult(Vec3.ZERO, Direction.UP, pos, false));
+
+        if (logicPair == null) {
+            // Fallback: if mapping removed some tillable entries, try invoking the hoe's useOn logic directly.
+            try {
+                InteractionResult res = item.useOn(context);
+                if (res != null && res.consumesAction()) {
+                    level.playSound(null, pos, SoundEvents.HOE_TILL.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
+                    if (!level.isClientSide()) {
+                        item.hurtAndBreak(1, player, hand.asEquipmentSlot());
+                    }
+                }
+            } catch (Exception ignored) {
+                // If direct use fails, nothing we can do — silently ignore to avoid crashes.
+            }
+            return;
+        }
 
         Predicate<UseOnContext> predicate = logicPair.getFirst();
         Consumer<UseOnContext> action = logicPair.getSecond();
         if (predicate.test(context)) {
-            level.playSound(player, pos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.playSound(null, pos, SoundEvents.HOE_TILL.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
             if (!level.isClientSide()) {
                 action.accept(context);
                 item.hurtAndBreak(1, player, hand.asEquipmentSlot());

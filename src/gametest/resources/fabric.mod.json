@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "polycard-gametest",
+  "version": "1.0.0",
+  "name": "PolyCard Game Tests",
+  "environment": "server",
+  "entrypoints": {
+    "fabric-gametest": [
+      "polycube.polycard.gametest.EffectHelpersGameTests"
+    ]
+  },
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": "*",
+    "polycard": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}
