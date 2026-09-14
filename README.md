@@ -13,7 +13,7 @@
   <img alt="Minecraft 26.3" src="https://img.shields.io/badge/Minecraft-26.3-3C8527">
   <img alt="Fabric Loader 0.19.3 or newer" src="https://img.shields.io/badge/Fabric%20Loader-0.19.3%2B-DBD0B4">
   <img alt="Java 25" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&amp;logoColor=white">
-  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/github/license/RenardElectric/polycard"></a>
+  <a href="LICENSE.txt"><img alt="MIT License" src="https://img.shields.io/github/license/RenardElectric/polycard"></a>
 </p>
 
 <p align="center">
@@ -253,4 +253,4 @@ Before submitting a change, run both build commands above and confirm there are 
 
 PolyCard is made by **RenardElectric** and **Timeo** for the PolyCube Team.
 
-This project is available under the [MIT License](LICENSE).
+This project is available under the [MIT License](LICENSE.txt).
