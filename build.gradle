@@ -1,6 +1,5 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
-//	id "net.ltgt.errorprone" version "${error_prone_plugin_version}"
 }
 
 version = mod_version
@@ -39,6 +38,13 @@ fabricApi {
 	configureDataGeneration() {
 		client = true
 	}
+
+	configureTests() {
+		createSourceSet = true
+		modId = "polycard-gametest"
+		enableClientGameTests = false
+		eula = true
+	}
 }
 
 dependencies {
@@ -47,10 +53,6 @@ dependencies {
 	implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 	implementation "eu.pb4:sgui:${sgui_version}"
 	include "eu.pb4:sgui:${sgui_version}"
-
-//	errorprone "com.uber.nullaway:nullaway:${null_away_version}"
-//	api "org.jspecify:jspecify:1.0.0"
-//	errorprone "com.google.errorprone:error_prone_core:${error_prone_version}"
 }
 
 processResources {
@@ -69,19 +71,11 @@ processResources {
 	}
 }
 
-//import net.ltgt.gradle.errorprone.CheckSeverity
-
 def targetJavaVersion = java_version as int
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = "UTF-8"
 	options.release = targetJavaVersion
 	options.compilerArgs.add("-Xlint:all,-classfile")
-
-//	options.errorprone {
-//		check("NullAway", CheckSeverity.ERROR)
-//		option("NullAway:AnnotatedPackages", "polycube.polycard")
-//		option("NullAway:UnannotatedClasses", "net.minecraft.world.level.saveddata.SavedDataType")
-//	}
 }
 
 java {

@@ -6,7 +6,13 @@
   "environment": "server",
   "entrypoints": {
     "fabric-gametest": [
-      "polycube.polycard.gametest.EffectHelpersGameTests"
+      "polycube.polycard.gametest.CardDomainGameTests",
+      "polycube.polycard.gametest.CommandAndGuiGameTests",
+      "polycube.polycard.gametest.AcquisitionGameTests",
+      "polycube.polycard.gametest.CardEffectGameTests",
+      "polycube.polycard.gametest.EffectHelpersGameTests",
+      "polycube.polycard.gametest.RuntimeUtilitiesGameTests",
+      "polycube.polycard.gametest.TransactionGameTests"
     ]
   },
   "depends": {
