@@ -96,7 +96,7 @@ public final class AcquisitionGameTests {
     }
 
     @GameTest
-    public void playerKillsAwardExactMobCardsAndExcludeZombieVariants(GameTestHelper helper) {
+    public void playerKillsAwardExactMobCardsAndRouteZombieVariantsToLoot(GameTestHelper helper) {
         var player = GameTestSupport.player(helper);
         var events = new CardLootEvents();
         var expected = new LinkedHashMap<EntityType<?>, CardType>();
@@ -115,10 +115,8 @@ public final class AcquisitionGameTests {
                         player, create(helper, entry.getKey()), player.damageSources().generic()));
             }
             for (var excluded : List.of(EntityTypes.ZOMBIE_VILLAGER, EntityTypes.HUSK, EntityTypes.DROWNED)) {
-                player.getInventory().clearContent();
-                events.onPlayerKill(player, create(helper, excluded), player.damageSources().generic());
-                helper.assertTrue(cards(player).isEmpty(),
-                        excluded + " must not count as the base Zombie acquisition");
+                assertAward(helper, player, CardType.LOOT, () -> events.onPlayerKill(
+                        player, create(helper, excluded), player.damageSources().generic()));
             }
         });
         player.discard();
