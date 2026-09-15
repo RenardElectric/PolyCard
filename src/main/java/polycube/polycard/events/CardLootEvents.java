@@ -89,8 +89,8 @@ public class CardLootEvents
 
     @Override
     public void onPlayerKill(ServerPlayer player, Entity entity, DamageSource killingBlow) {
-        switch (entity) {
-            case ZombieVillager _, Husk _, Drowned _ -> {}
+        var wasLooted = switch (entity) {
+            case ZombieVillager _, Husk _, Drowned _ -> false;
             case Enderman _ -> CardHelpers.receiveCard(player, CardType.ENDERMAN);
             case Squid _ -> CardHelpers.receiveCard(player, CardType.SQUID);
             case Piglin _ -> CardHelpers.receiveCard(player, CardType.PIGLIN);
@@ -99,8 +99,9 @@ public class CardLootEvents
             case Bat _ -> CardHelpers.receiveCard(player, CardType.BAT);
             case Creeper _ -> CardHelpers.receiveCard(player, CardType.CREEPER);
             case Phantom _ -> CardHelpers.receiveCard(player, CardType.PHANTOM);
-            default -> {}
-        }
+            default -> false;
+        };
+        if (!wasLooted) CardHelpers.receiveCard(player, CardType.LOOT);
     }
 
     @Override

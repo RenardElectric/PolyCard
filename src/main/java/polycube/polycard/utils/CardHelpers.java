@@ -19,8 +19,8 @@ public final class CardHelpers {
     private CardHelpers() {}
 
     /// Rolls for a card of this type and gives it to the player if the roll succeeds.
-    public static void receiveCard(ServerPlayer player, CardType cardType) {
-        createCard(cardType, player).ifPresent(
+    public static boolean receiveCard(ServerPlayer player, CardType cardType) {
+        return createCard(cardType, player).map(
                 card -> {
                     giveCard(player, card);
                     PolyCard.LOGGER.debug("{} received a card: {}", player.getName(), card);
@@ -30,8 +30,9 @@ public final class CardHelpers {
                                     .append(" card!")
                                     .withStyle(ChatFormatting.GREEN)
                     );
+                    return true;
                 }
-        );
+        ).orElse(false);
     }
 
     /// Gives a concrete card item and plays pickup feedback.
