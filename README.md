@@ -143,7 +143,7 @@ The total chance to receive any card is therefore **25.6%**.
 | Minecraft     | `26.3`                                                         |
 | Java          | `25` or newer                                                  |
 | Fabric Loader | `0.19.5` or newer                                              |
-| Fabric API    | `0.160.5+26.3` or newer compatible build                       |
+| Fabric API    | `0.161.0+26.3` or newer compatible build                       |
 | SGUI          | Bundled inside the PolyCard JAR; no separate download required |
 
 ### Installing PolyCard

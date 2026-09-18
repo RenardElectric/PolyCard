@@ -16,6 +16,7 @@ import polycube.polycard.commands.*;
 import polycube.polycard.events.CardItemUseEvent;
 import polycube.polycard.events.CardLootEvents;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
+import polycube.polycore.commands.PolyCommands;
 
 import java.util.Objects;
 
@@ -65,24 +66,19 @@ public class PolyCard implements ModInitializer {
             return ItemUseEventCallback.EVENT.invoker().onItemUse(serverPlayer, level, hand);
         });
 
-        PolyCardCommand[] commands = {
-                new HelpCommand(),
+        PolyCommands.registerCommands(
+                MOD_ID,
+                "PolyCard",
+                LOGGER,
                 new InfoCommand(),
                 new EquipCommand(),
                 new CombineCommand(),
                 new GiveCommand(),
                 new TestCommand(),
                 new CooldownCommand()
-        };
-        PolyCardCommands.registerCommands(commands);
+        );
 
         new CardItemUseEvent().registerCallbacks();
         new CardLootEvents().registerCallbacks();
-
-        LOGGER.info(
-                "Initialized PolyCard (cardTypes={}, subcommands={})",
-                CardType.values().length,
-                commands.length
-        );
     }
 }

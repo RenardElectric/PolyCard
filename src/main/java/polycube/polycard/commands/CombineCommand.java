@@ -5,11 +5,14 @@ import net.minecraft.server.permissions.PermissionLevel;
 import polycube.polycard.PolyCard;
 import polycube.polycard.card.Card;
 import polycube.polycard.utils.CardHelpers;
+import polycube.polycore.commands.PolyCommand;
+import polycube.polycore.text.TextComponents;
 
-public class CombineCommand extends PolyCardCommand {
+public class CombineCommand extends PolyCommand {
 
     public CombineCommand() {
         super(
+                PolyCard.MOD_ID,
                 "combine",
                 "Combine " + Card.CARDS_FOR_NEXT_LEVEL + " matching cards held in your main hand into one card of the next rarity",
                 "",
@@ -23,20 +26,20 @@ public class CombineCommand extends PolyCardCommand {
         var player = source.getPlayer();
 
         if (player == null) {
-            source.sendFailure(CommandText.error("This command can only be executed by a player."));
+            source.sendFailure(TextComponents.error("This command can only be executed by a player."));
             return 0;
         }
 
         var mainItemStack = player.getMainHandItem();
         var card = Card.getCard(mainItemStack);
         if (mainItemStack.isEmpty() || card.isEmpty() || mainItemStack.getCount() < Card.CARDS_FOR_NEXT_LEVEL) {
-            source.sendFailure(CommandText.error("You must be holding at least " + Card.CARDS_FOR_NEXT_LEVEL + " cards in your main hand to combine them."));
+            source.sendFailure(TextComponents.error("You must be holding at least " + Card.CARDS_FOR_NEXT_LEVEL + " cards in your main hand to combine them."));
             return 0;
         }
 
         var nextCard = card.get().next();
         if (nextCard.isEmpty()) {
-            source.sendFailure(CommandText.error("The cards you are trying to combine are already at the highest rarity level."));
+            source.sendFailure(TextComponents.error("The cards you are trying to combine are already at the highest rarity level."));
             return 0;
         }
 
@@ -44,13 +47,13 @@ public class CombineCommand extends PolyCardCommand {
         if (mainItemStack.getCount() > Card.CARDS_FOR_NEXT_LEVEL
                 && inventory.getFreeSlot() == -1
                 && inventory.getSlotWithRemainingSpace(nextCard.get().asItem()) == -1) {
-            source.sendFailure(CommandText.error("Make room in your inventory before combining these cards."));
+            source.sendFailure(TextComponents.error("Make room in your inventory before combining these cards."));
             return 0;
         }
 
         mainItemStack.shrink(Card.CARDS_FOR_NEXT_LEVEL);
         CardHelpers.giveCard(player, nextCard.get());
-        source.sendSuccess(() -> CommandText.success("Combined " + Card.CARDS_FOR_NEXT_LEVEL + " cards into ")
+        source.sendSuccess(() -> TextComponents.success("Combined " + Card.CARDS_FOR_NEXT_LEVEL + " cards into ")
                 .append(nextCard.get().getFormattedName()), false);
         PolyCard.LOGGER.debug("{} combined {} into {}", player.getName().getString(), card.get(), nextCard.get());
         return 1;

@@ -15,11 +15,14 @@ import polycube.polycard.commands.commandArguments.CardGroupArgument;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.commands.commandArguments.RarityLevelArgument;
 import polycube.polycard.utils.CardHelpers;
+import polycube.polycore.commands.PolyCommand;
+import polycube.polycore.text.TextComponents;
 
-public class GiveCommand extends PolyCardCommand {
+public class GiveCommand extends PolyCommand {
 
     public GiveCommand() {
         super(
+                PolyCard.MOD_ID,
                 "give",
                 "Give a supported card to one or more players",
                 "<players> <cardGroup> <cardType> [rarityLevel]",
@@ -53,14 +56,14 @@ public class GiveCommand extends PolyCardCommand {
         var players = EntityArgument.getPlayers(cts, "player");
 
         if (CardGroupArgument.getType(cts).isEmpty()) {
-            source.sendFailure(CommandText.error("Invalid card group: " + StringArgumentType.getString(cts, CardGroupArgument.NAME)));
+            source.sendFailure(TextComponents.error("Invalid card group: " + StringArgumentType.getString(cts, CardGroupArgument.NAME)));
             return 0;
         }
 
         var optionalCardType = CardTypeArgument.getType(cts);
 
         if (optionalCardType.isEmpty()) {
-            source.sendFailure(CommandText.error("Invalid card type: " + StringArgumentType.getString(cts, CardTypeArgument.NAME)));
+            source.sendFailure(TextComponents.error("Invalid card type: " + StringArgumentType.getString(cts, CardTypeArgument.NAME)));
             return 0;
         }
         var cardType = optionalCardType.get();
@@ -71,7 +74,7 @@ public class GiveCommand extends PolyCardCommand {
             var optionalRarityLevel = RarityLevelArgument.getRarity(cts);
 
             if (optionalRarityLevel.isEmpty()) {
-                source.sendFailure(CommandText.error("Invalid rarity level: " + StringArgumentType.getString(cts, RarityLevelArgument.NAME)));
+                source.sendFailure(TextComponents.error("Invalid rarity level: " + StringArgumentType.getString(cts, RarityLevelArgument.NAME)));
                 return 0;
             }
             rarityLevel = optionalRarityLevel.get();
@@ -79,16 +82,16 @@ public class GiveCommand extends PolyCardCommand {
 
         var optionalCard = Card.tryCreate(cardType, rarityLevel);
         if (optionalCard.isEmpty()) {
-            source.sendFailure(CommandText.error(cardType + " does not support " + rarityLevel + " rarity."));
+            source.sendFailure(TextComponents.error(cardType + " does not support " + rarityLevel + " rarity."));
             return 0;
         }
         var card = optionalCard.get();
 
         for (var player : players) {
             CardHelpers.giveCard(player, card);
-            source.sendSuccess(() -> CommandText.success("Gave " + player.getName().getString() + " a ")
+            source.sendSuccess(() -> TextComponents.success("Gave " + player.getName().getString() + " a ")
                     .append(card.getFormattedName()), true);
-            player.sendSystemMessage(CommandText.success("You received a ").append(card.getFormattedName()));
+            player.sendSystemMessage(TextComponents.success("You received a ").append(card.getFormattedName()));
             PolyCard.LOGGER.debug("Admin {} gave {} a {}", source.getDisplayName(), player.getName(), card);
         }
 
