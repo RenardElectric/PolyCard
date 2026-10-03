@@ -7,7 +7,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
-import polycube.polycard.PolyCard;
 import polycube.polycard.commands.commandArguments.CardGroupArgument;
 import polycube.polycard.commands.commandArguments.CardTypeArgument;
 import polycube.polycard.utils.Helpers;
@@ -17,10 +16,8 @@ import polycube.polycore.text.TextComponents;
 public class InfoCommand extends PolyCommand {
     public InfoCommand() {
         super(
-                PolyCard.MOD_ID,
                 "info",
                 "Show how to acquire a card and list its rarity chances and effects",
-                "<cardGroup> <cardType>",
                 PermissionLevel.ALL
         );
     }
@@ -40,14 +37,14 @@ public class InfoCommand extends PolyCommand {
 
     protected int execute(CommandContext<CommandSourceStack> context) {
         if (CardGroupArgument.getType(context).isEmpty()) {
-            context.getSource().sendFailure(TextComponents.error("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
+            context.getSource().sendFailure(textComponents.error("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
             return 0;
         }
 
         var optionalCardType = CardTypeArgument.getType(context);
         if (optionalCardType.isPresent()) {
             var cardType = optionalCardType.get();
-            var message = TextComponents.header("Card Details")
+            var message = textComponents.header("Card Details")
                     .append(TextComponents.field("Group", TextComponents.value(cardType.getGroup())))
                     .append(TextComponents.field("Card", TextComponents.value(cardType)))
                     .append(TextComponents.field("Acquired by", TextComponents.value(cardType.getCondition())))
@@ -58,7 +55,7 @@ public class InfoCommand extends PolyCommand {
             }
             context.getSource().sendSuccess(() -> message, false);
         } else {
-            context.getSource().sendFailure(TextComponents.error("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
+            context.getSource().sendFailure(textComponents.error("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
             return 0;
         }
 

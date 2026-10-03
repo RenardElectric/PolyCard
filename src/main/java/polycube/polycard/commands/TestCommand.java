@@ -26,9 +26,7 @@ public class TestCommand extends PolyCommand {
     public TestCommand() {
         super(
                 PolyCard.MOD_ID,
-                "test",
                 "Simulate card rarity rolls",
-                "<cardGroup> <cardType> [cardsNumber]",
                 PermissionLevel.GAMEMASTERS
         );
     }
@@ -52,13 +50,13 @@ public class TestCommand extends PolyCommand {
 
     private int execute(CommandContext<CommandSourceStack> context, int cardsNumber) {
         if (CardGroupArgument.getType(context).isEmpty()) {
-            context.getSource().sendFailure(TextComponents.error("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
+            context.getSource().sendFailure(textComponents.error("Invalid card group: " + StringArgumentType.getString(context, CardGroupArgument.NAME)));
             return 0;
         }
 
         var optionalCardType = CardTypeArgument.getType(context);
         if (optionalCardType.isEmpty()) {
-            context.getSource().sendFailure(TextComponents.error("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
+            context.getSource().sendFailure(textComponents.error("Invalid card type: " + StringArgumentType.getString(context, CardTypeArgument.NAME)));
             return 0;
         }
 
@@ -73,7 +71,7 @@ public class TestCommand extends PolyCommand {
                 none++;
             }
         }
-        var message = TextComponents.header("Card Rolling Test")
+        var message = textComponents.header("Card Rolling Test")
                 .append(TextComponents.field("Card", TextComponents.value(cardType.toString())))
                 .append(TextComponents.field("Rolls", TextComponents.value(cardsNumber)))
                 .append(TextComponents.field("Results", Component.empty()))

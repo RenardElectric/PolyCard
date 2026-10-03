@@ -11,10 +11,8 @@ public class CooldownCommand extends PolyCommand {
 
     public CooldownCommand() {
         super(
-                PolyCard.MOD_ID,
                 "cooldown",
                 "Show your active card-effect cooldowns",
-                "",
                 PermissionLevel.ALL,
                 true
         );
@@ -25,12 +23,12 @@ public class CooldownCommand extends PolyCommand {
         var player = source.getPlayer();
 
         if (player == null) {
-            source.sendFailure(TextComponents.error("This command can only be executed by a player."));
+            source.sendFailure(textComponents.error("This command can only be executed by a player."));
             return 0;
         }
 
         var cooldowns = PolyCard.runtime().cooldowns().getCooldownsForPlayer(player);
-        var message = TextComponents.header("Cooldowns")
+        var message = textComponents.header("Cooldowns")
                 .append(TextComponents.field("Player", TextComponents.value(player.getName())));
         if (cooldowns.isEmpty()) {
             message.append(TextComponents.field("Active cooldowns", TextComponents.muted("None")));
