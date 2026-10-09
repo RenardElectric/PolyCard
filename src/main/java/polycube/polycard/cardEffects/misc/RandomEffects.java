@@ -11,6 +11,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jspecify.annotations.Nullable;
@@ -120,7 +121,9 @@ public class RandomEffects extends CardEffects implements ServerTickEvents.EndTi
         @Override
         public void apply(ServerPlayer player) {
             if (effect == null) {
-                effect = BuiltInRegistries.MOB_EFFECT.getRandom(player.getRandom()).orElse(null);
+                do {
+                    effect = BuiltInRegistries.MOB_EFFECT.getRandom(player.getRandom()).orElse(null);
+                } while (effect == MobEffects.INSTANT_DAMAGE);
                 if (effect == null) return;
                 amplifier = player.getRandom().nextInt(5);
                 operationName = " " + (amplifier + 1);
