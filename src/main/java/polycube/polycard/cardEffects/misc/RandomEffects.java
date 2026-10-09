@@ -24,7 +24,7 @@ import static polycube.polycard.utils.Helpers.decimalFormat;
 
 public class RandomEffects extends CardEffects implements ServerTickEvents.EndTick, PlayerTickEventCallback {
 
-    public static final int TICK_INTERVAL = 20 * 5;
+    public static final int TICK_INTERVAL = 20 * 60 * 5;
 
     private static final Effect[] RANDOM_EFFECTS = new Effect[]{
             new RandomEffect(),
