@@ -1,5 +1,6 @@
 package polycube.polycard.cardEffects.hostile;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -8,7 +9,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
@@ -51,10 +56,22 @@ public final class CreeperEffects
             PolyCard.LOGGER.debug("{} triggered an Epic Creeper-card blast after taking an accepted hit", player.getName().getString());
             activeExplosions.put(player, true);
             try {
-                level.explode(player, player.getX(), player.getY(), player.getZ(), EXPLOSION_RADIUS, false, Level.ExplosionInteraction.NONE);
+                level.explode(player, Explosion.getDefaultDamageSource(level, player), new MyExplosionDamageCalculator(), player.position(), EXPLOSION_RADIUS, false, Level.ExplosionInteraction.NONE);
             } finally {
                 activeExplosions.remove(player);
             }
+        }
+    }
+
+    private static class MyExplosionDamageCalculator extends ExplosionDamageCalculator {
+        @Override
+        public boolean shouldBlockExplode(Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, float power) {
+            return false;
+        }
+
+        @Override
+        public boolean shouldDamageEntity(Explosion explosion, Entity entity) {
+            return entity instanceof LivingEntity;
         }
     }
 
