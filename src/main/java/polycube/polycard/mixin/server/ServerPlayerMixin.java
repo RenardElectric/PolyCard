@@ -57,7 +57,7 @@ public abstract class ServerPlayerMixin {
 
     @WrapOperation(method = "findRespawnAndUseSpawnBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/AbstractBedBlock;getBedRule(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/attribute/BedRule;"))
     private static BedRule getBedRuleStatic(AbstractBedBlock instance, Level level, BlockPos pos, Operation<BedRule> original) {
-        return GetBedRuleEventCallback.EVENT.invoker().getBedRule(player, original.call(instance, level, pos));
+        return GetBedRuleEventCallback.EVENT.invoker().getBedRule(player, level, original.call(instance, level, pos));
     }
 
     @WrapOperation(method = "restoreFrom", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/gamerules/GameRules;get(Lnet/minecraft/world/level/gamerules/GameRule;)Ljava/lang/Object;"))

@@ -78,7 +78,7 @@ public abstract class PlayerMixin extends Avatar implements ContainerUser {
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/AbstractBedBlock;getBedRule(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/attribute/BedRule;"))
     private BedRule getBedRule(AbstractBedBlock instance, Level level, BlockPos pos, Operation<BedRule> original) {
-        return GetBedRuleEventCallback.EVENT.invoker().getBedRule((Player) (Object) this, original.call(instance, level, pos));
+        return GetBedRuleEventCallback.EVENT.invoker().getBedRule((Player) (Object) this, level, original.call(instance, level, pos));
     }
 
     @WrapOperation(method = "getBaseExperienceReward", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/gamerules/GameRules;get(Lnet/minecraft/world/level/gamerules/GameRule;)Ljava/lang/Object;"))

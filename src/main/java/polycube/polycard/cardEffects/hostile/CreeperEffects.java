@@ -14,6 +14,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gamerules.GameRules;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.PolyCard;
@@ -55,9 +56,12 @@ public final class CreeperEffects
                 && player.getRandom().nextFloat() < EXPLOSION_PROBABILITY) {
             PolyCard.LOGGER.debug("{} triggered an Epic Creeper-card blast after taking an accepted hit", player.getName().getString());
             activeExplosions.put(player, true);
+            var mobGriefing = level.getGameRules().get(GameRules.MOB_GRIEFING);
             try {
+                level.getGameRules().set(GameRules.MOB_GRIEFING, false, level.getServer());
                 level.explode(player, Explosion.getDefaultDamageSource(level, player), new MyExplosionDamageCalculator(), player.position(), EXPLOSION_RADIUS, false, Level.ExplosionInteraction.NONE);
             } finally {
+                level.getGameRules().set(GameRules.MOB_GRIEFING, mobGriefing, level.getServer());
                 activeExplosions.remove(player);
             }
         }
@@ -72,6 +76,11 @@ public final class CreeperEffects
         @Override
         public boolean shouldDamageEntity(Explosion explosion, Entity entity) {
             return entity instanceof LivingEntity;
+        }
+
+        @Override
+        public float getEntityDamageAmount(Explosion explosion, Entity entity, float exposure) {
+            return super.getEntityDamageAmount(explosion, entity, exposure);
         }
     }
 

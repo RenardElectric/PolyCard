@@ -21,11 +21,11 @@ public abstract class AbstractBedBlockMixin extends HorizontalDirectionalBlock {
 
     @WrapOperation(method = "useWithoutItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/AbstractBedBlock;getBedRule(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/attribute/BedRule;"))
     private BedRule allowSleepingInBed(AbstractBedBlock instance, Level level, BlockPos pos, Operation<BedRule> original, @Local(argsOnly = true, name = "player") Player player) {
-        return GetBedRuleEventCallback.EVENT.invoker().getBedRule(player, original.call(instance, level, pos));
+        return GetBedRuleEventCallback.EVENT.invoker().getBedRule(player, level, original.call(instance, level, pos));
     }
 
     @WrapOperation(method = "onStopSleeping", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/AbstractBedBlock;getBedRule(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/attribute/BedRule;"))
     private BedRule doesBedDestroy(AbstractBedBlock instance, Level level, BlockPos pos, Operation<BedRule> original) {
-        return GetBedRuleEventCallback.EVENT.invoker().getBedRule(null, original.call(instance, level, pos));
+        return GetBedRuleEventCallback.EVENT.invoker().getBedRule(null, level, original.call(instance, level, pos));
     }
 }

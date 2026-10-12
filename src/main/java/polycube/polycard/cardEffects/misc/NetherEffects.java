@@ -29,11 +29,11 @@ public class NetherEffects extends CardEffects implements PlayerTickEventCallbac
     }
 
     @Override
-    public BedRule getBedRule(@Nullable Player player, BedRule original) {
+    public BedRule getBedRule(@Nullable Player player, Level level, BedRule original) {
         if (player instanceof ServerPlayer serverPlayer && hasCardOrRarer(serverPlayer, RarityLevel.LEGENDARY)) {
-            if (player.level().dimension().equals(Level.NETHER)) {
+            if (level.dimension().equals(Level.NETHER)) {
                 return new BedRule(BedRule.Rule.NEVER, BedRule.Rule.ALWAYS, false, false, Optional.empty());
-            } else if (player.level().dimension().equals(Level.OVERWORLD)) {
+            } else if (level.dimension().equals(Level.OVERWORLD)) {
                 return new BedRule(BedRule.Rule.NEVER, BedRule.Rule.NEVER, false, false, Optional.of(Component.literal("You cannot sleep and set your respawn point in the Overworld while you have a Legendary Nether Card.")));
             }
         }

@@ -27,7 +27,6 @@ public final class CardHelpers {
                     player.sendSystemMessage(
                             Component.literal("✨ You found a ")
                                     .append(card.getFormattedName())
-                                    .append(" card!")
                                     .withStyle(ChatFormatting.GREEN)
                     );
                     return true;

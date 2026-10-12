@@ -107,7 +107,7 @@ public final class CardEffectGameTests {
                 "Legendary Nether must grant fire resistance");
 
         var originalRule = new BedRule(BedRule.Rule.ALWAYS, BedRule.Rule.ALWAYS, true, true, java.util.Optional.empty());
-        var netherRule = GetBedRuleEventCallback.EVENT.invoker().getBedRule(netherPlayer, originalRule);
+        var netherRule = GetBedRuleEventCallback.EVENT.invoker().getBedRule(netherPlayer, netherPlayer.level(), originalRule);
         helper.assertTrue(netherRule.canSleep() == BedRule.Rule.NEVER
                         && netherRule.canSetSpawn() == BedRule.Rule.NEVER,
                 "Legendary Nether must forbid Overworld sleeping and respawn placement");
