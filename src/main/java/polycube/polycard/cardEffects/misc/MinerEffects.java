@@ -32,16 +32,20 @@ public class MinerEffects extends CardEffects implements PlayerBlockBreakEvents.
 
     public static final int VEIN_MINE_BLOCK_COUNT = 16;
 
+    private final PlayerState<Boolean> ignoreState = new PlayerState<>();
+
     @Override
     public void afterBlockBreak(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity) {
         if (player instanceof ServerPlayer serverPlayer && level instanceof ServerLevel serverLevel) {
             var tool = player.getActiveItem().get(DataComponents.TOOL);
-            if (!player.isShiftKeyDown() && tool != null && tool.isCorrectForDrops(state)) {
+            if (!player.isShiftKeyDown() && tool != null && tool.isCorrectForDrops(state) && !ignoreState.getOrDefault(serverPlayer, false)) {
+                ignoreState.put(serverPlayer, true);
                 if (state.is(VEIN_MINABLE_BLOCKS) && hasCardOrRarer(serverPlayer, RarityLevel.EPIC)) {
                     veinMine(serverLevel, serverPlayer, pos, newState -> newState.is(state.getBlock()), QadriConsumer.empty());
                 } else if (state.is(MINABLE_BLOCKS_3X3) && hasCardOrRarer(serverPlayer, RarityLevel.LEGENDARY)) {
                     mine3x3(serverLevel, serverPlayer, pos, newState -> newState.is(state.getBlock()), QadriConsumer.empty(), true);
                 }
+                ignoreState.put(serverPlayer, false);
             }
         }
     }

@@ -1,11 +1,14 @@
 package polycube.polycard.utils;
 
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.Level;
@@ -21,7 +24,7 @@ public final class BlockBreakHelpers {
         //code from ServerPlayerGameMode::destroyBlock;
         var itemStack = player.getActiveItem();
         BlockState state = level.getBlockState(pos);
-        if (!itemStack.canDestroyBlock(state, level, pos, player)) {
+        if (!itemStack.canDestroyBlock(state, level, pos, player) || itemStack.isEmpty()) {
             return;
         }
 
@@ -32,12 +35,22 @@ public final class BlockBreakHelpers {
             return;
         }
 
+        boolean result = PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, pos, state, blockEntity);
+        if (!result) {
+            PlayerBlockBreakEvents.CANCELED.invoker().onBlockBreakCanceled(level, player, pos, state, blockEntity);
+            return;
+        }
+
         level.levelEvent(null, 2001, pos, Block.getId(state)); // Break particles and sound
+        if (state.is(BlockTags.GUARDED_BY_PIGLINS) && level instanceof ServerLevel serverLevel) {
+            PiglinAi.angerNearbyPiglins(serverLevel, player, false);
+        }
         level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(player, state));
 
         boolean changed = level.removeBlock(pos, false);
 
         if (changed) {
+            PlayerBlockBreakEvents.AFTER.invoker().afterBlockBreak(level, player, pos, state, blockEntity);
             block.destroy(level, pos, state);
             onBreak.accept(level, player, pos, state);
         }
