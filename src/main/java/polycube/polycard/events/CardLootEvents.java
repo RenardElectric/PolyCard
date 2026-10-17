@@ -33,6 +33,7 @@ import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Enderman;
+import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.zombie.*;
@@ -92,6 +93,7 @@ public class CardLootEvents
         var wasLooted = switch (entity) {
             case ZombieVillager _, Husk _, Drowned _ -> false;
             case Enderman _ -> CardHelpers.receiveCard(player, CardType.ENDERMAN);
+            case Endermite _ -> CardHelpers.receiveCard(player, CardType.ENDERMITE);
             case Squid _ -> CardHelpers.receiveCard(player, CardType.SQUID);
             case Piglin _ -> CardHelpers.receiveCard(player, CardType.PIGLIN);
             case ZombifiedPiglin _ -> CardHelpers.receiveCard(player, CardType.ZOMBIFIED_PIGLIN);
@@ -150,6 +152,9 @@ public class CardLootEvents
                     || path.startsWith("archaeology/") || key.equals(BuiltInLootTables.SPAWNER_TRIAL_CHAMBER_CONSUMABLES)
                     || key.equals(BuiltInLootTables.SPAWNER_OMINOUS_TRIAL_CHAMBER_CONSUMABLES) || key.equals(BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS))) {
                 tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.LUCKY));
+            }
+            if (key.equals(BuiltInLootTables.END_CITY_TREASURE)) {
+                tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.SHULKER));
             }
             if (key.equals(BuiltInLootTables.BURIED_TREASURE)) {
                 tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.INVENTORY));

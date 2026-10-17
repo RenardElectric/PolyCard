@@ -147,6 +147,18 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.EPIC, 0.006f, true, "Phantoms do not target you")
             .addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "Phantoms do not spawn because of you")
             .build()),
+    ENDERMITE(CardDefinition.builder("endermite", "killing an endermite", CardGroup.HOSTILE, EndermiteEffects::new)
+            .addRarity(RarityLevel.COMMON, 0.25f, false, "Throw ender pearls " + probToStr(EndermiteEffects.THROW_POWER_MULTIPLIER - 1) + "% further")
+            .addRarity(RarityLevel.UNCOMMON, 0.1f, false, "Speed " + (EndermiteEffects.SPEED_EFFECT_AMPLIFIER + 1) + " for " + EndermiteEffects.SPEED_EFFECT_DURATION / 20 + "s when an ender pearl lands")
+            .addRarity(RarityLevel.RARE, 0.03f, false, "Teleporting removes a negative effect (" + EndermiteEffects.CLEANSE_COOLDOWN / 20 + "s cooldown)")
+            .addRarity(RarityLevel.EPIC, 0.006f, true, "When hit on low health, get teleported up to " + EndermiteEffects.ESCAPE_TELEPORT_RANGE + " blocks away (" + EndermiteEffects.ESCAPE_COOLDOWN / 20 + "s cooldown)")
+            .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "After an ender pearl lands, press sneak twice quickly within " + EndermiteEffects.RETURN_WINDOW_DURATION / 20 + "s to teleport back")
+            .build()),
+    SHULKER(CardDefinition.builder("shulker", "looting an end city", CardGroup.HOSTILE, ShulkerEffects::new)
+            .addRarity(RarityLevel.RARE, 0.28f, false, "Gain " + decimalFormat(ShulkerEffects.STILL_ARMOR) + " armor and " + decimalFormat(ShulkerEffects.STILL_ARMOR_TOUGHNESS) + " armor toughness when standing still")
+            .addRarity(RarityLevel.EPIC, 0.08f, true, probToStr(ShulkerEffects.LEVITATION_ON_HIT_PROBABILITY) + "% chance to apply " + ShulkerEffects.LEVITATION_DURATION / 20 + "s of levitation " + (ShulkerEffects.LEVITATION_AMPLIFIER + 1) + " on hit")
+            .addRarity(RarityLevel.LEGENDARY, 0.015f, true, "Open shulker boxes without placing them: use one in hand, or right-click it in your inventory")
+            .build()),
 
     // Misc
 

@@ -101,6 +101,7 @@ public final class AcquisitionGameTests {
         var events = new CardLootEvents();
         var expected = new LinkedHashMap<EntityType<?>, CardType>();
         expected.put(EntityTypes.ENDERMAN, CardType.ENDERMAN);
+        expected.put(EntityTypes.ENDERMITE, CardType.ENDERMITE);
         expected.put(EntityTypes.SQUID, CardType.SQUID);
         expected.put(EntityTypes.PIGLIN, CardType.PIGLIN);
         expected.put(EntityTypes.ZOMBIFIED_PIGLIN, CardType.ZOMBIFIED_PIGLIN);
@@ -189,6 +190,8 @@ public final class AcquisitionGameTests {
                 "Bastion treasure must receive Nether and general Lucky pools");
         helper.assertTrue(injectedPoolCount(helper, events, BuiltInLootTables.STRONGHOLD_LIBRARY) == 2,
                 "Stronghold library must receive Spectator and general Lucky pools");
+        helper.assertTrue(injectedPoolCount(helper, events, BuiltInLootTables.END_CITY_TREASURE) == 2,
+                "End city treasure must receive Shulker and general Lucky pools");
         helper.assertTrue(LootHelpers.lootPoolFromCardType(CardType.TOTEM).build().entries.size()
                         == CardType.TOTEM.getRarityDistribution().weightedOutcomes().size(),
                 "A generated card loot pool must contain every weighted rarity and no-card outcome");
