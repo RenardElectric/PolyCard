@@ -147,6 +147,13 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.EPIC, 0.006f, true, "Phantoms do not target you")
             .addRarity(RarityLevel.LEGENDARY, 0.0015f, true, "Phantoms do not spawn because of you")
             .build()),
+    ENDERMITE(CardDefinition.builder("endermite", "killing an endermite", CardGroup.HOSTILE, EndermiteEffects::new)
+            .addRarity(RarityLevel.COMMON, 0.25f, false, "Throw ender pearls " + probToStr(EndermiteEffects.THROW_POWER_MULTIPLIER - 1) + "% further")
+            .addRarity(RarityLevel.UNCOMMON, 0.1f, false, "Speed " + (EndermiteEffects.SPEED_EFFECT_AMPLIFIER + 1) + " for " + EndermiteEffects.SPEED_EFFECT_DURATION / 20 + "s when an ender pearl lands")
+            .addRarity(RarityLevel.RARE, 0.03f, false, "Teleporting removes a negative effect (" + EndermiteEffects.CLEANSE_COOLDOWN / 20 + "s cooldown)")
+            .addRarity(RarityLevel.EPIC, 0.006f, true, "When hit on low health, get teleported up to " + EndermiteEffects.ESCAPE_TELEPORT_RANGE + " blocks away (" + EndermiteEffects.ESCAPE_COOLDOWN / 20 + "s cooldown)")
+            .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "After an ender pearl lands, press sneak twice quickly within " + EndermiteEffects.RETURN_WINDOW_DURATION / 20 + "s to teleport back")
+            .build()),
 
     // Misc
 

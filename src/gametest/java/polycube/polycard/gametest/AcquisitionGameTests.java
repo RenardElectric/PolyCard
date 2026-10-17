@@ -101,6 +101,7 @@ public final class AcquisitionGameTests {
         var events = new CardLootEvents();
         var expected = new LinkedHashMap<EntityType<?>, CardType>();
         expected.put(EntityTypes.ENDERMAN, CardType.ENDERMAN);
+        expected.put(EntityTypes.ENDERMITE, CardType.ENDERMITE);
         expected.put(EntityTypes.SQUID, CardType.SQUID);
         expected.put(EntityTypes.PIGLIN, CardType.PIGLIN);
         expected.put(EntityTypes.ZOMBIFIED_PIGLIN, CardType.ZOMBIFIED_PIGLIN);

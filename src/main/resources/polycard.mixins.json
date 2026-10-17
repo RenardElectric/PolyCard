@@ -7,6 +7,7 @@
     "server.BredAnimalsTriggerMixin",
     "server.ConsumeItemTriggerMixin",
     "server.ConversionTypeMixin",
+    "server.EnderpearlItemMixin",
     "server.ItemStackMixin",
     "server.KilledTriggerMixin",
     "server.LivingEntityMixin",
@@ -19,7 +20,9 @@
     "server.ServerPlayerMixin",
     "server.SummonedEntityTriggerMixin",
     "server.TameAnimalTriggerMixin",
-    "server.TargetingConditionsMixin"
+    "server.TargetingConditionsMixin",
+    "server.TeleportRandomlyConsumeEffectMixin",
+    "server.ThrownEnderpearlMixin"
   ],
   "client": [
     "client.AdvancementMixin",

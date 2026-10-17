@@ -30,6 +30,8 @@ public class EventHandler {
             of(ExplosionKnockbackEventCallback.class, ExplosionKnockbackEventCallback.EVENT),
             of(PlayerKillEventCallback.class, PlayerKillEventCallback.EVENT),
             of(ProjectileOnHitEventCallback.class, ProjectileOnHitEventCallback.EVENT),
+            of(EnderPearlThrowEventCallback.class, EnderPearlThrowEventCallback.EVENT),
+            of(PlayerTeleportEventCallback.class, PlayerTeleportEventCallback.EVENT),
             of(ServerLivingEntityEvents.AllowDeath.class, ServerLivingEntityEvents.ALLOW_DEATH),
             of(ServerLivingEntityEvents.AfterDeath.class, ServerLivingEntityEvents.AFTER_DEATH),
             of(ServerLivingEntityEvents.AfterDamage.class, ServerLivingEntityEvents.AFTER_DAMAGE),
