@@ -35,7 +35,7 @@ loot into a collectible-card progression system.
 
 | Functionality                 | What it means in-game                                                                                                               |
 |-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| **Collect 24 card families**  | Earn themed cards by breeding, taming, fighting, summoning and exploring structures.                                                |
+| **Collect 31 card families**  | Earn themed cards by breeding, taming, fighting, summoning and exploring structures.                                                |
 | **Climb five rarity tiers**   | Cards range from Common to Legendary; every supported tier gets an independent roll and the highest success wins.                   |
 | **Unlock stronger powers**    | A higher-rarity card includes its own effect and the effects of its lower supported rarities.                                       |
 | **Build a five-card loadout** | Right-click a card to equip it or manage all five slots through an inventory-style GUI.                                             |
@@ -87,7 +87,7 @@ Follow [Installing PolyCard](#installing-polycard).
 |-------------|---------------------------------------------------------------------------------------------------|
 | **Passive** | `cow`, `squid`, `chicken`, `bat`, `horse`, `turtle`                                               |
 | **Neutral** | `iron_golem`, `enderman`, `piglin`, `zombified_piglin`, `bee`, `wolf`, `goat`                     |
-| **Hostile** | `ender_dragon`, `wither`, `zombie`, `creeper`, `elder_werewolf`, `alpha_werewolf`, `phantom`      |
+| **Hostile** | `ender_dragon`, `wither`, `zombie`, `creeper`, `elder_werewolf`, `alpha_werewolf`, `phantom`, `endermite` |
 | **Misc**    | `inventory`, `life`, `totem`, `lucky`, `nether`, `spectator`, `farmer`, `miner`, `random`, `loot` |
 
 Card types do not all begin at Common or support every rarity. The in-game info command is the
