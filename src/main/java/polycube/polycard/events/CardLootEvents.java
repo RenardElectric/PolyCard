@@ -153,6 +153,9 @@ public class CardLootEvents
                     || key.equals(BuiltInLootTables.SPAWNER_OMINOUS_TRIAL_CHAMBER_CONSUMABLES) || key.equals(BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS))) {
                 tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.LUCKY));
             }
+            if (key.equals(BuiltInLootTables.END_CITY_TREASURE)) {
+                tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.SHULKER));
+            }
             if (key.equals(BuiltInLootTables.BURIED_TREASURE)) {
                 tableBuilder.withPool(LootHelpers.lootPoolFromCardType(CardType.INVENTORY));
             }

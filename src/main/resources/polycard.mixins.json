@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "server.AbstractBedBlockMixin",
+    "server.AbstractContainerMenuMixin",
     "server.BredAnimalsTriggerMixin",
     "server.ConsumeItemTriggerMixin",
     "server.ConversionTypeMixin",

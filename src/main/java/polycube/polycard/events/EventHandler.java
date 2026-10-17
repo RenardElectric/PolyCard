@@ -42,6 +42,7 @@ public class EventHandler {
             of(ItemDurabilityChangeEventCallback.class, ItemDurabilityChangeEventCallback.EVENT),
             of(FallFlyingGliderWearEventCallback.class, FallFlyingGliderWearEventCallback.EVENT),
             of(ItemUseEventCallback.class, ItemUseEventCallback.EVENT),
+            of(ContainerClickEventCallback.class, ContainerClickEventCallback.EVENT),
             of(BlockEvents.UseItemOnCallback.class, BlockEvents.USE_ITEM_ON),
             of(PlayerBlockBreakEvents.After.class, PlayerBlockBreakEvents.AFTER),
 

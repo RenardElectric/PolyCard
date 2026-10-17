@@ -154,6 +154,11 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.EPIC, 0.006f, true, "When hit on low health, get teleported up to " + EndermiteEffects.ESCAPE_TELEPORT_RANGE + " blocks away (" + EndermiteEffects.ESCAPE_COOLDOWN / 20 + "s cooldown)")
             .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "After an ender pearl lands, press sneak twice quickly within " + EndermiteEffects.RETURN_WINDOW_DURATION / 20 + "s to teleport back")
             .build()),
+    SHULKER(CardDefinition.builder("shulker", "looting an end city", CardGroup.HOSTILE, ShulkerEffects::new)
+            .addRarity(RarityLevel.RARE, 0.28f, false, "Gain " + decimalFormat(ShulkerEffects.STILL_ARMOR) + " armor and " + decimalFormat(ShulkerEffects.STILL_ARMOR_TOUGHNESS) + " armor toughness when standing still")
+            .addRarity(RarityLevel.EPIC, 0.08f, true, probToStr(ShulkerEffects.LEVITATION_ON_HIT_PROBABILITY) + "% chance to apply " + ShulkerEffects.LEVITATION_DURATION / 20 + "s of levitation " + (ShulkerEffects.LEVITATION_AMPLIFIER + 1) + " on hit")
+            .addRarity(RarityLevel.LEGENDARY, 0.015f, true, "Open shulker boxes without placing them: use one in hand, or right-click it in your inventory")
+            .build()),
 
     // Misc
 
