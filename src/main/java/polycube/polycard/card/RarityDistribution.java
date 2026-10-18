@@ -54,6 +54,7 @@ public final class RarityDistribution {
     }
 
     /// Validates that the rarity list is non-empty, contiguous, and has valid probabilities.
+    /// A zero probability disables that tier's drops and is ignored by the non-increasing rule.
     private static void checkRarities(List<Rarity> rarities) {
         if (rarities.isEmpty()) {
             throw new IllegalArgumentException("A rarity distribution must contain at least one rarity");
@@ -65,9 +66,12 @@ public final class RarityDistribution {
                 throw new IllegalArgumentException("Rarity tiers must be contiguous from the minimum rarity");
             }
             if (!Float.isFinite(rarity.probability())
-                    || rarity.probability() <= 0.0F
+                    || rarity.probability() < 0.0F
                     || rarity.probability() > 1.0F) {
-                throw new IllegalArgumentException("Rarity probability must be finite and in (0, 1]: " + rarity);
+                throw new IllegalArgumentException("Rarity probability must be finite and in [0, 1]: " + rarity);
+            }
+            if (rarity.probability() == 0.0F) {
+                continue;
             }
             if (rarity.probability() > previousProbability) {
                 throw new IllegalArgumentException("Rarity probabilities must be non-increasing");

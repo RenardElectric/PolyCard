@@ -185,12 +185,33 @@ These commands use Minecraft's **Gamemasters** permission level. All arguments p
 
 ### Data and configuration
 
-- PolyCard currently has **no user-editable configuration file**.
+- Card drop rates can be changed in `config/polycard.json` (see [Drop rates](#drop-rates)).
 - Equipped-card data is saved inside the world as Minecraft `SavedData`, keyed by player UUID.
 - Invalid or over-limit stored equipment is validated and repaired when loaded.
 - Cooldowns, scheduled tasks and temporary effect state are not persisted across server restarts.
 
 Back up the world as usual before removing the mod or moving a save between incompatible versions.
+
+### Drop rates
+
+On first start, PolyCard writes `config/polycard.json` with the roll chance of every card rarity:
+
+```json
+{
+  "version": 1,
+  "drop_rates": {
+    "shulker": { "rare": 0.28, "epic": 0.08, "legendary": 0.015 }
+  }
+}
+```
+
+- Each value is the independent roll chance of that rarity, between `0` and `1` (see [Rarity system](#rarity-system)).
+  `0` stops that rarity from dropping. Rarer tiers cannot have a higher chance than more common ones.
+- Only rarities a card already has can be changed; tiers cannot be added or removed.
+- Run `/reload` to apply changes to both mob drops and chest loot without restarting.
+- A card with an invalid entry keeps all its default rates, and a file that is not valid JSON keeps every default.
+  Each problem is logged as a warning.
+- Cards and rarities missing from the file, for example after updating PolyCard, are added with their defaults.
 
 ---
 

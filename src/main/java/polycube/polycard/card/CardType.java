@@ -7,6 +7,7 @@ import polycube.polycard.cardEffects.hostile.*;
 import polycube.polycard.cardEffects.misc.*;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
+import polycube.polycard.config.DropRatesConfig;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
@@ -241,9 +242,9 @@ public enum CardType implements StringRepresentable {
         return definition().minRarityLevel();
     }
 
-    /// Returns configuration for a supported rarity level.
+    /// Returns configuration for a supported rarity level, with its configured drop rate.
     public Optional<Rarity> getRarity(RarityLevel rarityLevel) {
-        return definition().rarity(rarityLevel);
+        return getRarities().stream().filter(rarity -> rarity.rarityLevel() == rarityLevel).findFirst();
     }
 
     /// Returns whether this card type can exist at the given rarity.
@@ -251,14 +252,14 @@ public enum CardType implements StringRepresentable {
         return definition().supports(rarityLevel);
     }
 
-    /// Returns all rarity tiers supported by this card type, in enum-rank order.
+    /// Returns all rarity tiers supported by this card type, in enum-rank order, with their configured drop rates.
     public List<Rarity> getRarities() {
-        return definition().raritiesList();
+        return getRarityDistribution().rarities();
     }
 
-    /// Returns the validated rarity-roll distribution for this card type.
+    /// Returns the validated rarity-roll distribution for this card type, as overridden by the drop rates config.
     public RarityDistribution getRarityDistribution() {
-        return definition().rarityDistribution();
+        return DropRatesConfig.distribution(this);
     }
 
     /// Returns the player-facing acquisition condition.

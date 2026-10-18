@@ -1,6 +1,7 @@
 package polycube.polycard.gametest;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.component.DataComponents;
@@ -12,6 +13,7 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.card.Rarity;
 import polycube.polycard.card.RarityDistribution;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.config.DropRatesConfig;
 import polycube.polycard.data.Equipment;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.data.Storage;
@@ -107,6 +109,66 @@ public final class CardDomainGameTests {
         assertIllegalArgument(helper, () -> RarityDistribution.of(List.of(
                 new Rarity(RarityLevel.COMMON, Float.NaN, false, "common")
         )), "non-finite probabilities");
+        helper.succeed();
+    }
+
+    @GameTest
+    public void zeroProbabilityDisablesOnlyThatTier(GameTestHelper helper) {
+        var distribution = RarityDistribution.of(List.of(
+                new Rarity(RarityLevel.RARE, 0.0F, false, "rare"),
+                new Rarity(RarityLevel.EPIC, 0.5F, false, "epic")
+        ));
+        helper.assertTrue(distribution.weightedOutcomes().stream()
+                        .noneMatch(outcome -> outcome.rarityLevel().equals(java.util.Optional.of(RarityLevel.RARE))),
+                "A zero-probability tier must never be rolled");
+        assertIllegalArgument(helper, () -> RarityDistribution.of(List.of(
+                new Rarity(RarityLevel.COMMON, -0.1F, false, "common")
+        )), "negative probabilities");
+        helper.succeed();
+    }
+
+    @GameTest
+    public void dropRatesConfigFillsDefaultsAndAppliesValidOverrides(GameTestHelper helper) {
+        var empty = new JsonObject();
+        var defaults = DropRatesConfig.parse(empty);
+        helper.assertTrue(defaults.addedDefaults() && defaults.warnings().isEmpty() && defaults.distributions().isEmpty(),
+                "An empty config must be filled with defaults without warnings or overrides");
+        var dropRates = empty.getAsJsonObject("drop_rates");
+        for (var cardType : CardType.values()) {
+            var cardRates = dropRates.getAsJsonObject(cardType.getSerializedName());
+            helper.assertTrue(cardRates != null && cardRates.size() == cardType.definition().rarityDistribution().rarities().size(),
+                    cardType + " must be written with every supported rarity");
+        }
+
+        dropRates.getAsJsonObject("shulker").addProperty("legendary", 0.01);
+        var overridden = DropRatesConfig.parse(empty);
+        var shulker = overridden.distributions().get(CardType.SHULKER);
+        helper.assertTrue(!overridden.addedDefaults() && overridden.warnings().isEmpty() && shulker != null
+                        && shulker.rarities().getLast().probability() == 0.01F
+                        && shulker.rarities().getLast().description().equals(CardType.SHULKER.definition().rarityDistribution().rarities().getLast().description()),
+                "A valid override must change only the configured probability");
+        helper.succeed();
+    }
+
+    @GameTest
+    public void dropRatesConfigKeepsDefaultsForInvalidEntries(GameTestHelper helper) {
+        var root = new JsonObject();
+        DropRatesConfig.parse(root);
+        var dropRates = root.getAsJsonObject("drop_rates");
+        dropRates.getAsJsonObject("shulker").addProperty("legendary", 0.9);
+        dropRates.getAsJsonObject("endermite").addProperty("common", "lots");
+        dropRates.getAsJsonObject("cow").addProperty("mythic", 0.5);
+        dropRates.add("dragonfly", new JsonObject());
+
+        var result = DropRatesConfig.parse(root);
+        helper.assertTrue(!result.distributions().containsKey(CardType.SHULKER),
+                "Increasing probabilities must keep the card's defaults");
+        helper.assertTrue(!result.distributions().containsKey(CardType.ENDERMITE),
+                "A non-number value must keep the card's defaults");
+        helper.assertTrue(result.distributions().containsKey(CardType.COW),
+                "An unknown rarity must not invalidate the card's other values");
+        helper.assertTrue(result.warnings().size() == 4,
+                "Each invalid entry must produce one warning, got " + result.warnings());
         helper.succeed();
     }
 
