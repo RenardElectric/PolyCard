@@ -198,18 +198,18 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Click a crop with a hoe to harvest it and replant it (combines with miner card 3x3)")
             .build()),
     MINER(CardDefinition.builder("miner", "minning natural blocks", CardGroup.MISC, MinerEffects::new)
-            .addRarity(RarityLevel.EPIC, 0.002f, true, "Vein mine up to " + MinerEffects.VEIN_MINE_BLOCK_COUNT + " adjacent blocks of the same type with the correct tool (ores, logs, etc.)")
-            .addRarity(RarityLevel.LEGENDARY, 0.0004f, true, "Mine a 3x3 area of blocks of the same type with the correct tool (stones and other natural blocks)")
+            .addRarity(RarityLevel.EPIC, 0.0002f, true, "Vein mine up to " + MinerEffects.VEIN_MINE_BLOCK_COUNT + " adjacent blocks of the same type with the correct tool (ores, logs, etc.)")
+            .addRarity(RarityLevel.LEGENDARY, 0.00004f, true, "Mine a 3x3 area of blocks of the same type with the correct tool (stones and other natural blocks)")
             .build()),
     LOOT(CardDefinition.builder("loot", "killing an entity", CardGroup.MISC, LootEffects::new)
-            .addRarity(RarityLevel.COMMON, 0.05f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
-            .addRarity(RarityLevel.UNCOMMON, 0.008f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
+            .addRarity(RarityLevel.COMMON, 0.01f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
+            .addRarity(RarityLevel.UNCOMMON, 0.005f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .addRarity(RarityLevel.RARE, 0.0015f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .addRarity(RarityLevel.EPIC, 0.0002f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .addRarity(RarityLevel.LEGENDARY, 0.00002f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .build()),
     RANDOM(CardDefinition.builder("random", "acquiring a card (this card replaces the card that was rolled)", CardGroup.MISC, RandomEffects::new)
-            .addRarity(RarityLevel.LEGENDARY, 0.02f, true, "Gives you a random effect or attribut each "+ decimalFormat(RandomEffects.TICK_INTERVAL/1200.0) + " minutes")
+            .addRarity(RarityLevel.LEGENDARY, 0.002f, true, "Gives you a random effect or attribut each "+ decimalFormat(RandomEffects.TICK_INTERVAL/1200.0) + " minutes")
             .build());
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
