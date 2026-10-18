@@ -198,7 +198,6 @@ On first start, PolyCard writes `config/polycard.json` with the roll chance of e
 
 ```json
 {
-  "version": 1,
   "drop_rates": {
     "shulker": { "rare": 0.28, "epic": 0.08, "legendary": 0.015 }
   }
@@ -206,12 +205,16 @@ On first start, PolyCard writes `config/polycard.json` with the roll chance of e
 ```
 
 - Each value is the independent roll chance of that rarity, between `0` and `1` (see [Rarity system](#rarity-system)).
-  `0` stops that rarity from dropping. Rarer tiers cannot have a higher chance than more common ones.
+  `0` stops that rarity from dropping. Among enabled tiers, rarer tiers cannot have a higher chance than more common ones.
 - Only rarities a card already has can be changed; tiers cannot be added or removed.
-- Run `/reload` to apply changes to both mob drops and chest loot without restarting.
-- A card with an invalid entry keeps all its default rates, and a file that is not valid JSON keeps every default.
-  Each problem is logged as a warning.
-- Cards and rarities missing from the file, for example after updating PolyCard, are added with their defaults.
+- Run `/reload` to apply changes to both mob drops and chest loot without restarting. Rates become active together
+  after a successful data-pack reload; a failed reload retains the previous rates and loot tables.
+- The entire file must be valid before new rates become active. Invalid probabilities, unsupported card/rarity IDs,
+  duplicate aliases, malformed JSON, and read failures retain the last valid configuration in memory.
+  If no valid configuration has loaded since starting the game, code defaults are used. Problems are logged as warnings.
+- Card and rarity keys are case-insensitive. Duplicate aliases such as `cow` and `COW` are invalid.
+- Missing cards and rarities inherit their code defaults, including cards added by a mod update.
+  Existing files are left as written; PolyCard only creates a file when none exists.
 
 ---
 

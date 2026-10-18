@@ -244,7 +244,7 @@ public enum CardType implements StringRepresentable {
 
     /// Returns configuration for a supported rarity level, with its configured drop rate.
     public Optional<Rarity> getRarity(RarityLevel rarityLevel) {
-        return getRarities().stream().filter(rarity -> rarity.rarityLevel() == rarityLevel).findFirst();
+        return getRarityDistribution().rarity(rarityLevel);
     }
 
     /// Returns whether this card type can exist at the given rarity.

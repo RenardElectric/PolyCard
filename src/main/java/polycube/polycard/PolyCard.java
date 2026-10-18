@@ -42,8 +42,9 @@ public class PolyCard implements ModInitializer {
 
         var dropRatesPath = FabricLoader.getInstance().getConfigDir().resolve(DropRatesConfig.FILE_NAME);
         DropRatesConfig.load(dropRatesPath);
-        // Chest loot pools are rebuilt during a data pack reload, so /reload applies both kinds of drop.
-        ServerLifecycleEvents.START_DATA_PACK_RELOAD.register((server, resourceManager) -> DropRatesConfig.load(dropRatesPath));
+        // Loot builders see staged rates; gameplay switches only when those tables become active.
+        ServerLifecycleEvents.START_DATA_PACK_RELOAD.register((_, _) -> DropRatesConfig.beginReload(dropRatesPath));
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((_, _, success) -> DropRatesConfig.finishReload(success));
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             var levelName = server.getWorldData().getLevelName();

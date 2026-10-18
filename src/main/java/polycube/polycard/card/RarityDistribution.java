@@ -1,56 +1,62 @@
 package polycube.polycard.card;
 
+import com.mojang.serialization.DataResult;
 import net.minecraft.server.level.ServerPlayer;
 import org.jspecify.annotations.Nullable;
 import polycube.polycard.events.callBacks.CardProbabilityOverrideCallback;
-import polycube.polycard.events.callBacks.EquippedRarityLevelOverrideCallback;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
 /// Immutable, validated probability distribution for one card type.
 ///
 /// Each rarity uses an independent roll. A rarity replaces any earlier selection
-/// when its roll is less than its configured probability. This module derives
-/// the equivalent mutually exclusive loot-table weights.
+/// when its roll is less than its configured probability.
 public final class RarityDistribution {
     private final List<Rarity> rarities;
-    private final List<WeightedOutcome> weightedOutcomes;
+    private final EnumMap<RarityLevel, Rarity> byRarity;
 
-    private RarityDistribution(List<Rarity> rarities, List<WeightedOutcome> weightedOutcomes) {
+    private RarityDistribution(List<Rarity> rarities) {
         this.rarities = rarities;
-        this.weightedOutcomes = weightedOutcomes;
+        byRarity = new EnumMap<>(RarityLevel.class);
+        rarities.forEach(rarity -> byRarity.put(rarity.rarityLevel(), rarity));
     }
 
-    /// Validates the configured thresholds and derives equivalent integer weights.
+    /// Creates an immutable distribution, rejecting invalid definitions immediately.
     public static RarityDistribution of(List<Rarity> rarities) {
-        checkRarities(rarities);
+        return create(rarities).getOrThrow(IllegalArgumentException::new);
+    }
 
-        var chances = new ArrayList<BigDecimal>();
-        var noLaterRarity = BigDecimal.ONE;
-        for (int i = rarities.size() - 1; i >= 0; i--) {
-            var probability = decimal(rarities.get(i).probability());
-            chances.addFirst(probability.multiply(noLaterRarity));
-            noLaterRarity = noLaterRarity.multiply(BigDecimal.ONE.subtract(probability));
+    /// Reports invalid user-supplied probabilities through the codec result interface.
+    public static DataResult<RarityDistribution> create(List<Rarity> rarities) {
+        var snapshot = List.copyOf(rarities);
+        try {
+            checkRarities(snapshot);
+            return DataResult.success(new RarityDistribution(snapshot));
+        } catch (IllegalArgumentException exception) {
+            return DataResult.error(exception::getMessage);
         }
-        chances.add(noLaterRarity);
+    }
 
-        int scale = Math.min(9, chances.stream().mapToInt(BigDecimal::scale).max().orElseThrow());
-        var weights = chances.stream()
-                .mapToInt(chance -> chance.movePointRight(scale).setScale(0, RoundingMode.HALF_UP).intValueExact())
-                .toArray();
-
-        var outcomes = new ArrayList<WeightedOutcome>();
-        for (int i = 0; i < rarities.size(); i++) {
-            addPositiveOutcome(outcomes, rarities.get(i).rarityLevel(), weights[i]);
+    /// Overlays probabilities on a card's supported tiers without changing its effects.
+    public static DataResult<RarityDistribution> withProbabilities(CardType type, Map<RarityLevel, Float> probabilities) {
+        for (var rarity : probabilities.keySet()) {
+            if (!type.hasRarity(rarity)) {
+                return DataResult.error(() -> type.getSerializedName() + " does not support " + rarity.getSerializedName());
+            }
         }
-        addPositiveOutcome(outcomes, null, weights[weights.length - 1]);
-
-        return new RarityDistribution(rarities, List.copyOf(outcomes));
+        return create(type.definition().raritiesList().stream()
+                .map(rarity -> new Rarity(
+                        rarity.rarityLevel(),
+                        probabilities.getOrDefault(rarity.rarityLevel(), rarity.probability()),
+                        rarity.isEnchanted(),
+                        rarity.description()
+                ))
+                .toList());
     }
 
     /// Validates that the rarity list is non-empty, contiguous, and has valid probabilities.
@@ -98,20 +104,13 @@ public final class RarityDistribution {
         return rarities;
     }
 
-    public List<WeightedOutcome> weightedOutcomes() {
-        return weightedOutcomes;
+    public Optional<Rarity> rarity(RarityLevel rarityLevel) {
+        return Optional.ofNullable(byRarity.get(rarityLevel));
     }
 
-    private static BigDecimal decimal(float probability) {
-        return new BigDecimal(Float.toString(probability)).stripTrailingZeros();
+    public Map<RarityLevel, Float> probabilities() {
+        var probabilities = new EnumMap<RarityLevel, Float>(RarityLevel.class);
+        rarities.forEach(rarity -> probabilities.put(rarity.rarityLevel(), rarity.probability()));
+        return Collections.unmodifiableMap(probabilities);
     }
-
-    private static void addPositiveOutcome(List<WeightedOutcome> outcomes, @Nullable RarityLevel rarityLevel, int weight) {
-        if (weight > 0) {
-            outcomes.add(new WeightedOutcome(Optional.ofNullable(rarityLevel), weight));
-        }
-    }
-
-    /// One mutually exclusive loot outcome; an empty rarity means no card drops.
-    public record WeightedOutcome(Optional<RarityLevel> rarityLevel, int weight) {}
 }

@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import polycube.polycard.card.Card;
@@ -192,9 +193,9 @@ public final class AcquisitionGameTests {
                 "Stronghold library must receive Spectator and general Lucky pools");
         helper.assertTrue(injectedPoolCount(helper, events, BuiltInLootTables.END_CITY_TREASURE) == 2,
                 "End city treasure must receive Shulker and general Lucky pools");
-        helper.assertTrue(LootHelpers.lootPoolFromCardType(CardType.TOTEM).build().entries.size()
-                        == CardType.TOTEM.getRarityDistribution().weightedOutcomes().size(),
-                "A generated card loot pool must contain every weighted rarity and no-card outcome");
+        var entries = LootHelpers.lootPoolFromCardType(CardType.TOTEM).build().entries;
+        helper.assertTrue(entries.size() == 1 && entries.getFirst() instanceof AlternativesEntry,
+                "A generated card loot pool must use one alternatives entry for its independent rarity rolls");
         helper.succeed();
     }
 
