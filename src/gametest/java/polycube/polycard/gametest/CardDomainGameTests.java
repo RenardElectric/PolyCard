@@ -1,6 +1,7 @@
 package polycube.polycard.gametest;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.component.DataComponents;
@@ -12,6 +13,7 @@ import polycube.polycard.card.CardType;
 import polycube.polycard.card.Rarity;
 import polycube.polycard.card.RarityDistribution;
 import polycube.polycard.card.RarityLevel;
+import polycube.polycard.config.DropRateSettings;
 import polycube.polycard.data.Equipment;
 import polycube.polycard.data.PlayerData;
 import polycube.polycard.data.Storage;
@@ -73,22 +75,18 @@ public final class CardDomainGameTests {
     }
 
     @GameTest
-    public void lootWeightsMatchIndependentRollProbabilities(GameTestHelper helper) {
+    public void rarityRollsMatchIndependentProbabilities(GameTestHelper helper) {
         var distribution = RarityDistribution.of(List.of(
                 new Rarity(RarityLevel.COMMON, 0.5F, false, "common"),
                 new Rarity(RarityLevel.UNCOMMON, 0.25F, false, "uncommon")
         ));
-        var outcomes = distribution.weightedOutcomes();
-
-        helper.assertTrue(outcomes.size() == 3, "The distribution must include common, uncommon, and no-card outcomes");
-        helper.assertTrue(outcomes.get(0).rarityLevel().orElseThrow() == RarityLevel.COMMON
-                        && outcomes.get(0).weight() == 375,
+        helper.assertTrue(distribution.select(CardType.CHICKEN, null, new SequenceRandom(0.4F, 0.3F))
+                        .filter(rarity -> rarity == RarityLevel.COMMON).isPresent(),
                 "Common must represent common success followed by uncommon failure");
-        helper.assertTrue(outcomes.get(1).rarityLevel().orElseThrow() == RarityLevel.UNCOMMON
-                        && outcomes.get(1).weight() == 250,
-                "Uncommon must retain its independent 25 percent chance");
-        helper.assertTrue(outcomes.get(2).rarityLevel().isEmpty()
-                        && outcomes.get(2).weight() == 375,
+        helper.assertTrue(distribution.select(CardType.CHICKEN, null, new SequenceRandom(0.4F, 0.2F))
+                        .filter(rarity -> rarity == RarityLevel.UNCOMMON).isPresent(),
+                "Uncommon success must replace an earlier common success");
+        helper.assertTrue(distribution.select(CardType.CHICKEN, null, new SequenceRandom(0.7F, 0.3F)).isEmpty(),
                 "No-card must represent both independent rolls failing");
         helper.succeed();
     }
@@ -107,6 +105,65 @@ public final class CardDomainGameTests {
         assertIllegalArgument(helper, () -> RarityDistribution.of(List.of(
                 new Rarity(RarityLevel.COMMON, Float.NaN, false, "common")
         )), "non-finite probabilities");
+        helper.succeed();
+    }
+
+    @GameTest
+    public void zeroProbabilityDisablesOnlyThatTier(GameTestHelper helper) {
+        var distribution = RarityDistribution.of(List.of(
+                new Rarity(RarityLevel.RARE, 0.0F, false, "rare"),
+                new Rarity(RarityLevel.EPIC, 0.5F, false, "epic")
+        ));
+        helper.assertTrue(distribution.select(CardType.SQUID, null, new SequenceRandom(0.0F, 0.9F)).isEmpty(),
+                "A zero-probability tier must never be rolled");
+        assertIllegalArgument(helper, () -> RarityDistribution.of(List.of(
+                new Rarity(RarityLevel.COMMON, -0.1F, false, "common")
+        )), "negative probabilities");
+        helper.succeed();
+    }
+
+    @GameTest
+    public void dropRatesConfigUsesDefaultsAndAppliesValidOverrides(GameTestHelper helper) {
+        var empty = new JsonObject();
+        var defaults = DropRateSettings.CODEC.parse(JsonOps.INSTANCE, empty).getOrThrow();
+        helper.assertTrue(empty.isEmpty() && defaults.distributions().isEmpty(),
+                "An empty config must inherit defaults without mutating its input");
+        var document = DropRateSettings.CODEC.encodeStart(JsonOps.INSTANCE, DropRateSettings.defaults())
+                .getOrThrow().getAsJsonObject();
+        var dropRates = document.getAsJsonObject("drop_rates");
+        for (var cardType : CardType.values()) {
+            var cardRates = dropRates.getAsJsonObject(cardType.getSerializedName());
+            helper.assertTrue(cardRates != null && cardRates.size() == cardType.definition().rarityDistribution().rarities().size(),
+                    cardType + " must be written with every supported rarity");
+        }
+
+        dropRates.getAsJsonObject("shulker").addProperty("legendary", 0.01);
+        var overridden = DropRateSettings.CODEC.parse(JsonOps.INSTANCE, document).getOrThrow();
+        var shulker = overridden.distributions().get(CardType.SHULKER);
+        helper.assertTrue(shulker != null
+                        && shulker.rarities().getLast().probability() == 0.01F
+                        && shulker.rarities().getLast().description().equals(CardType.SHULKER.definition().rarityDistribution().rarities().getLast().description()),
+                "A valid override must change only the configured probability");
+        helper.succeed();
+    }
+
+    @GameTest
+    public void dropRatesConfigRejectsInvalidEntries(GameTestHelper helper) {
+        var root = DropRateSettings.CODEC.encodeStart(JsonOps.INSTANCE, DropRateSettings.defaults())
+                .getOrThrow().getAsJsonObject();
+        var dropRates = root.getAsJsonObject("drop_rates");
+        dropRates.getAsJsonObject("shulker").addProperty("legendary", 0.9);
+        dropRates.getAsJsonObject("endermite").addProperty("common", "lots");
+        dropRates.getAsJsonObject("cow").addProperty("mythic", 0.5);
+        dropRates.add("dragonfly", new JsonObject());
+
+        var result = DropRateSettings.CODEC.parse(JsonOps.INSTANCE, root);
+        helper.assertTrue(result.result().isEmpty() && result.error().isPresent(),
+                "Invalid entries must reject the complete configuration");
+        var message = result.error().orElseThrow().message();
+        helper.assertTrue(message.contains("shulker") && message.contains("endermite")
+                        && message.contains("mythic") && message.contains("dragonfly"),
+                "Diagnostics must identify every invalid entry, got " + message);
         helper.succeed();
     }
 

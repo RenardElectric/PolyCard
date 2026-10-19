@@ -7,6 +7,7 @@ import polycube.polycard.cardEffects.hostile.*;
 import polycube.polycard.cardEffects.misc.*;
 import polycube.polycard.cardEffects.neutral.*;
 import polycube.polycard.cardEffects.passive.*;
+import polycube.polycard.config.DropRatesConfig;
 import polycube.polycard.utils.Helpers;
 
 import java.util.*;
@@ -197,18 +198,18 @@ public enum CardType implements StringRepresentable {
             .addRarity(RarityLevel.LEGENDARY, 0.001f, true, "Click a crop with a hoe to harvest it and replant it (combines with miner card 3x3)")
             .build()),
     MINER(CardDefinition.builder("miner", "minning natural blocks", CardGroup.MISC, MinerEffects::new)
-            .addRarity(RarityLevel.EPIC, 0.002f, true, "Vein mine up to " + MinerEffects.VEIN_MINE_BLOCK_COUNT + " adjacent blocks of the same type with the correct tool (ores, logs, etc.)")
-            .addRarity(RarityLevel.LEGENDARY, 0.0004f, true, "Mine a 3x3 area of blocks of the same type with the correct tool (stones and other natural blocks)")
+            .addRarity(RarityLevel.EPIC, 0.0002f, true, "Vein mine up to " + MinerEffects.VEIN_MINE_BLOCK_COUNT + " adjacent blocks of the same type with the correct tool (ores, logs, etc.)")
+            .addRarity(RarityLevel.LEGENDARY, 0.00004f, true, "Mine a 3x3 area of blocks of the same type with the correct tool (stones and other natural blocks)")
             .build()),
     LOOT(CardDefinition.builder("loot", "killing an entity", CardGroup.MISC, LootEffects::new)
-            .addRarity(RarityLevel.COMMON, 0.05f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
-            .addRarity(RarityLevel.UNCOMMON, 0.008f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
+            .addRarity(RarityLevel.COMMON, 0.01f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
+            .addRarity(RarityLevel.UNCOMMON, 0.005f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .addRarity(RarityLevel.RARE, 0.0015f, false, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .addRarity(RarityLevel.EPIC, 0.0002f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .addRarity(RarityLevel.LEGENDARY, 0.00002f, true, "Multiply the probability fo getting a card by " + LootEffects.PROBABILITY_MULTIPLIER + "x (does not apply to structure loots")
             .build()),
     RANDOM(CardDefinition.builder("random", "acquiring a card (this card replaces the card that was rolled)", CardGroup.MISC, RandomEffects::new)
-            .addRarity(RarityLevel.LEGENDARY, 0.02f, true, "Gives you a random effect or attribut each "+ decimalFormat(RandomEffects.TICK_INTERVAL/1200.0) + " minutes")
+            .addRarity(RarityLevel.LEGENDARY, 0.002f, true, "Gives you a random effect or attribut each "+ decimalFormat(RandomEffects.TICK_INTERVAL/1200.0) + " minutes")
             .build());
 
     public static final Codec<CardType> CODEC = StringRepresentable.fromValues(CardType::values);
@@ -241,9 +242,9 @@ public enum CardType implements StringRepresentable {
         return definition().minRarityLevel();
     }
 
-    /// Returns configuration for a supported rarity level.
+    /// Returns configuration for a supported rarity level, with its configured drop rate.
     public Optional<Rarity> getRarity(RarityLevel rarityLevel) {
-        return definition().rarity(rarityLevel);
+        return getRarityDistribution().rarity(rarityLevel);
     }
 
     /// Returns whether this card type can exist at the given rarity.
@@ -251,14 +252,14 @@ public enum CardType implements StringRepresentable {
         return definition().supports(rarityLevel);
     }
 
-    /// Returns all rarity tiers supported by this card type, in enum-rank order.
+    /// Returns all rarity tiers supported by this card type, in enum-rank order, with their configured drop rates.
     public List<Rarity> getRarities() {
-        return definition().raritiesList();
+        return getRarityDistribution().rarities();
     }
 
-    /// Returns the validated rarity-roll distribution for this card type.
+    /// Returns the validated rarity-roll distribution for this card type, as overridden by the drop rates config.
     public RarityDistribution getRarityDistribution() {
-        return definition().rarityDistribution();
+        return DropRatesConfig.distribution(this);
     }
 
     /// Returns the player-facing acquisition condition.

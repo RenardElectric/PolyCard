@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import org.jspecify.annotations.Nullable;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import polycube.polycard.card.CardType;
 import polycube.polycard.cardEffects.CardEffects;
 import polycube.polycard.commands.*;
+import polycube.polycard.config.DropRatesConfig;
 import polycube.polycard.events.CardItemUseEvent;
 import polycube.polycard.events.CardLootEvents;
 import polycube.polycard.events.callBacks.ItemUseEventCallback;
@@ -37,6 +39,12 @@ public class PolyCard implements ModInitializer {
         LOGGER.info("Initializing PolyCard");
         CardType.registerEffects();
         LOGGER.info("Initialized and validated {} card type(s)", CardType.values().length);
+
+        var dropRatesPath = FabricLoader.getInstance().getConfigDir().resolve(DropRatesConfig.FILE_NAME);
+        DropRatesConfig.load(dropRatesPath);
+        // Loot builders see staged rates; gameplay switches only when those tables become active.
+        ServerLifecycleEvents.START_DATA_PACK_RELOAD.register((_, _) -> DropRatesConfig.beginReload(dropRatesPath));
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((_, _, success) -> DropRatesConfig.finishReload(success));
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             var levelName = server.getWorldData().getLevelName();

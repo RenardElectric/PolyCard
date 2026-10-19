@@ -185,12 +185,36 @@ These commands use Minecraft's **Gamemasters** permission level. All arguments p
 
 ### Data and configuration
 
-- PolyCard currently has **no user-editable configuration file**.
+- Card drop rates can be changed in `config/polycard.json` (see [Drop rates](#drop-rates)).
 - Equipped-card data is saved inside the world as Minecraft `SavedData`, keyed by player UUID.
 - Invalid or over-limit stored equipment is validated and repaired when loaded.
 - Cooldowns, scheduled tasks and temporary effect state are not persisted across server restarts.
 
 Back up the world as usual before removing the mod or moving a save between incompatible versions.
+
+### Drop rates
+
+On first start, PolyCard writes `config/polycard.json` with the roll chance of every card rarity:
+
+```json
+{
+  "drop_rates": {
+    "shulker": { "rare": 0.28, "epic": 0.08, "legendary": 0.015 }
+  }
+}
+```
+
+- Each value is the independent roll chance of that rarity, between `0` and `1` (see [Rarity system](#rarity-system)).
+  `0` stops that rarity from dropping. Among enabled tiers, rarer tiers cannot have a higher chance than more common ones.
+- Only rarities a card already has can be changed; tiers cannot be added or removed.
+- Run `/reload` to apply changes to both mob drops and chest loot without restarting. Rates become active together
+  after a successful data-pack reload; a failed reload retains the previous rates and loot tables.
+- The entire file must be valid before new rates become active. Invalid probabilities, unsupported card/rarity IDs,
+  duplicate aliases, malformed JSON, and read failures retain the last valid configuration in memory.
+  If no valid configuration has loaded since starting the game, code defaults are used. Problems are logged as warnings.
+- Card and rarity keys are case-insensitive. Duplicate aliases such as `cow` and `COW` are invalid.
+- Missing cards and rarities inherit their code defaults, including cards added by a mod update.
+  Existing files are left as written; PolyCard only creates a file when none exists.
 
 ---
 
